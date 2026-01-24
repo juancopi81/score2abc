@@ -7,7 +7,7 @@
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.
-- There are no test or asset directories yet; add them under `tests/` and `assets/` when needed.
+- `tests/` holds pytest-based unit tests.
 
 ## Build, Test, and Development Commands
 - `uv run python main.py ingest dataset dataset/metadata.csv out` runs ingest.
@@ -16,6 +16,8 @@
 - `uv run python main.py export out` writes `out/index.md`.
 - `uv lock` updates the lockfile when dependencies change.
 - `uv sync` installs dependencies from the lockfile.
+- `uv sync --extra test` installs the test dependencies.
+- `uv run pytest` runs the test suite.
 - `uv add <package>` adds a dependency and refreshes the lockfile.
 
 ## Coding Style & Naming Conventions
@@ -25,8 +27,8 @@
 - No formatter or linter is configured yet; if you add one (e.g., Ruff/Black), document it here.
 
 ## Testing Guidelines
-- No tests are present yet. When adding tests, use `tests/` with files named `test_*.py`.
-- Prefer `pytest` conventions (fixtures, asserts) if you introduce a test framework.
+- Tests live in `tests/` with files named `test_*.py`.
+- Use pytest conventions (fixtures, asserts).
 
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits: `<type>: <description>` (scope optional).

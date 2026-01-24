@@ -401,58 +401,59 @@ Per work:
 
 ## 12) Milestones (with checkpoints)
 
-### Milestone 0 — Project skeleton (Day 1)
+### Milestone 0 — Thin End-to-End Slice (baseline flow)
 
-- Repo layout, CLI scaffold, schemas, config, logging.
-  **Done when:** you can run `ingest` and it creates per-work folders + metadata.
+- CLI skeleton (`score2abc ingest/run/qa/export`) wires the steps together
+- `WorkItem` manifest iteration + slugging
+- PDF → image rendering at fixed DPI
+- Minimal staff/system crop (even if crude)
+- Stub `events.json` → ABC generator
+- Render ABC previews (SVG/PNG)
+- Export `out/index.md` catalog with metadata + ABC block
+  **Done when:** a single PDF produces `melody.abc`, `melody_with_chords.abc`, previews, and appears in `out/index.md`.
 
-### Milestone 1 — PDF rendering + preprocessing (Day 2–3)
+### Milestone 1 — Evaluation Harness + Dataset Plumbing
 
-- PDF → images at chosen DPI
-- preprocessing variants saved
-  **Done when:** you can visually confirm improved readability vs raw scan.
+- formalize dataset loader for `dataset/metadata.csv` (validate required fields)
+- run log per work + top-level summary report
+- stage-level `stage.json` artifacts (inputs, params, hashes) for resume/caching
+- define accuracy metrics (note accuracy, chord accuracy, meter validity)
+- small labeled subset format (ground-truth ABC or events)
+- compare vs ground truth report/script
+- tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code
+  **Done when:** an evaluation command produces a numeric report for the dataset.
 
-### Milestone 2 — System segmentation (Day 4–6)
+### Milestone 2 — Accuracy Lifts: Segmentation + Melody + Chords
 
-- detect staff systems and crop them reliably across pages
-- extract chord strip region
-  **Done when:** > 95% systems are correctly cropped on a small sample set.
+- staff/system detection with robust line-spacing estimation
+- improve preprocessing (deskew, contrast, denoise) and save variants
+- integrate Melody Engine A → MusicXML → `events.json`
+- implement musical validation/repair (meter enforcement, quantization)
+- chord OCR extraction + normalization + alignment to measures
+  **Done when:** evaluation improves over M1 baseline and meter validity is 100% after repair.
 
-### Milestone 3 — Melody recognition baseline (Week 2)
+### Milestone 3 — Human-in-the-Loop (HITL) Editing Loop
 
-- integrate OMR Engine A → MusicXML (or equivalent)
-- convert to canonical `events.json`
-- basic ABC export
-  **Done when:** you get usable ABC on clean-ish pages.
+- Streamlit (or equivalent) UI showing: PDF/crop, current ABC, rendered score, metadata
+- optional MIDI playback of rendered ABC
+- editing panel for ABC + chord symbols with measure focus
+- save edits as patches/overrides and revalidate
+- define `review/` bundle outputs and `overrides/patches.json` ingestion path
+  **Done when:** a user can correct a flagged work end-to-end in minutes and the corrections persist.
 
-### Milestone 4 — Chord OCR via VLM + alignment (Week 2)
+### Milestone 4 — QA Scoring + Review Prioritization
 
-- chord strip → chord list + confidence
-- barline detection → measure alignment
-  **Done when:** chords appear in `melody_with_chords.abc` correctly for a sample set.
+- render & compare scoring (visual similarity + heuristic flags)
+- confidence thresholds to mark “needs review”
+- ranked review queue in `out/index.md` or a separate report
+  **Done when:** the system produces a prioritized list of measures/works to review with useful flags.
 
-### Milestone 5 — Musical validation & repair (Week 3)
+### Milestone 5 — Export & Dataset Polish
 
-- meter enforcement, quantization, key consistency
-- comprehensive `report.json`
-  **Done when:** pipeline produces meter-valid ABC for all sample works.
-
-### Milestone 6 — QA render & scoring (Week 3)
-
-- render ABC previews
-- compute similarity + flag uncertain measures
-  **Done when:** you get a ranked list of “needs review” measures per work.
-
-### Milestone 7 — Human review UI (Week 4)
-
-- Streamlit review for flagged measures
-- save patches and re-run validation
-  **Done when:** you can correct a hard work in minutes, not hours.
-
-### Milestone 8 — Batch run + dataset export (Week 4)
-
-- run on full folder, generate `out/index.md`
-  **Done when:** end-to-end run completes with a clean catalog and manageable review workload.
+- finalize output formats and naming conventions
+- ensure ABC exports are consistent and reproducible
+- document dataset packaging and versioning
+  **Done when:** a full dataset run produces clean, versionable outputs without manual cleanup.
 
 ---
 

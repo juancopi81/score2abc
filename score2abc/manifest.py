@@ -19,10 +19,12 @@ def _slugify(value: str) -> str:
         if ch.isalnum():
             cleaned.append(ch)
             previous_hyphen = False
-        else:
-            if not previous_hyphen:
+        elif ch.isspace() or ch in {"-", "_", "/"}:
+            if cleaned and not previous_hyphen:
                 cleaned.append("-")
                 previous_hyphen = True
+        else:
+            continue
     slug = "".join(cleaned).strip("-")
     return slug or "untitled"
 

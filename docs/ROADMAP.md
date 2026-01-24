@@ -24,6 +24,7 @@ Goal: make accuracy measurable on the 10-PDF dataset.
 - [ ] Define accuracy metrics (note accuracy, chord accuracy, meter validity) and how to compute them.
 - [ ] Create a small labeled subset format (ground-truth ABC or events).
 - [ ] Add a “compare vs ground truth” script/report.
+- [ ] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
 
 Done when: you can run an evaluation command that produces a numeric report for the dataset.
 

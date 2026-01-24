@@ -32,6 +32,15 @@ To add a new package:
 uv add <package>
 ```
 
+## Testing
+
+Install test dependencies and run pytest:
+
+```bash
+uv sync --extra test
+uv run pytest
+```
+
 ## External Tools
 
 ### Poppler (required for PDF rendering)
