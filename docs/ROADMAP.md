@@ -5,7 +5,7 @@ This roadmap is milestone-based with checkboxes so progress can be tracked direc
 ## M0 — Thin End-to-End Slice (baseline flow)
 Goal: prove the full path PDF → ABC → preview → export works, even if accuracy is low.
 
-- [ ] Create CLI skeleton (`score2abc ingest/run/qa/export`) that wires the steps together.
+- [x] Create CLI skeleton (`score2abc ingest/run/qa/export`) that wires the steps together.
 - [ ] Define a `WorkItem` manifest (metadata + pdf_path + slug) and iterate it in the runner.
 - [ ] PDF → image rendering at fixed DPI, store in `out/<slug>/pages/`.
 - [ ] Minimal staff/system crop (even if crude) saved to `out/<slug>/systems/`.
