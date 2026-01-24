@@ -1,0 +1,36 @@
+{
+  "time_signature": "4/4",
+  "notes": [
+    {
+      "measure": 1,
+      "onset_beats": 0.0,
+      "duration_beats": 1.0,
+      "pitch_midi": 60
+    },
+    {
+      "measure": 1,
+      "onset_beats": 1.0,
+      "duration_beats": 1.0,
+      "pitch_midi": 62
+    },
+    {
+      "measure": 1,
+      "onset_beats": 2.0,
+      "duration_beats": 1.0,
+      "pitch_midi": 64
+    },
+    {
+      "measure": 1,
+      "onset_beats": 3.0,
+      "duration_beats": 1.0,
+      "pitch_midi": 65
+    }
+  ],
+  "chords": [
+    {
+      "measure": 1,
+      "onset_beats": 0.0,
+      "symbol": "C"
+    }
+  ]
+}

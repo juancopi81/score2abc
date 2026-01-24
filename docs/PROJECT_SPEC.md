@@ -117,6 +117,11 @@ acuatA.pdf,Acuata,Fulgencio García,Pasillo,3/4,Em
 
 For the current golden dataset, the canonical table lives at `dataset/metadata.csv`.
 
+### Labeled subset (ground truth)
+
+For evaluation, place labeled events under `dataset/ground_truth/` using the
+work slug as the filename: `dataset/ground_truth/<slug>.json`.
+
 ---
 
 ## 5) Outputs (Recommended Format)
@@ -346,6 +351,7 @@ so the corrected ABC becomes part of the dataset.
 - `score2abc ingest <input_dir> <metadata.csv> <out_dir>`
 - `score2abc run <out_dir> [--workers N] [--use-vlm]`
 - `score2abc qa <out_dir> [--open-ui]`
+- `score2abc eval <out_dir> --ground-truth <dir>`
 - `score2abc export <out_dir> --format index.md`
 
 ### Configuration

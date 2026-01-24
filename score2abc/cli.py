@@ -4,6 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from score2abc.pipeline import evaluate as evaluate_pipeline
 from score2abc.pipeline import export as export_pipeline
 from score2abc.pipeline import ingest as ingest_pipeline
 from score2abc.pipeline import qa as qa_pipeline
@@ -79,6 +80,23 @@ def _cmd_export(args: argparse.Namespace) -> int:
     return export_pipeline(out_dir, export_format=args.format)
 
 
+def _cmd_eval(args: argparse.Namespace) -> int:
+    logger = get_logger("score2abc.eval")
+    out_dir = Path(args.out_dir)
+    ground_truth_dir = Path(args.ground_truth)
+    logger.info("Eval started")
+    logger.info("Output dir: %s", out_dir)
+    logger.info("Ground truth dir: %s", ground_truth_dir)
+
+    ok = True
+    ok &= _validate_path(out_dir, "Output directory", logger)
+    ok &= _validate_path(ground_truth_dir, "Ground truth directory", logger)
+    if not ok:
+        return 1
+
+    return evaluate_pipeline(out_dir, ground_truth_dir)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="score2abc",
@@ -112,6 +130,15 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("out_dir", help="Output directory")
     export.add_argument("--format", default="index.md", help="Export format")
     export.set_defaults(func=_cmd_export)
+
+    eval_cmd = subparsers.add_parser("eval", help="Evaluate outputs vs ground truth")
+    eval_cmd.add_argument("out_dir", help="Output directory")
+    eval_cmd.add_argument(
+        "--ground-truth",
+        required=True,
+        help="Directory containing ground-truth events (slug.json)",
+    )
+    eval_cmd.set_defaults(func=_cmd_eval)
 
     return parser
 

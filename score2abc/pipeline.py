@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import List
 
 from score2abc.abc import events_to_abc
-from score2abc.manifest import load_manifest_jsonl, load_metadata_csv, write_manifest_jsonl
+from score2abc.dataset import load_dataset_metadata
+from score2abc.evaluation import evaluate as run_evaluation
+from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
 from score2abc.render import create_minimal_system_crops, render_abc_preview, render_pdf_to_images
 from score2abc.schemas import WorkItem
 from score2abc.utils import Timer, get_logger
@@ -19,7 +21,7 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> List[WorkItem]
     logger.info("Loading metadata")
 
     with Timer("load metadata", logger=logger):
-        work_items = load_metadata_csv(metadata_csv, input_dir)
+        work_items = load_dataset_metadata(metadata_csv, input_dir)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     for item in work_items:
@@ -146,6 +148,10 @@ def export(out_dir: Path, export_format: str = "index.md") -> int:
     index_path.write_text("\n".join(lines), encoding="utf-8")
     logger.info("Wrote catalog: %s", index_path)
     return 0
+
+
+def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
+    return run_evaluation(out_dir, ground_truth_dir)
 
 
 def _build_stub_events(item: WorkItem) -> dict:

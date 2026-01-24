@@ -41,6 +41,16 @@ uv sync --extra test
 uv run pytest
 ```
 
+## Evaluation (M1)
+
+Ground-truth events live under `dataset/ground_truth/` named by slug
+(e.g., `dataset/ground_truth/<slug>.json`). Run evaluation against an `out/`
+folder produced by the pipeline:
+
+```bash
+uv run python main.py eval out --ground-truth dataset/ground_truth
+```
+
 ## External Tools
 
 ### Poppler (required for PDF rendering)

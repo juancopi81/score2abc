@@ -7,6 +7,7 @@
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.
+- `dataset/ground_truth/` holds labeled events for evaluation (`<slug>.json`).
 - `tests/` holds pytest-based unit tests.
 
 ## Build, Test, and Development Commands
@@ -14,6 +15,7 @@
 - `uv run python main.py run out` runs the pipeline stubs.
 - `uv run python main.py qa out` checks for previews.
 - `uv run python main.py export out` writes `out/index.md`.
+- `uv run python main.py eval out --ground-truth dataset/ground_truth` runs the evaluation report.
 - `uv lock` updates the lockfile when dependencies change.
 - `uv sync` installs dependencies from the lockfile.
 - `uv sync --extra test` installs the test dependencies.
