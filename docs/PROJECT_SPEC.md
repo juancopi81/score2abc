@@ -43,6 +43,28 @@ The target material is **handwritten / low-quality scans** of Colombian folk/And
 
 ## 4) Inputs
 
+### Input manifest (canonical structured input)
+
+The pipeline consumes a **manifest** of works. Each entry is a `WorkItem`
+containing metadata + source file path + output slug. This makes the pipeline
+deterministic and allows batching, caching, and parallel execution.
+
+Example (JSON lines or list):
+
+```json
+{
+  "slug": "jaime-llanos_01_acuata_pasillo_garcia",
+  "pdf_path": "dataset/acuatA.pdf",
+  "metadata": {
+    "title": "Acuata",
+    "composer": "Fulgencio García",
+    "rhythm": "Pasillo",
+    "time_signature": "3/4",
+    "key_hint": "Em"
+  }
+}
+```
+
 ### Required input folder
 
 - `input_dir/`
@@ -66,6 +88,7 @@ condition, so preservation and accurate transcription are a priority.
 `jaime-llanos_<num>_<titulo>_<genero>_<autor>.pdf`
 
 Normalization rules:
+
 - lowercase
 - ASCII only (accents removed)
 - words separated by hyphens
@@ -104,11 +127,13 @@ For each work: `out/<slug>/`
 
 - `source.pdf` (copied)
 - `metadata.json`
+- `stages/` (per-stage inputs/params/hashes for resume/caching)
 - `pages/` (rendered page images)
 - `systems/` (cropped staff systems + chord region crops)
 - `intermediate/`
   - `musicxml.xml` (if produced by an OMR engine)
   - `events.json` (canonical note/chord event representation)
+  - `chords.json` (chord symbols + positions/confidence)
 
 - `final/`
   - `melody.abc`
@@ -121,6 +146,9 @@ In `melody_with_chords.abc`, chords are embedded as ABC chord annotations (e.g.,
 - `qa/`
   - `report.json` (scores, warnings, flags)
   - `overlay.png` (optional: visual diff/overlay)
+- `review/` (bundle of crops + previews + ABC for human review)
+- `overrides/`
+  - `patches.json` (human edits applied to the canonical events)
 
 ### Top-level index
 
@@ -163,6 +191,39 @@ This model is the source of truth. ABC is generated from it.
 ---
 
 ## 7) System Architecture
+
+### Pipeline I/O contracts (per work)
+
+Each stage is deterministic and writes outputs under `out/<slug>/...`. A stage
+may be skipped if its inputs and parameters have not changed (resume/caching).
+Each stage writes `stages/<stage>.json` with inputs, params, and hashes.
+
+1. **Load** → copy `source.pdf`, write `metadata.json`, render `pages/`
+2. **Preprocess** → write `pages/*_enhanced.png` (or variants)
+3. **Segment** → write `systems/*/system_image.png` + `systems/*/chord_region.png`
+4. **Recognize (melody)** → write `intermediate/musicxml.xml` (if applicable)
+5. **Normalize** → write canonical `intermediate/events.json`
+6. **Chord OCR** → write `intermediate/chords.json` (symbols + positions/confidence)
+7. **Validate/Repair** → write updated `events.json` + `qa/report.json`
+8. **ABC Generation** → write `final/melody.abc` + `final/melody_with_chords.abc`
+9. **QA Render/Score** → write `final/preview.svg` + `qa/flags.json`
+10. **Review Bundle** → write `review/` package for human review
+11. **Apply Overrides** → read `overrides/patches.json`, re-run validate/export
+12. **Export Catalog** → update `out/index.md`
+
+**Stage I/O quick table (per work)**
+
+| Stage            | Inputs                  | Outputs                                                    |
+| ---------------- | ----------------------- | ---------------------------------------------------------- |
+| Load             | manifest entry + PDF    | `source.pdf`, `metadata.json`, `pages/*`                   |
+| Preprocess       | `pages/*`               | `pages/*_enhanced.png` (variants)                          |
+| Segment          | preprocessed pages      | `systems/*/system_image.png`, `systems/*/chord_region.png` |
+| Melody OMR       | system crops            | `intermediate/musicxml.xml` (if applicable)                |
+| Normalize        | MusicXML                | `intermediate/events.json`                                 |
+| Chord OCR        | chord crops             | `intermediate/chords.json`                                 |
+| Validate/Repair  | events + chords         | updated `events.json`, `qa/report.json`                    |
+| ABC + QA         | events                  | `final/*.abc`, `final/preview.svg`, `qa/flags.json`        |
+| Review/Overrides | review bundle + patches | patched outputs + regenerated ABC/QA                       |
 
 ### High-level pipeline
 
@@ -273,7 +334,8 @@ Provide a lightweight review UI (Streamlit):
   - editing ABC for only flagged measures
   - editing chord symbols list
 
-Edits are saved as patches/overrides and re-validated (so the corrected ABC becomes part of the dataset).
+Edits are saved as patches/overrides in `overrides/patches.json` and re-validated
+so the corrected ABC becomes part of the dataset.
 
 ---
 
@@ -299,6 +361,13 @@ Edits are saved as patches/overrides and re-validated (so the corrected ABC beco
 
 - structured JSON logs per work + a global run log
 - store timing per stage for profiling
+
+### Batch runner + parallelism
+
+The CLI should iterate a manifest of `WorkItem`s and run the per-work pipeline.
+Start with sequential execution for debuggability. When stable, add per-work
+parallelism (thread pool for I/O-bound steps, process pool for CPU-heavy steps).
+Avoid intra-work parallelism until the pipeline is reliable.
 
 ---
 

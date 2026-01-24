@@ -2,6 +2,7 @@
 
 ## Project Structure & Module Organization
 - `main.py` is the current entry point and only executable module.
+- `score2abc/` contains the Python package code (schemas and pipeline modules as they are introduced).
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.

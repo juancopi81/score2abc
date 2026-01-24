@@ -6,6 +6,7 @@ This roadmap is milestone-based with checkboxes so progress can be tracked direc
 Goal: prove the full path PDF → ABC → preview → export works, even if accuracy is low.
 
 - [ ] Create CLI skeleton (`score2abc ingest/run/qa/export`) that wires the steps together.
+- [ ] Define a `WorkItem` manifest (metadata + pdf_path + slug) and iterate it in the runner.
 - [ ] PDF → image rendering at fixed DPI, store in `out/<slug>/pages/`.
 - [ ] Minimal staff/system crop (even if crude) saved to `out/<slug>/systems/`.
 - [ ] Stub `events.json` → ABC generator with a tiny sample event list.
@@ -19,6 +20,7 @@ Goal: make accuracy measurable on the 10-PDF dataset.
 
 - [ ] Formalize dataset loader for `dataset/metadata.csv` (validate required fields).
 - [ ] Add a run log per work + a top-level summary report.
+- [ ] Add stage-level `stage.json` artifacts (inputs, params, hashes) for resume/caching.
 - [ ] Define accuracy metrics (note accuracy, chord accuracy, meter validity) and how to compute them.
 - [ ] Create a small labeled subset format (ground-truth ABC or events).
 - [ ] Add a “compare vs ground truth” script/report.
@@ -43,6 +45,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [ ] Optional MIDI playback of the rendered ABC.
 - [ ] Editing panel for ABC + chord symbols with measure focus.
 - [ ] Save edits as patches/overrides and revalidate.
+- [ ] Define `review/` bundle outputs and `overrides/patches.json` ingestion path.
 
 Done when: a user can correct a flagged work end-to-end in minutes and the corrections persist.
 
@@ -72,3 +75,4 @@ If you want to split efforts, these can happen alongside M2–M4:
 - [ ] CLI plumbing + logging (M0/M1) can progress while segmentation/OMR spikes are prototyped.
 - [ ] HITL UI skeleton can be built early using placeholder ABC/preview assets.
 - [ ] Evaluation harness can be built before perfect recognition, so improvements are measurable.
+- [ ] Add per-work parallelism once stage I/O contracts are stable.
