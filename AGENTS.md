@@ -1,17 +1,22 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `main.py` is the current entry point and only executable module.
-- `score2abc/` contains the Python package code (schemas and pipeline modules as they are introduced).
+- `main.py` is the entry point for the CLI.
+- `score2abc/` contains the Python package code (schemas, CLI, pipeline, and helpers).
+- `score2abc/utils/` holds shared logging and timing utilities.
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.
 - There are no test or asset directories yet; add them under `tests/` and `assets/` when needed.
 
 ## Build, Test, and Development Commands
-- `python main.py` runs the current entry point (prints a placeholder message).
-- `python -m venv .venv` then `source .venv/bin/activate` sets up a local virtual environment.
-- `python -m pip install -e .` installs the project in editable mode (once dependencies are added).
+- `uv run python main.py ingest dataset dataset/metadata.csv out` runs ingest.
+- `uv run python main.py run out` runs the pipeline stubs.
+- `uv run python main.py qa out` checks for previews.
+- `uv run python main.py export out` writes `out/index.md`.
+- `uv lock` updates the lockfile when dependencies change.
+- `uv sync` installs dependencies from the lockfile.
+- `uv add <package>` adds a dependency and refreshes the lockfile.
 
 ## Coding Style & Naming Conventions
 - Language: Python 3.11+ (per `pyproject.toml`).

@@ -6,12 +6,12 @@ This roadmap is milestone-based with checkboxes so progress can be tracked direc
 Goal: prove the full path PDF → ABC → preview → export works, even if accuracy is low.
 
 - [x] Create CLI skeleton (`score2abc ingest/run/qa/export`) that wires the steps together.
-- [ ] Define a `WorkItem` manifest (metadata + pdf_path + slug) and iterate it in the runner.
-- [ ] PDF → image rendering at fixed DPI, store in `out/<slug>/pages/`.
-- [ ] Minimal staff/system crop (even if crude) saved to `out/<slug>/systems/`.
-- [ ] Stub `events.json` → ABC generator with a tiny sample event list.
-- [ ] Render ABC to SVG/PNG preview and store in `out/<slug>/final/`.
-- [ ] Export `out/index.md` catalog with metadata + ABC block.
+- [x] Define a `WorkItem` manifest (metadata + pdf_path + slug) and iterate it in the runner.
+- [x] PDF → image rendering at fixed DPI, store in `out/<slug>/pages/`.
+- [x] Minimal staff/system crop (even if crude) saved to `out/<slug>/systems/`.
+- [x] Stub `events.json` → ABC generator with a tiny sample event list.
+- [x] Render ABC to SVG/PNG preview and store in `out/<slug>/final/`.
+- [x] Export `out/index.md` catalog with metadata + ABC block.
 
 Done when: a single PDF produces `melody.abc`, `melody_with_chords.abc`, preview, and is listed in `out/index.md`.
 

@@ -4,7 +4,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from score2abc.utils import Timer, get_logger
+from score2abc.pipeline import export as export_pipeline
+from score2abc.pipeline import ingest as ingest_pipeline
+from score2abc.pipeline import qa as qa_pipeline
+from score2abc.pipeline import run as run_pipeline
+from score2abc.utils import configure_logging, get_logger
 
 
 def _validate_path(path: Path, label: str, logger) -> bool:
@@ -25,15 +29,13 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
     logger.info("Metadata: %s", metadata_csv)
     logger.info("Output dir: %s", out_dir)
 
-    with Timer("ingest", logger=logger):
-        ok = True
-        ok &= _validate_path(input_dir, "Input directory", logger)
-        ok &= _validate_path(metadata_csv, "Metadata CSV", logger)
-        if not ok:
-            return 1
-        out_dir.mkdir(parents=True, exist_ok=True)
-        logger.info("Ingest stub complete (no pipeline steps yet)")
+    ok = True
+    ok &= _validate_path(input_dir, "Input directory", logger)
+    ok &= _validate_path(metadata_csv, "Metadata CSV", logger)
+    if not ok:
+        return 1
 
+    ingest_pipeline(input_dir, metadata_csv, out_dir)
     return 0
 
 
@@ -45,12 +47,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
     logger.info("Workers: %s", args.workers)
     logger.info("Use VLM: %s", args.use_vlm)
 
-    with Timer("run", logger=logger):
-        if not _validate_path(out_dir, "Output directory", logger):
-            return 1
-        logger.info("Run stub complete (no pipeline steps yet)")
+    if not _validate_path(out_dir, "Output directory", logger):
+        return 1
 
-    return 0
+    return run_pipeline(out_dir, workers=args.workers, use_vlm=args.use_vlm)
 
 
 def _cmd_qa(args: argparse.Namespace) -> int:
@@ -60,12 +60,10 @@ def _cmd_qa(args: argparse.Namespace) -> int:
     logger.info("Output dir: %s", out_dir)
     logger.info("Open UI: %s", args.open_ui)
 
-    with Timer("qa", logger=logger):
-        if not _validate_path(out_dir, "Output directory", logger):
-            return 1
-        logger.info("QA stub complete (no pipeline steps yet)")
+    if not _validate_path(out_dir, "Output directory", logger):
+        return 1
 
-    return 0
+    return qa_pipeline(out_dir, open_ui=args.open_ui)
 
 
 def _cmd_export(args: argparse.Namespace) -> int:
@@ -75,18 +73,21 @@ def _cmd_export(args: argparse.Namespace) -> int:
     logger.info("Output dir: %s", out_dir)
     logger.info("Format: %s", args.format)
 
-    with Timer("export", logger=logger):
-        if not _validate_path(out_dir, "Output directory", logger):
-            return 1
-        logger.info("Export stub complete (no pipeline steps yet)")
+    if not _validate_path(out_dir, "Output directory", logger):
+        return 1
 
-    return 0
+    return export_pipeline(out_dir, export_format=args.format)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="score2abc",
         description="Handwritten Colombian scores to ABC pipeline.",
+    )
+    parser.add_argument(
+        "--log-level",
+        default=None,
+        help="Override log level (e.g., DEBUG, INFO)",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -118,6 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    configure_logging(args.log_level)
     handler = getattr(args, "func", None)
     if handler is None:
         parser.print_help()

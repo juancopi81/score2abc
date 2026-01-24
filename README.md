@@ -2,6 +2,73 @@
 
 Pipeline to convert handwritten Colombian scores into ABC notation plus metadata.
 
+## Usage (uv)
+
+Run the CLI through uv:
+
+```bash
+uv run python main.py ingest dataset dataset/metadata.csv out
+uv run python main.py run out
+uv run python main.py qa out
+uv run python main.py export out
+```
+
+Notes:
+- PDF rendering uses `pdf2image` and requires a local Poppler install.
+- ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
+
+## Dependency Management (uv)
+
+Use uv for dependencies:
+
+```bash
+uv lock
+uv sync
+```
+
+To add a new package:
+
+```bash
+uv add <package>
+```
+
+## External Tools
+
+### Poppler (required for PDF rendering)
+
+Check whether Poppler is available:
+
+```bash
+pdftoppm -h
+```
+
+Install Poppler:
+
+```bash
+# macOS (Homebrew)
+brew install poppler
+
+# Ubuntu/Debian
+sudo apt-get install poppler-utils
+```
+
+On Windows, install Poppler binaries (e.g., the `poppler-windows` builds by
+oschwartz10612), then add the `bin` folder to your PATH.
+
+### ABC preview renderers (optional)
+
+Install one of these to render previews:
+
+```bash
+# abc2svg (npm)
+npm i abc2svg
+
+# abcm2ps (Homebrew)
+brew install abcm2ps
+```
+
+If neither is installed, the pipeline writes a placeholder SVG preview.
+
 ## Dataset
 
 `dataset/` is the current golden dataset of source PDFs, with a canonical metadata
