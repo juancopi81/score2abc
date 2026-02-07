@@ -26,11 +26,17 @@
 - Language: Python 3.11+ (per `pyproject.toml`).
 - Indentation: 4 spaces, PEP 8 conventions.
 - Naming: `snake_case` for functions/variables, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants.
-- No formatter or linter is configured yet; if you add one (e.g., Ruff/Black), document it here.
+- Formatting: `black` (line length 100).
+- Linting: `ruff` (rules: E, F, I, B; line length 100).
 
 ## Testing Guidelines
 - Tests live in `tests/` with files named `test_*.py`.
 - Use pytest conventions (fixtures, asserts).
+- Local quality checks:
+  - `uv sync --extra dev`
+  - `uv run ruff check .`
+  - `uv run black --check .`
+  - `uv run pytest`
 
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits: `<type>: <description>` (scope optional).

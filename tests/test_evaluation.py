@@ -44,5 +44,38 @@ def test_evaluate_writes_report(tmp_path: Path) -> None:
 
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["summary"]["works_evaluated"] == 1
+    assert report["summary"]["evaluation_coverage"] == 1.0
+    assert report["summary"]["coverage_gate_passed"] is True
     assert report["summary"]["note_count_match_rate"] == 1.0
+    assert report["summary"]["note_f1_avg"] == 1.0
     assert report["works"][0]["slug"] == "demo"
+
+
+def test_evaluate_fails_when_coverage_is_too_low(tmp_path: Path) -> None:
+    out_dir = tmp_path / "out"
+    ground_truth_dir = tmp_path / "ground_truth"
+
+    item1 = WorkItem(
+        slug="demo-1",
+        pdf_path=tmp_path / "demo-1.pdf",
+        metadata=WorkMetadata(title="Demo 1", composer="Composer", rhythm="Pasillo"),
+    )
+    item2 = WorkItem(
+        slug="demo-2",
+        pdf_path=tmp_path / "demo-2.pdf",
+        metadata=WorkMetadata(title="Demo 2", composer="Composer", rhythm="Pasillo"),
+    )
+
+    out_dir.mkdir(parents=True)
+    write_manifest_jsonl([item1, item2], out_dir / "manifest.jsonl")
+
+    _write_events(out_dir / "demo-1" / "intermediate" / "events.json")
+    _write_events(ground_truth_dir / "demo-1.json")
+    _write_events(ground_truth_dir / "demo-2.json")
+
+    result = evaluate(out_dir, ground_truth_dir)
+    assert result == 1
+
+    report = json.loads((out_dir / "eval" / "report.json").read_text(encoding="utf-8"))
+    assert report["summary"]["evaluation_coverage"] == 0.5
+    assert report["summary"]["coverage_gate_passed"] is False

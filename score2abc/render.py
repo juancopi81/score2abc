@@ -108,7 +108,9 @@ def _write_placeholder_svg(output_path: Path) -> None:
     svg = """<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"200\">
   <rect width=\"100%\" height=\"100%\" fill=\"white\" />
   <text x=\"20\" y=\"40\" font-family=\"sans-serif\" font-size=\"16\">Preview not rendered</text>
-  <text x=\"20\" y=\"70\" font-family=\"sans-serif\" font-size=\"12\">Install abc2svg or abcm2ps to render.</text>
+  <text x=\"20\" y=\"70\" font-family=\"sans-serif\" font-size=\"12\">
+    Install abc2svg or abcm2ps to render.
+  </text>
 </svg>
 """
     output_path.write_text(svg, encoding="utf-8")

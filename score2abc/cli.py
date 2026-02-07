@@ -36,8 +36,7 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
     if not ok:
         return 1
 
-    ingest_pipeline(input_dir, metadata_csv, out_dir)
-    return 0
+    return ingest_pipeline(input_dir, metadata_csv, out_dir)
 
 
 def _cmd_run(args: argparse.Namespace) -> int:

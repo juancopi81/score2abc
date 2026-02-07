@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-from functools import wraps
 from contextlib import ContextDecorator
+from functools import wraps
 from time import perf_counter
 from typing import Optional
 

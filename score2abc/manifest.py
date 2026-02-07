@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import unicodedata
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -32,6 +33,7 @@ def _slugify(value: str) -> str:
 def load_metadata_csv(metadata_csv: Path, input_dir: Path) -> List[WorkItem]:
     """Load dataset metadata into WorkItem entries."""
     items: List[WorkItem] = []
+    seen_slugs: set[str] = set()
     with metadata_csv.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames is None:
@@ -58,6 +60,13 @@ def load_metadata_csv(metadata_csv: Path, input_dir: Path) -> List[WorkItem]:
                 slug = _slugify(f"{title}-{rhythm}-{composer}")
                 pdf_path = input_dir / f"{slug}.pdf"
 
+            if slug in seen_slugs:
+                raise ValueError(f"Duplicate slug detected in metadata CSV: {slug}")
+            seen_slugs.add(slug)
+
+            if not pdf_path.exists():
+                raise FileNotFoundError(f"Source PDF not found for slug '{slug}': {pdf_path}")
+
             metadata = WorkMetadata(
                 title=title,
                 composer=composer,
@@ -82,11 +91,22 @@ def _optional_field(row: dict, key: str) -> Optional[str]:
 
 def write_manifest_jsonl(items: Iterable[WorkItem], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_dir = path.parent.resolve()
     with path.open("w", encoding="utf-8") as handle:
         for item in items:
+            pdf_path = item.pdf_path
+            if not pdf_path.is_absolute():
+                pdf_path = (Path.cwd() / pdf_path).resolve()
+
+            try:
+                pdf_path_value = os.path.relpath(pdf_path, start=manifest_dir)
+            except ValueError:
+                # Fallback for cross-volume paths where relpath is not possible.
+                pdf_path_value = str(pdf_path)
+
             payload = {
                 "slug": item.slug,
-                "pdf_path": str(item.pdf_path.resolve()),
+                "pdf_path": pdf_path_value,
                 "metadata": item.metadata.model_dump(mode="json"),
             }
             handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -94,10 +114,14 @@ def write_manifest_jsonl(items: Iterable[WorkItem], path: Path) -> None:
 
 def load_manifest_jsonl(path: Path) -> List[WorkItem]:
     items: List[WorkItem] = []
+    manifest_dir = path.parent.resolve()
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             if not line.strip():
                 continue
             payload = json.loads(line)
+            pdf_path = Path(payload["pdf_path"])
+            if not pdf_path.is_absolute():
+                payload["pdf_path"] = str((manifest_dir / pdf_path).resolve())
             items.append(WorkItem.model_validate(payload))
     return items

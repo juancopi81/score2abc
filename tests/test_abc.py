@@ -26,4 +26,4 @@ def test_events_to_abc_formats_headers_and_body() -> None:
     abc = events_to_abc(events, metadata)
     assert "M:3/4" in abc
     assert "K:Em" in abc
-    assert "\"Em\" C D | \"B7\" E2 |" in abc
+    assert '"Em" C D | "B7" E2 |' in abc

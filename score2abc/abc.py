@@ -48,7 +48,7 @@ def events_to_abc(events: Dict, metadata: WorkMetadata) -> str:
         body_parts: List[str] = []
         for measure in sorted(measures.keys()):
             if measure in chords:
-                body_parts.append(f"\"{chords[measure]}\"")
+                body_parts.append(f'"{chords[measure]}"')
             for note in sorted(measures[measure], key=lambda n: n.get("onset_beats", 0)):
                 body_parts.append(_note_to_abc(note))
             body_parts.append("|")

@@ -41,6 +41,15 @@ uv sync --extra test
 uv run pytest
 ```
 
+Run the local CI-equivalent checks:
+
+```bash
+uv sync --extra dev
+uv run ruff check .
+uv run black --check .
+uv run pytest
+```
+
 ## Evaluation (M1)
 
 Ground-truth events live under `dataset/ground_truth/` named by slug
@@ -50,6 +59,18 @@ folder produced by the pipeline:
 ```bash
 uv run python main.py eval out --ground-truth dataset/ground_truth
 ```
+
+Evaluation now includes event-level precision/recall/F1 and enforces a minimum
+coverage gate (`works_with_predictions / works_with_truth`).
+
+## Pipeline execution status
+
+- `ingest`, `run`, and `qa` now fail with non-zero exit codes if any work fails.
+- Command-level status summaries are written to:
+  - `out/ingest_status.json`
+  - `out/run_status.json`
+  - `out/qa_status.json`
+- Per-work stage artifacts are written to `out/<slug>/stages/<stage>.json`.
 
 ## External Tools
 

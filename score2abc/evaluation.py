@@ -8,6 +8,8 @@ from score2abc.manifest import load_manifest_jsonl
 from score2abc.metrics import compare_events
 from score2abc.utils import get_logger
 
+MIN_EVALUATION_COVERAGE = 0.8
+
 
 def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     logger = get_logger("score2abc.eval")
@@ -61,6 +63,8 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
         works_with_truth=works_with_truth,
         works_with_predictions=works_with_predictions,
     )
+    summary["min_evaluation_coverage"] = MIN_EVALUATION_COVERAGE
+    summary["coverage_gate_passed"] = summary["evaluation_coverage"] >= MIN_EVALUATION_COVERAGE
     report = {"summary": summary, "works": results}
 
     eval_dir = out_dir / "eval"
@@ -68,6 +72,13 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     report_path = eval_dir / "report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     logger.info("Wrote evaluation report: %s", report_path)
+    if not summary["coverage_gate_passed"]:
+        logger.error(
+            "Evaluation coverage %.3f is below threshold %.3f",
+            summary["evaluation_coverage"],
+            MIN_EVALUATION_COVERAGE,
+        )
+        return 1
     return 0
 
 
@@ -86,12 +97,28 @@ def _summarize_results(
         matches = sum(1 for item in results if item["metrics"].get(key))
         return matches / evaluated
 
+    def _avg(key: str) -> float:
+        if evaluated == 0:
+            return 0.0
+        return round(sum(float(item["metrics"].get(key, 0.0)) for item in results) / evaluated, 6)
+
+    evaluation_coverage = works_with_predictions / works_with_truth if works_with_truth else 0.0
+    truth_coverage = works_with_truth / works_total if works_total else 0.0
+
     return {
         "works_total": works_total,
         "works_with_truth": works_with_truth,
         "works_with_predictions": works_with_predictions,
         "works_evaluated": evaluated,
+        "evaluation_coverage": round(evaluation_coverage, 6),
+        "truth_coverage": round(truth_coverage, 6),
         "note_count_match_rate": _rate("note_count_match"),
         "chord_count_match_rate": _rate("chord_count_match"),
         "time_signature_match_rate": _rate("time_signature_match"),
+        "note_precision_avg": _avg("note_precision"),
+        "note_recall_avg": _avg("note_recall"),
+        "note_f1_avg": _avg("note_f1"),
+        "chord_precision_avg": _avg("chord_precision"),
+        "chord_recall_avg": _avg("chord_recall"),
+        "chord_f1_avg": _avg("chord_f1"),
     }
