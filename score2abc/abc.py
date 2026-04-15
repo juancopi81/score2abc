@@ -5,6 +5,7 @@ from fractions import Fraction
 from typing import Dict, List
 
 from score2abc.events import (
+    STEP_TO_SEMITONE,
     CanonicalNote,
     NoteGroup,
     measure_length_beats,
@@ -28,16 +29,6 @@ _DEFAULT_PITCH_CLASS = {
     11: "B",
 }
 
-_STEP_TO_SEMITONE = {
-    "C": 0,
-    "D": 2,
-    "E": 4,
-    "F": 5,
-    "G": 7,
-    "A": 9,
-    "B": 11,
-}
-
 _ACCIDENTAL_PREFIX = {
     -2: "__",
     -1: "_",
@@ -49,7 +40,6 @@ _ACCIDENTAL_PREFIX = {
 
 @dataclass(frozen=True)
 class RenderSegment:
-    measure: int
     onset_beats: Fraction
     duration_beats: Fraction
     notes: tuple[CanonicalNote, ...]
@@ -75,7 +65,7 @@ def events_to_abc(events: Dict, metadata: WorkMetadata) -> str:
         f"K:{key_hint}",
     ]
 
-    all_measures = sorted(set(segments_by_measure) | set(chord_map) | set(note_groups))
+    all_measures = sorted(set(segments_by_measure) | set(chord_map))
     if not all_measures:
         body = "C D E F |"
     else:
@@ -99,7 +89,10 @@ def _expand_note_groups(
     chord_map: Dict[int, Dict[Fraction, str]],
     measure_beats: Fraction,
 ) -> Dict[int, List[RenderSegment]]:
-    segments_by_measure: Dict[int, List[RenderSegment]] = {}
+    sorted_chord_onsets: Dict[int, List[Fraction]] = {
+        measure: sorted(onsets) for measure, onsets in chord_map.items()
+    }
+    raw: Dict[int, List[RenderSegment]] = {}
     for groups in note_groups.values():
         for group in groups:
             remaining = group.duration_beats
@@ -107,18 +100,22 @@ def _expand_note_groups(
             current_onset = group.onset_beats
 
             while remaining > 0:
-                measure_end = measure_beats
-                segment_duration = min(remaining, measure_end - current_onset)
-                for chord_onset in sorted(chord_map.get(current_measure, {})):
+                segment_duration = min(remaining, measure_beats - current_onset)
+                for chord_onset in sorted_chord_onsets.get(current_measure, ()):
                     if current_onset < chord_onset < current_onset + segment_duration:
                         segment_duration = chord_onset - current_onset
                         break
 
+                if segment_duration <= 0:
+                    raise ValueError(
+                        "Cannot expand note group: non-positive segment duration at "
+                        f"measure={current_measure}, onset={float(current_onset)}"
+                    )
+
                 remaining -= segment_duration
                 tie_to_next = remaining > 0
-                segments_by_measure.setdefault(current_measure, []).append(
+                raw.setdefault(current_measure, []).append(
                     RenderSegment(
-                        measure=current_measure,
                         onset_beats=current_onset,
                         duration_beats=segment_duration,
                         notes=group.notes,
@@ -128,15 +125,16 @@ def _expand_note_groups(
 
                 if not tie_to_next:
                     break
-                if current_onset + segment_duration >= measure_end:
+                if current_onset + segment_duration >= measure_beats:
                     current_measure += 1
                     current_onset = Fraction(0)
                 else:
                     current_onset += segment_duration
 
-    for measure, segments in segments_by_measure.items():
-        segments_by_measure[measure] = sorted(segments, key=lambda segment: segment.onset_beats)
-    return segments_by_measure
+    return {
+        measure: sorted(segments, key=lambda segment: segment.onset_beats)
+        for measure, segments in raw.items()
+    }
 
 
 def _render_measure_tokens(
@@ -148,18 +146,22 @@ def _render_measure_tokens(
 ) -> List[str]:
     tokens: List[str] = []
     cursor = Fraction(0)
+    chord_onsets = sorted(chords)
 
     for segment in segments:
         if segment.onset_beats > cursor:
-            tokens.extend(_render_rest_tokens(cursor, segment.onset_beats, chords))
+            tokens.extend(_render_rest_tokens(cursor, segment.onset_beats, chords, chord_onsets))
         tokens.append(_attach_chord(chords.get(segment.onset_beats), _segment_to_abc(segment)))
         cursor = segment.onset_beats + segment.duration_beats
 
     fill_until = _measure_fill_limit(measure, segments, chords, measure_beats)
     if cursor < fill_until:
-        tokens.extend(_render_rest_tokens(cursor, fill_until, chords))
+        tokens.extend(_render_rest_tokens(cursor, fill_until, chords, chord_onsets))
 
-    return tokens or ["z" + _duration_to_abc(fill_until or measure_beats)]
+    if tokens:
+        return tokens
+    fallback_duration = fill_until if fill_until > 0 else measure_beats
+    return ["z" + _duration_to_abc(fallback_duration)]
 
 
 def _measure_fill_limit(
@@ -183,10 +185,11 @@ def _render_rest_tokens(
     start: Fraction,
     end: Fraction,
     chords: Dict[Fraction, str],
+    sorted_chord_onsets: List[Fraction],
 ) -> List[str]:
     tokens: List[str] = []
     cursor = start
-    boundaries = [onset for onset in sorted(chords) if start < onset < end]
+    boundaries = [onset for onset in sorted_chord_onsets if start < onset < end]
     for boundary in boundaries + [end]:
         duration = boundary - cursor
         if duration > 0:
@@ -216,11 +219,11 @@ def _note_symbol(note: CanonicalNote) -> str:
         return _midi_to_abc(note.pitch_midi)
 
     step, octave = spelling
-    return _ACCIDENTAL_PREFIX.get(note.accidental, "") + _step_octave_to_abc(step, octave)
+    return _ACCIDENTAL_PREFIX.get(note.accidental, "") + _format_octave(step, octave)
 
 
 def _duration_to_abc(duration_beats: Fraction) -> str:
-    fraction = duration_beats.limit_denominator(8)
+    fraction = duration_beats.limit_denominator(64)
     if fraction == 1:
         return ""
     if fraction.numerator == 1:
@@ -232,22 +235,12 @@ def _duration_to_abc(duration_beats: Fraction) -> str:
 
 def _midi_to_abc(midi: int) -> str:
     pitch_class = midi % 12
-    name = _DEFAULT_PITCH_CLASS[pitch_class]
-    octave = (midi // 12) - 1
-
-    if octave == 4:
-        return name
-    if octave == 5:
-        return name.lower()
-    if octave > 5:
-        return name.lower() + ("'" * (octave - 5))
-
-    return name + ("," * (4 - octave))
+    return _format_octave(_DEFAULT_PITCH_CLASS[pitch_class], (midi // 12) - 1)
 
 
 def _spelled_step_octave(midi: int, accidental: int) -> tuple[str, int] | None:
     pitch_class = midi % 12
-    for step, natural_pitch_class in _STEP_TO_SEMITONE.items():
+    for step, natural_pitch_class in STEP_TO_SEMITONE.items():
         if (natural_pitch_class + accidental) % 12 != pitch_class:
             continue
         natural_midi = midi - accidental
@@ -257,14 +250,14 @@ def _spelled_step_octave(midi: int, accidental: int) -> tuple[str, int] | None:
     return None
 
 
-def _step_octave_to_abc(step: str, octave: int) -> str:
+def _format_octave(name: str, octave: int) -> str:
     if octave == 4:
-        return step
+        return name
     if octave == 5:
-        return step.lower()
+        return name.lower()
     if octave > 5:
-        return step.lower() + ("'" * (octave - 5))
-    return step + ("," * (4 - octave))
+        return name.lower() + ("'" * (octave - 5))
+    return name + ("," * (4 - octave))
 
 
 def _attach_chord(symbol: str | None, token: str) -> str:

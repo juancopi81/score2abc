@@ -4,6 +4,16 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import Dict, Iterable, List, Mapping
 
+STEP_TO_SEMITONE = {
+    "C": 0,
+    "D": 2,
+    "E": 4,
+    "F": 5,
+    "G": 7,
+    "A": 9,
+    "B": 11,
+}
+
 
 @dataclass(frozen=True)
 class CanonicalNote:
@@ -12,7 +22,6 @@ class CanonicalNote:
     duration_beats: Fraction
     pitch_midi: int
     accidental: int | None = None
-    tie: bool = False
 
 
 @dataclass(frozen=True)
@@ -44,7 +53,6 @@ def normalize_note_groups(raw_notes: Iterable[Mapping[str, object]]) -> Dict[int
             accidental=(
                 int(raw_note["accidental"]) if raw_note.get("accidental") is not None else None
             ),
-            tie=bool(raw_note.get("tie", False)),
         )
         if note.duration_beats <= 0:
             raise ValueError(f"Note duration must be positive: {raw_note!r}")
@@ -70,6 +78,7 @@ def normalize_note_groups(raw_notes: Iterable[Mapping[str, object]]) -> Dict[int
         )
         by_measure.setdefault(measure, []).append(group)
 
+    sorted_by_measure: Dict[int, List[NoteGroup]] = {}
     for measure, groups in by_measure.items():
         ordered_groups = sorted(groups, key=lambda group: group.onset_beats)
         previous_end = Fraction(0)
@@ -80,9 +89,9 @@ def normalize_note_groups(raw_notes: Iterable[Mapping[str, object]]) -> Dict[int
                     f"measure={measure}, onset={float(group.onset_beats)}"
                 )
             previous_end = group.onset_beats + group.duration_beats
-        by_measure[measure] = ordered_groups
+        sorted_by_measure[measure] = ordered_groups
 
-    return by_measure
+    return sorted_by_measure
 
 
 def normalize_chord_map(

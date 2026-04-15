@@ -6,15 +6,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, Iterable, List
 
-_STEP_TO_SEMITONE = {
-    "C": 0,
-    "D": 2,
-    "E": 4,
-    "F": 5,
-    "G": 7,
-    "A": 9,
-    "B": 11,
-}
+from score2abc.events import STEP_TO_SEMITONE as _STEP_TO_SEMITONE
 
 _ALTER_TO_SYMBOL = {
     -2: "bb",
