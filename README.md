@@ -63,6 +63,13 @@ uv run python main.py eval out --ground-truth dataset/ground_truth
 Evaluation now includes event-level precision/recall/F1 and enforces a minimum
 coverage gate (`works_with_predictions / works_with_truth`).
 
+If your ground truth starts in MuseScore, export an uncompressed `.musicxml`
+file and convert it into the repo's canonical events JSON with:
+
+```bash
+uv run python -m score2abc.musicxml path/to/work.musicxml dataset/ground_truth/<slug>.json
+```
+
 ## Pipeline execution status
 
 - `ingest`, `run`, and `qa` now fail with non-zero exit codes if any work fails.
