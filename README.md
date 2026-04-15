@@ -16,6 +16,8 @@ uv run python main.py export out
 Notes:
 - PDF rendering uses `pdf2image` and requires a local Poppler install.
 - ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
+- ABC export now preserves canonical event timing, including implicit rests,
+  simultaneous-note groups, and ties split across barlines/chord changes.
 
 ## Dependency Management (uv)
 
