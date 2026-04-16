@@ -10,7 +10,7 @@ from score2abc.abc import events_to_abc
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
-from score2abc.render import create_minimal_system_crops, render_abc_preview, render_pdf_to_images
+from score2abc.render import create_system_crops, render_abc_preview, render_pdf_to_images
 from score2abc.schemas import WorkItem
 from score2abc.utils import Timer, get_logger
 
@@ -146,20 +146,26 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
 
             segment_started = _utcnow()
             with Timer(f"system crops ({item.slug})", logger=logger):
-                system_outputs = create_minimal_system_crops(page_paths, systems_dir, logger)
+                segmentation = create_system_crops(page_paths, systems_dir, logger)
             segment_ended = _utcnow()
             _write_stage_artifact(
                 work_dir=work_dir,
                 stage="segment_systems",
-                status="success" if system_outputs else "failed",
+                status="success" if segmentation.system_crops else "failed",
                 started_at=segment_started,
                 ended_at=segment_ended,
                 inputs={"pages": [str(p) for p in page_paths]},
-                outputs={"system_crops": [str(p) for p in system_outputs]},
+                outputs={
+                    "system_crops": [str(p) for p in segmentation.system_crops],
+                    "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
+                    "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                    "debug_overlays": [str(p) for p in segmentation.debug_overlays],
+                    "debug_manifests": [str(p) for p in segmentation.debug_manifests],
+                },
                 params={},
-                error=None if system_outputs else "No system crops generated",
+                error=None if segmentation.system_crops else "No system crops generated",
             )
-            if not system_outputs:
+            if not segmentation.system_crops:
                 raise RuntimeError("No system crops were generated")
 
             events_started = _utcnow()
