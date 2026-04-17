@@ -15,21 +15,25 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     _write_synthetic_page(page_path)
     legacy_path = systems_dir / "chord_region_001.png"
     legacy_path.write_bytes(b"legacy")
+    legacy_normalized = systems_dir / "system_normalized_001.png"
+    legacy_normalized.write_bytes(b"legacy")
 
     result = create_system_crops([page_path], systems_dir, logging.getLogger("test.render"))
 
     assert len(result.system_crops) == 2
-    assert len(result.system_crops_normalized) == 2
     assert len(result.chord_crops_above) == 2
-    assert len(result.chord_crops_above_normalized) == 2
     assert len(result.chord_crops_below) == 2
-    assert len(result.chord_crops_below_normalized) == 2
     assert len(result.debug_overlays) == 1
     assert len(result.debug_manifests) == 1
     assert not legacy_path.exists()
+    assert not legacy_normalized.exists()
 
     manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
     assert len(manifest["systems"]) == 2
+    assert "page_rotation_degrees" in manifest
+    assert manifest["source_page"] == str(page_path)
+    assert manifest["page"] == str(result.deskewed_pages[0])
+    _assert_manifest_replays(manifest, result.system_crops)
 
     original_width, original_height = Image.open(page_path).size
     above_darkness: list[float] = []
@@ -47,8 +51,12 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
         chord_crop_bbox_above = item["chord_crop_bbox_above"]
         chord_bbox_below = item["chord_bbox_below"]
         chord_crop_bbox_below = item["chord_crop_bbox_below"]
-        assert chord_bbox_above["bottom"] <= system_bbox["top"]
-        assert chord_bbox_below["top"] >= system_bbox["bottom"]
+        # Chord bands now overlap into the staff region so chords touching the
+        # outer staff lines are captured.
+        assert chord_bbox_above["bottom"] > system_bbox["top"]
+        assert chord_bbox_above["bottom"] <= (system_bbox["top"] + system_bbox["bottom"]) // 2
+        assert chord_bbox_below["top"] < system_bbox["bottom"]
+        assert chord_bbox_below["top"] >= (system_bbox["top"] + system_bbox["bottom"]) // 2
         assert system_crop_bbox["top"] <= system_bbox["top"]
         assert system_crop_bbox["bottom"] >= system_bbox["bottom"]
         assert chord_crop_bbox_above["top"] <= chord_bbox_above["top"]
@@ -76,23 +84,35 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     assert below_darkness[1] > above_darkness[1]
 
 
-def test_create_system_crops_writes_deskewed_variants_for_skewed_page(tmp_path: Path) -> None:
+def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     page_path = tmp_path / "page_001.png"
     systems_dir = tmp_path / "systems"
     systems_dir.mkdir()
-    _write_synthetic_page(page_path, skew_degrees=2.25)
+    skew = 2.25
+    _write_synthetic_page(page_path, skew_degrees=skew)
 
     result = create_system_crops([page_path], systems_dir, logging.getLogger("test.render.skew"))
 
     assert result.system_crops
-    assert len(result.system_crops) == len(result.system_crops_normalized)
-
-    raw_score = _row_peakiness(result.system_crops[0])
-    normalized_score = _row_peakiness(result.system_crops_normalized[0])
-    assert normalized_score > raw_score
-
     manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
-    assert abs(float(manifest["systems"][0]["rotation_degrees"])) >= 0.25
+    page_rotation = float(manifest["page_rotation_degrees"])
+    # Detector should recover a rotation magnitude close to the input skew.
+    assert abs(abs(page_rotation) - skew) <= 0.5
+    assert manifest["source_page"] == str(page_path)
+    assert manifest["page"] == str(result.deskewed_pages[0])
+    _assert_manifest_replays(manifest, result.system_crops)
+
+    deskewed_score = _row_peakiness(result.system_crops[0])
+    # Re-rotating by the input skew should smear staff rows and lower peakiness.
+    re_skewed = (
+        Image.open(result.system_crops[0])
+        .convert("L")
+        .rotate(skew, resample=Image.Resampling.BICUBIC, expand=False, fillcolor=255)
+    )
+    probe_path = tmp_path / "reskewed_probe.png"
+    re_skewed.save(probe_path)
+    reskewed_score = _row_peakiness(probe_path)
+    assert deskewed_score > reskewed_score
 
 
 def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:
@@ -140,6 +160,17 @@ def _draw_annotation_blocks(draw: ImageDraw.ImageDraw, x: int, y: int) -> None:
 def _crop_darkness(path: Path) -> float:
     image = Image.open(path).convert("L")
     return 255 - Stat(image).mean[0]
+
+
+def _assert_manifest_replays(manifest: dict, system_crops: list[Path]) -> None:
+    """Cropping the file named in manifest["page"] must reproduce the saved system crops."""
+    page = Image.open(manifest["page"]).convert("RGB")
+    for item, system_path in zip(manifest["systems"], system_crops, strict=True):
+        bbox = item["system_crop_bbox"]
+        replay = page.crop((bbox["left"], bbox["top"], bbox["right"], bbox["bottom"]))
+        saved = Image.open(system_path).convert("RGB")
+        assert replay.size == saved.size, (replay.size, saved.size, system_path)
+        assert replay.tobytes() == saved.tobytes(), f"manifest bbox did not replay {system_path}"
 
 
 def _row_peakiness(path: Path) -> float:

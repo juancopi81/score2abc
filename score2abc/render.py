@@ -16,7 +16,6 @@ BBox = tuple[int, int, int, int]
 @dataclass(frozen=True)
 class DetectedSystem:
     page_number: int
-    rotation_degrees: float
     system_bbox: BBox
     system_crop_bbox: BBox
     chord_bbox_above: BBox
@@ -28,11 +27,9 @@ class DetectedSystem:
 @dataclass(frozen=True)
 class SegmentationResult:
     system_crops: List[Path]
-    system_crops_normalized: List[Path]
     chord_crops_above: List[Path]
-    chord_crops_above_normalized: List[Path]
     chord_crops_below: List[Path]
-    chord_crops_below_normalized: List[Path]
+    deskewed_pages: List[Path]
     debug_overlays: List[Path]
     debug_manifests: List[Path]
 
@@ -40,11 +37,9 @@ class SegmentationResult:
     def all_outputs(self) -> List[Path]:
         return [
             *self.system_crops,
-            *self.system_crops_normalized,
             *self.chord_crops_above,
-            *self.chord_crops_above_normalized,
             *self.chord_crops_below,
-            *self.chord_crops_below_normalized,
+            *self.deskewed_pages,
             *self.debug_overlays,
             *self.debug_manifests,
         ]
@@ -88,24 +83,31 @@ def create_system_crops(
     systems_dir.mkdir(parents=True, exist_ok=True)
     if not page_paths:
         logger.warning("No pages available for system crops")
-        return SegmentationResult([], [], [], [], [], [], [], [])
+        return SegmentationResult([], [], [], [], [], [])
 
     _clear_segmentation_outputs(systems_dir)
 
     system_paths: List[Path] = []
-    system_normalized_paths: List[Path] = []
     chord_paths_above: List[Path] = []
-    chord_paths_above_normalized: List[Path] = []
     chord_paths_below: List[Path] = []
-    chord_paths_below_normalized: List[Path] = []
+    deskewed_page_paths: List[Path] = []
     overlay_paths: List[Path] = []
     manifest_paths: List[Path] = []
     system_index = 1
 
     for page_number, page_path in enumerate(page_paths, start=1):
         with Image.open(page_path) as page_image:
-            page_rgb = page_image.convert("RGB")
+            original_rgb = page_image.convert("RGB")
+            original_gray = ImageOps.autocontrast(original_rgb.convert("L"), cutoff=1)
+            page_rotation_degrees = _estimate_page_skew(original_gray)
+            page_rgb = _deskew_page(original_rgb, page_rotation_degrees)
             page_gray = ImageOps.autocontrast(page_rgb.convert("L"), cutoff=1)
+
+            deskewed_page_path = systems_dir / f"page_{page_number:03d}_deskewed.png"
+            page_rgb.save(deskewed_page_path)
+            deskewed_page_paths.append(deskewed_page_path)
+            logger.info("Wrote deskewed page: %s", deskewed_page_path)
+
             detected_systems = _detect_systems(page_gray, page_number)
 
             if not detected_systems:
@@ -114,52 +116,17 @@ def create_system_crops(
 
             for detected in detected_systems:
                 system_path = systems_dir / f"system_{system_index:03d}.png"
-                system_normalized_path = systems_dir / f"system_normalized_{system_index:03d}.png"
                 chord_path_above = systems_dir / f"chord_region_above_{system_index:03d}.png"
-                chord_path_above_normalized = (
-                    systems_dir / f"chord_region_above_normalized_{system_index:03d}.png"
-                )
                 chord_path_below = systems_dir / f"chord_region_below_{system_index:03d}.png"
-                chord_path_below_normalized = (
-                    systems_dir / f"chord_region_below_normalized_{system_index:03d}.png"
-                )
                 page_rgb.crop(detected.system_crop_bbox).save(system_path)
                 page_rgb.crop(detected.chord_crop_bbox_above).save(chord_path_above)
                 page_rgb.crop(detected.chord_crop_bbox_below).save(chord_path_below)
-                _write_rotated_crop(
-                    page_rgb=page_rgb,
-                    crop_bbox=detected.system_crop_bbox,
-                    angle_degrees=detected.rotation_degrees,
-                    output_path=system_normalized_path,
-                )
-                _write_rotated_crop(
-                    page_rgb=page_rgb,
-                    crop_bbox=detected.chord_crop_bbox_above,
-                    angle_degrees=detected.rotation_degrees,
-                    output_path=chord_path_above_normalized,
-                )
-                _write_rotated_crop(
-                    page_rgb=page_rgb,
-                    crop_bbox=detected.chord_crop_bbox_below,
-                    angle_degrees=detected.rotation_degrees,
-                    output_path=chord_path_below_normalized,
-                )
                 system_paths.append(system_path)
-                system_normalized_paths.append(system_normalized_path)
                 chord_paths_above.append(chord_path_above)
-                chord_paths_above_normalized.append(chord_path_above_normalized)
                 chord_paths_below.append(chord_path_below)
-                chord_paths_below_normalized.append(chord_path_below_normalized)
                 logger.info("Created system crop: %s", system_path)
-                logger.info("Created normalized system crop: %s", system_normalized_path)
                 logger.info("Created chord region crop above: %s", chord_path_above)
-                logger.info(
-                    "Created normalized chord region crop above: %s", chord_path_above_normalized
-                )
                 logger.info("Created chord region crop below: %s", chord_path_below)
-                logger.info(
-                    "Created normalized chord region crop below: %s", chord_path_below_normalized
-                )
                 system_index += 1
 
             overlay_path = systems_dir / f"page_{page_number:03d}_overlay.png"
@@ -170,11 +137,12 @@ def create_system_crops(
             manifest_path.write_text(
                 json.dumps(
                     {
-                        "page": str(page_path),
+                        "page": str(deskewed_page_path),
+                        "source_page": str(page_path),
+                        "page_rotation_degrees": round(page_rotation_degrees, 4),
                         "systems": [
                             {
                                 "page_number": detected.page_number,
-                                "rotation_degrees": round(detected.rotation_degrees, 4),
                                 "system_bbox": _bbox_to_dict(detected.system_bbox),
                                 "system_crop_bbox": _bbox_to_dict(detected.system_crop_bbox),
                                 "chord_bbox_above": _bbox_to_dict(detected.chord_bbox_above),
@@ -198,11 +166,9 @@ def create_system_crops(
 
     return SegmentationResult(
         system_paths,
-        system_normalized_paths,
         chord_paths_above,
-        chord_paths_above_normalized,
         chord_paths_below,
-        chord_paths_below_normalized,
+        deskewed_page_paths,
         overlay_paths,
         manifest_paths,
     )
@@ -343,10 +309,10 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
 
     detected: List[DetectedSystem] = []
     for index, system_bbox in enumerate(system_bboxes):
-        rotation_degrees = _estimate_rotation_degrees(page_gray.crop(system_bbox))
         _, system_top, _, system_bottom = system_bbox
         system_height = system_bottom - system_top
         desired_chord_height = max(32, min(96, system_height // 2))
+        staff_overlap = max(24, int(system_height * 0.40))
         previous_system_bottom = 0 if index == 0 else system_bboxes[index - 1][3]
         next_system_top = height if index + 1 == len(system_bboxes) else system_bboxes[index + 1][1]
         system_crop_bbox = _expand_system_crop_bbox(system_bbox, width, height)
@@ -356,6 +322,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
             previous_system_bottom=previous_system_bottom,
             page_height=height,
             desired_height=desired_chord_height,
+            staff_overlap=staff_overlap,
         )
         chord_crop_bbox_above = _expand_annotation_crop_bbox(
             chord_bbox_above,
@@ -368,6 +335,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
             next_system_top=next_system_top,
             page_height=height,
             desired_height=desired_chord_height,
+            staff_overlap=staff_overlap,
         )
         chord_crop_bbox_below = _expand_annotation_crop_bbox(
             chord_bbox_below,
@@ -379,7 +347,6 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
         detected.append(
             DetectedSystem(
                 page_number=page_number,
-                rotation_degrees=rotation_degrees,
                 system_bbox=system_bbox,
                 system_crop_bbox=system_crop_bbox,
                 chord_bbox_above=chord_bbox_above,
@@ -452,20 +419,17 @@ def _build_annotation_band_above(
     previous_system_bottom: int,
     page_height: int,
     desired_height: int,
+    staff_overlap: int,
 ) -> BBox:
-    left, system_top, right, _ = system_bbox
-    band_top = previous_system_bottom + 6
-    band_bottom = system_top - 8
-    return _normalize_annotation_band(
-        left=left,
-        right=right,
-        preferred_top=band_bottom - desired_height,
-        preferred_bottom=band_bottom,
-        fallback_anchor=max(band_top, band_bottom - 12),
-        lower_bound=band_top,
-        upper_bound=band_bottom,
-        page_height=page_height,
-    )
+    left, system_top, right, system_bottom = system_bbox
+    staff_height = max(1, system_bottom - system_top)
+    invasion = min(max(0, staff_overlap), staff_height // 2)
+    band_bottom = min(page_height, system_top + invasion)
+    gap_start = max(0, previous_system_bottom + 6)
+    band_top = max(gap_start, band_bottom - desired_height - invasion)
+    if band_bottom - band_top < 12:
+        band_top = max(0, band_bottom - 12)
+    return (left, band_top, right, band_bottom)
 
 
 def _build_annotation_band_below(
@@ -473,45 +437,17 @@ def _build_annotation_band_below(
     next_system_top: int,
     page_height: int,
     desired_height: int,
+    staff_overlap: int,
 ) -> BBox:
-    left, _, right, system_bottom = system_bbox
-    band_top = system_bottom + 8
-    band_bottom = next_system_top - 6
-    return _normalize_annotation_band(
-        left=left,
-        right=right,
-        preferred_top=band_top,
-        preferred_bottom=band_top + desired_height,
-        fallback_anchor=band_top,
-        lower_bound=band_top,
-        upper_bound=band_bottom,
-        page_height=page_height,
-    )
-
-
-def _normalize_annotation_band(
-    *,
-    left: int,
-    right: int,
-    preferred_top: int,
-    preferred_bottom: int,
-    fallback_anchor: int,
-    lower_bound: int,
-    upper_bound: int,
-    page_height: int,
-) -> BBox:
-    minimum_height = 12
-    top = max(lower_bound, preferred_top)
-    bottom = min(upper_bound, preferred_bottom)
-
-    if bottom - top < minimum_height:
-        top = max(0, min(page_height - 1, fallback_anchor))
-        bottom = min(page_height, top + minimum_height)
-
-    if bottom <= top:
-        bottom = min(page_height, top + 1)
-
-    return (left, top, right, bottom)
+    left, system_top, right, system_bottom = system_bbox
+    staff_height = max(1, system_bottom - system_top)
+    invasion = min(max(0, staff_overlap), staff_height // 2)
+    band_top = max(0, system_bottom - invasion)
+    gap_end = min(page_height, max(band_top + 12, next_system_top - 6))
+    band_bottom = min(gap_end, band_top + desired_height + invasion)
+    if band_bottom - band_top < 12:
+        band_bottom = min(page_height, band_top + 12)
+    return (left, band_top, right, band_bottom)
 
 
 def _expand_system_crop_bbox(system_bbox: BBox, page_width: int, page_height: int) -> BBox:
@@ -584,13 +520,16 @@ def _expand_bbox(
     )
 
 
-def _estimate_rotation_degrees(crop_gray: Image.Image) -> float:
+def _estimate_page_skew(page_gray: Image.Image) -> float:
+    width, height = page_gray.size
+    if width < 64 or height < 64:
+        return 0.0
+    probe = _downsample_for_probe(page_gray, max_dimension=800)
     candidate_angles = [step / 4 for step in range(-16, 17)]
     best_angle = 0.0
     best_score = float("-inf")
-
     for angle in candidate_angles:
-        rotated = crop_gray.rotate(
+        rotated = probe.rotate(
             angle,
             resample=Image.Resampling.BICUBIC,
             expand=False,
@@ -600,8 +539,28 @@ def _estimate_rotation_degrees(crop_gray: Image.Image) -> float:
         if score > best_score:
             best_score = score
             best_angle = angle
-
     return best_angle
+
+
+def _deskew_page(page_rgb: Image.Image, angle_degrees: float) -> Image.Image:
+    if abs(angle_degrees) < 0.125:
+        return page_rgb
+    return page_rgb.rotate(
+        angle_degrees,
+        resample=Image.Resampling.BICUBIC,
+        expand=True,
+        fillcolor="white",
+    )
+
+
+def _downsample_for_probe(image: Image.Image, max_dimension: int) -> Image.Image:
+    width, height = image.size
+    largest = max(width, height)
+    if largest <= max_dimension:
+        return image
+    scale = max_dimension / largest
+    new_size = (max(1, int(width * scale)), max(1, int(height * scale)))
+    return image.resize(new_size, Image.Resampling.BILINEAR)
 
 
 def _row_peakiness_score(crop_gray: Image.Image) -> float:
@@ -615,23 +574,6 @@ def _row_peakiness_score(crop_gray: Image.Image) -> float:
 
     mean = sum(row_profile) / len(row_profile)
     return sum((value - mean) ** 2 for value in row_profile)
-
-
-def _write_rotated_crop(
-    *,
-    page_rgb: Image.Image,
-    crop_bbox: BBox,
-    angle_degrees: float,
-    output_path: Path,
-) -> None:
-    crop = page_rgb.crop(crop_bbox)
-    rotated = crop.rotate(
-        angle_degrees,
-        resample=Image.Resampling.BICUBIC,
-        expand=True,
-        fillcolor="white",
-    )
-    rotated.save(output_path)
 
 
 def _moving_average(values: List[float], window: int) -> List[float]:
@@ -717,6 +659,7 @@ def _clear_segmentation_outputs(systems_dir: Path) -> None:
         "chord_region_above_normalized_*.png",
         "chord_region_below_*.png",
         "chord_region_below_normalized_*.png",
+        "page_*_deskewed.png",
         "page_*_overlay.png",
         "page_*_segments.json",
     )
