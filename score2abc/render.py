@@ -16,6 +16,7 @@ BBox = tuple[int, int, int, int]
 @dataclass(frozen=True)
 class DetectedSystem:
     page_number: int
+    rotation_degrees: float
     system_bbox: BBox
     system_crop_bbox: BBox
     chord_bbox_above: BBox
@@ -27,8 +28,11 @@ class DetectedSystem:
 @dataclass(frozen=True)
 class SegmentationResult:
     system_crops: List[Path]
+    system_crops_normalized: List[Path]
     chord_crops_above: List[Path]
+    chord_crops_above_normalized: List[Path]
     chord_crops_below: List[Path]
+    chord_crops_below_normalized: List[Path]
     debug_overlays: List[Path]
     debug_manifests: List[Path]
 
@@ -36,8 +40,11 @@ class SegmentationResult:
     def all_outputs(self) -> List[Path]:
         return [
             *self.system_crops,
+            *self.system_crops_normalized,
             *self.chord_crops_above,
+            *self.chord_crops_above_normalized,
             *self.chord_crops_below,
+            *self.chord_crops_below_normalized,
             *self.debug_overlays,
             *self.debug_manifests,
         ]
@@ -81,13 +88,16 @@ def create_system_crops(
     systems_dir.mkdir(parents=True, exist_ok=True)
     if not page_paths:
         logger.warning("No pages available for system crops")
-        return SegmentationResult([], [], [], [], [])
+        return SegmentationResult([], [], [], [], [], [], [], [])
 
     _clear_segmentation_outputs(systems_dir)
 
     system_paths: List[Path] = []
+    system_normalized_paths: List[Path] = []
     chord_paths_above: List[Path] = []
+    chord_paths_above_normalized: List[Path] = []
     chord_paths_below: List[Path] = []
+    chord_paths_below_normalized: List[Path] = []
     overlay_paths: List[Path] = []
     manifest_paths: List[Path] = []
     system_index = 1
@@ -104,17 +114,52 @@ def create_system_crops(
 
             for detected in detected_systems:
                 system_path = systems_dir / f"system_{system_index:03d}.png"
+                system_normalized_path = systems_dir / f"system_normalized_{system_index:03d}.png"
                 chord_path_above = systems_dir / f"chord_region_above_{system_index:03d}.png"
+                chord_path_above_normalized = (
+                    systems_dir / f"chord_region_above_normalized_{system_index:03d}.png"
+                )
                 chord_path_below = systems_dir / f"chord_region_below_{system_index:03d}.png"
+                chord_path_below_normalized = (
+                    systems_dir / f"chord_region_below_normalized_{system_index:03d}.png"
+                )
                 page_rgb.crop(detected.system_crop_bbox).save(system_path)
                 page_rgb.crop(detected.chord_crop_bbox_above).save(chord_path_above)
                 page_rgb.crop(detected.chord_crop_bbox_below).save(chord_path_below)
+                _write_rotated_crop(
+                    page_rgb=page_rgb,
+                    crop_bbox=detected.system_crop_bbox,
+                    angle_degrees=detected.rotation_degrees,
+                    output_path=system_normalized_path,
+                )
+                _write_rotated_crop(
+                    page_rgb=page_rgb,
+                    crop_bbox=detected.chord_crop_bbox_above,
+                    angle_degrees=detected.rotation_degrees,
+                    output_path=chord_path_above_normalized,
+                )
+                _write_rotated_crop(
+                    page_rgb=page_rgb,
+                    crop_bbox=detected.chord_crop_bbox_below,
+                    angle_degrees=detected.rotation_degrees,
+                    output_path=chord_path_below_normalized,
+                )
                 system_paths.append(system_path)
+                system_normalized_paths.append(system_normalized_path)
                 chord_paths_above.append(chord_path_above)
+                chord_paths_above_normalized.append(chord_path_above_normalized)
                 chord_paths_below.append(chord_path_below)
+                chord_paths_below_normalized.append(chord_path_below_normalized)
                 logger.info("Created system crop: %s", system_path)
+                logger.info("Created normalized system crop: %s", system_normalized_path)
                 logger.info("Created chord region crop above: %s", chord_path_above)
+                logger.info(
+                    "Created normalized chord region crop above: %s", chord_path_above_normalized
+                )
                 logger.info("Created chord region crop below: %s", chord_path_below)
+                logger.info(
+                    "Created normalized chord region crop below: %s", chord_path_below_normalized
+                )
                 system_index += 1
 
             overlay_path = systems_dir / f"page_{page_number:03d}_overlay.png"
@@ -129,6 +174,7 @@ def create_system_crops(
                         "systems": [
                             {
                                 "page_number": detected.page_number,
+                                "rotation_degrees": round(detected.rotation_degrees, 4),
                                 "system_bbox": _bbox_to_dict(detected.system_bbox),
                                 "system_crop_bbox": _bbox_to_dict(detected.system_crop_bbox),
                                 "chord_bbox_above": _bbox_to_dict(detected.chord_bbox_above),
@@ -152,8 +198,11 @@ def create_system_crops(
 
     return SegmentationResult(
         system_paths,
+        system_normalized_paths,
         chord_paths_above,
+        chord_paths_above_normalized,
         chord_paths_below,
+        chord_paths_below_normalized,
         overlay_paths,
         manifest_paths,
     )
@@ -294,6 +343,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
 
     detected: List[DetectedSystem] = []
     for index, system_bbox in enumerate(system_bboxes):
+        rotation_degrees = _estimate_rotation_degrees(page_gray.crop(system_bbox))
         _, system_top, _, system_bottom = system_bbox
         system_height = system_bottom - system_top
         desired_chord_height = max(32, min(96, system_height // 2))
@@ -329,6 +379,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
         detected.append(
             DetectedSystem(
                 page_number=page_number,
+                rotation_degrees=rotation_degrees,
                 system_bbox=system_bbox,
                 system_crop_bbox=system_crop_bbox,
                 chord_bbox_above=chord_bbox_above,
@@ -533,6 +584,56 @@ def _expand_bbox(
     )
 
 
+def _estimate_rotation_degrees(crop_gray: Image.Image) -> float:
+    candidate_angles = [step / 4 for step in range(-16, 17)]
+    best_angle = 0.0
+    best_score = float("-inf")
+
+    for angle in candidate_angles:
+        rotated = crop_gray.rotate(
+            angle,
+            resample=Image.Resampling.BICUBIC,
+            expand=False,
+            fillcolor=255,
+        )
+        score = _row_peakiness_score(rotated)
+        if score > best_score:
+            best_score = score
+            best_angle = angle
+
+    return best_angle
+
+
+def _row_peakiness_score(crop_gray: Image.Image) -> float:
+    width = crop_gray.width
+    left_margin = int(width * 0.02)
+    right_margin = max(left_margin + 1, int(width * 0.98))
+    threshold = _estimate_ink_threshold(crop_gray)
+    row_profile = _ink_density_by_row(crop_gray, left_margin, right_margin, threshold)
+    if not row_profile:
+        return 0.0
+
+    mean = sum(row_profile) / len(row_profile)
+    return sum((value - mean) ** 2 for value in row_profile)
+
+
+def _write_rotated_crop(
+    *,
+    page_rgb: Image.Image,
+    crop_bbox: BBox,
+    angle_degrees: float,
+    output_path: Path,
+) -> None:
+    crop = page_rgb.crop(crop_bbox)
+    rotated = crop.rotate(
+        angle_degrees,
+        resample=Image.Resampling.BICUBIC,
+        expand=True,
+        fillcolor="white",
+    )
+    rotated.save(output_path)
+
+
 def _moving_average(values: List[float], window: int) -> List[float]:
     if not values:
         return []
@@ -610,9 +711,12 @@ def _bbox_to_dict(bbox: BBox) -> dict[str, int]:
 def _clear_segmentation_outputs(systems_dir: Path) -> None:
     patterns = (
         "system_*.png",
+        "system_normalized_*.png",
         "chord_region_*.png",
         "chord_region_above_*.png",
+        "chord_region_above_normalized_*.png",
         "chord_region_below_*.png",
+        "chord_region_below_normalized_*.png",
         "page_*_overlay.png",
         "page_*_segments.json",
     )

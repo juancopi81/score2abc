@@ -157,8 +157,17 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 inputs={"pages": [str(p) for p in page_paths]},
                 outputs={
                     "system_crops": [str(p) for p in segmentation.system_crops],
+                    "system_crops_normalized": [
+                        str(p) for p in segmentation.system_crops_normalized
+                    ],
                     "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
+                    "chord_crops_above_normalized": [
+                        str(p) for p in segmentation.chord_crops_above_normalized
+                    ],
                     "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                    "chord_crops_below_normalized": [
+                        str(p) for p in segmentation.chord_crops_below_normalized
+                    ],
                     "debug_overlays": [str(p) for p in segmentation.debug_overlays],
                     "debug_manifests": [str(p) for p in segmentation.debug_manifests],
                 },

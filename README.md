@@ -18,6 +18,9 @@ Notes:
 - ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
 - ABC export now preserves canonical event timing, including implicit rests,
   simultaneous-note groups, and ties split across barlines/chord changes.
+- Segmentation now writes both raw and locally deskewed system/annotation crops
+  under each work's `systems/` directory, plus per-page overlays and JSON bbox
+  manifests for inspection.
 
 ## Dependency Management (uv)
 

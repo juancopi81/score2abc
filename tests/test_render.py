@@ -19,8 +19,11 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     result = create_system_crops([page_path], systems_dir, logging.getLogger("test.render"))
 
     assert len(result.system_crops) == 2
+    assert len(result.system_crops_normalized) == 2
     assert len(result.chord_crops_above) == 2
+    assert len(result.chord_crops_above_normalized) == 2
     assert len(result.chord_crops_below) == 2
+    assert len(result.chord_crops_below_normalized) == 2
     assert len(result.debug_overlays) == 1
     assert len(result.debug_manifests) == 1
     assert not legacy_path.exists()
@@ -73,7 +76,26 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     assert below_darkness[1] > above_darkness[1]
 
 
-def _write_synthetic_page(page_path: Path) -> None:
+def test_create_system_crops_writes_deskewed_variants_for_skewed_page(tmp_path: Path) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_synthetic_page(page_path, skew_degrees=2.25)
+
+    result = create_system_crops([page_path], systems_dir, logging.getLogger("test.render.skew"))
+
+    assert result.system_crops
+    assert len(result.system_crops) == len(result.system_crops_normalized)
+
+    raw_score = _row_peakiness(result.system_crops[0])
+    normalized_score = _row_peakiness(result.system_crops_normalized[0])
+    assert normalized_score > raw_score
+
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert abs(float(manifest["systems"][0]["rotation_degrees"])) >= 0.25
+
+
+def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:
     image = Image.new("RGB", (1800, 2400), "white")
     draw = ImageDraw.Draw(image)
     left = 160
@@ -99,6 +121,14 @@ def _write_synthetic_page(page_path: Path) -> None:
         draw.line((left, top - 10, left, top + 96), fill="black", width=4)
         draw.line((right, top - 10, right, top + 96), fill="black", width=4)
 
+    if skew_degrees:
+        image = image.rotate(
+            skew_degrees,
+            resample=Image.Resampling.BICUBIC,
+            expand=False,
+            fillcolor="white",
+        )
+
     image.save(page_path)
 
 
@@ -110,3 +140,20 @@ def _draw_annotation_blocks(draw: ImageDraw.ImageDraw, x: int, y: int) -> None:
 def _crop_darkness(path: Path) -> float:
     image = Image.open(path).convert("L")
     return 255 - Stat(image).mean[0]
+
+
+def _row_peakiness(path: Path) -> float:
+    image = Image.open(path).convert("L")
+    width = image.width
+    left = int(width * 0.02)
+    right = max(left + 1, int(width * 0.98))
+    pixels = image.load()
+    rows = []
+    for y in range(image.height):
+        dark_pixels = 0
+        for x in range(left, right):
+            if pixels[x, y] < 220:
+                dark_pixels += 1
+        rows.append(dark_pixels / max(1, right - left))
+    mean = sum(rows) / len(rows)
+    return sum((value - mean) ** 2 for value in rows)
