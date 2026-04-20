@@ -18,12 +18,14 @@ Notes:
 - ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
 - ABC export now preserves canonical event timing, including implicit rests,
   simultaneous-note groups, and ties split across barlines/chord changes.
-- Segmentation deskews each page once before detection, then writes system
-  crops plus annotation-band crops above and below each staff under each
-  work's `systems/` directory. Chord bands overlap the outer staff lines so
-  chord symbols that sit against the staff aren't clipped. Per-page overlays
-  and JSON bbox manifests (with the detected `page_rotation_degrees`) are
-  written alongside for inspection.
+- Segmentation deskews each page once, then applies a gamma=3.5 curve to
+  push faded pencil ink toward black while leaving the already-uniform
+  paper white untouched. It then writes system crops plus annotation-band
+  crops above and below each staff under each work's `systems/` directory.
+  Chord bands overlap the outer staff lines so chord symbols that sit
+  against the staff aren't clipped. Per-page overlays and JSON bbox
+  manifests (with the detected `page_rotation_degrees`) are written
+  alongside for inspection.
 
 ## Dependency Management (uv)
 

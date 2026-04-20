@@ -18,24 +18,25 @@ Done when: a single PDF produces `melody.abc`, `melody_with_chords.abc`, preview
 ## M1 — Evaluation Harness + Dataset Plumbing
 Goal: make accuracy measurable on the 10-PDF dataset.
 
-- [ ] Formalize dataset loader for `dataset/metadata.csv` (validate required fields).
-- [ ] Add a run log per work + a top-level summary report.
-- [ ] Add stage-level `stage.json` artifacts (inputs, params, hashes) for resume/caching.
-- [ ] Define accuracy metrics (note accuracy, chord accuracy, meter validity) and how to compute them.
-- [ ] Create a small labeled subset format (ground-truth ABC or events).
-- [ ] Add a “compare vs ground truth” script/report.
-- [ ] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
+- [x] Formalize dataset loader for `dataset/metadata.csv` (validate required fields).
+- [x] Add a run log per work + a top-level summary report.
+- [x] Add stage-level `stage.json` artifacts (inputs, params, hashes) for resume/caching.
+- [x] Define accuracy metrics (note accuracy, chord accuracy, meter validity) and how to compute them.
+- [x] Create a small labeled subset format (ground-truth ABC or events).
+- [x] Add a “compare vs ground truth” script/report.
+- [x] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
 
 Done when: you can run an evaluation command that produces a numeric report for the dataset.
 
 ## M2 — Accuracy Lifts: Segmentation + Melody + Chords
 Goal: improve recognition quality with prioritized de-risking.
 
-- [ ] Staff/system detection with robust line-spacing estimation.
-- [ ] Improve preprocessing (deskew, contrast, denoise) and save variants.
+- [x] Staff/system detection with robust line-spacing estimation.
+- [x] Page-level deskew with row-peakiness estimator; chord bands overlap staff so glyphs nestled against outer staff lines aren't clipped.
+- [ ] Additional preprocessing (contrast, denoise) if VLM/OMR readability demands it — deferred until recognition step drives the need.
+- [ ] Chord extraction via VLM on the above/below annotation bands → normalized symbols + measure alignment. *(chord-first pivot: validate VLM path on the easier target before investing in melody OMR)*
 - [ ] Integrate Melody Engine A → MusicXML → `events.json`.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
-- [ ] Chord OCR extraction + normalization + alignment to measures.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

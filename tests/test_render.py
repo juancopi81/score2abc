@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from PIL.ImageStat import Stat
 
-from score2abc.render import create_system_crops
+from score2abc.render import _darken_ink, create_system_crops
 
 
 def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) -> None:
@@ -113,6 +113,36 @@ def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     re_skewed.save(probe_path)
     reskewed_score = _row_peakiness(probe_path)
     assert deskewed_score > reskewed_score
+
+
+def test_darken_ink_crushes_mid_tones_and_preserves_extremes() -> None:
+    probe = Image.new("RGB", (3, 1), (255, 255, 255))
+    probe.putpixel((0, 0), (0, 0, 0))
+    probe.putpixel((1, 0), (128, 128, 128))
+    probe.putpixel((2, 0), (255, 255, 255))
+
+    darkened = _darken_ink(probe, gamma=3.5)
+
+    assert darkened.getpixel((0, 0)) == (0, 0, 0)
+    assert darkened.getpixel((2, 0)) == (255, 255, 255)
+    mid_after = darkened.getpixel((1, 0))[0]
+    assert mid_after < 40, mid_after
+
+
+def test_darken_ink_preserves_off_white_background() -> None:
+    # Yellowed-paper regression: a page whose brightest pixels are ~245
+    # must not have its background pulled down to mid-gray. The curve
+    # should anchor to the page's own white point.
+    probe = Image.new("RGB", (200, 1), (245, 245, 245))
+    for x in range(5):
+        probe.putpixel((x, 0), (60, 60, 60))
+
+    darkened = _darken_ink(probe, gamma=3.5)
+
+    background = darkened.getpixel((100, 0))[0]
+    ink = darkened.getpixel((0, 0))[0]
+    assert background >= 245, background
+    assert ink < 30, ink
 
 
 def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:

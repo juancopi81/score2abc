@@ -5,6 +5,8 @@
 - `score2abc/` contains the Python package code (schemas, CLI, pipeline, and helpers).
 - `score2abc/utils/` holds shared logging and timing utilities.
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
+- `docs/ROADMAP.md` tracks milestone progress with checkboxes — update it when milestone items ship.
+- `CLAUDE.md` is a thin pointer for Claude Code back to this file.
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.
 - `dataset/ground_truth/` holds labeled events for evaluation (`<slug>.json`).

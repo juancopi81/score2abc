@@ -100,7 +100,7 @@ def create_system_crops(
             original_rgb = page_image.convert("RGB")
             original_gray = ImageOps.autocontrast(original_rgb.convert("L"), cutoff=1)
             page_rotation_degrees = _estimate_page_skew(original_gray)
-            page_rgb = _deskew_page(original_rgb, page_rotation_degrees)
+            page_rgb = _darken_ink(_deskew_page(original_rgb, page_rotation_degrees))
             page_gray = ImageOps.autocontrast(page_rgb.convert("L"), cutoff=1)
 
             deskewed_page_path = systems_dir / f"page_{page_number:03d}_deskewed.png"
@@ -551,6 +551,32 @@ def _deskew_page(page_rgb: Image.Image, angle_degrees: float) -> Image.Image:
         expand=True,
         fillcolor="white",
     )
+
+
+def _darken_ink(page: Image.Image, gamma: float = 3.5) -> Image.Image:
+    """Push faded ink toward pure black via a gamma curve.
+
+    Anchors the curve to the page's own p99 luma (not a hardcoded 255) so
+    scans with slightly yellowed or shadowed backgrounds get their paper
+    normalized to white *before* gamma bites — otherwise a 245 paper pixel
+    would be pulled to 222 (mid-gray) instead of staying near white.
+    """
+    histogram = page.convert("L").histogram()
+    total = sum(histogram)
+    if total == 0:
+        return page
+    cumulative = 0
+    white_point = 255
+    target = total * 0.99
+    for value, count in enumerate(histogram):
+        cumulative += count
+        if cumulative >= target:
+            white_point = max(value, 1)
+            break
+    scale = 255.0 / white_point
+    table = [int(round((min(1.0, value * scale / 255.0) ** gamma) * 255.0)) for value in range(256)]
+    bands = page.split()
+    return Image.merge(page.mode, [band.point(table) for band in bands])
 
 
 def _downsample_for_probe(image: Image.Image, max_dimension: int) -> Image.Image:
