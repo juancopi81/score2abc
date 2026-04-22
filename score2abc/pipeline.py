@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from score2abc.abc import events_to_abc
+from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
@@ -15,6 +16,8 @@ from score2abc.schemas import WorkItem
 from score2abc.utils import Timer, get_logger
 
 DEFAULT_DPI = 300
+DEFAULT_VLM_FIXTURES_DIR = Path("tests/fixtures/vlm")
+DEFAULT_VLM_CACHE_DIR = Path(".cache/vlm")
 
 
 def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
@@ -169,8 +172,46 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
             if not segmentation.system_crops:
                 raise RuntimeError("No system crops were generated")
 
+            chords_started = _utcnow()
+            ocr = build_chord_ocr(
+                use_vlm,
+                fixtures_dir=DEFAULT_VLM_FIXTURES_DIR,
+                cache_dir=DEFAULT_VLM_CACHE_DIR,
+            )
+            chords_payload = extract_chords_for_systems(
+                ocr=ocr,
+                system_crops=segmentation.system_crops,
+                chord_crops_above=segmentation.chord_crops_above,
+                chord_crops_below=segmentation.chord_crops_below,
+                metadata=item.metadata,
+                logger=logger,
+            )
+            chords_path = intermediate_dir / "chords.json"
+            chords_path.write_text(json.dumps(chords_payload, indent=2) + "\n", encoding="utf-8")
+            logger.info("Wrote chords: %s", chords_path)
+            chords_ended = _utcnow()
+            _write_stage_artifact(
+                work_dir=work_dir,
+                stage="extract_chords",
+                status="success",
+                started_at=chords_started,
+                ended_at=chords_ended,
+                inputs={
+                    "system_crops": [str(p) for p in segmentation.system_crops],
+                    "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
+                    "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                },
+                outputs={"chords_json": str(chords_path)},
+                params={
+                    "use_vlm": use_vlm,
+                    "provider": chords_payload["provider"],
+                    "model_id": chords_payload["model_id"],
+                    "prompt_version": chords_payload["prompt_version"],
+                },
+            )
+
             events_started = _utcnow()
-            events = _build_stub_events(item)
+            events = _build_stub_events(item, chords=chords_payload["chords"])
             events_path = intermediate_dir / "events.json"
             events_path.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
             logger.info("Wrote events: %s", events_path)
@@ -181,7 +222,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 status="success",
                 started_at=events_started,
                 ended_at=events_ended,
-                inputs={},
+                inputs={"chords_json": str(chords_path)},
                 outputs={"events_json": str(events_path)},
                 params={},
             )
@@ -331,7 +372,25 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     return run_evaluation(out_dir, ground_truth_dir)
 
 
-def _build_stub_events(item: WorkItem) -> dict:
+def _build_stub_events(item: WorkItem, *, chords: List[Dict[str, Any]] | None = None) -> dict:
+    if chords:
+        chord_events = [
+            {
+                "measure": entry["measure"],
+                "onset_beats": entry.get("onset_beats", 0.0),
+                "symbol": entry["symbol"],
+            }
+            for entry in chords
+        ]
+    else:
+        chord_events = [
+            {
+                "measure": 1,
+                "onset_beats": 0.0,
+                "symbol": item.metadata.key_hint or "C",
+            }
+        ]
+
     return {
         "time_signature": item.metadata.time_signature or "4/4",
         "notes": [
@@ -360,13 +419,7 @@ def _build_stub_events(item: WorkItem) -> dict:
                 "pitch_midi": 65,
             },
         ],
-        "chords": [
-            {
-                "measure": 1,
-                "onset_beats": 0.0,
-                "symbol": item.metadata.key_hint or "C",
-            }
-        ],
+        "chords": chord_events,
     }
 
 

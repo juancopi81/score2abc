@@ -17,9 +17,14 @@ def compare_events(pred: Dict, truth: Dict) -> Dict[str, object]:
     truth_note_set = _normalize_notes(truth_notes)
     pred_chord_set = _normalize_chords(pred_chords)
     truth_chord_set = _normalize_chords(truth_chords)
+    pred_chord_set_measure_only = _normalize_chords_measure_only(pred_chords)
+    truth_chord_set_measure_only = _normalize_chords_measure_only(truth_chords)
 
     note_stats = _precision_recall_f1(pred_note_set, truth_note_set)
     chord_stats = _precision_recall_f1(pred_chord_set, truth_chord_set)
+    chord_stats_measure_only = _precision_recall_f1(
+        pred_chord_set_measure_only, truth_chord_set_measure_only
+    )
 
     return {
         "pred_notes": len(pred_notes),
@@ -42,6 +47,12 @@ def compare_events(pred: Dict, truth: Dict) -> Dict[str, object]:
         "chord_precision": chord_stats["precision"],
         "chord_recall": chord_stats["recall"],
         "chord_f1": chord_stats["f1"],
+        "chord_true_positives_measure_only": chord_stats_measure_only["tp"],
+        "chord_false_positives_measure_only": chord_stats_measure_only["fp"],
+        "chord_false_negatives_measure_only": chord_stats_measure_only["fn"],
+        "chord_precision_measure_only": chord_stats_measure_only["precision"],
+        "chord_recall_measure_only": chord_stats_measure_only["recall"],
+        "chord_f1_measure_only": chord_stats_measure_only["f1"],
         "time_signature_pred": pred_ts,
         "time_signature_truth": truth_ts,
         "time_signature_match": time_signature_match,
@@ -69,6 +80,24 @@ def _normalize_chords(chords: Iterable[Dict]) -> set[Tuple[object, ...]]:
             (
                 int(chord.get("measure", 0)),
                 _round_float(chord.get("onset_beats", 0.0)),
+                str(chord.get("symbol", "")).strip(),
+            )
+        )
+    return normalized
+
+
+def _normalize_chords_measure_only(chords: Iterable[Dict]) -> set[Tuple[object, ...]]:
+    """Collapse chords to `(measure, symbol)` for the v0 chord metric.
+
+    Gemini/VLM chord extraction produces symbol-level detections without a
+    reliable onset, so the primary v0 score ignores `onset_beats` and just
+    checks whether the right symbol appears in the right measure.
+    """
+    normalized: set[Tuple[object, ...]] = set()
+    for chord in chords:
+        normalized.add(
+            (
+                int(chord.get("measure", 0)),
                 str(chord.get("symbol", "")).strip(),
             )
         )
