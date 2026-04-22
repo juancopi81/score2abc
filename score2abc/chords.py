@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from score2abc.chord_ocr import (
+    BANDS,
+    Band,
     CachedChordOCR,
     ChordDetection,
     ChordExtractionRequest,
@@ -17,7 +19,9 @@ from score2abc.chord_ocr.alignment import (
     detect_barlines,
     measures_in_system,
 )
+from score2abc.chord_ocr.gemini import DEFAULT_MODEL
 from score2abc.schemas import WorkMetadata
+from score2abc.utils import get_logger
 
 
 def build_chord_ocr(
@@ -34,7 +38,7 @@ def build_chord_ocr(
     same crop never re-hit the API.
     """
     if not use_vlm:
-        return FixtureChordOCR(fixtures_dir)
+        return FixtureChordOCR(fixtures_dir, model_id=model or DEFAULT_MODEL)
 
     from score2abc.chord_ocr import GeminiChordOCR
 
@@ -53,12 +57,10 @@ def extract_chords_for_systems(
 ) -> dict[str, Any]:
     """Run chord OCR across every system and return the chords.json payload.
 
-    For each system we detect barlines on the system crop, call the OCR backend
-    on both chord bands, and map each detection's x-fraction to a system-local
-    measure. Measures are then offset by the cumulative measure count of prior
-    systems so the canonical `chords` list uses global measure indices.
+    Measures are offset by the cumulative measure count of prior systems so the
+    canonical `chords` list uses global measure indices.
     """
-    log = logger or logging.getLogger(__name__)
+    log = logger or get_logger("score2abc.chords")
 
     if not (len(system_crops) == len(chord_crops_above) == len(chord_crops_below)):
         raise ValueError(
@@ -75,43 +77,27 @@ def extract_chords_for_systems(
     ):
         barlines = detect_barlines(system_crop)
         measure_count = measures_in_system(barlines)
-
-        above_detections = _extract_safely(
-            ocr,
-            image_path=above_crop,
-            band="above",
-            system_index=system_index,
-            metadata=metadata,
-            logger=log,
-        )
-        below_detections = _extract_safely(
-            ocr,
-            image_path=below_crop,
-            band="below",
-            system_index=system_index,
-            metadata=metadata,
-            logger=log,
-        )
+        band_crops: dict[Band, Path] = {"above": above_crop, "below": below_crop}
 
         system_detections: list[dict[str, Any]] = []
-        for detection, local_measure in zip(
-            above_detections, assign_measures(above_detections, barlines), strict=True
-        ):
-            canonical_chords.append(
-                _canonical_chord(detection, cumulative_prior_measures + local_measure)
+        for band in BANDS:
+            detections = _extract_safely(
+                ocr,
+                image_path=band_crops[band],
+                band=band,
+                system_index=system_index,
+                metadata=metadata,
+                logger=log,
             )
-            system_detections.append(
-                _system_detection(detection, local_measure, cumulative_prior_measures)
-            )
-        for detection, local_measure in zip(
-            below_detections, assign_measures(below_detections, barlines), strict=True
-        ):
-            canonical_chords.append(
-                _canonical_chord(detection, cumulative_prior_measures + local_measure)
-            )
-            system_detections.append(
-                _system_detection(detection, local_measure, cumulative_prior_measures)
-            )
+            for detection, local_measure in zip(
+                detections, assign_measures(detections, barlines), strict=True
+            ):
+                canonical_chords.append(
+                    _canonical_chord(detection, cumulative_prior_measures + local_measure)
+                )
+                system_detections.append(
+                    _system_detection(detection, local_measure, cumulative_prior_measures)
+                )
 
         systems_payload.append(
             {
@@ -142,14 +128,14 @@ def _extract_safely(
     ocr: ChordOCR,
     *,
     image_path: Path,
-    band: str,
+    band: Band,
     system_index: int,
     metadata: WorkMetadata,
     logger: logging.Logger,
 ) -> list[ChordDetection]:
     request = ChordExtractionRequest(
         image_path=image_path,
-        band=band,  # type: ignore[arg-type]
+        band=band,
         system_index=system_index,
         rhythm_hint=metadata.rhythm,
         key_hint=metadata.key_hint,

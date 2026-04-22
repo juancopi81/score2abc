@@ -43,7 +43,7 @@ def test_cached_chord_ocr_writes_on_miss_reads_on_hit(tmp_path: Path) -> None:
 
     second = list(cached.extract(request))
     assert second == detections
-    assert inner.calls == 1  # no new call to inner — cache hit
+    assert inner.calls == 1
 
 
 def test_cached_chord_ocr_invalidates_on_model_change(tmp_path: Path) -> None:

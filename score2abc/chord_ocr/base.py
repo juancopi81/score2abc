@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Literal, Protocol, Sequence
 
 Band = Literal["above", "below"]
+BANDS: tuple[Band, Band] = ("above", "below")
 
 
 @dataclass(frozen=True)

@@ -35,8 +35,10 @@ class CachedChordOCR:
             model_id=self.model_id,
         )
         cache_path = self._cache_dir / f"{key}.json"
-        if cache_path.exists():
-            return read_fixture(cache_path, default_band=request.band)
+        try:
+            return read_fixture(cache_path)
+        except FileNotFoundError:
+            pass
 
         detections = list(self._inner.extract(request))
         write_fixture(

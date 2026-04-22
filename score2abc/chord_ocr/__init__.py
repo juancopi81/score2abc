@@ -1,6 +1,7 @@
 """Chord-symbol OCR contracts, normalization, and backends."""
 
 from score2abc.chord_ocr.base import (
+    BANDS,
     Band,
     ChordDetection,
     ChordExtractionRequest,
@@ -19,6 +20,7 @@ from score2abc.chord_ocr.normalize import normalize_chord_symbol
 from score2abc.chord_ocr.prompt import PROMPT_VERSION, RESPONSE_SCHEMA, SYSTEM_PROMPT
 
 __all__ = [
+    "BANDS",
     "Band",
     "ChordDetection",
     "ChordExtractionRequest",

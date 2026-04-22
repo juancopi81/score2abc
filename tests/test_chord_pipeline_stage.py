@@ -12,7 +12,11 @@ from score2abc.chord_ocr import (
     ChordDetection,
     ChordExtractionRequest,
     FixtureChordOCR,
+    fixture_key,
+    write_fixture,
 )
+from score2abc.chord_ocr.gemini import DEFAULT_MODEL
+from score2abc.chord_ocr.prompt import PROMPT_VERSION
 from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.schemas import WorkMetadata
 
@@ -214,6 +218,31 @@ def test_build_chord_ocr_without_vlm_returns_fixture_backend(tmp_path: Path) -> 
         cache_dir=tmp_path / "cache",
     )
     assert isinstance(ocr, FixtureChordOCR)
+    assert ocr.model_id == DEFAULT_MODEL
+
+
+def test_build_chord_ocr_without_vlm_replays_promoted_live_fixture(tmp_path: Path) -> None:
+    fixtures_dir = tmp_path / "fixtures"
+    image = _blank_crop(tmp_path / "chord_region_above_001.png")
+    detections = [
+        ChordDetection(symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above")
+    ]
+    key = fixture_key(image, prompt_version=PROMPT_VERSION, model_id=DEFAULT_MODEL)
+    write_fixture(
+        fixtures_dir / f"{key}.json",
+        image_path=image,
+        prompt_version=PROMPT_VERSION,
+        model_id=DEFAULT_MODEL,
+        detections=detections,
+    )
+
+    ocr = build_chord_ocr(
+        use_vlm=False,
+        fixtures_dir=fixtures_dir,
+        cache_dir=tmp_path / "cache",
+    )
+    request = ChordExtractionRequest(image_path=image, band="above", system_index=1)
+    assert list(ocr.extract(request)) == detections
 
 
 def test_build_chord_ocr_with_vlm_wraps_gemini_in_cache(

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import base64
 import json
-import logging
 import mimetypes
 import os
 from typing import Any, Sequence
 
-from score2abc.chord_ocr.base import ChordDetection, ChordExtractionRequest
+from score2abc.chord_ocr.base import Band, ChordDetection, ChordExtractionRequest
 from score2abc.chord_ocr.normalize import normalize_chord_symbol
 from score2abc.chord_ocr.prompt import PROMPT_VERSION, RESPONSE_SCHEMA, SYSTEM_PROMPT
 
@@ -28,10 +27,8 @@ class GeminiChordOCR:
         client: Any = None,
         api_key: str | None = None,
         model: str = DEFAULT_MODEL,
-        logger: logging.Logger | None = None,
     ) -> None:
         self._model = model
-        self._logger = logger or logging.getLogger(__name__)
         if client is not None:
             self._client = client
         else:
@@ -117,7 +114,7 @@ def _response_text(response: Any) -> str:
     return joined
 
 
-def _parse_detections(payload: Any, *, band: str) -> list[ChordDetection]:
+def _parse_detections(payload: Any, *, band: Band) -> list[ChordDetection]:
     if not isinstance(payload, dict):
         raise ValueError(f"Expected JSON object from Gemini, got {type(payload).__name__}")
     raw_detections = payload.get("detections") or []
@@ -135,7 +132,7 @@ def _parse_detections(payload: Any, *, band: str) -> list[ChordDetection]:
                 symbol=normalized,
                 x_fraction=_clamp01(item.get("x_fraction", 0.0)),
                 confidence=_clamp01(item.get("confidence", 0.0)),
-                band=band,  # type: ignore[arg-type]
+                band=band,
             )
         )
     return result

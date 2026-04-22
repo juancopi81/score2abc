@@ -3,9 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Sequence
 
-from PIL import Image, ImageStat
+from PIL import Image
 
 from score2abc.chord_ocr.base import ChordDetection
+from score2abc.utils.imaging import estimate_ink_threshold
 
 
 def detect_barlines(
@@ -68,7 +69,7 @@ def _detect_barlines_in_image(
     if width <= 2 or height <= 2:
         return []
 
-    threshold = _ink_threshold(gray)
+    threshold = estimate_ink_threshold(gray)
     pixels = gray.load()
 
     column_density = [0.0] * width
@@ -101,8 +102,3 @@ def _detect_barlines_in_image(
         last_peak = x
 
     return [peak / width for peak in peaks]
-
-
-def _ink_threshold(gray: Image.Image) -> int:
-    mean_luma = ImageStat.Stat(gray).mean[0]
-    return max(150, min(220, int(mean_luma - 28)))

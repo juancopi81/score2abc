@@ -21,27 +21,25 @@ Gemini.
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from score2abc.chord_ocr import (  # noqa: E402
+from score2abc.chord_ocr import (
+    BANDS,
+    Band,
     ChordExtractionRequest,
     GeminiChordOCR,
     fixture_key,
     write_fixture,
 )
-from score2abc.manifest import load_manifest_jsonl  # noqa: E402
-from score2abc.schemas import WorkItem  # noqa: E402
-from score2abc.utils import get_logger  # noqa: E402
+from score2abc.manifest import load_manifest_jsonl
+from score2abc.schemas import WorkItem
+from score2abc.utils import get_logger
 
-BAND_PATTERNS = (
-    ("above", "chord_region_above_*.png"),
-    ("below", "chord_region_below_*.png"),
-)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+BAND_GLOB: dict[Band, str] = {
+    "above": "chord_region_above_*.png",
+    "below": "chord_region_below_*.png",
+}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -134,8 +132,8 @@ def _record_for_work(
 
     written = 0
     skipped = 0
-    for band, pattern in BAND_PATTERNS:
-        for image_path in sorted(systems_dir.glob(pattern)):
+    for band in BANDS:
+        for image_path in sorted(systems_dir.glob(BAND_GLOB[band])):
             system_index = _parse_system_index(image_path.stem)
             key = fixture_key(
                 image_path,
@@ -150,7 +148,7 @@ def _record_for_work(
 
             request = ChordExtractionRequest(
                 image_path=image_path,
-                band=band,  # type: ignore[arg-type]
+                band=band,
                 system_index=system_index,
                 rhythm_hint=item.metadata.rhythm,
                 key_hint=item.metadata.key_hint,
@@ -173,7 +171,6 @@ def _record_for_work(
 
 
 def _parse_system_index(stem: str) -> int:
-    # e.g. "chord_region_above_003" -> 3
     tail = stem.rsplit("_", 1)[-1]
     try:
         return int(tail)
