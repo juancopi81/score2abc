@@ -23,6 +23,9 @@ dev = [
     "ruff>=0.6",
     "pytest>=7.0",
 ]
+vlm = [
+    "google-genai>=0.3",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
