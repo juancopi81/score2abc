@@ -1,0 +1,28 @@
+{
+  "prompt_version": "v1",
+  "model_id": "gemini-2.5-flash",
+  "image_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/systems/chord_region_above_002.png",
+  "detections": [
+    {
+      "symbol_raw": "G#",
+      "symbol": "G#",
+      "x_fraction": 0.22,
+      "confidence": 0.9,
+      "band": "above"
+    },
+    {
+      "symbol_raw": "C7",
+      "symbol": "C7",
+      "x_fraction": 0.62,
+      "confidence": 0.9,
+      "band": "above"
+    },
+    {
+      "symbol_raw": "A7",
+      "symbol": "A7",
+      "x_fraction": 0.82,
+      "confidence": 0.9,
+      "band": "above"
+    }
+  ]
+}
