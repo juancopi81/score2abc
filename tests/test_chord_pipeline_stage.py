@@ -80,12 +80,8 @@ def test_build_stub_events_preserves_empty_extracted_chords() -> None:
 def test_extract_chords_for_systems_offsets_measures_across_systems(
     tmp_path: Path,
 ) -> None:
-    system_one = _draw_system_with_barlines(
-        tmp_path / "system_001.png", [0.5]
-    )  # 2 measures
-    system_two = _draw_system_with_barlines(
-        tmp_path / "system_002.png", [0.33, 0.66]
-    )  # 3 measures
+    system_one = _draw_system_with_barlines(tmp_path / "system_001.png", [0.5])  # 2 measures
+    system_two = _draw_system_with_barlines(tmp_path / "system_002.png", [0.33, 0.66])  # 3 measures
     above_one = _blank_crop(tmp_path / "chord_region_above_001.png")
     below_one = _blank_crop(tmp_path / "chord_region_below_001.png")
     above_two = _blank_crop(tmp_path / "chord_region_above_002.png")
@@ -265,9 +261,7 @@ def test_build_chord_ocr_without_vlm_replays_promoted_live_fixture(
     fixtures_dir = tmp_path / "fixtures"
     image = _blank_crop(tmp_path / "chord_region_above_001.png")
     detections = [
-        ChordDetection(
-            symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above"
-        )
+        ChordDetection(symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above")
     ]
     key = fixture_key(image, prompt_version=PROMPT_VERSION, model_id=DEFAULT_MODEL)
     write_fixture(
@@ -293,9 +287,7 @@ def test_build_chord_ocr_with_vlm_wraps_gemini_in_cache(
     import score2abc.chord_ocr.gemini as gemini_module
 
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setattr(
-        gemini_module, "_build_default_client", lambda api_key: object()
-    )
+    monkeypatch.setattr(gemini_module, "_build_default_client", lambda api_key: object())
 
     ocr = build_chord_ocr(
         use_vlm=True,
