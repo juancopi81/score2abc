@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Sequence
 
 import pytest
@@ -18,6 +19,7 @@ from score2abc.chord_ocr import (
 from score2abc.chord_ocr.gemini import DEFAULT_MODEL
 from score2abc.chord_ocr.prompt import PROMPT_VERSION
 from score2abc.chords import build_chord_ocr, extract_chords_for_systems
+from score2abc.pipeline import _build_stub_events
 from score2abc.schemas import WorkMetadata
 
 
@@ -67,9 +69,23 @@ def _metadata() -> WorkMetadata:
     )
 
 
-def test_extract_chords_for_systems_offsets_measures_across_systems(tmp_path: Path) -> None:
-    system_one = _draw_system_with_barlines(tmp_path / "system_001.png", [0.5])  # 2 measures
-    system_two = _draw_system_with_barlines(tmp_path / "system_002.png", [0.33, 0.66])  # 3 measures
+def test_build_stub_events_preserves_empty_extracted_chords() -> None:
+    item = SimpleNamespace(metadata=_metadata())
+
+    events = _build_stub_events(item, chords=[])
+
+    assert events["chords"] == []
+
+
+def test_extract_chords_for_systems_offsets_measures_across_systems(
+    tmp_path: Path,
+) -> None:
+    system_one = _draw_system_with_barlines(
+        tmp_path / "system_001.png", [0.5]
+    )  # 2 measures
+    system_two = _draw_system_with_barlines(
+        tmp_path / "system_002.png", [0.33, 0.66]
+    )  # 3 measures
     above_one = _blank_crop(tmp_path / "chord_region_above_001.png")
     below_one = _blank_crop(tmp_path / "chord_region_below_001.png")
     above_two = _blank_crop(tmp_path / "chord_region_above_002.png")
@@ -78,22 +94,42 @@ def test_extract_chords_for_systems_offsets_measures_across_systems(tmp_path: Pa
     script = {
         above_one.name: [
             ChordDetection(
-                symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above"
+                symbol_raw="Em",
+                symbol="Em",
+                x_fraction=0.1,
+                confidence=0.9,
+                band="above",
             ),
             ChordDetection(
-                symbol_raw="B7", symbol="B7", x_fraction=0.8, confidence=0.8, band="above"
+                symbol_raw="B7",
+                symbol="B7",
+                x_fraction=0.8,
+                confidence=0.8,
+                band="above",
             ),
         ],
         below_one.name: [],
         above_two.name: [
             ChordDetection(
-                symbol_raw="C", symbol="C", x_fraction=0.2, confidence=0.95, band="above"
+                symbol_raw="C",
+                symbol="C",
+                x_fraction=0.2,
+                confidence=0.95,
+                band="above",
             ),
             ChordDetection(
-                symbol_raw="G", symbol="G", x_fraction=0.5, confidence=0.95, band="above"
+                symbol_raw="G",
+                symbol="G",
+                x_fraction=0.5,
+                confidence=0.95,
+                band="above",
             ),
             ChordDetection(
-                symbol_raw="Am", symbol="Am", x_fraction=0.8, confidence=0.9, band="above"
+                symbol_raw="Am",
+                symbol="Am",
+                x_fraction=0.8,
+                confidence=0.9,
+                band="above",
             ),
         ],
         below_two.name: [
@@ -173,7 +209,9 @@ def test_extract_chords_for_systems_passes_metadata_hints(tmp_path: Path) -> Non
         assert request.key_hint == "Em"
 
 
-def test_extract_chords_for_systems_handles_missing_fixture_as_empty(tmp_path: Path) -> None:
+def test_extract_chords_for_systems_handles_missing_fixture_as_empty(
+    tmp_path: Path,
+) -> None:
     system = _draw_system_with_barlines(tmp_path / "system_001.png", [])
     above = _blank_crop(tmp_path / "chord_region_above_001.png")
     below = _blank_crop(tmp_path / "chord_region_below_001.png")
@@ -221,11 +259,15 @@ def test_build_chord_ocr_without_vlm_returns_fixture_backend(tmp_path: Path) -> 
     assert ocr.model_id == DEFAULT_MODEL
 
 
-def test_build_chord_ocr_without_vlm_replays_promoted_live_fixture(tmp_path: Path) -> None:
+def test_build_chord_ocr_without_vlm_replays_promoted_live_fixture(
+    tmp_path: Path,
+) -> None:
     fixtures_dir = tmp_path / "fixtures"
     image = _blank_crop(tmp_path / "chord_region_above_001.png")
     detections = [
-        ChordDetection(symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above")
+        ChordDetection(
+            symbol_raw="Em", symbol="Em", x_fraction=0.1, confidence=0.9, band="above"
+        )
     ]
     key = fixture_key(image, prompt_version=PROMPT_VERSION, model_id=DEFAULT_MODEL)
     write_fixture(
@@ -251,7 +293,9 @@ def test_build_chord_ocr_with_vlm_wraps_gemini_in_cache(
     import score2abc.chord_ocr.gemini as gemini_module
 
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setattr(gemini_module, "_build_default_client", lambda api_key: object())
+    monkeypatch.setattr(
+        gemini_module, "_build_default_client", lambda api_key: object()
+    )
 
     ocr = build_chord_ocr(
         use_vlm=True,

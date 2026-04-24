@@ -11,7 +11,11 @@ from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
-from score2abc.render import create_system_crops, render_abc_preview, render_pdf_to_images
+from score2abc.render import (
+    create_system_crops,
+    render_abc_preview,
+    render_pdf_to_images,
+)
 from score2abc.schemas import WorkItem
 from score2abc.utils import Timer, get_logger
 
@@ -35,7 +39,11 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
     per_work_status: List[Dict[str, Any]] = []
 
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         work_dir.mkdir(parents=True, exist_ok=True)
         started_at = _utcnow()
@@ -47,7 +55,9 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
 
             metadata_path = work_dir / "metadata.json"
             metadata_path.write_text(
-                json.dumps(item.metadata.model_dump(mode="json"), ensure_ascii=False, indent=2)
+                json.dumps(
+                    item.metadata.model_dump(mode="json"), ensure_ascii=False, indent=2
+                )
                 + "\n",
                 encoding="utf-8",
             )
@@ -60,8 +70,14 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
                 status="success",
                 started_at=started_at,
                 ended_at=ended_at,
-                inputs={"pdf_path": str(item.pdf_path), "metadata_csv": str(metadata_csv)},
-                outputs={"source_pdf": str(source_pdf), "metadata_json": str(metadata_path)},
+                inputs={
+                    "pdf_path": str(item.pdf_path),
+                    "metadata_csv": str(metadata_csv),
+                },
+                outputs={
+                    "source_pdf": str(source_pdf),
+                    "metadata_json": str(metadata_path),
+                },
                 params={},
             )
         except Exception as exc:
@@ -76,7 +92,10 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
                 status="failed",
                 started_at=started_at,
                 ended_at=ended_at,
-                inputs={"pdf_path": str(item.pdf_path), "metadata_csv": str(metadata_csv)},
+                inputs={
+                    "pdf_path": str(item.pdf_path),
+                    "metadata_csv": str(metadata_csv),
+                },
                 outputs={},
                 params={},
                 error=message,
@@ -91,7 +110,9 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
         write_manifest_jsonl(work_items, manifest_path)
         logger.info("Wrote manifest: %s", manifest_path)
 
-    exit_code = 1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    exit_code = (
+        1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    )
     _write_command_status(
         out_dir=out_dir,
         command="ingest",
@@ -109,11 +130,20 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
         return 1
 
     work_items = load_manifest_jsonl(manifest_path)
-    logger.info("Running %d work items (workers=%d, use_vlm=%s)", len(work_items), workers, use_vlm)
+    logger.info(
+        "Running %d work items (workers=%d, use_vlm=%s)",
+        len(work_items),
+        workers,
+        use_vlm,
+    )
     per_work_status: List[Dict[str, Any]] = []
 
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         pages_dir = work_dir / "pages"
         systems_dir = work_dir / "systems"
@@ -130,7 +160,9 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
         try:
             render_started = _utcnow()
             with Timer(f"render pages ({item.slug})", logger=logger):
-                page_paths = render_pdf_to_images(pdf_path, pages_dir, DEFAULT_DPI, logger)
+                page_paths = render_pdf_to_images(
+                    pdf_path, pages_dir, DEFAULT_DPI, logger
+                )
             render_ended = _utcnow()
             render_status = "success" if page_paths else "failed"
             _write_stage_artifact(
@@ -160,14 +192,20 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 inputs={"pages": [str(p) for p in page_paths]},
                 outputs={
                     "system_crops": [str(p) for p in segmentation.system_crops],
-                    "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
-                    "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                    "chord_crops_above": [
+                        str(p) for p in segmentation.chord_crops_above
+                    ],
+                    "chord_crops_below": [
+                        str(p) for p in segmentation.chord_crops_below
+                    ],
                     "deskewed_pages": [str(p) for p in segmentation.deskewed_pages],
                     "debug_overlays": [str(p) for p in segmentation.debug_overlays],
                     "debug_manifests": [str(p) for p in segmentation.debug_manifests],
                 },
                 params={},
-                error=None if segmentation.system_crops else "No system crops generated",
+                error=(
+                    None if segmentation.system_crops else "No system crops generated"
+                ),
             )
             if not segmentation.system_crops:
                 raise RuntimeError("No system crops were generated")
@@ -187,7 +225,9 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 logger=logger,
             )
             chords_path = intermediate_dir / "chords.json"
-            chords_path.write_text(json.dumps(chords_payload, indent=2) + "\n", encoding="utf-8")
+            chords_path.write_text(
+                json.dumps(chords_payload, indent=2) + "\n", encoding="utf-8"
+            )
             logger.info("Wrote chords: %s", chords_path)
             chords_ended = _utcnow()
             _write_stage_artifact(
@@ -198,8 +238,12 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 ended_at=chords_ended,
                 inputs={
                     "system_crops": [str(p) for p in segmentation.system_crops],
-                    "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
-                    "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                    "chord_crops_above": [
+                        str(p) for p in segmentation.chord_crops_above
+                    ],
+                    "chord_crops_below": [
+                        str(p) for p in segmentation.chord_crops_below
+                    ],
                 },
                 outputs={"chords_json": str(chords_path)},
                 params={
@@ -213,7 +257,9 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
             events_started = _utcnow()
             events = _build_stub_events(item, chords=chords_payload["chords"])
             events_path = intermediate_dir / "events.json"
-            events_path.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
+            events_path.write_text(
+                json.dumps(events, indent=2) + "\n", encoding="utf-8"
+            )
             logger.info("Wrote events: %s", events_path)
             events_ended = _utcnow()
             _write_stage_artifact(
@@ -277,7 +323,9 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
 
         per_work_status.append(item_status)
 
-    exit_code = 1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    exit_code = (
+        1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    )
     _write_command_status(
         out_dir=out_dir,
         command="run",
@@ -297,7 +345,11 @@ def qa(out_dir: Path, open_ui: bool = False) -> int:
     work_items = load_manifest_jsonl(manifest_path)
     per_work_status: List[Dict[str, Any]] = []
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         stage_started = _utcnow()
         preview_path = out_dir / item.slug / "final" / "preview.svg"
@@ -328,7 +380,9 @@ def qa(out_dir: Path, open_ui: bool = False) -> int:
     if open_ui:
         logger.info("UI not implemented yet (stub)")
 
-    exit_code = 1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    exit_code = (
+        1 if any(status["status"] == "failed" for status in per_work_status) else 0
+    )
     _write_command_status(
         out_dir=out_dir,
         command="qa",
@@ -372,8 +426,18 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     return run_evaluation(out_dir, ground_truth_dir)
 
 
-def _build_stub_events(item: WorkItem, *, chords: List[Dict[str, Any]] | None = None) -> dict:
-    if chords:
+def _build_stub_events(
+    item: WorkItem, *, chords: List[Dict[str, Any]] | None = None
+) -> dict:
+    if chords is None:
+        chord_events = [
+            {
+                "measure": 1,
+                "onset_beats": 0.0,
+                "symbol": item.metadata.key_hint or "C",
+            }
+        ]
+    else:
         chord_events = [
             {
                 "measure": entry["measure"],
@@ -381,14 +445,6 @@ def _build_stub_events(item: WorkItem, *, chords: List[Dict[str, Any]] | None = 
                 "symbol": entry["symbol"],
             }
             for entry in chords
-        ]
-    else:
-        chord_events = [
-            {
-                "measure": 1,
-                "onset_beats": 0.0,
-                "symbol": item.metadata.key_hint or "C",
-            }
         ]
 
     return {
