@@ -48,6 +48,9 @@ def test_evaluate_writes_report(tmp_path: Path) -> None:
     assert report["summary"]["coverage_gate_passed"] is True
     assert report["summary"]["note_count_match_rate"] == 1.0
     assert report["summary"]["note_f1_avg"] == 1.0
+    assert report["summary"]["chord_f1_measure_only_avg"] == 1.0
+    assert report["summary"]["chord_precision_measure_only_avg"] == 1.0
+    assert report["summary"]["chord_recall_measure_only_avg"] == 1.0
     assert report["works"][0]["slug"] == "demo"
 
 

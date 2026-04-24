@@ -7,14 +7,21 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from score2abc.abc import events_to_abc
+from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
-from score2abc.render import create_system_crops, render_abc_preview, render_pdf_to_images
+from score2abc.render import (
+    create_system_crops,
+    render_abc_preview,
+    render_pdf_to_images,
+)
 from score2abc.schemas import WorkItem
 from score2abc.utils import Timer, get_logger
 
 DEFAULT_DPI = 300
+DEFAULT_VLM_FIXTURES_DIR = Path("tests/fixtures/vlm")
+DEFAULT_VLM_CACHE_DIR = Path(".cache/vlm")
 
 
 def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
@@ -32,7 +39,11 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
     per_work_status: List[Dict[str, Any]] = []
 
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         work_dir.mkdir(parents=True, exist_ok=True)
         started_at = _utcnow()
@@ -57,8 +68,14 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
                 status="success",
                 started_at=started_at,
                 ended_at=ended_at,
-                inputs={"pdf_path": str(item.pdf_path), "metadata_csv": str(metadata_csv)},
-                outputs={"source_pdf": str(source_pdf), "metadata_json": str(metadata_path)},
+                inputs={
+                    "pdf_path": str(item.pdf_path),
+                    "metadata_csv": str(metadata_csv),
+                },
+                outputs={
+                    "source_pdf": str(source_pdf),
+                    "metadata_json": str(metadata_path),
+                },
                 params={},
             )
         except Exception as exc:
@@ -73,7 +90,10 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
                 status="failed",
                 started_at=started_at,
                 ended_at=ended_at,
-                inputs={"pdf_path": str(item.pdf_path), "metadata_csv": str(metadata_csv)},
+                inputs={
+                    "pdf_path": str(item.pdf_path),
+                    "metadata_csv": str(metadata_csv),
+                },
                 outputs={},
                 params={},
                 error=message,
@@ -106,11 +126,20 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
         return 1
 
     work_items = load_manifest_jsonl(manifest_path)
-    logger.info("Running %d work items (workers=%d, use_vlm=%s)", len(work_items), workers, use_vlm)
+    logger.info(
+        "Running %d work items (workers=%d, use_vlm=%s)",
+        len(work_items),
+        workers,
+        use_vlm,
+    )
     per_work_status: List[Dict[str, Any]] = []
 
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         pages_dir = work_dir / "pages"
         systems_dir = work_dir / "systems"
@@ -164,13 +193,51 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                     "debug_manifests": [str(p) for p in segmentation.debug_manifests],
                 },
                 params={},
-                error=None if segmentation.system_crops else "No system crops generated",
+                error=(None if segmentation.system_crops else "No system crops generated"),
             )
             if not segmentation.system_crops:
                 raise RuntimeError("No system crops were generated")
 
+            chords_started = _utcnow()
+            ocr = build_chord_ocr(
+                use_vlm,
+                fixtures_dir=DEFAULT_VLM_FIXTURES_DIR,
+                cache_dir=DEFAULT_VLM_CACHE_DIR,
+            )
+            chords_payload = extract_chords_for_systems(
+                ocr=ocr,
+                system_crops=segmentation.system_crops,
+                chord_crops_above=segmentation.chord_crops_above,
+                chord_crops_below=segmentation.chord_crops_below,
+                metadata=item.metadata,
+                logger=logger,
+            )
+            chords_path = intermediate_dir / "chords.json"
+            chords_path.write_text(json.dumps(chords_payload, indent=2) + "\n", encoding="utf-8")
+            logger.info("Wrote chords: %s", chords_path)
+            chords_ended = _utcnow()
+            _write_stage_artifact(
+                work_dir=work_dir,
+                stage="extract_chords",
+                status="success",
+                started_at=chords_started,
+                ended_at=chords_ended,
+                inputs={
+                    "system_crops": [str(p) for p in segmentation.system_crops],
+                    "chord_crops_above": [str(p) for p in segmentation.chord_crops_above],
+                    "chord_crops_below": [str(p) for p in segmentation.chord_crops_below],
+                },
+                outputs={"chords_json": str(chords_path)},
+                params={
+                    "use_vlm": use_vlm,
+                    "provider": chords_payload["provider"],
+                    "model_id": chords_payload["model_id"],
+                    "prompt_version": chords_payload["prompt_version"],
+                },
+            )
+
             events_started = _utcnow()
-            events = _build_stub_events(item)
+            events = _build_stub_events(item, chords=chords_payload["chords"])
             events_path = intermediate_dir / "events.json"
             events_path.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
             logger.info("Wrote events: %s", events_path)
@@ -181,7 +248,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 status="success",
                 started_at=events_started,
                 ended_at=events_ended,
-                inputs={},
+                inputs={"chords_json": str(chords_path)},
                 outputs={"events_json": str(events_path)},
                 params={},
             )
@@ -256,7 +323,11 @@ def qa(out_dir: Path, open_ui: bool = False) -> int:
     work_items = load_manifest_jsonl(manifest_path)
     per_work_status: List[Dict[str, Any]] = []
     for item in work_items:
-        item_status: Dict[str, Any] = {"slug": item.slug, "status": "success", "errors": []}
+        item_status: Dict[str, Any] = {
+            "slug": item.slug,
+            "status": "success",
+            "errors": [],
+        }
         work_dir = out_dir / item.slug
         stage_started = _utcnow()
         preview_path = out_dir / item.slug / "final" / "preview.svg"
@@ -331,7 +402,25 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     return run_evaluation(out_dir, ground_truth_dir)
 
 
-def _build_stub_events(item: WorkItem) -> dict:
+def _build_stub_events(item: WorkItem, *, chords: List[Dict[str, Any]] | None = None) -> dict:
+    if chords is None:
+        chord_events = [
+            {
+                "measure": 1,
+                "onset_beats": 0.0,
+                "symbol": item.metadata.key_hint or "C",
+            }
+        ]
+    else:
+        chord_events = [
+            {
+                "measure": entry["measure"],
+                "onset_beats": entry.get("onset_beats", 0.0),
+                "symbol": entry["symbol"],
+            }
+            for entry in chords
+        ]
+
     return {
         "time_signature": item.metadata.time_signature or "4/4",
         "notes": [
@@ -360,13 +449,7 @@ def _build_stub_events(item: WorkItem) -> dict:
                 "pitch_midi": 65,
             },
         ],
-        "chords": [
-            {
-                "measure": 1,
-                "onset_beats": 0.0,
-                "symbol": item.metadata.key_hint or "C",
-            }
-        ],
+        "chords": chord_events,
     }
 
 

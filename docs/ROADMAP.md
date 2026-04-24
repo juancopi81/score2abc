@@ -34,7 +34,7 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Staff/system detection with robust line-spacing estimation.
 - [x] Page-level deskew with row-peakiness estimator; chord bands overlap staff so glyphs nestled against outer staff lines aren't clipped.
 - [ ] Additional preprocessing (contrast, denoise) if VLM/OMR readability demands it — deferred until recognition step drives the need.
-- [ ] Chord extraction via VLM on the above/below annotation bands → normalized symbols + measure alignment. *(chord-first pivot: validate VLM path on the easier target before investing in melody OMR)*
+- [x] Chord extraction via VLM on the above/below annotation bands → normalized symbols + measure alignment. *(chord-first pivot: validate VLM path on the easier target before investing in melody OMR; v0 uses a measure-only chord F1 metric)*
 - [ ] Integrate Melody Engine A → MusicXML → `events.json`.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 

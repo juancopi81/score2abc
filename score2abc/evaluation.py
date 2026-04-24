@@ -121,4 +121,7 @@ def _summarize_results(
         "chord_precision_avg": _avg("chord_precision"),
         "chord_recall_avg": _avg("chord_recall"),
         "chord_f1_avg": _avg("chord_f1"),
+        "chord_precision_measure_only_avg": _avg("chord_precision_measure_only"),
+        "chord_recall_measure_only_avg": _avg("chord_recall_measure_only"),
+        "chord_f1_measure_only_avg": _avg("chord_f1_measure_only"),
     }

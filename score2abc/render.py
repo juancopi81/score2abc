@@ -8,7 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
-from PIL import Image, ImageDraw, ImageOps, ImageStat
+from PIL import Image, ImageDraw, ImageOps
+
+from score2abc.utils.imaging import estimate_ink_threshold
 
 BBox = tuple[int, int, int, int]
 
@@ -257,7 +259,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
 
     left_margin = int(width * 0.05)
     right_margin = int(width * 0.95)
-    ink_threshold = _estimate_ink_threshold(page_gray)
+    ink_threshold = estimate_ink_threshold(page_gray)
     row_profile = _ink_density_by_row(page_gray, left_margin, right_margin, ink_threshold)
     row_smooth = _moving_average(row_profile, _odd(max(15, int(height * 0.007))))
     peak_density = max(row_smooth, default=0.0)
@@ -357,11 +359,6 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
         )
 
     return detected
-
-
-def _estimate_ink_threshold(page_gray: Image.Image) -> int:
-    mean_luma = ImageStat.Stat(page_gray).mean[0]
-    return max(150, min(220, int(mean_luma - 28)))
 
 
 def _ink_density_by_row(
@@ -593,7 +590,7 @@ def _row_peakiness_score(crop_gray: Image.Image) -> float:
     width = crop_gray.width
     left_margin = int(width * 0.02)
     right_margin = max(left_margin + 1, int(width * 0.98))
-    threshold = _estimate_ink_threshold(crop_gray)
+    threshold = estimate_ink_threshold(crop_gray)
     row_profile = _ink_density_by_row(crop_gray, left_margin, right_margin, threshold)
     if not row_profile:
         return 0.0
