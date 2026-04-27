@@ -1,6 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
+
 - `main.py` is the entry point for the CLI.
 - `score2abc/` contains the Python package code (schemas, CLI, pipeline, and helpers).
 - `score2abc/chord_ocr/` holds the chord-OCR backends (Gemini + fixture + cache wrappers), the prompt, normalization, and barline/measure alignment logic.
@@ -18,6 +19,7 @@
 - `.cache/vlm/` (gitignored) holds live Gemini responses captured by `--use-vlm` runs.
 
 ## Build, Test, and Development Commands
+
 - `uv run python main.py ingest dataset dataset/metadata.csv out` runs ingest.
 - `uv run python main.py run out` runs the pipeline stubs.
 - `uv run python main.py qa out` checks for previews.
@@ -34,6 +36,7 @@
 - `uv add <package>` adds a dependency and refreshes the lockfile.
 
 ## Coding Style & Naming Conventions
+
 - Language: Python 3.11+ (per `pyproject.toml`).
 - Indentation: 4 spaces, PEP 8 conventions.
 - Naming: `snake_case` for functions/variables, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants.
@@ -41,6 +44,7 @@
 - Linting: `ruff` (rules: E, F, I, B; line length 100).
 
 ## Testing Guidelines
+
 - Tests live in `tests/` with files named `test_*.py`.
 - Use pytest conventions (fixtures, asserts).
 - Local quality checks:
@@ -50,14 +54,16 @@
   - `uv run pytest`
 
 ## Commit & Pull Request Guidelines
+
 - Use Conventional Commits: `<type>: <description>` (scope optional).
 - Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`.
 - Examples: `feat: add CLI skeleton`, `docs: add roadmap`, `chore: initial commit`.
 - For PRs, include: summary, related issue (if any), and notes on how to validate changes.
 
 ## VLM Chord OCR (Gemini)
+
 - Default pipeline runs remain hermetic: `score2abc run` uses `FixtureChordOCR(tests/fixtures/vlm/)` to replay committed fixtures and never calls the network. Missing fixtures are logged and treated as empty detections.
-- To exercise the live path, install the optional extra and export your Gemini key (free tier is sufficient):
+- To exercise the live path, install the optional extra and export your Gemini key (free tier is enough for small fixture-recording runs, but it is rate-limited):
   ```
   uv sync --extra vlm
   export GEMINI_API_KEY=...   # from https://aistudio.google.com/apikey
@@ -76,5 +82,6 @@
   ```
 
 ## Agent-Specific Notes
+
 - Keep this guide updated as the CLI, pipeline stages, and test suite are introduced.
 - When you add new directories (e.g., `score2abc/`, `scripts/`, `configs/`), document their roles here.

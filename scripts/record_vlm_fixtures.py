@@ -94,7 +94,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     selected_slugs = set(args.slug) if args.slug else None
-    selected_bands: tuple[Band, ...] = BANDS if args.band == "both" else (args.band,)
+    selected_bands: tuple[Band, ...]
+    if args.band == "both":
+        selected_bands = BANDS
+    else:
+        selected_bands = (args.band,)
     work_items = load_manifest_jsonl(manifest_path)
 
     total_written = 0
@@ -115,7 +119,10 @@ def main(argv: list[str] | None = None) -> int:
         total_skipped += skipped
 
     logger.info(
-        "Done. wrote=%d skipped=%d fixtures_dir=%s", total_written, total_skipped, fixtures_dir
+        "Done. wrote=%d skipped=%d fixtures_dir=%s",
+        total_written,
+        total_skipped,
+        fixtures_dir,
     )
     return 0
 
@@ -172,7 +179,10 @@ def _record_for_work(
                 detections=detections,
             )
             logger.info(
-                "Wrote %d detections: %s -> %s", len(detections), image_path.name, target.name
+                "Wrote %d detections: %s -> %s",
+                len(detections),
+                image_path.name,
+                target.name,
             )
             written += 1
 
