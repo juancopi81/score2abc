@@ -3,12 +3,12 @@
 Usage:
     uv sync --extra vlm
     export GEMINI_API_KEY=...  # free-tier key is fine
-    uv run python scripts/record_vlm_fixtures.py out [--slug aviador] \\
+    uv run python scripts/record_vlm_fixtures.py out [--slug aviador] [--band below] \\
         [--fixtures-dir tests/fixtures/vlm] [--force]
 
-For every `chord_region_above_*.png` and `chord_region_below_*.png` under
-`out/<slug>/systems/`, calls the live Gemini backend once, normalizes the
-detections, and writes a fixture to `tests/fixtures/vlm/<key>.json`. Fixture
+For selected `chord_region_above_*.png` and/or `chord_region_below_*.png`
+under `out/<slug>/systems/`, calls the live Gemini backend once, normalizes
+the detections, and writes a fixture to `tests/fixtures/vlm/<key>.json`. Fixture
 keys are content-addressed (SHA256 of the image bytes + prompt_version +
 model_id), so the same crop/prompt/model always resolves to the same filename.
 
@@ -63,6 +63,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Override the Gemini model (defaults to GeminiChordOCR default).",
     )
     parser.add_argument(
+        "--band",
+        choices=("above", "below", "both"),
+        default="both",
+        help="Chord crop band to record. Defaults to both for current behavior.",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Overwrite existing fixtures instead of skipping them.",
@@ -88,6 +94,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     selected_slugs = set(args.slug) if args.slug else None
+    selected_bands: tuple[Band, ...] = BANDS if args.band == "both" else (args.band,)
     work_items = load_manifest_jsonl(manifest_path)
 
     total_written = 0
@@ -100,6 +107,7 @@ def main(argv: list[str] | None = None) -> int:
             out_dir=out_dir,
             fixtures_dir=fixtures_dir,
             ocr=ocr,
+            selected_bands=selected_bands,
             force=args.force,
             logger=logger,
         )
@@ -118,6 +126,7 @@ def _record_for_work(
     out_dir: Path,
     fixtures_dir: Path,
     ocr: GeminiChordOCR,
+    selected_bands: tuple[Band, ...],
     force: bool,
     logger,
 ) -> tuple[int, int]:
@@ -132,7 +141,7 @@ def _record_for_work(
 
     written = 0
     skipped = 0
-    for band in BANDS:
+    for band in selected_bands:
         for image_path in sorted(systems_dir.glob(BAND_GLOB[band])):
             system_index = _parse_system_index(image_path.stem)
             key = fixture_key(
