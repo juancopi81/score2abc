@@ -36,10 +36,11 @@ Goal: improve recognition quality with prioritized de-risking.
 - [ ] Additional preprocessing (contrast, denoise) if VLM/OMR readability demands it — deferred until recognition step drives the need.
 - [x] Chord extraction via VLM on the above/below annotation bands → normalized symbols + measure alignment. *(chord-first pivot: validate VLM path on the easier target before investing in melody OMR; V0 uses a measure-only chord F1 metric and known-limited barline alignment)*
 - [ ] Harden chord measure alignment: debug/visualize detected barlines, avoid accidentals/stems, handle final right-edge barlines, and improve global measure offsets.
-- [ ] Integrate Melody Engine A → MusicXML → `events.json`.
+- [x] Add Melody Engine A MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.
+- [ ] Wire Melody Engine A OMR output to produce `intermediate/musicxml.xml` automatically.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus after this chord-VLM hardening PR: melody integration via Melody Engine A.
+Next main M2 focus: automatic Melody Engine A OMR output wiring, then musical validation/repair.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

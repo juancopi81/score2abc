@@ -11,7 +11,7 @@ from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
-from score2abc.melody import extract_melody_events
+from score2abc.melody import extract_canonical_melody_events, extract_melody_events
 from score2abc.render import (
     create_system_crops,
     render_abc_preview,
@@ -241,6 +241,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
             musicxml_source = _find_musicxml_source(work_dir)
             melody_json_path = intermediate_dir / "melody.json"
             melody_payload: Dict[str, Any] | None = None
+            normalize_melody_payload: Dict[str, Any] | None = None
             melody_status: str
             melody_error: str | None = None
             if musicxml_source is None:
@@ -252,6 +253,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
             else:
                 try:
                     melody_payload = extract_melody_events(musicxml_source)
+                    normalize_melody_payload = extract_canonical_melody_events(musicxml_source)
                     melody_json_path.write_text(
                         json.dumps(melody_payload, indent=2) + "\n", encoding="utf-8"
                     )
@@ -259,6 +261,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                     melody_status = "success"
                 except Exception as exc:
                     melody_payload = None
+                    normalize_melody_payload = None
                     melody_status = "failed"
                     melody_error = f"Failed to parse MusicXML {musicxml_source}: {exc}"
                     logger.error("%s (%s)", melody_error, item.slug)
@@ -280,10 +283,10 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
             )
 
             events_started = _utcnow()
-            if melody_payload is not None:
+            if normalize_melody_payload is not None:
                 events = _build_events_from_melody(
                     item,
-                    melody=melody_payload,
+                    melody=normalize_melody_payload,
                     chords=chords_payload["chords"],
                 )
                 normalize_inputs = {

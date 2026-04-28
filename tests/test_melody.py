@@ -8,7 +8,9 @@ from types import SimpleNamespace
 import pytest
 
 from score2abc.melody import (
+    CANONICAL_NOTE_OPTIONAL_FIELDS,
     MELODY_NOTE_FIELDS,
+    extract_canonical_melody_events,
     extract_melody_events,
     write_melody_events,
 )
@@ -90,6 +92,29 @@ def test_extract_melody_events_drops_chords_and_extra_fields(tmp_path: Path) -> 
     assert "chords" not in payload
     for note in payload["notes"]:
         assert set(note.keys()) == set(MELODY_NOTE_FIELDS)
+
+
+def test_extract_canonical_melody_events_preserves_accidentals(tmp_path: Path) -> None:
+    xml_path = tmp_path / "tiny.musicxml"
+    _write_musicxml(xml_path, _TINY_MUSICXML)
+
+    payload = extract_canonical_melody_events(xml_path)
+
+    assert "chords" not in payload
+    assert payload["notes"][0] == {
+        "measure": 1,
+        "onset_beats": 0.0,
+        "duration_beats": 1.0,
+        "pitch_midi": 64,
+    }
+    assert payload["notes"][1] == {
+        "measure": 1,
+        "onset_beats": 1.0,
+        "duration_beats": 1.0,
+        "pitch_midi": 66,
+        "accidental": 1,
+    }
+    assert CANONICAL_NOTE_OPTIONAL_FIELDS == ("accidental",)
 
 
 def test_write_melody_events_writes_json(tmp_path: Path) -> None:
@@ -178,6 +203,26 @@ def test_build_events_from_melody_uses_extracted_notes_and_chords() -> None:
     assert events["time_signature"] == "3/4"
     assert events["notes"] == melody["notes"]
     assert events["chords"] == [{"measure": 1, "onset_beats": 0.0, "symbol": "Em"}]
+
+
+def test_build_events_from_melody_preserves_accidental_metadata() -> None:
+    item = SimpleNamespace(metadata=_metadata())
+    melody = {
+        "time_signature": "3/4",
+        "notes": [
+            {
+                "measure": 1,
+                "onset_beats": 0.0,
+                "duration_beats": 1.0,
+                "pitch_midi": 70,
+                "accidental": -1,
+            },
+        ],
+    }
+
+    events = _build_events_from_melody(item, melody=melody, chords=[])
+
+    assert events["notes"] == melody["notes"]
 
 
 def test_build_events_from_melody_keeps_empty_notes_without_stub_fallback() -> None:
