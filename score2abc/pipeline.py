@@ -133,6 +133,7 @@ def run(
     use_vlm: bool = False,
     musicxml_backend_name: str = "fixture",
     homr_command: str = DEFAULT_HOMR_COMMAND,
+    homr_input: str = "page",
     slugs: list[str] | None = None,
 ) -> int:
     logger = get_logger("score2abc.run")
@@ -267,6 +268,7 @@ def run(
                 source_dir=musicxml_source_dir,
                 backend=musicxml_backend_name,
                 homr_command=homr_command,
+                homr_input=homr_input,
             )
             intermediate_musicxml_path = intermediate_dir / INTERMEDIATE_MUSICXML_FILENAME
             musicxml_inputs: Dict[str, Any] = {
@@ -275,6 +277,7 @@ def run(
             }
             if musicxml_backend.name == "homr":
                 musicxml_inputs["pages_dir"] = str(pages_dir)
+                musicxml_inputs["systems_dir"] = str(systems_dir)
             musicxml_outputs: Dict[str, Any] = {"musicxml": None}
             musicxml_status: str
             musicxml_error: str | None = None
@@ -321,6 +324,7 @@ def run(
                 params={
                     "backend": musicxml_backend.name,
                     "homr_command": homr_command if musicxml_backend.name == "homr" else None,
+                    "homr_input": homr_input if musicxml_backend.name == "homr" else None,
                 },
                 error=musicxml_error,
             )
@@ -463,6 +467,7 @@ def run(
             "use_vlm": use_vlm,
             "musicxml_backend": musicxml_backend_name,
             "homr_command": homr_command if musicxml_backend_name == "homr" else None,
+            "homr_input": homr_input if musicxml_backend_name == "homr" else None,
             "slugs": slugs or None,
         },
     )

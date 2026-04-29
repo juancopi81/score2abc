@@ -1,6 +1,7 @@
 from score2abc.melody.backend import (
     DEFAULT_HOMR_COMMAND,
     DEFAULT_MUSICXML_SOURCE_DIR,
+    HOMR_INPUT_MODES,
     INTERMEDIATE_MUSICXML_FILENAME,
     FixtureMusicXMLBackend,
     HomrMusicXMLBackend,
@@ -22,6 +23,7 @@ __all__ = [
     "DEFAULT_HOMR_COMMAND",
     "DEFAULT_MUSICXML_SOURCE_DIR",
     "FixtureMusicXMLBackend",
+    "HOMR_INPUT_MODES",
     "HomrMusicXMLBackend",
     "INTERMEDIATE_MUSICXML_FILENAME",
     "MELODY_NOTE_FIELDS",

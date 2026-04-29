@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from PIL import Image
+
 from score2abc.musicxml import parse_musicxml_events
 from score2abc.schemas import WorkItem
 
@@ -14,8 +16,11 @@ INTERMEDIATE_MUSICXML_FILENAME = "musicxml.xml"
 DEFAULT_MUSICXML_SOURCE_DIR = Path("dataset/musicxml")
 _FIXTURE_EXTENSIONS: tuple[str, ...] = (".musicxml", ".xml")
 _HOMR_OUTPUT_EXTENSIONS: tuple[str, ...] = (".musicxml", ".xml")
+HOMR_INPUT_MODES: tuple[str, ...] = ("page", "deskewed-page", "systems")
 DEFAULT_HOMR_COMMAND = "homr"
 DEFAULT_HOMR_TIMEOUT_SECONDS = 900
+_SYSTEM_COLLAGE_FILENAME = "systems_collage.png"
+_SYSTEM_COLLAGE_SEPARATOR_PIXELS = 24
 
 
 class MusicXMLBackendError(RuntimeError):
@@ -116,9 +121,13 @@ class HomrMusicXMLBackend:
         self,
         *,
         command: str = DEFAULT_HOMR_COMMAND,
+        input_mode: str = "page",
         timeout_seconds: int = DEFAULT_HOMR_TIMEOUT_SECONDS,
     ) -> None:
+        if input_mode not in HOMR_INPUT_MODES:
+            raise ValueError(f"Unsupported homr input mode: {input_mode}")
         self._command = command
+        self._input_mode = input_mode
         self._timeout_seconds = timeout_seconds
 
     def produce_musicxml(
@@ -127,12 +136,10 @@ class HomrMusicXMLBackend:
         item: WorkItem,
         work_dir: Path,
     ) -> MusicXMLProduceResult | None:
-        page_path = self._select_page_image(work_dir)
         homr_dir = work_dir / "intermediate" / "homr"
         homr_dir.mkdir(parents=True, exist_ok=True)
 
-        input_path = homr_dir / page_path.name
-        shutil.copyfile(page_path, input_path)
+        input_path = self._prepare_input_image(work_dir=work_dir, homr_dir=homr_dir)
 
         output_path = work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
         output_path.unlink(missing_ok=True)
@@ -188,16 +195,72 @@ class HomrMusicXMLBackend:
 
         return MusicXMLProduceResult(output_path=output_path, source_path=input_path)
 
-    def _select_page_image(self, work_dir: Path) -> Path:
-        page_paths = sorted((work_dir / "pages").glob("page_*.png"))
-        if not page_paths:
-            raise MusicXMLBackendError(f"No rendered page images found under {work_dir / 'pages'}")
-        if len(page_paths) > 1:
-            raise MusicXMLBackendError(
-                "homr backend currently supports one rendered page per work; "
-                f"found {len(page_paths)} pages under {work_dir / 'pages'}"
+    def _prepare_input_image(self, *, work_dir: Path, homr_dir: Path) -> Path:
+        if self._input_mode == "page":
+            source_path = self._select_single_image(
+                sorted((work_dir / "pages").glob("page_*.png")),
+                missing_message=f"No rendered page images found under {work_dir / 'pages'}",
+                multiple_message="homr page input currently supports one rendered page per work",
             )
-        return page_paths[0]
+            input_path = homr_dir / source_path.name
+            shutil.copyfile(source_path, input_path)
+            return input_path
+
+        if self._input_mode == "deskewed-page":
+            source_path = self._select_single_image(
+                sorted((work_dir / "systems").glob("page_*_deskewed.png")),
+                missing_message=f"No deskewed page images found under {work_dir / 'systems'}",
+                multiple_message="homr deskewed-page input currently supports one page per work",
+            )
+            input_path = homr_dir / source_path.name
+            shutil.copyfile(source_path, input_path)
+            return input_path
+
+        if self._input_mode == "systems":
+            return self._build_systems_collage(work_dir=work_dir, homr_dir=homr_dir)
+
+        raise ValueError(f"Unsupported homr input mode: {self._input_mode}")
+
+    def _select_single_image(
+        self,
+        paths: list[Path],
+        *,
+        missing_message: str,
+        multiple_message: str,
+    ) -> Path:
+        if not paths:
+            raise MusicXMLBackendError(missing_message)
+        if len(paths) > 1:
+            raise MusicXMLBackendError(f"{multiple_message}; found {len(paths)} images")
+        return paths[0]
+
+    def _build_systems_collage(self, *, work_dir: Path, homr_dir: Path) -> Path:
+        system_paths = sorted((work_dir / "systems").glob("system_*.png"))
+        if not system_paths:
+            raise MusicXMLBackendError(f"No system crops found under {work_dir / 'systems'}")
+
+        images: list[Image.Image] = []
+        try:
+            for path in system_paths:
+                images.append(Image.open(path).convert("RGB"))
+
+            max_width = max(image.width for image in images)
+            total_height = sum(image.height for image in images)
+            total_height += _SYSTEM_COLLAGE_SEPARATOR_PIXELS * (len(images) - 1)
+            collage = Image.new("RGB", (max_width, total_height), color="white")
+
+            y = 0
+            for image in images:
+                collage.paste(image, (0, y))
+                y += image.height + _SYSTEM_COLLAGE_SEPARATOR_PIXELS
+
+            output_path = homr_dir / _SYSTEM_COLLAGE_FILENAME
+            output_path.unlink(missing_ok=True)
+            collage.save(output_path)
+            return output_path
+        finally:
+            for image in images:
+                image.close()
 
     def _find_homr_output(
         self,
@@ -226,10 +289,11 @@ def build_musicxml_backend(
     source_dir: Path,
     backend: str = "fixture",
     homr_command: str = DEFAULT_HOMR_COMMAND,
+    homr_input: str = "page",
 ) -> MusicXMLBackend:
     """Pick a MusicXMLBackend."""
     if backend == "fixture":
         return FixtureMusicXMLBackend(source_dir=source_dir)
     if backend == "homr":
-        return HomrMusicXMLBackend(command=homr_command)
+        return HomrMusicXMLBackend(command=homr_command, input_mode=homr_input)
     raise ValueError(f"Unsupported MusicXML backend: {backend}")

@@ -45,7 +45,8 @@ For a first smoke test, run only the labeled `Aviador` work:
 ```bash
 uv run python main.py run out \
   --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
-  --musicxml-backend homr
+  --musicxml-backend homr \
+  --homr-input page
 ```
 
 To use a wrapper command or non-default executable:
@@ -54,9 +55,37 @@ To use a wrapper command or non-default executable:
 uv run python main.py run out --musicxml-backend homr --homr-command "path/to/homr"
 ```
 
+To compare homr input modes without overwriting outputs:
+
+```bash
+SLUG=jaime-llanos_12_aviador_pasillo_fulgencio-garcia
+HOMR=/tmp/score2abc-homr/bin/homr
+
+for MODE in page deskewed-page systems; do
+  OUT="/tmp/score2abc-homr-${MODE}"
+  rm -rf "$OUT"
+  uv run python main.py ingest dataset dataset/metadata.csv "$OUT"
+  uv run python main.py run "$OUT" \
+    --slug "$SLUG" \
+    --musicxml-backend homr \
+    --homr-command "$HOMR" \
+    --homr-input "$MODE"
+  uv run python main.py eval "$OUT" --ground-truth dataset/ground_truth
+done
+```
+
+Then compare the reports:
+
+```bash
+grep -n '"note_f1_avg"\|"time_signature_pred"\|"pred_notes"\|"truth_notes"' \
+  /tmp/score2abc-homr-page/eval/report.json \
+  /tmp/score2abc-homr-deskewed-page/eval/report.json \
+  /tmp/score2abc-homr-systems/eval/report.json
+```
+
 `homr` is not a package dependency of score2abc. Install and license-review it
-separately before using this backend. The current adapter supports one rendered
-page per work, matching the current golden dataset assumption.
+separately before using this backend. The current adapter supports rendered page,
+deskewed page, and stitched-system-crop inputs.
 
 ## Dependency Management (uv)
 

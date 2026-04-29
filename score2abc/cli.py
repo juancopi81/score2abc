@@ -4,6 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from score2abc.melody import HOMR_INPUT_MODES
 from score2abc.pipeline import evaluate as evaluate_pipeline
 from score2abc.pipeline import export as export_pipeline
 from score2abc.pipeline import ingest as ingest_pipeline
@@ -47,6 +48,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     logger.info("Workers: %s", args.workers)
     logger.info("Use VLM: %s", args.use_vlm)
     logger.info("MusicXML backend: %s", args.musicxml_backend)
+    logger.info("homr input: %s", args.homr_input)
 
     if not _validate_path(out_dir, "Output directory", logger):
         return 1
@@ -57,6 +59,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         use_vlm=args.use_vlm,
         musicxml_backend_name=args.musicxml_backend,
         homr_command=args.homr_command,
+        homr_input=args.homr_input,
         slugs=args.slug,
     )
 
@@ -144,6 +147,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--homr-command",
         default="homr",
         help="Command used when --musicxml-backend=homr; may include fixed leading args.",
+    )
+    run.add_argument(
+        "--homr-input",
+        choices=HOMR_INPUT_MODES,
+        default="page",
+        help="Image input for --musicxml-backend=homr.",
     )
     run.set_defaults(func=_cmd_run)
 

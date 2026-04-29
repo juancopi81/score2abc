@@ -4,6 +4,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from score2abc.melody import (
     INTERMEDIATE_MUSICXML_FILENAME,
@@ -55,6 +56,12 @@ def _work_item(tmp_path: Path, slug: str = "demo-slug") -> WorkItem:
 def _write_musicxml(path: Path, contents: str = _TINY_MUSICXML) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(textwrap.dedent(contents).lstrip(), encoding="utf-8")
+    return path
+
+
+def _write_image(path: Path, *, size: tuple[int, int] = (24, 16)) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", size, color="white").save(path)
     return path
 
 
@@ -173,6 +180,7 @@ def test_build_musicxml_backend_returns_homr_backend(tmp_path: Path) -> None:
         source_dir=tmp_path / "musicxml",
         backend="homr",
         homr_command="/usr/bin/false",
+        homr_input="deskewed-page",
     )
     assert isinstance(backend, HomrMusicXMLBackend)
     assert backend.name == "homr"
@@ -181,6 +189,15 @@ def test_build_musicxml_backend_returns_homr_backend(tmp_path: Path) -> None:
 def test_build_musicxml_backend_rejects_unknown_backend(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Unsupported MusicXML backend"):
         build_musicxml_backend(source_dir=tmp_path / "musicxml", backend="demo")
+
+
+def test_build_musicxml_backend_rejects_unknown_homr_input(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unsupported homr input mode"):
+        build_musicxml_backend(
+            source_dir=tmp_path / "musicxml",
+            backend="homr",
+            homr_input="demo",
+        )
 
 
 def test_homr_backend_runs_external_command_and_validates_musicxml(tmp_path: Path) -> None:
@@ -198,6 +215,40 @@ def test_homr_backend_runs_external_command_and_validates_musicxml(tmp_path: Pat
     assert result.output_path == work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
     assert result.output_path.exists()
     assert result.source_path == work_dir / "intermediate" / "homr" / "page_001.png"
+
+
+def test_homr_backend_uses_deskewed_page_input(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    deskewed_path = work_dir / "systems" / "page_001_deskewed.png"
+    deskewed_path.parent.mkdir(parents=True)
+    deskewed_path.write_bytes(b"fake png")
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr), input_mode="deskewed-page")
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert result.output_path.exists()
+    assert result.source_path == work_dir / "intermediate" / "homr" / "page_001_deskewed.png"
+
+
+def test_homr_backend_creates_systems_collage_input(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    _write_image(work_dir / "systems" / "system_001.png", size=(80, 20))
+    _write_image(work_dir / "systems" / "system_002.png", size=(120, 30))
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr), input_mode="systems")
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    collage_path = work_dir / "intermediate" / "homr" / "systems_collage.png"
+    assert result is not None
+    assert result.source_path == collage_path
+    assert result.output_path.exists()
+    with Image.open(collage_path) as collage:
+        assert collage.size == (120, 74)
 
 
 def test_homr_backend_passes_absolute_input_when_work_dir_is_relative(
@@ -244,6 +295,28 @@ def test_homr_backend_raises_when_no_rendered_pages(tmp_path: Path) -> None:
         backend.produce_musicxml(item=item, work_dir=work_dir)
 
 
+def test_homr_backend_raises_when_no_deskewed_pages(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr), input_mode="deskewed-page")
+
+    with pytest.raises(MusicXMLBackendError, match="No deskewed page images"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
+def test_homr_backend_raises_when_no_system_crops(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr), input_mode="systems")
+
+    with pytest.raises(MusicXMLBackendError, match="No system crops"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
 def test_homr_backend_rejects_multiple_pages_for_now(tmp_path: Path) -> None:
     item = _work_item(tmp_path)
     work_dir = tmp_path / "out" / item.slug
@@ -257,6 +330,15 @@ def test_homr_backend_rejects_multiple_pages_for_now(tmp_path: Path) -> None:
 
     with pytest.raises(MusicXMLBackendError, match="supports one rendered page"):
         backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
+def test_cli_rejects_unknown_homr_input() -> None:
+    from score2abc.cli import build_parser
+
+    parser = build_parser()
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(["run", "out", "--homr-input", "demo"])
 
 
 def test_backend_output_is_picked_up_by_find_musicxml_source(tmp_path: Path) -> None:

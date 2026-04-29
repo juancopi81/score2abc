@@ -29,7 +29,7 @@
 - `uv run python main.py eval out --ground-truth dataset/ground_truth` runs the evaluation report.
 - `uv run python main.py run out --use-vlm` enables the live Gemini chord-OCR path (requires `GEMINI_API_KEY`; see VLM notes below).
 - `uv run python main.py run out --slug <slug>` runs only selected manifest entries; repeat `--slug` for multiple works.
-- `uv run python main.py run out --musicxml-backend homr` enables the optional external homr melody-OMR path; homr must be installed separately and is not a project dependency.
+- `uv run python main.py run out --musicxml-backend homr --homr-input page|deskewed-page|systems` enables the optional external homr melody-OMR path; homr must be installed separately and is not a project dependency.
 - `uv run python scripts/record_vlm_fixtures.py out --slug <slug>` captures chord-OCR fixtures from a rendered work; add `--band below` when chords are visually placed below the staff.
 - `uv run python scripts/debug_barlines.py out --slug <slug>` renders detected barlines over system crops for chord alignment debugging.
 - `uv lock` updates the lockfile when dependencies change.
