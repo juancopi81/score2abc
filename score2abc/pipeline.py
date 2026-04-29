@@ -345,6 +345,8 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 params={},
                 error=melody_error,
             )
+            if melody_status == "failed":
+                raise RuntimeError(melody_error or "extract_melody failed")
 
             events_started = _utcnow()
             if normalize_melody_payload is not None:
