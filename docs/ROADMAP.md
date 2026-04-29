@@ -41,6 +41,7 @@ Goal: improve recognition quality with prioritized de-risking.
 - [ ] Harden chord measure alignment: debug/visualize detected barlines, avoid accidentals/stems, handle final right-edge barlines, and improve global measure offsets.
 - [x] Add first melody-backend MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.
 - [x] Wire pipeline contract for `intermediate/musicxml.xml` via a `MusicXMLBackend` protocol and an `extract_musicxml` stage backed by a fixture backend (`dataset/musicxml/<slug>.musicxml`); manual drops still work, corrupt fixtures fail the work item.
+- [ ] Spike Melody Engine A with optional external `homr` backend: explicit CLI selection, no bundled AGPL dependency, MusicXML validation before downstream stages, and first `Aviador` smoke run.
 - [ ] Replace the fixture MusicXML backend with a real OMR engine (Melody Engine A) that produces `intermediate/musicxml.xml` from rendered pages.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 

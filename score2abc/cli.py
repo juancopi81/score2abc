@@ -46,11 +46,19 @@ def _cmd_run(args: argparse.Namespace) -> int:
     logger.info("Output dir: %s", out_dir)
     logger.info("Workers: %s", args.workers)
     logger.info("Use VLM: %s", args.use_vlm)
+    logger.info("MusicXML backend: %s", args.musicxml_backend)
 
     if not _validate_path(out_dir, "Output directory", logger):
         return 1
 
-    return run_pipeline(out_dir, workers=args.workers, use_vlm=args.use_vlm)
+    return run_pipeline(
+        out_dir,
+        workers=args.workers,
+        use_vlm=args.use_vlm,
+        musicxml_backend_name=args.musicxml_backend,
+        homr_command=args.homr_command,
+        slugs=args.slug,
+    )
 
 
 def _cmd_qa(args: argparse.Namespace) -> int:
@@ -118,6 +126,25 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("out_dir", help="Output directory")
     run.add_argument("--workers", type=int, default=1, help="Number of workers")
     run.add_argument("--use-vlm", action="store_true", help="Enable VLM-assisted steps")
+    run.add_argument(
+        "--slug",
+        action="append",
+        help="Run only this work slug. Repeat to select multiple works.",
+    )
+    run.add_argument(
+        "--musicxml-backend",
+        choices=("fixture", "homr"),
+        default="fixture",
+        help=(
+            "MusicXML production backend. fixture is hermetic; homr requires an "
+            "external homr CLI."
+        ),
+    )
+    run.add_argument(
+        "--homr-command",
+        default="homr",
+        help="Command used when --musicxml-backend=homr; may include fixed leading args.",
+    )
     run.set_defaults(func=_cmd_run)
 
     qa = subparsers.add_parser("qa", help="Run QA and review tooling")

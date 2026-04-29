@@ -12,6 +12,7 @@ from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
 from score2abc.melody import (
+    DEFAULT_HOMR_COMMAND,
     DEFAULT_MUSICXML_SOURCE_DIR,
     INTERMEDIATE_MUSICXML_FILENAME,
     MusicXMLBackendError,
@@ -126,7 +127,14 @@ def ingest(input_dir: Path, metadata_csv: Path, out_dir: Path) -> int:
     return exit_code
 
 
-def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
+def run(
+    out_dir: Path,
+    workers: int = 1,
+    use_vlm: bool = False,
+    musicxml_backend_name: str = "fixture",
+    homr_command: str = DEFAULT_HOMR_COMMAND,
+    slugs: list[str] | None = None,
+) -> int:
     logger = get_logger("score2abc.run")
     manifest_path = out_dir / "manifest.jsonl"
     if not manifest_path.exists():
@@ -134,11 +142,20 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
         return 1
 
     work_items = load_manifest_jsonl(manifest_path)
+    if slugs:
+        requested_slugs = set(slugs)
+        work_items = [item for item in work_items if item.slug in requested_slugs]
+        missing_slugs = sorted(requested_slugs - {item.slug for item in work_items})
+        if missing_slugs:
+            logger.error("Requested slug(s) not found in manifest: %s", ", ".join(missing_slugs))
+            return 1
+
     logger.info(
-        "Running %d work items (workers=%d, use_vlm=%s)",
+        "Running %d work items (workers=%d, use_vlm=%s, musicxml_backend=%s)",
         len(work_items),
         workers,
         use_vlm,
+        musicxml_backend_name,
     )
     per_work_status: List[Dict[str, Any]] = []
 
@@ -246,12 +263,18 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
 
             musicxml_started = _utcnow()
             musicxml_source_dir = DEFAULT_MUSICXML_SOURCE_DIR
-            musicxml_backend = build_musicxml_backend(source_dir=musicxml_source_dir)
+            musicxml_backend = build_musicxml_backend(
+                source_dir=musicxml_source_dir,
+                backend=musicxml_backend_name,
+                homr_command=homr_command,
+            )
             intermediate_musicxml_path = intermediate_dir / INTERMEDIATE_MUSICXML_FILENAME
             musicxml_inputs: Dict[str, Any] = {
                 "source_dir": str(musicxml_source_dir),
                 "slug": item.slug,
             }
+            if musicxml_backend.name == "homr":
+                musicxml_inputs["pages_dir"] = str(pages_dir)
             musicxml_outputs: Dict[str, Any] = {"musicxml": None}
             musicxml_status: str
             musicxml_error: str | None = None
@@ -295,7 +318,10 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 ended_at=musicxml_ended,
                 inputs=musicxml_inputs,
                 outputs=musicxml_outputs,
-                params={"backend": musicxml_backend.name},
+                params={
+                    "backend": musicxml_backend.name,
+                    "homr_command": homr_command if musicxml_backend.name == "homr" else None,
+                },
                 error=musicxml_error,
             )
             if musicxml_status == "failed":
@@ -432,7 +458,13 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
         out_dir=out_dir,
         command="run",
         per_work=per_work_status,
-        extra={"workers": workers, "use_vlm": use_vlm},
+        extra={
+            "workers": workers,
+            "use_vlm": use_vlm,
+            "musicxml_backend": musicxml_backend_name,
+            "homr_command": homr_command if musicxml_backend_name == "homr" else None,
+            "slugs": slugs or None,
+        },
     )
     return exit_code
 

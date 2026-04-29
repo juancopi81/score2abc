@@ -16,6 +16,8 @@ uv run python main.py export out
 Notes:
 - PDF rendering uses `pdf2image` and requires a local Poppler install.
 - ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
+- MusicXML melody extraction defaults to committed fixtures under
+  `dataset/musicxml/` so normal runs stay hermetic.
 - ABC export now preserves canonical event timing, including implicit rests,
   simultaneous-note groups, and ties split across barlines/chord changes.
 - Segmentation deskews each page once, then applies a gamma=3.5 curve to
@@ -26,6 +28,35 @@ Notes:
   against the staff aren't clipped. Per-page overlays and JSON bbox
   manifests (with the detected `page_rotation_degrees`) are written
   alongside for inspection.
+
+### Optional homr melody OMR
+
+The first real melody-engine adapter is available behind an explicit backend
+flag. It shells out to a locally installed `homr` command, copies the generated
+MusicXML into `out/<slug>/intermediate/musicxml.xml`, and validates it with the
+same parser used for fixtures.
+
+```bash
+uv run python main.py run out --musicxml-backend homr
+```
+
+For a first smoke test, run only the labeled `Aviador` work:
+
+```bash
+uv run python main.py run out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --musicxml-backend homr
+```
+
+To use a wrapper command or non-default executable:
+
+```bash
+uv run python main.py run out --musicxml-backend homr --homr-command "path/to/homr"
+```
+
+`homr` is not a package dependency of score2abc. Install and license-review it
+separately before using this backend. The current adapter supports one rendered
+page per work, matching the current golden dataset assumption.
 
 ## Dependency Management (uv)
 

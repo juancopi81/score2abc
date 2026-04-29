@@ -100,6 +100,10 @@ def _expand_note_groups(
             current_onset = group.onset_beats
 
             while remaining > 0:
+                while current_onset >= measure_beats:
+                    current_measure += 1
+                    current_onset -= measure_beats
+
                 segment_duration = min(remaining, measure_beats - current_onset)
                 for chord_onset in sorted_chord_onsets.get(current_measure, ()):
                     if current_onset < chord_onset < current_onset + segment_duration:

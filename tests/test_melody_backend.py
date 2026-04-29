@@ -8,6 +8,7 @@ import pytest
 from score2abc.melody import (
     INTERMEDIATE_MUSICXML_FILENAME,
     FixtureMusicXMLBackend,
+    HomrMusicXMLBackend,
     MusicXMLBackendError,
     build_musicxml_backend,
 )
@@ -54,6 +55,22 @@ def _work_item(tmp_path: Path, slug: str = "demo-slug") -> WorkItem:
 def _write_musicxml(path: Path, contents: str = _TINY_MUSICXML) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(textwrap.dedent(contents).lstrip(), encoding="utf-8")
+    return path
+
+
+def _write_fake_homr(path: Path, contents: str = _TINY_MUSICXML) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    script = f"""\
+#!/bin/sh
+set -eu
+input="$1"
+test -f "$input"
+output="${{input%.*}}.musicxml"
+cat > "$output" <<'XML'
+{textwrap.dedent(contents).lstrip()}XML
+"""
+    path.write_text(script, encoding="utf-8")
+    path.chmod(0o755)
     return path
 
 
@@ -149,6 +166,97 @@ def test_build_musicxml_backend_returns_fixture_backend(tmp_path: Path) -> None:
     backend = build_musicxml_backend(source_dir=tmp_path / "musicxml")
     assert isinstance(backend, FixtureMusicXMLBackend)
     assert backend.name == "fixture"
+
+
+def test_build_musicxml_backend_returns_homr_backend(tmp_path: Path) -> None:
+    backend = build_musicxml_backend(
+        source_dir=tmp_path / "musicxml",
+        backend="homr",
+        homr_command="/usr/bin/false",
+    )
+    assert isinstance(backend, HomrMusicXMLBackend)
+    assert backend.name == "homr"
+
+
+def test_build_musicxml_backend_rejects_unknown_backend(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unsupported MusicXML backend"):
+        build_musicxml_backend(source_dir=tmp_path / "musicxml", backend="demo")
+
+
+def test_homr_backend_runs_external_command_and_validates_musicxml(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    page_path = work_dir / "pages" / "page_001.png"
+    page_path.parent.mkdir(parents=True)
+    page_path.write_bytes(b"fake png")
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr))
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert result.output_path == work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
+    assert result.output_path.exists()
+    assert result.source_path == work_dir / "intermediate" / "homr" / "page_001.png"
+
+
+def test_homr_backend_passes_absolute_input_when_work_dir_is_relative(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    item = _work_item(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    work_dir = Path("out") / item.slug
+    page_path = work_dir / "pages" / "page_001.png"
+    page_path.parent.mkdir(parents=True)
+    page_path.write_bytes(b"fake png")
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr))
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert result.output_path == work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
+    assert result.output_path.exists()
+
+
+def test_homr_backend_raises_when_command_is_missing(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    page_path = work_dir / "pages" / "page_001.png"
+    page_path.parent.mkdir(parents=True)
+    page_path.write_bytes(b"fake png")
+
+    backend = HomrMusicXMLBackend(command=str(tmp_path / "missing-homr"))
+
+    with pytest.raises(MusicXMLBackendError, match="homr command not found"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
+def test_homr_backend_raises_when_no_rendered_pages(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr))
+
+    with pytest.raises(MusicXMLBackendError, match="No rendered page images"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
+def test_homr_backend_rejects_multiple_pages_for_now(tmp_path: Path) -> None:
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    pages_dir = work_dir / "pages"
+    pages_dir.mkdir(parents=True)
+    (pages_dir / "page_001.png").write_bytes(b"fake png")
+    (pages_dir / "page_002.png").write_bytes(b"fake png")
+    fake_homr = _write_fake_homr(tmp_path / "bin" / "homr")
+
+    backend = HomrMusicXMLBackend(command=str(fake_homr))
+
+    with pytest.raises(MusicXMLBackendError, match="supports one rendered page"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
 
 
 def test_backend_output_is_picked_up_by_find_musicxml_source(tmp_path: Path) -> None:

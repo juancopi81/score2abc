@@ -1,7 +1,9 @@
 from score2abc.melody.backend import (
+    DEFAULT_HOMR_COMMAND,
     DEFAULT_MUSICXML_SOURCE_DIR,
     INTERMEDIATE_MUSICXML_FILENAME,
     FixtureMusicXMLBackend,
+    HomrMusicXMLBackend,
     MusicXMLBackend,
     MusicXMLBackendError,
     MusicXMLProduceResult,
@@ -17,8 +19,10 @@ from score2abc.melody.musicxml import (
 
 __all__ = [
     "CANONICAL_NOTE_OPTIONAL_FIELDS",
+    "DEFAULT_HOMR_COMMAND",
     "DEFAULT_MUSICXML_SOURCE_DIR",
     "FixtureMusicXMLBackend",
+    "HomrMusicXMLBackend",
     "INTERMEDIATE_MUSICXML_FILENAME",
     "MELODY_NOTE_FIELDS",
     "MusicXMLBackend",
