@@ -1,0 +1,185 @@
+from __future__ import annotations
+
+import textwrap
+from pathlib import Path
+
+import pytest
+
+from score2abc.melody import (
+    INTERMEDIATE_MUSICXML_FILENAME,
+    FixtureMusicXMLBackend,
+    MusicXMLBackendError,
+    build_musicxml_backend,
+)
+from score2abc.schemas import WorkItem, WorkMetadata
+
+_TINY_MUSICXML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <part-list>
+    <score-part id="P1"><part-name>Music</part-name></score-part>
+  </part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>1</divisions>
+        <time><beats>3</beats><beat-type>4</beat-type></time>
+      </attributes>
+      <note>
+        <pitch><step>E</step><octave>4</octave></pitch>
+        <duration>1</duration>
+      </note>
+    </measure>
+  </part>
+</score-partwise>
+"""
+
+
+def _work_item(tmp_path: Path, slug: str = "demo-slug") -> WorkItem:
+    pdf_path = tmp_path / f"{slug}.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 stub")
+    return WorkItem(
+        slug=slug,
+        pdf_path=pdf_path,
+        metadata=WorkMetadata(
+            title="Demo",
+            composer="Composer",
+            rhythm="Pasillo",
+            time_signature="3/4",
+            key_hint="Em",
+        ),
+    )
+
+
+def _write_musicxml(path: Path, contents: str = _TINY_MUSICXML) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(textwrap.dedent(contents).lstrip(), encoding="utf-8")
+    return path
+
+
+def test_fixture_backend_copies_and_validates_musicxml(tmp_path: Path) -> None:
+    source_dir = tmp_path / "musicxml"
+    item = _work_item(tmp_path)
+    fixture = _write_musicxml(source_dir / f"{item.slug}.musicxml")
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = FixtureMusicXMLBackend(source_dir=source_dir)
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert result.source_path == fixture
+    expected_output = work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
+    assert result.output_path == expected_output
+    assert expected_output.exists()
+    assert expected_output.read_text(encoding="utf-8") == fixture.read_text(encoding="utf-8")
+
+
+def test_fixture_backend_returns_none_when_no_source(tmp_path: Path) -> None:
+    source_dir = tmp_path / "musicxml"
+    source_dir.mkdir()
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = FixtureMusicXMLBackend(source_dir=source_dir)
+    assert backend.produce_musicxml(item=item, work_dir=work_dir) is None
+    assert not (work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME).exists()
+
+
+def test_fixture_backend_accepts_xml_extension(tmp_path: Path) -> None:
+    source_dir = tmp_path / "musicxml"
+    item = _work_item(tmp_path)
+    _write_musicxml(source_dir / f"{item.slug}.xml")
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = FixtureMusicXMLBackend(source_dir=source_dir)
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert result.source_path.suffix == ".xml"
+
+
+def test_fixture_backend_raises_when_source_is_invalid(tmp_path: Path) -> None:
+    source_dir = tmp_path / "musicxml"
+    item = _work_item(tmp_path)
+    bad_fixture = source_dir / f"{item.slug}.musicxml"
+    bad_fixture.parent.mkdir(parents=True)
+    bad_fixture.write_text("not really xml", encoding="utf-8")
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = FixtureMusicXMLBackend(source_dir=source_dir)
+
+    with pytest.raises(MusicXMLBackendError):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    # Validation failure must not leave a partial intermediate file behind.
+    assert not (work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME).exists()
+
+
+def test_fixture_backend_raises_when_musicxml_has_no_time_signature(tmp_path: Path) -> None:
+    source_dir = tmp_path / "musicxml"
+    item = _work_item(tmp_path)
+    _write_musicxml(
+        source_dir / f"{item.slug}.musicxml",
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <score-partwise version="4.0">
+          <part-list>
+            <score-part id="P1"><part-name>Music</part-name></score-part>
+          </part-list>
+          <part id="P1">
+            <measure number="1">
+              <note>
+                <pitch><step>C</step><octave>4</octave></pitch>
+                <duration>1</duration>
+              </note>
+            </measure>
+          </part>
+        </score-partwise>
+        """,
+    )
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = FixtureMusicXMLBackend(source_dir=source_dir)
+
+    with pytest.raises(MusicXMLBackendError, match="time signature"):
+        backend.produce_musicxml(item=item, work_dir=work_dir)
+
+
+def test_build_musicxml_backend_returns_fixture_backend(tmp_path: Path) -> None:
+    backend = build_musicxml_backend(source_dir=tmp_path / "musicxml")
+    assert isinstance(backend, FixtureMusicXMLBackend)
+    assert backend.name == "fixture"
+
+
+def test_backend_output_is_picked_up_by_find_musicxml_source(tmp_path: Path) -> None:
+    """Backend writes to the same path the pipeline reads from in extract_melody."""
+    from score2abc.pipeline import _find_musicxml_source
+
+    source_dir = tmp_path / "musicxml"
+    item = _work_item(tmp_path)
+    _write_musicxml(source_dir / f"{item.slug}.musicxml")
+    work_dir = tmp_path / "out" / item.slug
+
+    backend = build_musicxml_backend(source_dir=source_dir)
+    result = backend.produce_musicxml(item=item, work_dir=work_dir)
+
+    assert result is not None
+    assert _find_musicxml_source(work_dir) == result.output_path
+
+
+def test_manual_drop_is_preserved_when_no_fixture(tmp_path: Path) -> None:
+    """If a user manually placed intermediate/musicxml.xml, no-source skip leaves it alone."""
+    from score2abc.pipeline import _find_musicxml_source
+
+    source_dir = tmp_path / "musicxml"
+    source_dir.mkdir()
+    item = _work_item(tmp_path)
+    work_dir = tmp_path / "out" / item.slug
+    intermediate = work_dir / "intermediate"
+    intermediate.mkdir(parents=True)
+    manual_path = _write_musicxml(intermediate / INTERMEDIATE_MUSICXML_FILENAME)
+
+    backend = build_musicxml_backend(source_dir=source_dir)
+    assert backend.produce_musicxml(item=item, work_dir=work_dir) is None
+    assert manual_path.exists()
+    assert _find_musicxml_source(work_dir) == manual_path

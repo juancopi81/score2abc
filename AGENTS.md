@@ -6,6 +6,7 @@
 - `score2abc/` contains the Python package code (schemas, CLI, pipeline, and helpers).
 - `score2abc/chord_ocr/` holds the chord-OCR backends (Gemini + fixture + cache wrappers), the prompt, normalization, and barline/measure alignment logic.
 - `score2abc/chords.py` orchestrates the `extract_chords` pipeline stage and picks a `ChordOCR` backend from `--use-vlm`.
+- `score2abc/melody/` holds the MusicXML melody pipeline: `backend.py` defines the `MusicXMLBackend` protocol and the fixture backend that powers the `extract_musicxml` stage, while `musicxml.py` parses MusicXML into `melody.json` / `events.json`.
 - `score2abc/utils/` holds shared logging and timing utilities.
 - `scripts/` holds one-off developer utilities (e.g., `record_vlm_fixtures.py`).
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
@@ -14,6 +15,7 @@
 - `pyproject.toml` defines the package metadata and Python version requirement.
 - `dataset/` holds the golden PDF sources; filenames follow the documented normalization rules when possible.
 - `dataset/ground_truth/` holds labeled events for evaluation (`<slug>.json`).
+- `dataset/musicxml/` holds committed MusicXML fixtures (`<slug>.musicxml`) consumed by the `extract_musicxml` stage until a real OMR engine is wired in. If a slug has no fixture, the stage is skipped and the pipeline falls back to stub melody notes; a fixture that fails to parse fails the work item rather than silently falling back.
 - `tests/` holds pytest-based unit tests.
 - `tests/fixtures/vlm/` holds committed chord-OCR responses so hermetic runs (`use_vlm=False`) and CI never call Gemini.
 - `.cache/vlm/` (gitignored) holds live Gemini responses captured by `--use-vlm` runs.
