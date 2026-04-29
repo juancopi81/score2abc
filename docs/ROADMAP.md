@@ -39,11 +39,12 @@ Goal: improve recognition quality with prioritized de-risking.
 - [ ] Additional preprocessing (contrast, denoise) if VLM/OMR readability demands it — deferred until recognition step drives the need.
 - [x] Chord extraction via VLM on the above/below annotation bands → normalized symbols + measure alignment. _(chord-first pivot: validate VLM path on the easier target before investing in melody OMR; V0 uses a measure-only chord F1 metric and known-limited barline alignment)_
 - [ ] Harden chord measure alignment: debug/visualize detected barlines, avoid accidentals/stems, handle final right-edge barlines, and improve global measure offsets.
-- [x] Add first melody-backend MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.Add first melody-backend MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.
-- [ ] Wire Melody Engine A OMR output to produce `intermediate/musicxml.xml` automatically.
+- [x] Add first melody-backend MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.
+- [x] Wire pipeline contract for `intermediate/musicxml.xml` via a `MusicXMLBackend` protocol and an `extract_musicxml` stage backed by a fixture backend (`dataset/musicxml/<slug>.musicxml`); manual drops still work, corrupt fixtures fail the work item.
+- [ ] Replace the fixture MusicXML backend with a real OMR engine (Melody Engine A) that produces `intermediate/musicxml.xml` from rendered pages.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: automatic Melody Engine A OMR output wiring, then musical validation/repair.
+Next main M2 focus: integrate a real OMR backend behind the `MusicXMLBackend` protocol, then musical validation/repair.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

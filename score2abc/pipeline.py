@@ -11,7 +11,14 @@ from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
-from score2abc.melody import extract_canonical_melody_events, extract_melody_events
+from score2abc.melody import (
+    DEFAULT_MUSICXML_SOURCE_DIR,
+    INTERMEDIATE_MUSICXML_FILENAME,
+    MusicXMLBackendError,
+    build_musicxml_backend,
+    extract_canonical_melody_events,
+    extract_melody_events,
+)
 from score2abc.render import (
     create_system_crops,
     render_abc_preview,
@@ -237,6 +244,63 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 },
             )
 
+            musicxml_started = _utcnow()
+            musicxml_source_dir = DEFAULT_MUSICXML_SOURCE_DIR
+            musicxml_backend = build_musicxml_backend(source_dir=musicxml_source_dir)
+            intermediate_musicxml_path = intermediate_dir / INTERMEDIATE_MUSICXML_FILENAME
+            musicxml_inputs: Dict[str, Any] = {
+                "source_dir": str(musicxml_source_dir),
+                "slug": item.slug,
+            }
+            musicxml_outputs: Dict[str, Any] = {"musicxml": None}
+            musicxml_status: str
+            musicxml_error: str | None = None
+            try:
+                produced = musicxml_backend.produce_musicxml(item=item, work_dir=work_dir)
+            except MusicXMLBackendError as exc:
+                musicxml_status = "failed"
+                musicxml_error = str(exc)
+                logger.error("%s (%s)", musicxml_error, item.slug)
+            else:
+                if produced is None:
+                    musicxml_status = "skipped"
+                    if intermediate_musicxml_path.exists():
+                        musicxml_inputs["manual_override"] = str(intermediate_musicxml_path)
+                        musicxml_outputs["musicxml"] = str(intermediate_musicxml_path)
+                        logger.info(
+                            "No MusicXML fixture for %s; using existing %s",
+                            item.slug,
+                            intermediate_musicxml_path,
+                        )
+                    else:
+                        logger.info(
+                            "No MusicXML source for %s; extract_musicxml skipped",
+                            item.slug,
+                        )
+                else:
+                    musicxml_status = "success"
+                    musicxml_inputs["source"] = str(produced.source_path)
+                    musicxml_outputs["musicxml"] = str(produced.output_path)
+                    logger.info(
+                        "Produced MusicXML for %s from %s",
+                        item.slug,
+                        produced.source_path,
+                    )
+            musicxml_ended = _utcnow()
+            _write_stage_artifact(
+                work_dir=work_dir,
+                stage="extract_musicxml",
+                status=musicxml_status,
+                started_at=musicxml_started,
+                ended_at=musicxml_ended,
+                inputs=musicxml_inputs,
+                outputs=musicxml_outputs,
+                params={"backend": musicxml_backend.name},
+                error=musicxml_error,
+            )
+            if musicxml_status == "failed":
+                raise RuntimeError(musicxml_error or "extract_musicxml failed")
+
             melody_started = _utcnow()
             musicxml_source = _find_musicxml_source(work_dir)
             melody_json_path = intermediate_dir / "melody.json"
@@ -461,7 +525,7 @@ def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
 
 
 _MUSICXML_SOURCE_CANDIDATES = (
-    Path("intermediate") / "musicxml.xml",
+    Path("intermediate") / INTERMEDIATE_MUSICXML_FILENAME,
     Path("intermediate") / "musicxml.musicxml",
 )
 
