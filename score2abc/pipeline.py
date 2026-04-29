@@ -11,6 +11,7 @@ from score2abc.chords import build_chord_ocr, extract_chords_for_systems
 from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
+from score2abc.melody import extract_canonical_melody_events, extract_melody_events
 from score2abc.render import (
     create_system_crops,
     render_abc_preview,
@@ -236,8 +237,65 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 },
             )
 
+            melody_started = _utcnow()
+            musicxml_source = _find_musicxml_source(work_dir)
+            melody_json_path = intermediate_dir / "melody.json"
+            melody_payload: Dict[str, Any] | None = None
+            normalize_melody_payload: Dict[str, Any] | None = None
+            melody_status: str
+            melody_error: str | None = None
+            if musicxml_source is None:
+                melody_status = "skipped"
+                logger.info(
+                    "No MusicXML source found for %s; melody extraction skipped",
+                    item.slug,
+                )
+            else:
+                try:
+                    melody_payload = extract_melody_events(musicxml_source)
+                    normalize_melody_payload = extract_canonical_melody_events(musicxml_source)
+                    melody_json_path.write_text(
+                        json.dumps(melody_payload, indent=2) + "\n", encoding="utf-8"
+                    )
+                    logger.info("Wrote melody: %s", melody_json_path)
+                    melody_status = "success"
+                except Exception as exc:
+                    melody_payload = None
+                    normalize_melody_payload = None
+                    melody_status = "failed"
+                    melody_error = f"Failed to parse MusicXML {musicxml_source}: {exc}"
+                    logger.error("%s (%s)", melody_error, item.slug)
+            melody_ended = _utcnow()
+            _write_stage_artifact(
+                work_dir=work_dir,
+                stage="extract_melody",
+                status=melody_status,
+                started_at=melody_started,
+                ended_at=melody_ended,
+                inputs={
+                    "musicxml": str(musicxml_source) if musicxml_source else None,
+                },
+                outputs={
+                    "melody_json": (str(melody_json_path) if melody_payload is not None else None),
+                },
+                params={},
+                error=melody_error,
+            )
+
             events_started = _utcnow()
-            events = _build_stub_events(item, chords=chords_payload["chords"])
+            if normalize_melody_payload is not None:
+                events = _build_events_from_melody(
+                    item,
+                    melody=normalize_melody_payload,
+                    chords=chords_payload["chords"],
+                )
+                normalize_inputs = {
+                    "chords_json": str(chords_path),
+                    "melody_json": str(melody_json_path),
+                }
+            else:
+                events = _build_stub_events(item, chords=chords_payload["chords"])
+                normalize_inputs = {"chords_json": str(chords_path)}
             events_path = intermediate_dir / "events.json"
             events_path.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
             logger.info("Wrote events: %s", events_path)
@@ -248,7 +306,7 @@ def run(out_dir: Path, workers: int = 1, use_vlm: bool = False) -> int:
                 status="success",
                 started_at=events_started,
                 ended_at=events_ended,
-                inputs={"chords_json": str(chords_path)},
+                inputs=normalize_inputs,
                 outputs={"events_json": str(events_path)},
                 params={},
             )
@@ -400,6 +458,48 @@ def export(out_dir: Path, export_format: str = "index.md") -> int:
 
 def evaluate(out_dir: Path, ground_truth_dir: Path) -> int:
     return run_evaluation(out_dir, ground_truth_dir)
+
+
+_MUSICXML_SOURCE_CANDIDATES = (
+    Path("intermediate") / "musicxml.xml",
+    Path("intermediate") / "musicxml.musicxml",
+)
+
+
+def _find_musicxml_source(work_dir: Path) -> Path | None:
+    """Locate a MusicXML file to feed the extract_melody stage.
+
+    Until OMR is integrated, callers can drop a MusicXML at one of the candidate
+    paths under the work directory to exercise the melody pipeline end-to-end.
+    """
+    for relative in _MUSICXML_SOURCE_CANDIDATES:
+        candidate = work_dir / relative
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _build_events_from_melody(
+    item: WorkItem,
+    *,
+    melody: Dict[str, Any],
+    chords: List[Dict[str, Any]],
+) -> dict:
+    """Combine extracted melody notes with chord-OCR chords into events.json."""
+    chord_events = [
+        {
+            "measure": entry["measure"],
+            "onset_beats": entry.get("onset_beats", 0.0),
+            "symbol": entry["symbol"],
+        }
+        for entry in chords
+    ]
+    time_signature = melody.get("time_signature") or item.metadata.time_signature or "4/4"
+    return {
+        "time_signature": time_signature,
+        "notes": list(melody.get("notes") or []),
+        "chords": chord_events,
+    }
 
 
 def _build_stub_events(item: WorkItem, *, chords: List[Dict[str, Any]] | None = None) -> dict:
