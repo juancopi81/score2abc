@@ -1,8 +1,11 @@
 from score2abc.melody.backend import (
+    AUDIVERIS_INPUT_MODES,
+    DEFAULT_AUDIVERIS_COMMAND,
     DEFAULT_HOMR_COMMAND,
     DEFAULT_MUSICXML_SOURCE_DIR,
     HOMR_INPUT_MODES,
     INTERMEDIATE_MUSICXML_FILENAME,
+    AudiverisMusicXMLBackend,
     FixtureMusicXMLBackend,
     HomrMusicXMLBackend,
     MusicXMLBackend,
@@ -19,7 +22,10 @@ from score2abc.melody.musicxml import (
 )
 
 __all__ = [
+    "AUDIVERIS_INPUT_MODES",
+    "AudiverisMusicXMLBackend",
     "CANONICAL_NOTE_OPTIONAL_FIELDS",
+    "DEFAULT_AUDIVERIS_COMMAND",
     "DEFAULT_HOMR_COMMAND",
     "DEFAULT_MUSICXML_SOURCE_DIR",
     "FixtureMusicXMLBackend",

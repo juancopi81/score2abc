@@ -41,11 +41,12 @@ Goal: improve recognition quality with prioritized de-risking.
 - [ ] Harden chord measure alignment: debug/visualize detected barlines, avoid accidentals/stems, handle final right-edge barlines, and improve global measure offsets.
 - [x] Add first melody-backend MusicXML integration slice: staged MusicXML → `melody.json` + `events.json`.
 - [x] Wire pipeline contract for `intermediate/musicxml.xml` via a `MusicXMLBackend` protocol and an `extract_musicxml` stage backed by a fixture backend (`dataset/musicxml/<slug>.musicxml`); manual drops still work, corrupt fixtures fail the work item.
-- [ ] Spike Melody Engine A with optional external `homr` backend: explicit CLI selection, no bundled AGPL dependency, MusicXML validation before downstream stages, and first `Aviador` smoke run.
-- [ ] Replace the fixture MusicXML backend with a real OMR engine (Melody Engine A) that produces `intermediate/musicxml.xml` from rendered pages.
+- [x] Spike external MusicXML OMR backends behind the `MusicXMLBackend` protocol: optional `homr` and Audiveris CLI adapters, rendered/deskewed/system-collage input modes, MusicXML validation, and `Aviador` smoke/eval runs.
+- [ ] Replace the fixture MusicXML backend with a real recognition path that produces `intermediate/musicxml.xml` from rendered pages or system crops. Current homr/Audiveris results are useful as a benchmark harness, but not accurate enough to become the primary melody path.
+- [ ] Prototype VLM-assisted melody extraction on system crops as the next melody-recognition direction, using the OMR benchmark results as the baseline to beat.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: integrate a real OMR backend behind the `MusicXMLBackend` protocol, then musical validation/repair.
+Next main M2 focus: move from generic OMR engines to a VLM-assisted system-crop melody prototype, then apply musical validation/repair.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

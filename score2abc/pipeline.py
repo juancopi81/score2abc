@@ -12,6 +12,7 @@ from score2abc.dataset import load_dataset_metadata
 from score2abc.evaluation import evaluate as run_evaluation
 from score2abc.manifest import load_manifest_jsonl, write_manifest_jsonl
 from score2abc.melody import (
+    DEFAULT_AUDIVERIS_COMMAND,
     DEFAULT_HOMR_COMMAND,
     DEFAULT_MUSICXML_SOURCE_DIR,
     INTERMEDIATE_MUSICXML_FILENAME,
@@ -132,6 +133,8 @@ def run(
     workers: int = 1,
     use_vlm: bool = False,
     musicxml_backend_name: str = "fixture",
+    audiveris_command: str = DEFAULT_AUDIVERIS_COMMAND,
+    audiveris_input: str = "page",
     homr_command: str = DEFAULT_HOMR_COMMAND,
     homr_input: str = "page",
     slugs: list[str] | None = None,
@@ -267,6 +270,8 @@ def run(
             musicxml_backend = build_musicxml_backend(
                 source_dir=musicxml_source_dir,
                 backend=musicxml_backend_name,
+                audiveris_command=audiveris_command,
+                audiveris_input=audiveris_input,
                 homr_command=homr_command,
                 homr_input=homr_input,
             )
@@ -275,7 +280,7 @@ def run(
                 "source_dir": str(musicxml_source_dir),
                 "slug": item.slug,
             }
-            if musicxml_backend.name == "homr":
+            if musicxml_backend.name in {"audiveris", "homr"}:
                 musicxml_inputs["pages_dir"] = str(pages_dir)
                 musicxml_inputs["systems_dir"] = str(systems_dir)
             musicxml_outputs: Dict[str, Any] = {"musicxml": None}
@@ -307,6 +312,8 @@ def run(
                     musicxml_status = "success"
                     musicxml_inputs["source"] = str(produced.source_path)
                     musicxml_outputs["musicxml"] = str(produced.output_path)
+                    if produced.raw_output_path is not None:
+                        musicxml_outputs["raw_musicxml"] = str(produced.raw_output_path)
                     logger.info(
                         "Produced MusicXML for %s from %s",
                         item.slug,
@@ -323,6 +330,12 @@ def run(
                 outputs=musicxml_outputs,
                 params={
                     "backend": musicxml_backend.name,
+                    "audiveris_command": (
+                        audiveris_command if musicxml_backend.name == "audiveris" else None
+                    ),
+                    "audiveris_input": (
+                        audiveris_input if musicxml_backend.name == "audiveris" else None
+                    ),
                     "homr_command": homr_command if musicxml_backend.name == "homr" else None,
                     "homr_input": homr_input if musicxml_backend.name == "homr" else None,
                 },
@@ -466,6 +479,10 @@ def run(
             "workers": workers,
             "use_vlm": use_vlm,
             "musicxml_backend": musicxml_backend_name,
+            "audiveris_command": (
+                audiveris_command if musicxml_backend_name == "audiveris" else None
+            ),
+            "audiveris_input": audiveris_input if musicxml_backend_name == "audiveris" else None,
             "homr_command": homr_command if musicxml_backend_name == "homr" else None,
             "homr_input": homr_input if musicxml_backend_name == "homr" else None,
             "slugs": slugs or None,

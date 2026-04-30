@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from score2abc.melody import HOMR_INPUT_MODES
+from score2abc.melody import AUDIVERIS_INPUT_MODES, HOMR_INPUT_MODES
 from score2abc.pipeline import evaluate as evaluate_pipeline
 from score2abc.pipeline import export as export_pipeline
 from score2abc.pipeline import ingest as ingest_pipeline
@@ -48,7 +48,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
     logger.info("Workers: %s", args.workers)
     logger.info("Use VLM: %s", args.use_vlm)
     logger.info("MusicXML backend: %s", args.musicxml_backend)
-    logger.info("homr input: %s", args.homr_input)
+    if args.musicxml_backend == "audiveris":
+        logger.info("Audiveris input: %s", args.audiveris_input)
+    if args.musicxml_backend == "homr":
+        logger.info("homr input: %s", args.homr_input)
 
     if not _validate_path(out_dir, "Output directory", logger):
         return 1
@@ -58,6 +61,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
         workers=args.workers,
         use_vlm=args.use_vlm,
         musicxml_backend_name=args.musicxml_backend,
+        audiveris_command=args.audiveris_command,
+        audiveris_input=args.audiveris_input,
         homr_command=args.homr_command,
         homr_input=args.homr_input,
         slugs=args.slug,
@@ -136,12 +141,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument(
         "--musicxml-backend",
-        choices=("fixture", "homr"),
+        choices=("fixture", "homr", "audiveris"),
         default="fixture",
         help=(
-            "MusicXML production backend. fixture is hermetic; homr requires an "
-            "external homr CLI."
+            "MusicXML production backend. fixture is hermetic; homr and audiveris "
+            "require external CLIs."
         ),
+    )
+    run.add_argument(
+        "--audiveris-command",
+        default="audiveris",
+        help=("Command used when --musicxml-backend=audiveris; may include fixed leading args."),
+    )
+    run.add_argument(
+        "--audiveris-input",
+        choices=AUDIVERIS_INPUT_MODES,
+        default="page",
+        help="Image input for --musicxml-backend=audiveris.",
     )
     run.add_argument(
         "--homr-command",

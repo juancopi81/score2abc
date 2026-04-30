@@ -3,6 +3,7 @@ from __future__ import annotations
 import shlex
 import shutil
 import subprocess
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -16,11 +17,17 @@ INTERMEDIATE_MUSICXML_FILENAME = "musicxml.xml"
 DEFAULT_MUSICXML_SOURCE_DIR = Path("dataset/musicxml")
 _FIXTURE_EXTENSIONS: tuple[str, ...] = (".musicxml", ".xml")
 _HOMR_OUTPUT_EXTENSIONS: tuple[str, ...] = (".musicxml", ".xml")
-HOMR_INPUT_MODES: tuple[str, ...] = ("page", "deskewed-page", "systems")
+_AUDIVERIS_OUTPUT_EXTENSIONS: tuple[str, ...] = (".musicxml", ".xml", ".mxl")
+OMR_INPUT_MODES: tuple[str, ...] = ("page", "deskewed-page", "systems")
+HOMR_INPUT_MODES: tuple[str, ...] = OMR_INPUT_MODES
+AUDIVERIS_INPUT_MODES: tuple[str, ...] = OMR_INPUT_MODES
 DEFAULT_HOMR_COMMAND = "homr"
+DEFAULT_AUDIVERIS_COMMAND = "audiveris"
 DEFAULT_HOMR_TIMEOUT_SECONDS = 900
+DEFAULT_AUDIVERIS_TIMEOUT_SECONDS = 900
 _SYSTEM_COLLAGE_FILENAME = "systems_collage.png"
 _SYSTEM_COLLAGE_SEPARATOR_PIXELS = 24
+_AUDIVERIS_PLAIN_XML_CONSTANT = "org.audiveris.omr.sheet.BookManager.useCompression=false"
 
 
 class MusicXMLBackendError(RuntimeError):
@@ -33,6 +40,7 @@ class MusicXMLProduceResult:
 
     output_path: Path
     source_path: Path
+    raw_output_path: Path | None = None
 
 
 class MusicXMLBackend(Protocol):
@@ -196,71 +204,12 @@ class HomrMusicXMLBackend:
         return MusicXMLProduceResult(output_path=output_path, source_path=input_path)
 
     def _prepare_input_image(self, *, work_dir: Path, homr_dir: Path) -> Path:
-        if self._input_mode == "page":
-            source_path = self._select_single_image(
-                sorted((work_dir / "pages").glob("page_*.png")),
-                missing_message=f"No rendered page images found under {work_dir / 'pages'}",
-                multiple_message="homr page input currently supports one rendered page per work",
-            )
-            input_path = homr_dir / source_path.name
-            shutil.copyfile(source_path, input_path)
-            return input_path
-
-        if self._input_mode == "deskewed-page":
-            source_path = self._select_single_image(
-                sorted((work_dir / "systems").glob("page_*_deskewed.png")),
-                missing_message=f"No deskewed page images found under {work_dir / 'systems'}",
-                multiple_message="homr deskewed-page input currently supports one page per work",
-            )
-            input_path = homr_dir / source_path.name
-            shutil.copyfile(source_path, input_path)
-            return input_path
-
-        if self._input_mode == "systems":
-            return self._build_systems_collage(work_dir=work_dir, homr_dir=homr_dir)
-
-        raise ValueError(f"Unsupported homr input mode: {self._input_mode}")
-
-    def _select_single_image(
-        self,
-        paths: list[Path],
-        *,
-        missing_message: str,
-        multiple_message: str,
-    ) -> Path:
-        if not paths:
-            raise MusicXMLBackendError(missing_message)
-        if len(paths) > 1:
-            raise MusicXMLBackendError(f"{multiple_message}; found {len(paths)} images")
-        return paths[0]
-
-    def _build_systems_collage(self, *, work_dir: Path, homr_dir: Path) -> Path:
-        system_paths = sorted((work_dir / "systems").glob("system_*.png"))
-        if not system_paths:
-            raise MusicXMLBackendError(f"No system crops found under {work_dir / 'systems'}")
-
-        images: list[Image.Image] = []
-        try:
-            for path in system_paths:
-                images.append(Image.open(path).convert("RGB"))
-
-            max_width = max(image.width for image in images)
-            total_height = sum(image.height for image in images)
-            total_height += _SYSTEM_COLLAGE_SEPARATOR_PIXELS * (len(images) - 1)
-            collage = Image.new("RGB", (max_width, total_height), color="white")
-
-            y = 0
-            for image in images:
-                collage.paste(image, (0, y))
-                y += image.height + _SYSTEM_COLLAGE_SEPARATOR_PIXELS
-
-            output_path = homr_dir / _SYSTEM_COLLAGE_FILENAME
-            output_path.unlink(missing_ok=True)
-            collage.save(output_path)
-            return output_path
-        finally:
-            for image in images:
-                image.close()
+        return _prepare_omr_input_image(
+            input_mode=self._input_mode,
+            work_dir=work_dir,
+            backend_dir=homr_dir,
+            backend_name=self.name,
+        )
 
     def _find_homr_output(
         self,
@@ -284,16 +233,252 @@ class HomrMusicXMLBackend:
         return [input_path.with_suffix(extension) for extension in _HOMR_OUTPUT_EXTENSIONS]
 
 
+class AudiverisMusicXMLBackend:
+    """Run the external ``audiveris`` CLI and normalize its MusicXML output path."""
+
+    name = "audiveris"
+
+    def __init__(
+        self,
+        *,
+        command: str = DEFAULT_AUDIVERIS_COMMAND,
+        input_mode: str = "page",
+        timeout_seconds: int = DEFAULT_AUDIVERIS_TIMEOUT_SECONDS,
+    ) -> None:
+        if input_mode not in AUDIVERIS_INPUT_MODES:
+            raise ValueError(f"Unsupported audiveris input mode: {input_mode}")
+        self._command = command
+        self._input_mode = input_mode
+        self._timeout_seconds = timeout_seconds
+
+    def produce_musicxml(
+        self,
+        *,
+        item: WorkItem,
+        work_dir: Path,
+    ) -> MusicXMLProduceResult | None:
+        audiveris_dir = work_dir / "intermediate" / "audiveris"
+        audiveris_dir.mkdir(parents=True, exist_ok=True)
+
+        input_path = _prepare_omr_input_image(
+            input_mode=self._input_mode,
+            work_dir=work_dir,
+            backend_dir=audiveris_dir,
+            backend_name=self.name,
+        )
+
+        output_path = work_dir / "intermediate" / INTERMEDIATE_MUSICXML_FILENAME
+        output_path.unlink(missing_ok=True)
+        for candidate in self._stem_output_candidates(input_path):
+            candidate.unlink(missing_ok=True)
+
+        before = set(audiveris_dir.rglob("*"))
+        command = [
+            *shlex.split(self._command),
+            "-batch",
+            "-transcribe",
+            "-export",
+            "-constant",
+            _AUDIVERIS_PLAIN_XML_CONSTANT,
+            "-output",
+            str(audiveris_dir.resolve()),
+            "--",
+            str(input_path.resolve()),
+        ]
+
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=audiveris_dir,
+                capture_output=True,
+                text=True,
+                timeout=self._timeout_seconds,
+                check=False,
+            )
+        except FileNotFoundError as exc:
+            raise MusicXMLBackendError(
+                "audiveris command not found. Install Audiveris separately or rerun with "
+                "--musicxml-backend fixture."
+            ) from exc
+        except subprocess.TimeoutExpired as exc:
+            raise MusicXMLBackendError(
+                f"audiveris timed out after {self._timeout_seconds} seconds for {item.slug}"
+            ) from exc
+
+        if completed.returncode != 0:
+            stderr = completed.stderr.strip()
+            stdout = completed.stdout.strip()
+            details = stderr or stdout or "no output"
+            raise MusicXMLBackendError(
+                f"audiveris failed for {item.slug} with exit code "
+                f"{completed.returncode}: {details}"
+            )
+
+        produced = self._find_audiveris_output(
+            audiveris_dir=audiveris_dir,
+            input_path=input_path,
+            before=before,
+        )
+        if produced is None:
+            raise MusicXMLBackendError(f"audiveris did not produce a MusicXML file for {item.slug}")
+
+        try:
+            self._copy_or_extract_musicxml(produced, output_path)
+            parse_musicxml_events(output_path)
+        except Exception as exc:
+            output_path.unlink(missing_ok=True)
+            raise MusicXMLBackendError(
+                f"audiveris MusicXML failed validation ({produced}): {exc}"
+            ) from exc
+
+        return MusicXMLProduceResult(
+            output_path=output_path,
+            source_path=input_path,
+            raw_output_path=produced,
+        )
+
+    def _find_audiveris_output(
+        self,
+        *,
+        audiveris_dir: Path,
+        input_path: Path,
+        before: set[Path],
+    ) -> Path | None:
+        for candidate in self._stem_output_candidates(input_path):
+            if candidate.exists():
+                return candidate
+
+        produced = [
+            path
+            for path in sorted(audiveris_dir.rglob("*"))
+            if path not in before
+            and path.is_file()
+            and path.suffix.lower() in _AUDIVERIS_OUTPUT_EXTENSIONS
+        ]
+        return produced[0] if produced else None
+
+    def _stem_output_candidates(self, input_path: Path) -> list[Path]:
+        return [input_path.with_suffix(extension) for extension in _AUDIVERIS_OUTPUT_EXTENSIONS]
+
+    def _copy_or_extract_musicxml(self, source_path: Path, output_path: Path) -> None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if source_path.suffix.lower() != ".mxl":
+            shutil.copyfile(source_path, output_path)
+            return
+
+        with zipfile.ZipFile(source_path) as archive:
+            candidates = [
+                name
+                for name in archive.namelist()
+                if name.lower().endswith((".musicxml", ".xml"))
+                and not name.lower().startswith("meta-inf/")
+            ]
+            if not candidates:
+                raise MusicXMLBackendError(f"No MusicXML member found in {source_path}")
+
+            preferred = next(
+                (name for name in candidates if "container" not in Path(name).name.lower()),
+                candidates[0],
+            )
+            output_path.write_bytes(archive.read(preferred))
+
+
+def _prepare_omr_input_image(
+    *,
+    input_mode: str,
+    work_dir: Path,
+    backend_dir: Path,
+    backend_name: str,
+) -> Path:
+    if input_mode == "page":
+        source_path = _select_single_image(
+            sorted((work_dir / "pages").glob("page_*.png")),
+            missing_message=f"No rendered page images found under {work_dir / 'pages'}",
+            multiple_message=(
+                f"{backend_name} page input currently supports one rendered page per work"
+            ),
+        )
+        input_path = backend_dir / source_path.name
+        shutil.copyfile(source_path, input_path)
+        return input_path
+
+    if input_mode == "deskewed-page":
+        source_path = _select_single_image(
+            sorted((work_dir / "systems").glob("page_*_deskewed.png")),
+            missing_message=f"No deskewed page images found under {work_dir / 'systems'}",
+            multiple_message=(
+                f"{backend_name} deskewed-page input currently supports one page per work"
+            ),
+        )
+        input_path = backend_dir / source_path.name
+        shutil.copyfile(source_path, input_path)
+        return input_path
+
+    if input_mode == "systems":
+        return _build_systems_collage(work_dir=work_dir, backend_dir=backend_dir)
+
+    raise ValueError(f"Unsupported {backend_name} input mode: {input_mode}")
+
+
+def _select_single_image(
+    paths: list[Path],
+    *,
+    missing_message: str,
+    multiple_message: str,
+) -> Path:
+    if not paths:
+        raise MusicXMLBackendError(missing_message)
+    if len(paths) > 1:
+        raise MusicXMLBackendError(f"{multiple_message}; found {len(paths)} images")
+    return paths[0]
+
+
+def _build_systems_collage(*, work_dir: Path, backend_dir: Path) -> Path:
+    system_paths = sorted((work_dir / "systems").glob("system_*.png"))
+    if not system_paths:
+        raise MusicXMLBackendError(f"No system crops found under {work_dir / 'systems'}")
+
+    images: list[Image.Image] = []
+    try:
+        for path in system_paths:
+            images.append(Image.open(path).convert("RGB"))
+
+        max_width = max(image.width for image in images)
+        total_height = sum(image.height for image in images)
+        total_height += _SYSTEM_COLLAGE_SEPARATOR_PIXELS * (len(images) - 1)
+        collage = Image.new("RGB", (max_width, total_height), color="white")
+
+        y = 0
+        for image in images:
+            collage.paste(image, (0, y))
+            y += image.height + _SYSTEM_COLLAGE_SEPARATOR_PIXELS
+
+        output_path = backend_dir / _SYSTEM_COLLAGE_FILENAME
+        output_path.unlink(missing_ok=True)
+        collage.save(output_path)
+        return output_path
+    finally:
+        for image in images:
+            image.close()
+
+
 def build_musicxml_backend(
     *,
     source_dir: Path,
     backend: str = "fixture",
+    audiveris_command: str = DEFAULT_AUDIVERIS_COMMAND,
+    audiveris_input: str = "page",
     homr_command: str = DEFAULT_HOMR_COMMAND,
     homr_input: str = "page",
 ) -> MusicXMLBackend:
     """Pick a MusicXMLBackend."""
     if backend == "fixture":
         return FixtureMusicXMLBackend(source_dir=source_dir)
+    if backend == "audiveris":
+        return AudiverisMusicXMLBackend(
+            command=audiveris_command,
+            input_mode=audiveris_input,
+        )
     if backend == "homr":
         return HomrMusicXMLBackend(command=homr_command, input_mode=homr_input)
     raise ValueError(f"Unsupported MusicXML backend: {backend}")

@@ -29,15 +29,16 @@ Notes:
   manifests (with the detected `page_rotation_degrees`) are written
   alongside for inspection.
 
-### Optional homr melody OMR
+### Optional melody OMR backends
 
-The first real melody-engine adapter is available behind an explicit backend
-flag. It shells out to a locally installed `homr` command, copies the generated
-MusicXML into `out/<slug>/intermediate/musicxml.xml`, and validates it with the
+Optional melody-engine adapters are available behind explicit backend flags.
+They shell out to locally installed OMR commands, copy or normalize generated
+MusicXML into `out/<slug>/intermediate/musicxml.xml`, and validate it with the
 same parser used for fixtures.
 
 ```bash
 uv run python main.py run out --musicxml-backend homr
+uv run python main.py run out --musicxml-backend audiveris
 ```
 
 For a first smoke test, run only the labeled `Aviador` work:
@@ -53,7 +54,14 @@ To use a wrapper command or non-default executable:
 
 ```bash
 uv run python main.py run out --musicxml-backend homr --homr-command "path/to/homr"
+uv run python main.py run out --musicxml-backend audiveris --audiveris-command "path/to/audiveris"
 ```
+
+Both optional OMR backends support the same image input modes:
+
+- `page`: rendered PDF page.
+- `deskewed-page`: deskewed/enhanced full page.
+- `systems`: stitched detected system crops.
 
 To compare homr input modes without overwriting outputs:
 
@@ -86,6 +94,39 @@ grep -n '"note_f1_avg"\|"time_signature_pred"\|"pred_notes"\|"truth_notes"' \
 `homr` is not a package dependency of score2abc. Install and license-review it
 separately before using this backend. The current adapter supports rendered page,
 deskewed page, and stitched-system-crop inputs.
+
+To compare Audiveris input modes without overwriting outputs:
+
+```bash
+SLUG=jaime-llanos_12_aviador_pasillo_fulgencio-garcia
+AUDIVERIS=audiveris
+
+for MODE in page deskewed-page systems; do
+  OUT="/tmp/score2abc-audiveris-${MODE}"
+  rm -rf "$OUT"
+  uv run python main.py ingest dataset dataset/metadata.csv "$OUT"
+  uv run python main.py run "$OUT" \
+    --slug "$SLUG" \
+    --musicxml-backend audiveris \
+    --audiveris-command "$AUDIVERIS" \
+    --audiveris-input "$MODE"
+  uv run python main.py eval "$OUT" --ground-truth dataset/ground_truth
+done
+```
+
+Then compare the reports:
+
+```bash
+grep -n '"note_f1_avg"\|"time_signature_pred"\|"pred_notes"\|"truth_notes"' \
+  /tmp/score2abc-audiveris-page/eval/report.json \
+  /tmp/score2abc-audiveris-deskewed-page/eval/report.json \
+  /tmp/score2abc-audiveris-systems/eval/report.json
+```
+
+`audiveris` is not a package dependency of score2abc. Install and
+license-review it separately before using this backend. The current adapter
+uses Audiveris batch export and supports rendered page, deskewed page, and
+stitched-system-crop inputs.
 
 ## Dependency Management (uv)
 
