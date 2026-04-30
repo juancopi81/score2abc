@@ -4,6 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from score2abc.melody import AUDIVERIS_INPUT_MODES, HOMR_INPUT_MODES
 from score2abc.pipeline import evaluate as evaluate_pipeline
 from score2abc.pipeline import export as export_pipeline
 from score2abc.pipeline import ingest as ingest_pipeline
@@ -46,11 +47,26 @@ def _cmd_run(args: argparse.Namespace) -> int:
     logger.info("Output dir: %s", out_dir)
     logger.info("Workers: %s", args.workers)
     logger.info("Use VLM: %s", args.use_vlm)
+    logger.info("MusicXML backend: %s", args.musicxml_backend)
+    if args.musicxml_backend == "audiveris":
+        logger.info("Audiveris input: %s", args.audiveris_input)
+    if args.musicxml_backend == "homr":
+        logger.info("homr input: %s", args.homr_input)
 
     if not _validate_path(out_dir, "Output directory", logger):
         return 1
 
-    return run_pipeline(out_dir, workers=args.workers, use_vlm=args.use_vlm)
+    return run_pipeline(
+        out_dir,
+        workers=args.workers,
+        use_vlm=args.use_vlm,
+        musicxml_backend_name=args.musicxml_backend,
+        audiveris_command=args.audiveris_command,
+        audiveris_input=args.audiveris_input,
+        homr_command=args.homr_command,
+        homr_input=args.homr_input,
+        slugs=args.slug,
+    )
 
 
 def _cmd_qa(args: argparse.Namespace) -> int:
@@ -118,6 +134,42 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("out_dir", help="Output directory")
     run.add_argument("--workers", type=int, default=1, help="Number of workers")
     run.add_argument("--use-vlm", action="store_true", help="Enable VLM-assisted steps")
+    run.add_argument(
+        "--slug",
+        action="append",
+        help="Run only this work slug. Repeat to select multiple works.",
+    )
+    run.add_argument(
+        "--musicxml-backend",
+        choices=("fixture", "homr", "audiveris"),
+        default="fixture",
+        help=(
+            "MusicXML production backend. fixture is hermetic; homr and audiveris "
+            "require external CLIs."
+        ),
+    )
+    run.add_argument(
+        "--audiveris-command",
+        default="audiveris",
+        help=("Command used when --musicxml-backend=audiveris; may include fixed leading args."),
+    )
+    run.add_argument(
+        "--audiveris-input",
+        choices=AUDIVERIS_INPUT_MODES,
+        default="page",
+        help="Image input for --musicxml-backend=audiveris.",
+    )
+    run.add_argument(
+        "--homr-command",
+        default="homr",
+        help="Command used when --musicxml-backend=homr; may include fixed leading args.",
+    )
+    run.add_argument(
+        "--homr-input",
+        choices=HOMR_INPUT_MODES,
+        default="page",
+        help="Image input for --musicxml-backend=homr.",
+    )
     run.set_defaults(func=_cmd_run)
 
     qa = subparsers.add_parser("qa", help="Run QA and review tooling")

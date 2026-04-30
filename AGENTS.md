@@ -6,7 +6,7 @@
 - `score2abc/` contains the Python package code (schemas, CLI, pipeline, and helpers).
 - `score2abc/chord_ocr/` holds the chord-OCR backends (Gemini + fixture + cache wrappers), the prompt, normalization, and barline/measure alignment logic.
 - `score2abc/chords.py` orchestrates the `extract_chords` pipeline stage and picks a `ChordOCR` backend from `--use-vlm`.
-- `score2abc/melody/` holds the MusicXML melody pipeline: `backend.py` defines the `MusicXMLBackend` protocol and the fixture backend that powers the `extract_musicxml` stage, while `musicxml.py` parses MusicXML into `melody.json` / `events.json`.
+- `score2abc/melody/` holds the MusicXML melody pipeline: `backend.py` defines the `MusicXMLBackend` protocol plus fixture, optional homr, and optional Audiveris backends that power the `extract_musicxml` stage, while `musicxml.py` parses MusicXML into `melody.json` / `events.json`.
 - `score2abc/utils/` holds shared logging and timing utilities.
 - `scripts/` holds one-off developer utilities (e.g., `record_vlm_fixtures.py`).
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
@@ -28,6 +28,9 @@
 - `uv run python main.py export out` writes `out/index.md`.
 - `uv run python main.py eval out --ground-truth dataset/ground_truth` runs the evaluation report.
 - `uv run python main.py run out --use-vlm` enables the live Gemini chord-OCR path (requires `GEMINI_API_KEY`; see VLM notes below).
+- `uv run python main.py run out --slug <slug>` runs only selected manifest entries; repeat `--slug` for multiple works.
+- `uv run python main.py run out --musicxml-backend homr --homr-input page|deskewed-page|systems` enables the optional external homr melody-OMR path; homr must be installed separately and is not a project dependency.
+- `uv run python main.py run out --musicxml-backend audiveris --audiveris-input page|deskewed-page|systems` enables the optional external Audiveris melody-OMR path; Audiveris must be installed separately and is not a project dependency.
 - `uv run python scripts/record_vlm_fixtures.py out --slug <slug>` captures chord-OCR fixtures from a rendered work; add `--band below` when chords are visually placed below the staff.
 - `uv run python scripts/debug_barlines.py out --slug <slug>` renders detected barlines over system crops for chord alignment debugging.
 - `uv lock` updates the lockfile when dependencies change.

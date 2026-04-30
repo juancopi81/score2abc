@@ -77,6 +77,41 @@ def test_events_to_abc_splits_notes_when_chords_change_mid_sustain() -> None:
     assert '"Cm"z C- "G7"C |' in abc
 
 
+def test_events_to_abc_merges_different_chords_at_same_onset() -> None:
+    metadata = WorkMetadata(title="Chord Collision", composer="Composer", rhythm="Pasillo")
+    events = {
+        "time_signature": "3/4",
+        "notes": [
+            {"measure": 1, "onset_beats": 0.0, "duration_beats": 1.0, "pitch_midi": 60},
+        ],
+        "chords": [
+            {"measure": 1, "onset_beats": 0.0, "symbol": "Am"},
+            {"measure": 1, "onset_beats": 0.0, "symbol": "Gm"},
+            {"measure": 1, "onset_beats": 0.0, "symbol": "Am"},
+        ],
+    }
+
+    abc = events_to_abc(events, metadata)
+
+    assert '"Am Gm"C z2 |' in abc
+
+
+def test_events_to_abc_carries_out_of_range_onsets_forward() -> None:
+    metadata = WorkMetadata(title="Malformed OMR", composer="Engine", rhythm="Pasillo")
+    events = {
+        "time_signature": "1/4",
+        "notes": [
+            {"measure": 1, "onset_beats": 1.0, "duration_beats": 0.5, "pitch_midi": 60},
+            {"measure": 1, "onset_beats": 2.0, "duration_beats": 0.5, "pitch_midi": 62},
+        ],
+        "chords": [],
+    }
+
+    abc = events_to_abc(events, metadata)
+
+    assert "C/2 z/2 | D/2 z/2 |" in abc
+
+
 def test_events_to_abc_rejects_overlapping_note_groups() -> None:
     metadata = WorkMetadata(title="Broken Tune", composer="Composer", rhythm="Pasillo")
     events = {

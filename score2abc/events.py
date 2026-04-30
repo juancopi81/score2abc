@@ -104,12 +104,18 @@ def normalize_chord_map(
         symbol = str(raw_chord["symbol"]).strip()
         existing = chord_map.setdefault(measure, {}).get(onset_beats)
         if existing is not None and existing != symbol:
-            raise ValueError(
-                "Multiple chord symbols at the same onset are not supported: "
-                f"measure={measure}, onset={float(onset_beats)}"
-            )
+            symbol = _merge_chord_symbols(existing, symbol)
         chord_map[measure][onset_beats] = symbol
     return chord_map
+
+
+def _merge_chord_symbols(existing: str, incoming: str) -> str:
+    symbols: list[str] = []
+    for symbol in (existing, incoming):
+        for part in symbol.split():
+            if part not in symbols:
+                symbols.append(part)
+    return " ".join(symbols)
 
 
 def _to_fraction(value: object) -> Fraction:
