@@ -29,7 +29,7 @@ def _draw_system(
         draw.line([(0, y), (width - 1, y)], fill=0, width=1)
 
     if include_clef_stroke:
-        clef_x = int(width * 0.03)
+        clef_x = int(width * 0.01)
         draw.line([(clef_x, staff_top), (clef_x, staff_bottom)], fill=0, width=2)
 
     for fraction in barline_fractions:
@@ -84,3 +84,19 @@ def test_assign_measures_puts_all_in_measure_1_when_no_barlines() -> None:
 def test_measures_in_system_counts_fencepost() -> None:
     assert measures_in_system([]) == 1
     assert measures_in_system([0.3, 0.6]) == 3
+
+
+def test_measures_in_system_subtracts_leading_barline() -> None:
+    # Leftmost barline within the leading 5% is the *start* of measure 1, not
+    # a fence between measures: 2 barlines, not 3, fence 2 measures.
+    assert measures_in_system([0.02, 0.5]) == 2
+
+
+def test_measures_in_system_subtracts_terminal_barline() -> None:
+    # Rightmost barline past 0.97 is the closing barline of the last measure,
+    # not a fence opening another.
+    assert measures_in_system([0.5, 0.98]) == 2
+
+
+def test_measures_in_system_subtracts_both_when_present() -> None:
+    assert measures_in_system([0.02, 0.5, 0.98]) == 2
