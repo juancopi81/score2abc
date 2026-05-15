@@ -6,6 +6,7 @@ from score2abc.chord_ocr import ChordDetection
 from score2abc.chord_ocr.alignment import (
     assign_measures,
     detect_barlines,
+    measure_boundaries,
     measures_in_system,
 )
 
@@ -63,6 +64,38 @@ def test_detect_barlines_returns_empty_when_no_vertical_ink(tmp_path: Path) -> N
     assert detect_barlines(path) == []
 
 
+def test_detect_barlines_recovers_weak_edge_barline(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    draw.line([(20, 50), (20, 130)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.025) < 0.01
+
+
+def test_detect_barlines_prefers_clean_barline_over_nearby_note_stem(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    # A note-like stem with side ink sits close enough to compete with the real barline.
+    draw.line([(160, staff_top), (160, staff_bottom)], fill=0, width=2)
+    draw.ellipse([(140, 86), (166, 106)], fill=0)
+    draw.line([(180, staff_top), (180, staff_bottom)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.225) < 0.01
+
+
 def test_assign_measures_maps_x_fraction_to_measure_index() -> None:
     detections = [
         ChordDetection(symbol_raw="C", symbol="C", x_fraction=0.1, confidence=1.0, band="above"),
@@ -79,6 +112,18 @@ def test_assign_measures_puts_all_in_measure_1_when_no_barlines() -> None:
         ChordDetection(symbol_raw="G", symbol="G", x_fraction=0.9, confidence=1.0, band="above"),
     ]
     assert assign_measures(detections, []) == [1, 1]
+
+
+def test_assign_measures_ignores_leading_and_terminal_barlines() -> None:
+    detections = [
+        ChordDetection(symbol_raw="C", symbol="C", x_fraction=0.1, confidence=1.0, band="above"),
+        ChordDetection(symbol_raw="G", symbol="G", x_fraction=0.6, confidence=1.0, band="above"),
+        ChordDetection(symbol_raw="F", symbol="F", x_fraction=0.99, confidence=1.0, band="above"),
+    ]
+
+    assert measure_boundaries([0.02, 0.5, 0.98]) == [0.02, 0.5, 0.98]
+    assert measures_in_system([0.02, 0.5, 0.98]) == 2
+    assert assign_measures(detections, [0.02, 0.5, 0.98]) == [1, 2, 2]
 
 
 def test_measures_in_system_counts_fencepost() -> None:

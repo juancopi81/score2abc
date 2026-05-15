@@ -156,14 +156,11 @@ def _run_compare(
     width, height = image.size
 
     detections_px = [
-        max(0, min(width - 1, round(float(xf) * width)))
-        for xf in system.get("barlines", [])
+        max(0, min(width - 1, round(float(xf) * width))) for xf in system.get("barlines", [])
     ]
     detection_fractions = [float(xf) for xf in system.get("barlines", [])]
 
-    median_gt_width = (
-        statistics.median(box["width"] for box in gt_boxes) if gt_boxes else 16
-    )
+    median_gt_width = statistics.median(box["width"] for box in gt_boxes) if gt_boxes else 16
     tolerance_px = max(1.0, median_gt_width / 2.0)
     det_box_half_w = max(2, int(round(median_gt_width / 2.0)))
 
@@ -209,10 +206,7 @@ def _run_compare(
 def _parse_via(via: dict[str, Any]) -> tuple[str, list[dict[str, int]]]:
     image_meta = via.get("_via_img_metadata")
     if image_meta is None:
-        image_meta = {
-            k: v for k, v in via.items()
-            if isinstance(v, dict) and "filename" in v
-        }
+        image_meta = {k: v for k, v in via.items() if isinstance(v, dict) and "filename" in v}
     if not image_meta:
         raise ValueError("VIA JSON has no recognizable image metadata")
     # Use the first (typically only) entry.

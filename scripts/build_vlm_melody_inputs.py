@@ -21,7 +21,7 @@ from typing import Any, Iterable
 
 from PIL import Image, ImageDraw, ImageOps
 
-from score2abc.chord_ocr.alignment import detect_barlines
+from score2abc.chord_ocr.alignment import detect_barlines, measure_boundaries
 from score2abc.events import measure_length_beats
 from score2abc.manifest import load_manifest_jsonl
 from score2abc.schemas import WorkItem
@@ -30,8 +30,6 @@ from score2abc.utils.imaging import estimate_ink_threshold
 
 SEPARATOR_PADDING_PX = 12
 MIN_MEASURE_WIDTH_PX = 16
-LEADING_BARLINE_FRACTION = 0.08
-TRAILING_BARLINE_FRACTION = 0.92
 SYSTEM_CROP_RE = re.compile(r"^system_(?P<index>\d{3})$")
 
 
@@ -138,7 +136,7 @@ def _build_for_work(
             continue
 
         barlines = sorted(detect_barlines(system_path))
-        boundaries = _measure_boundaries(barlines)
+        boundaries = measure_boundaries(barlines)
         measure_count = max(0, len(boundaries) - 1)
         if selected_systems is not None and system_index not in selected_systems:
             global_measure_index += measure_count
@@ -379,27 +377,6 @@ def _fraction_to_json(value: Fraction) -> str:
     if value.denominator == 1:
         return str(value.numerator)
     return f"{value.numerator}/{value.denominator}"
-
-
-def _measure_boundaries(barlines: list[float]) -> list[float]:
-    """Return measure-edge x-fractions for the system.
-
-    Barlines inside the leading 5% of the crop sit before measure 1 (they're
-    a real start-of-system barline plus possibly a clef-area FP or two);
-    they collapse to a single left boundary at the rightmost of them.
-    Barlines past 97% behave symmetrically as a single right boundary.
-    Everything in between fences interior measures normally.
-    """
-    leading = [b for b in barlines if b <= LEADING_BARLINE_FRACTION]
-    trailing = [b for b in barlines if b >= TRAILING_BARLINE_FRACTION]
-    middle = [
-        b
-        for b in barlines
-        if LEADING_BARLINE_FRACTION < b < TRAILING_BARLINE_FRACTION
-    ]
-    left = max(leading) if leading else 0.0
-    right = min(trailing) if trailing else 1.0
-    return [left, *middle, right]
 
 
 def _measure_x_bounds(width: int, left_fraction: float, right_fraction: float) -> tuple[int, int]:

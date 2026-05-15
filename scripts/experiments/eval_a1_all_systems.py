@@ -21,14 +21,15 @@ import json
 import re
 import statistics
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageDraw
 
-
 _DETECTOR_SCRIPT = Path("scripts/experiments/barline_a1_staff_runlength.py")
 _DETECTOR_COLOR = (255, 0, 0)
+_DEFAULT_GT_ROOT = Path("tests/fixtures/barlines")
 _GT_RE = re.compile(r"^system_(\d{3})_ground_truth\.json$")
 
 
@@ -36,11 +37,21 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("out_dir", type=Path)
     parser.add_argument("--slug", required=True)
+    parser.add_argument(
+        "--ground-truth-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Directory with system_NNN_ground_truth.json files. Defaults to "
+            "tests/fixtures/barlines/<slug>, then falls back to "
+            "out/<slug>/debug_barlines/ground_truth."
+        ),
+    )
     args = parser.parse_args(argv)
 
     work_dir = args.out_dir / args.slug
     debug_dir = work_dir / "debug_barlines"
-    gt_dir = debug_dir / "ground_truth"
+    gt_dir = _resolve_gt_dir(args.slug, debug_dir, args.ground_truth_dir)
     if not gt_dir.is_dir():
         print(f"No ground_truth/ found at {gt_dir}")
         return 1
@@ -70,8 +81,7 @@ def main(argv: list[str] | None = None) -> int:
 
         x_fractions = _run_detector(_DETECTOR_SCRIPT, image_path)
         detections_px = [
-            max(0, min(image_width - 1, round(float(xf) * image_width)))
-            for xf in x_fractions
+            max(0, min(image_width - 1, round(float(xf) * image_width))) for xf in x_fractions
         ]
         matches = _match(gt_boxes, detections_px, tol)
         tp = sum(1 for m in matches if m is not None)
@@ -79,11 +89,7 @@ def main(argv: list[str] | None = None) -> int:
         fn = len(gt_boxes) - tp
         precision = tp / (tp + fp) if (tp + fp) else 0.0
         recall = tp / (tp + fn) if (tp + fn) else 0.0
-        f1 = (
-            (2 * precision * recall / (precision + recall))
-            if (precision + recall)
-            else 0.0
-        )
+        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0
         errors = [
             abs(detections_px[i] - gt_boxes[gt_idx]["x_center"])
             for i, gt_idx in enumerate(matches)
@@ -142,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _run_detector(script: Path, image_path: Path) -> list[float]:
     proc = subprocess.run(
-        ["uv", "run", "python", str(script), str(image_path)],
+        [sys.executable, str(script), str(image_path)],
         check=True,
         capture_output=True,
         text=True,
@@ -154,10 +160,7 @@ def _run_detector(script: Path, image_path: Path) -> list[float]:
 def _parse_via(via: dict[str, Any]) -> list[dict[str, Any]]:
     image_meta = via.get("_via_img_metadata")
     if image_meta is None:
-        image_meta = {
-            k: v for k, v in via.items()
-            if isinstance(v, dict) and "filename" in v
-        }
+        image_meta = {k: v for k, v in via.items() if isinstance(v, dict) and "filename" in v}
     if not image_meta:
         return []
     entry = next(iter(image_meta.values()))
@@ -287,11 +290,7 @@ def _write_csv(
 
     def _key(row: dict[str, Any]) -> tuple[float, int]:
         kind_order = {"TP": 0, "FN": 1, "FP": 2}[row["kind"]]
-        anchor = (
-            float(row["det_x_px"])
-            if row["kind"] == "FP"
-            else float(row["gt_x_center_px"])
-        )
+        anchor = float(row["det_x_px"]) if row["kind"] == "FP" else float(row["gt_x_center_px"])
         return (anchor, kind_order)
 
     rows.sort(key=_key)
@@ -320,12 +319,10 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
     fn = sum(r["fn"] for r in rows)
     precision = tp / (tp + fp) if (tp + fp) else 0.0
     recall = tp / (tp + fn) if (tp + fn) else 0.0
-    f1 = (
-        (2 * precision * recall / (precision + recall))
-        if (precision + recall)
-        else 0.0
-    )
-    f1s = [r["f1"] for r in rows]
+    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0
+    scored_rows = [r for r in rows if r["gt_count"] or r["detected"]]
+    f1s = [r["f1"] for r in scored_rows]
+    empty_systems = len(rows) - len(scored_rows)
     return {
         "tp": tp,
         "fp": fp,
@@ -335,7 +332,17 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "f1": round(f1, 4),
         "mean_per_system_f1": round(statistics.mean(f1s), 4) if f1s else 0.0,
         "min_per_system_f1": round(min(f1s), 4) if f1s else 0.0,
+        "empty_systems": empty_systems,
     }
+
+
+def _resolve_gt_dir(slug: str, debug_dir: Path, override: Path | None) -> Path:
+    if override is not None:
+        return override
+    fixture_dir = _DEFAULT_GT_ROOT / slug
+    if fixture_dir.is_dir():
+        return fixture_dir
+    return debug_dir / "ground_truth"
 
 
 def _print_system_row(row: dict[str, Any]) -> None:

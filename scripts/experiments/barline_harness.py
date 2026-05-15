@@ -95,7 +95,7 @@ def _evaluate_detector(
     name = detector_script.stem
     try:
         proc = subprocess.run(
-            ["uv", "run", "python", str(detector_script), str(image_path)],
+            [sys.executable, str(detector_script), str(image_path)],
             check=True,
             capture_output=True,
             text=True,
@@ -114,8 +114,7 @@ def _evaluate_detector(
         }
 
     detections_px = [
-        max(0, min(image_width - 1, round(float(xf) * image_width)))
-        for xf in x_fractions
+        max(0, min(image_width - 1, round(float(xf) * image_width))) for xf in x_fractions
     ]
     matches = _match(gt_boxes, detections_px, tolerance_px=tolerance_px)
     tp = sum(1 for m in matches if m is not None)
@@ -171,10 +170,7 @@ def _match(
 def _parse_via(via: dict[str, Any]) -> list[dict[str, Any]]:
     image_meta = via.get("_via_img_metadata")
     if image_meta is None:
-        image_meta = {
-            k: v for k, v in via.items()
-            if isinstance(v, dict) and "filename" in v
-        }
+        image_meta = {k: v for k, v in via.items() if isinstance(v, dict) and "filename" in v}
     if not image_meta:
         raise ValueError("VIA JSON has no recognizable image metadata")
     entry = next(iter(image_meta.values()))
@@ -204,7 +200,10 @@ def _print_table(
     gt_count: int,
     tolerance_px: float,
 ) -> None:
-    header = f"{'detector':<28} {'TP':>3} {'FP':>3} {'FN':>3} {'P':>6} {'R':>6} {'F1':>6} {'med_err_px':>11}"
+    header = (
+        f"{'detector':<28} {'TP':>3} {'FP':>3} {'FN':>3} {'P':>6} "
+        f"{'R':>6} {'F1':>6} {'med_err_px':>11}"
+    )
     print(f"GT={gt_count} tolerance_px={tolerance_px:.1f}")
     print(header)
     print("-" * len(header))
