@@ -6,6 +6,8 @@ from score2abc.chord_ocr import ChordDetection
 from score2abc.chord_ocr.alignment import (
     assign_measures,
     detect_barlines,
+    measure_boundaries,
+    measure_boundaries_for_system,
     measures_in_system,
 )
 
@@ -29,7 +31,7 @@ def _draw_system(
         draw.line([(0, y), (width - 1, y)], fill=0, width=1)
 
     if include_clef_stroke:
-        clef_x = int(width * 0.03)
+        clef_x = int(width * 0.01)
         draw.line([(clef_x, staff_top), (clef_x, staff_bottom)], fill=0, width=2)
 
     for fraction in barline_fractions:
@@ -63,6 +65,79 @@ def test_detect_barlines_returns_empty_when_no_vertical_ink(tmp_path: Path) -> N
     assert detect_barlines(path) == []
 
 
+def test_detect_barlines_recovers_weak_edge_barline(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    draw.line([(20, 50), (20, 130)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.025) < 0.01
+
+
+def test_detect_barlines_prefers_clean_barline_over_nearby_note_stem(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    # A note-like stem with side ink sits close enough to compete with the real barline.
+    draw.line([(160, staff_top), (160, staff_bottom)], fill=0, width=2)
+    draw.ellipse([(140, 86), (166, 106)], fill=0)
+    draw.line([(180, staff_top), (180, staff_bottom)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.225) < 0.01
+
+
+def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    draw.line([(180, staff_top), (180, staff_bottom)], fill=0, width=2)
+    draw.line([(360, staff_top), (360, staff_bottom)], fill=0, width=2)
+    draw.line([(372, staff_top), (372, staff_bottom)], fill=0, width=2)
+    draw.ellipse([(230, 88), (250, 104)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [180 / 800, 360 / 800])
+
+    assert boundaries == [0.0, 0.225, 0.45]
+
+
+def test_measure_boundaries_for_system_keeps_single_barline_blank_tail(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[0.5], width=800)
+
+    assert measure_boundaries_for_system(path, [0.5]) == [0.0, 0.5, 1.0]
+
+
+def test_measure_boundaries_for_system_merges_accidental_only_slices(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 250, 550, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(680, staff_top), (680, staff_bottom)], fill=0, width=2)
+    draw.line([(690, staff_top), (690, staff_bottom)], fill=0, width=2)
+    draw.arc([(652, 70), (690, 116)], start=90, end=270, fill=0, width=6)
+    draw.ellipse([(650, 88), (672, 106)], fill=0)
+    draw.ellipse([(700, 88), (726, 106)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.25, 0.55, 0.68, 0.95])
+
+    assert boundaries == [0.05, 0.25, 0.55, 0.95]
+
+
 def test_assign_measures_maps_x_fraction_to_measure_index() -> None:
     detections = [
         ChordDetection(symbol_raw="C", symbol="C", x_fraction=0.1, confidence=1.0, band="above"),
@@ -81,6 +156,34 @@ def test_assign_measures_puts_all_in_measure_1_when_no_barlines() -> None:
     assert assign_measures(detections, []) == [1, 1]
 
 
+def test_assign_measures_ignores_leading_and_terminal_barlines() -> None:
+    detections = [
+        ChordDetection(symbol_raw="C", symbol="C", x_fraction=0.1, confidence=1.0, band="above"),
+        ChordDetection(symbol_raw="G", symbol="G", x_fraction=0.6, confidence=1.0, band="above"),
+        ChordDetection(symbol_raw="F", symbol="F", x_fraction=0.99, confidence=1.0, band="above"),
+    ]
+
+    assert measure_boundaries([0.02, 0.5, 0.98]) == [0.02, 0.5, 0.98]
+    assert measures_in_system([0.02, 0.5, 0.98]) == 2
+    assert assign_measures(detections, [0.02, 0.5, 0.98]) == [1, 2, 2]
+
+
 def test_measures_in_system_counts_fencepost() -> None:
     assert measures_in_system([]) == 1
     assert measures_in_system([0.3, 0.6]) == 3
+
+
+def test_measures_in_system_subtracts_leading_barline() -> None:
+    # Leftmost barline within the leading 5% is the *start* of measure 1, not
+    # a fence between measures: 2 barlines, not 3, fence 2 measures.
+    assert measures_in_system([0.02, 0.5]) == 2
+
+
+def test_measures_in_system_subtracts_terminal_barline() -> None:
+    # Rightmost barline past 0.97 is the closing barline of the last measure,
+    # not a fence opening another.
+    assert measures_in_system([0.5, 0.98]) == 2
+
+
+def test_measures_in_system_subtracts_both_when_present() -> None:
+    assert measures_in_system([0.02, 0.5, 0.98]) == 2

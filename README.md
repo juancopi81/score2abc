@@ -29,6 +29,27 @@ Notes:
   manifests (with the detected `page_rotation_degrees`) are written
   alongside for inspection.
 
+### Melody VLM input crops
+
+The first VLM melody spike milestone prepares local inputs only; it does not
+call a model. Run the normal ingest/run pipeline first so `systems/system_*.png`
+exists, then build measure-level crops and context files:
+
+```bash
+uv run python scripts/build_vlm_melody_inputs.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 \
+  --overwrite
+```
+
+Outputs are written under `out/<slug>/vlm_melody_inputs/`:
+
+- `measure_NNN_raw.png`: full-height measure crop from the detected system.
+- `measure_NNN_staff.png`: tighter staff-region crop for clean model input.
+- `measure_NNN_staff_overlay.png`: staff-line overlay for inspection/prompt experiments.
+- `measure_NNN_context.json`: metadata, measure indices, detected barlines, and path references.
+- `manifest.jsonl`: one record per measure for batch prompt experiments.
+
 ### Optional melody OMR backends
 
 Optional melody-engine adapters are available behind explicit backend flags.

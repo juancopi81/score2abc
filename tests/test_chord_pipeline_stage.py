@@ -180,6 +180,59 @@ def test_extract_chords_for_systems_offsets_measures_across_systems(
     assert len(system_two_payload["barlines"]) == 2
 
 
+def test_extract_chords_for_systems_assigns_with_normalized_barline_boundaries(
+    tmp_path: Path,
+) -> None:
+    system = _draw_system_with_barlines(tmp_path / "system_001.png", [0.02, 0.5, 0.98])
+    above = _blank_crop(tmp_path / "chord_region_above_001.png")
+    below = _blank_crop(tmp_path / "chord_region_below_001.png")
+    ocr = _ScriptedChordOCR(
+        {
+            above.name: [
+                ChordDetection(
+                    symbol_raw="C",
+                    symbol="C",
+                    x_fraction=0.1,
+                    confidence=0.9,
+                    band="above",
+                ),
+                ChordDetection(
+                    symbol_raw="G",
+                    symbol="G",
+                    x_fraction=0.6,
+                    confidence=0.9,
+                    band="above",
+                ),
+                ChordDetection(
+                    symbol_raw="F",
+                    symbol="F",
+                    x_fraction=0.99,
+                    confidence=0.9,
+                    band="above",
+                ),
+            ],
+            below.name: [],
+        }
+    )
+
+    payload = extract_chords_for_systems(
+        ocr=ocr,
+        system_crops=[system],
+        chord_crops_above=[above],
+        chord_crops_below=[below],
+        metadata=_metadata(),
+    )
+
+    assert payload["total_measures"] == 2
+    assert payload["systems"][0]["measure_count"] == 2
+    assert [entry["measure"] for entry in payload["chords"]] == [1, 2, 2]
+    assert [entry["system_local_measure"] for entry in payload["systems"][0]["detections"]] == [
+        1,
+        2,
+        2,
+    ]
+
+
 def test_extract_chords_for_systems_passes_metadata_hints(tmp_path: Path) -> None:
     system = _draw_system_with_barlines(tmp_path / "system_001.png", [])
     above = _blank_crop(tmp_path / "chord_region_above_001.png")
