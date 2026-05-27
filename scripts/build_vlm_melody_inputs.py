@@ -21,7 +21,7 @@ from typing import Any, Iterable
 
 from PIL import Image, ImageDraw, ImageOps
 
-from score2abc.chord_ocr.alignment import detect_barlines, measure_boundaries
+from score2abc.chord_ocr.alignment import detect_barlines, measure_boundaries_for_system
 from score2abc.events import measure_length_beats
 from score2abc.manifest import load_manifest_jsonl
 from score2abc.schemas import WorkItem
@@ -136,7 +136,7 @@ def _build_for_work(
             continue
 
         barlines = sorted(detect_barlines(system_path))
-        boundaries = measure_boundaries(barlines)
+        boundaries = measure_boundaries_for_system(system_path, barlines)
         measure_count = max(0, len(boundaries) - 1)
         if selected_systems is not None and system_index not in selected_systems:
             global_measure_index += measure_count

@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
 
     work_dir = args.out_dir / args.slug
     debug_dir = work_dir / "debug_barlines"
+    debug_dir.mkdir(parents=True, exist_ok=True)
     gt_dir = _resolve_gt_dir(args.slug, debug_dir, args.ground_truth_dir)
     if not gt_dir.is_dir():
         print(f"No ground_truth/ found at {gt_dir}")

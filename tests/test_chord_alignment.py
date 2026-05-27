@@ -7,6 +7,7 @@ from score2abc.chord_ocr.alignment import (
     assign_measures,
     detect_barlines,
     measure_boundaries,
+    measure_boundaries_for_system,
     measures_in_system,
 )
 
@@ -94,6 +95,47 @@ def test_detect_barlines_prefers_clean_barline_over_nearby_note_stem(
 
     assert len(detected) == 1
     assert abs(detected[0] - 0.225) < 0.01
+
+
+def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    draw.line([(180, staff_top), (180, staff_bottom)], fill=0, width=2)
+    draw.line([(360, staff_top), (360, staff_bottom)], fill=0, width=2)
+    draw.line([(372, staff_top), (372, staff_bottom)], fill=0, width=2)
+    draw.ellipse([(230, 88), (250, 104)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [180 / 800, 360 / 800])
+
+    assert boundaries == [0.0, 0.225, 0.45]
+
+
+def test_measure_boundaries_for_system_keeps_single_barline_blank_tail(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[0.5], width=800)
+
+    assert measure_boundaries_for_system(path, [0.5]) == [0.0, 0.5, 1.0]
+
+
+def test_measure_boundaries_for_system_merges_accidental_only_slices(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 250, 550, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(680, staff_top), (680, staff_bottom)], fill=0, width=2)
+    draw.line([(690, staff_top), (690, staff_bottom)], fill=0, width=2)
+    draw.arc([(652, 70), (690, 116)], start=90, end=270, fill=0, width=6)
+    draw.ellipse([(650, 88), (672, 106)], fill=0)
+    draw.ellipse([(700, 88), (726, 106)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.25, 0.55, 0.68, 0.95])
+
+    assert boundaries == [0.05, 0.25, 0.55, 0.95]
 
 
 def test_assign_measures_maps_x_fraction_to_measure_index() -> None:

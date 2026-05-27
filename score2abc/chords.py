@@ -15,9 +15,9 @@ from score2abc.chord_ocr import (
     FixtureNotFoundError,
 )
 from score2abc.chord_ocr.alignment import (
-    assign_measures,
+    assign_measures_to_boundaries,
     detect_barlines,
-    measures_in_system,
+    measure_boundaries_for_system,
 )
 from score2abc.chord_ocr.gemini import DEFAULT_MODEL
 from score2abc.schemas import WorkMetadata
@@ -76,7 +76,8 @@ def extract_chords_for_systems(
         start=1,
     ):
         barlines = detect_barlines(system_crop)
-        measure_count = measures_in_system(barlines)
+        boundaries = measure_boundaries_for_system(system_crop, barlines)
+        measure_count = max(0, len(boundaries) - 1)
         band_crops: dict[Band, Path] = {"above": above_crop, "below": below_crop}
 
         system_detections: list[dict[str, Any]] = []
@@ -90,7 +91,7 @@ def extract_chords_for_systems(
                 logger=log,
             )
             for detection, local_measure in zip(
-                detections, assign_measures(detections, barlines), strict=True
+                detections, assign_measures_to_boundaries(detections, boundaries), strict=True
             ):
                 canonical_chords.append(
                     _canonical_chord(detection, cumulative_prior_measures + local_measure)
@@ -103,6 +104,7 @@ def extract_chords_for_systems(
             {
                 "system_index": system_index,
                 "barlines": list(barlines),
+                "measure_boundaries": list(boundaries),
                 "measure_count": measure_count,
                 "measure_offset": cumulative_prior_measures,
                 "detections": system_detections,

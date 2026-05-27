@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from statistics import median
 from typing import Sequence
 
 from PIL import Image
@@ -51,6 +52,14 @@ def assign_measures(
 ) -> list[int]:
     """Return the 1-based system-local measure index for each detection."""
     boundaries = measure_boundaries(barlines)
+    return assign_measures_to_boundaries(detections, boundaries)
+
+
+def assign_measures_to_boundaries(
+    detections: Sequence[ChordDetection],
+    boundaries: Sequence[float],
+) -> list[int]:
+    """Return the 1-based system-local measure index using explicit boundaries."""
     return [_measure_for_x(detection.x_fraction, boundaries) for detection in detections]
 
 
@@ -108,6 +117,22 @@ def measures_in_system(
         )
         - 1,
     )
+
+
+def measure_boundaries_for_system(
+    image_path: Path,
+    barlines: Sequence[float],
+) -> list[float]:
+    """Return measure boundaries after image-aware cleanup."""
+    with Image.open(image_path) as image:
+        gray = image.convert("L")
+        cleaned_barlines = _merge_accidental_slices(
+            gray,
+            _dedupe_boundaries(sorted(float(b) for b in barlines if 0.0 <= float(b) <= 1.0)),
+        )
+        boundaries = measure_boundaries(cleaned_barlines)
+        boundaries = _trim_blank_tail(gray, boundaries)
+        return _merge_accidental_slices(gray, boundaries)
 
 
 def _measure_for_x(x_fraction: float, boundaries: Sequence[float]) -> int:
@@ -350,6 +375,270 @@ def _side_ink_density_between_staff_lines(
 
 def _near_staff_line(y: int, staff_line_rows: Sequence[int]) -> bool:
     return any(abs(y - line_y) <= 3 for line_y in staff_line_rows)
+
+
+def _trim_blank_tail(gray: Image.Image, boundaries: Sequence[float]) -> list[float]:
+    if len(boundaries) < 3 or abs(boundaries[-1] - 1.0) > 1e-6:
+        return list(boundaries)
+
+    width, height = gray.size
+    threshold = estimate_ink_threshold(gray)
+    pixels = gray.load()
+    staff_top, staff_bot = _staff_band(pixels, width, height, threshold, pad=4)
+    staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
+
+    terminal_candidate = boundaries[-2]
+    tail_width_fraction = 1.0 - terminal_candidate
+    if tail_width_fraction < 0.12:
+        return list(boundaries)
+
+    terminal_x = round(terminal_candidate * width)
+    if (
+        _vertical_cluster_width(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            x=terminal_x,
+        )
+        < 8
+    ):
+        return list(boundaries)
+
+    x0 = min(width - 1, round(terminal_candidate * width) + 12)
+    density = _nonstaff_ink_density(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x0=x0,
+        x1=width - 1,
+    )
+    if density <= 0.02:
+        return list(boundaries[:-1])
+    return list(boundaries)
+
+
+def _merge_accidental_slices(gray: Image.Image, boundaries: Sequence[float]) -> list[float]:
+    if len(boundaries) < 4:
+        return list(boundaries)
+
+    width, height = gray.size
+    threshold = estimate_ink_threshold(gray)
+    pixels = gray.load()
+    staff_top, staff_bot = _staff_band(pixels, width, height, threshold, pad=4)
+    staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
+
+    cleaned = list(boundaries)
+    while len(cleaned) >= 4:
+        widths = _boundary_widths_px(cleaned, width)
+        typical_width = median(widths)
+        removed_index: int | None = None
+
+        for slice_index, slice_width in enumerate(widths):
+            if slice_width >= min(160.0, 0.62 * typical_width):
+                continue
+            left_index = slice_index
+            right_index = slice_index + 1
+            candidates = []
+            if left_index > 0:
+                candidates.append(left_index)
+            if right_index < len(cleaned) - 1:
+                candidates.append(right_index)
+            removed_index = _most_accidental_like_boundary_index(
+                pixels,
+                boundaries=cleaned,
+                candidate_indices=candidates,
+                width=width,
+                staff_top=staff_top,
+                staff_bot=staff_bot,
+                threshold=threshold,
+                staff_line_rows=staff_line_rows,
+            )
+            if removed_index is not None:
+                break
+
+        if removed_index is None:
+            for boundary_index in range(1, len(cleaned) - 1):
+                left_width = widths[boundary_index - 1]
+                right_width = widths[boundary_index]
+                if left_width >= 0.8 * typical_width or right_width >= 0.8 * typical_width:
+                    continue
+                if left_width + right_width < 1.15 * typical_width:
+                    continue
+                if (
+                    _accidental_boundary_score(
+                        pixels,
+                        boundary=cleaned[boundary_index],
+                        width=width,
+                        staff_top=staff_top,
+                        staff_bot=staff_bot,
+                        threshold=threshold,
+                        staff_line_rows=staff_line_rows,
+                    )
+                    >= 0.11
+                ):
+                    removed_index = boundary_index
+                    break
+
+        if removed_index is None:
+            return cleaned
+        del cleaned[removed_index]
+
+    return cleaned
+
+
+def _boundary_widths_px(boundaries: Sequence[float], width: int) -> list[int]:
+    return [
+        max(0, round(right * width) - round(left * width))
+        for left, right in zip(boundaries, boundaries[1:], strict=False)
+    ]
+
+
+def _most_accidental_like_boundary_index(
+    pixels,
+    *,
+    boundaries: Sequence[float],
+    candidate_indices: Sequence[int],
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    staff_line_rows: Sequence[int],
+) -> int | None:
+    best_index: int | None = None
+    best_score = 0.0
+    for index in candidate_indices:
+        score = _accidental_boundary_score(
+            pixels,
+            boundary=boundaries[index],
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            staff_line_rows=staff_line_rows,
+        )
+        if score > best_score:
+            best_index = index
+            best_score = score
+    return best_index if best_score >= 0.11 else None
+
+
+def _accidental_boundary_score(
+    pixels,
+    *,
+    boundary: float,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    staff_line_rows: Sequence[int],
+) -> float:
+    x = round(boundary * width)
+    if (
+        _vertical_cluster_width(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            x=x,
+        )
+        < 12
+    ):
+        return 0.0
+    return _side_ink_density_between_staff_lines(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x=x,
+    )
+
+
+def _vertical_cluster_width(
+    pixels,
+    *,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    x: int,
+) -> int:
+    center = max(0, min(width - 1, x))
+    dark_threshold = 0.45
+
+    left = center
+    empty_gap = 0
+    for xx in range(center, max(-1, center - 32), -1):
+        if (
+            _dark_row_fraction(
+                pixels,
+                width=width,
+                staff_top=staff_top,
+                staff_bot=staff_bot,
+                threshold=threshold,
+                x=xx,
+            )
+            >= dark_threshold
+        ):
+            left = xx
+            empty_gap = 0
+        else:
+            empty_gap += 1
+            if empty_gap > 8:
+                break
+
+    right = center
+    empty_gap = 0
+    for xx in range(center, min(width, center + 33)):
+        if (
+            _dark_row_fraction(
+                pixels,
+                width=width,
+                staff_top=staff_top,
+                staff_bot=staff_bot,
+                threshold=threshold,
+                x=xx,
+            )
+            >= dark_threshold
+        ):
+            right = xx
+            empty_gap = 0
+        else:
+            empty_gap += 1
+            if empty_gap > 8:
+                break
+
+    return right - left + 1
+
+
+def _nonstaff_ink_density(
+    pixels,
+    *,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    staff_line_rows: Sequence[int],
+    x0: int,
+    x1: int,
+) -> float:
+    total = 0
+    dark = 0
+    for x in range(max(0, x0), min(width - 1, x1) + 1):
+        for y in range(staff_top, staff_bot + 1):
+            if _near_staff_line(y, staff_line_rows):
+                continue
+            total += 1
+            if pixels[x, y] < threshold:
+                dark += 1
+    return dark / total if total else 0.0
 
 
 def _staff_band(
