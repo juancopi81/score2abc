@@ -25,7 +25,7 @@ def detect_barlines(
 ) -> list[float]:
     """Return barline x-fractions (in [0, 1]) detected in a system crop.
 
-    A barline is a vertical stroke that spans the full 5-line staff. The
+    A barline is a vertical stroke that spans nearly the full 5-line staff. The
     detector first locates the staff vertical band via horizontal projection
     (rows where dark pixels cover ~100% of the width are the staff lines),
     then for each column measures the longest run of consecutive dark pixels
@@ -205,7 +205,17 @@ def _detect_barlines_in_image(
     peak_scores: list[float] = []
     last_peak = -min_gap - 1
     for x in range(scan_left, scan_right):
-        if column_runs[x] < run_threshold:
+        if column_runs[x] < run_threshold and (
+            column_runs[x] < max(0.0, min_run_fraction - 0.005) * staff_height
+            or not _spans_staff_edges(
+                pixels,
+                width=width,
+                staff_top=staff_top,
+                staff_bot=staff_bot,
+                threshold=threshold,
+                x=x,
+            )
+        ):
             continue
         score = _barline_candidate_score(
             pixels,
@@ -347,6 +357,55 @@ def _dark_row_fraction(
         if any(pixels[xx, y] < threshold for xx in range(max(0, x - 1), min(width - 1, x + 1) + 1)):
             dark_rows += 1
     return dark_rows / (staff_bot - staff_top + 1)
+
+
+def _spans_staff_edges(
+    pixels,
+    *,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    x: int,
+) -> bool:
+    staff_height = staff_bot - staff_top + 1
+    edge_height = max(5, round(0.12 * staff_height))
+    top_fraction = _dark_fraction_in_rows(
+        pixels,
+        width=width,
+        threshold=threshold,
+        x=x,
+        y0=staff_top,
+        y1=min(staff_bot, staff_top + edge_height - 1),
+    )
+    bottom_fraction = _dark_fraction_in_rows(
+        pixels,
+        width=width,
+        threshold=threshold,
+        x=x,
+        y0=max(staff_top, staff_bot - edge_height + 1),
+        y1=staff_bot,
+    )
+    return top_fraction >= 0.75 and bottom_fraction >= 0.75
+
+
+def _dark_fraction_in_rows(
+    pixels,
+    *,
+    width: int,
+    threshold: int,
+    x: int,
+    y0: int,
+    y1: int,
+) -> float:
+    rows = y1 - y0 + 1
+    if rows <= 0:
+        return 0.0
+    dark_rows = 0
+    for y in range(y0, y1 + 1):
+        if any(pixels[xx, y] < threshold for xx in range(max(0, x - 1), min(width - 1, x + 1) + 1)):
+            dark_rows += 1
+    return dark_rows / rows
 
 
 def _side_ink_density_between_staff_lines(

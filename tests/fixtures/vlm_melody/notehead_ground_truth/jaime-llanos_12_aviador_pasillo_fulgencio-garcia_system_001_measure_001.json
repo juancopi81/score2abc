@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "kind": "vlm_melody_notehead_human_ground_truth",
+  "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+  "system_index": 1,
+  "system_measure_index": 1,
+  "source_image_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_inputs/system_001/measure_001_raw.png",
+  "annotation_image_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_inputs/system_001/measure_001_raw_notehead_gt.png",
+  "coordinate_provenance": {
+    "type": "human_annotation_png",
+    "description": "Centers come from connected blue-circle components in the human-labeled PNG; they are not generated from canonical musical GT.",
+    "coordinate_space": "source_image_path pixels, origin at top-left",
+    "mapping": "same pixel coordinates",
+    "notehead_order": "left-to-right: A3, Bb3, C#4, E4, G4"
+  },
+  "musical_gt_provenance": {
+    "type": "canonical_ground_truth_json",
+    "source_path": "dataset/ground_truth/jaime-llanos_12_aviador_pasillo_fulgencio-garcia.json",
+    "source_measure_index": 0,
+    "fields_used": [
+      "measure",
+      "pitch_midi",
+      "accidental"
+    ],
+    "description": "Canonical GT supplies pitch labels and validates the expected note count only."
+  },
+  "context_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_inputs/system_001/measure_001_context.json",
+  "notehead_count": 5,
+  "noteheads": [
+    {
+      "id": "n001",
+      "order": 1,
+      "pitch": "A3",
+      "center": {
+        "x": 162.33,
+        "y": 218.25
+      },
+      "annotation_geometry": {
+        "bbox_px": {
+          "left": 147,
+          "top": 197,
+          "right": 179,
+          "bottom": 240
+        },
+        "bbox_area_px": 1376,
+        "radius_x_px": 16.0,
+        "radius_y_px": 21.5,
+        "approximate_radius_px": 18.75,
+        "approximate_circle_area_px": 1080.7
+      }
+    },
+    {
+      "id": "n002",
+      "order": 2,
+      "pitch": "Bb3",
+      "center": {
+        "x": 222.87,
+        "y": 212.98
+      },
+      "annotation_geometry": {
+        "bbox_px": {
+          "left": 209,
+          "top": 193,
+          "right": 238,
+          "bottom": 234
+        },
+        "bbox_area_px": 1189,
+        "radius_x_px": 14.5,
+        "radius_y_px": 20.5,
+        "approximate_radius_px": 17.5,
+        "approximate_circle_area_px": 933.8
+      }
+    },
+    {
+      "id": "n003",
+      "order": 3,
+      "pitch": "C#4",
+      "center": {
+        "x": 289.87,
+        "y": 194.74
+      },
+      "annotation_geometry": {
+        "bbox_px": {
+          "left": 275,
+          "top": 176,
+          "right": 306,
+          "bottom": 214
+        },
+        "bbox_area_px": 1178,
+        "radius_x_px": 15.5,
+        "radius_y_px": 19.0,
+        "approximate_radius_px": 17.25,
+        "approximate_circle_area_px": 925.2
+      }
+    },
+    {
+      "id": "n004",
+      "order": 4,
+      "pitch": "E4",
+      "center": {
+        "x": 334.79,
+        "y": 177.38
+      },
+      "annotation_geometry": {
+        "bbox_px": {
+          "left": 320,
+          "top": 158,
+          "right": 351,
+          "bottom": 197
+        },
+        "bbox_area_px": 1209,
+        "radius_x_px": 15.5,
+        "radius_y_px": 19.5,
+        "approximate_radius_px": 17.5,
+        "approximate_circle_area_px": 949.5
+      }
+    },
+    {
+      "id": "n005",
+      "order": 5,
+      "pitch": "G4",
+      "center": {
+        "x": 370.24,
+        "y": 153.96
+      },
+      "annotation_geometry": {
+        "bbox_px": {
+          "left": 359,
+          "top": 136,
+          "right": 383,
+          "bottom": 172
+        },
+        "bbox_area_px": 864,
+        "radius_x_px": 12.0,
+        "radius_y_px": 18.0,
+        "approximate_radius_px": 15.0,
+        "approximate_circle_area_px": 678.6
+      }
+    }
+  ]
+}

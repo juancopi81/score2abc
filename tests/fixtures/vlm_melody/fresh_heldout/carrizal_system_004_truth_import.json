@@ -1,0 +1,71 @@
+{
+  "evaluator": {
+    "path": "scripts/experiments/evaluate_second_score_heldout.py",
+    "sha256": "45f0f108c7ed112c2b04fca4752aca661dc98f55b252be5caae97573dbd205b9"
+  },
+  "freeze": {
+    "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/freeze.json",
+    "predictions_sha256": "654f7671da37fe3d62e9b776a5b4ad5ab0cc0a44383ad5bddd864065c0cb430d",
+    "requests_sha256": "bf061a1224eef6e473a5e0569d444d107b65724b0a7be19ef0a5d7575c428cf0",
+    "sha256": "af7814c0d00888fbc7af3a579cfd746781558062cb9c5b498faadd65e9f28b96"
+  },
+  "kind": "post_freeze_canonical_musicxml_import",
+  "mapping": {
+    "automatic_crop_count": 7,
+    "automatic_crop_to_physical_measures": {
+      "1": [
+        1
+      ],
+      "2": [
+        2,
+        3
+      ],
+      "3": [
+        4
+      ],
+      "4": [
+        5
+      ],
+      "5": [
+        6
+      ],
+      "6": [
+        7
+      ],
+      "7": [
+        8
+      ]
+    },
+    "count_match": false,
+    "mapping_defined_after_independent_transcription_review": true,
+    "mapping_used_at_inference": false,
+    "merged_automatic_crops": [
+      {
+        "automatic_crop": 2,
+        "diagnosis": "missed interior barline",
+        "physical_measures": [
+          2,
+          3
+        ]
+      }
+    ],
+    "missed_barline_count": 1,
+    "physical_measure_count": 8
+  },
+  "schema_version": 1,
+  "source": {
+    "clef": {
+      "line": 2,
+      "sign": "G"
+    },
+    "key_fifths": -1,
+    "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/carrizal_system_4.musicxml",
+    "sha256": "d6450616b1a45f5d9fc5176f4c260f7b9f8f6ecefffb95f860c67762f58ed6d9",
+    "time_signature": "3/4"
+  },
+  "truth": {
+    "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/truth.jsonl",
+    "sha256": "4e3ede2e3e3980bfaa606d504b2383eea737032209bc9b54a101124b17b84d95"
+  },
+  "truth_read_after_freeze_verification": true
+}

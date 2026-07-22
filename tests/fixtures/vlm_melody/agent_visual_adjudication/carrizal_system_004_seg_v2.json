@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "kind": "vlm_melody_agent_visual_adjudication",
+  "split_status": "consumed_training",
+  "reviewer_type": "agent_visual_adjudication",
+  "parent_review_status": "accepted_for_spike_training",
+  "eligible_for_spike_training": true,
+  "eligible_for_human_promotion": false,
+  "human_reviewed": false,
+  "identity": {
+    "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+    "system_index": 4
+  },
+  "segmentation_namespace": "carrizal_system_004_seg_v2",
+  "source": {
+    "namespace_manifest": {
+      "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_training_inputs/carrizal_system_004_seg_v2/manifest.json",
+      "sha256": "d45b0d5224f38813c9e00a76bf98981e6d05467edf6e33a0c34888ee96c2b71c"
+    },
+    "proposals": {
+      "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_training_inputs/carrizal_system_004_seg_v2/proposals/proposals.json",
+      "sha256": "d7ca17ed4a536cfe9cf057cf8935f0728946d94b7995e24a980b8706f812842d"
+    },
+    "candidates_manifest": {
+      "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_training_inputs/carrizal_system_004_seg_v2/candidates_manifest.jsonl",
+      "sha256": "2586be7bb5ab2f19ec11eed805bd6e7bce25e8231652a681fae9a49a60222022"
+    },
+    "musicxml": {
+      "path": "tests/fixtures/vlm_melody/fresh_heldout/carrizal_system_004.musicxml",
+      "sha256": "d6450616b1a45f5d9fc5176f4c260f7b9f8f6ecefffb95f860c67762f58ed6d9"
+    }
+  },
+  "measures": [
+    {
+      "physical_measure_number": 1,
+      "heads": [
+        {"order": 1, "sounding_pitch": "C5", "confidence": "high", "selection": {"kind": "manual", "center": {"x": 88, "y": 86}}}
+      ]
+    },
+    {
+      "physical_measure_number": 2,
+      "heads": [
+        {"order": 1, "sounding_pitch": "C5", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c004"}},
+        {"order": 2, "sounding_pitch": "A4", "confidence": "medium", "selection": {"kind": "candidate", "candidate_id": "c008"}},
+        {"order": 3, "sounding_pitch": "C5", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c003"}},
+        {"order": 4, "sounding_pitch": "Bb4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c002"}},
+        {"order": 5, "sounding_pitch": "G4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c001"}},
+        {"order": 6, "sounding_pitch": "G#4", "confidence": "medium", "selection": {"kind": "manual", "center": {"x": 249, "y": 123}}}
+      ]
+    },
+    {
+      "physical_measure_number": 3,
+      "heads": [
+        {"order": 1, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "manual", "center": {"x": 145, "y": 111}}}
+      ]
+    },
+    {
+      "physical_measure_number": 4,
+      "heads": [
+        {"order": 1, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c007"}},
+        {"order": 2, "sounding_pitch": "Bb4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c004"}},
+        {"order": 3, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c011"}},
+        {"order": 4, "sounding_pitch": "G#4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c006"}},
+        {"order": 5, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c005"}}
+      ]
+    },
+    {
+      "physical_measure_number": 5,
+      "heads": [
+        {"order": 1, "sounding_pitch": "C#5", "confidence": "high", "selection": {"kind": "manual", "center": {"x": 87, "y": 86}}},
+        {"order": 2, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c004"}}
+      ]
+    },
+    {
+      "physical_measure_number": 6,
+      "heads": [
+        {"order": 1, "sounding_pitch": "E5", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c020"}},
+        {"order": 2, "sounding_pitch": "A4", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c001"}}
+      ]
+    },
+    {
+      "physical_measure_number": 7,
+      "heads": [
+        {"order": 1, "sounding_pitch": "F#5", "confidence": "high", "selection": {"kind": "manual", "center": {"x": 76, "y": 49}}}
+      ]
+    },
+    {
+      "physical_measure_number": 8,
+      "heads": [
+        {"order": 1, "sounding_pitch": "E5", "confidence": "high", "selection": {"kind": "manual", "center": {"x": 127, "y": 61}}},
+        {"order": 2, "sounding_pitch": "D5", "confidence": "high", "selection": {"kind": "candidate", "candidate_id": "c001"}}
+      ]
+    }
+  ]
+}

@@ -142,7 +142,7 @@ def _build_for_work(
             global_measure_index += measure_count
             continue
 
-        records_for_system = _build_for_system(
+        records_for_system = build_measure_inputs_for_system(
             item,
             system_path=system_path,
             output_root=output_root,
@@ -158,7 +158,7 @@ def _build_for_work(
     return records
 
 
-def _build_for_system(
+def build_measure_inputs_for_system(
     item: WorkItem,
     *,
     system_path: Path,
@@ -169,6 +169,7 @@ def _build_for_system(
     boundaries: list[float],
     overwrite: bool,
 ) -> list[dict[str, Any]]:
+    """Build measure inputs for one system under a caller-owned output root."""
     system_output_dir = output_root / f"system_{system_index:03d}"
     system_output_dir.mkdir(parents=True, exist_ok=True)
     if overwrite:

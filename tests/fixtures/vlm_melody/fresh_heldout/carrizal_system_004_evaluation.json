@@ -1,0 +1,225 @@
+{
+  "artifacts": {
+    "evaluation": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/evaluation.json",
+    "musicxml": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/carrizal_system_4.musicxml",
+    "report_markdown": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/evaluation.md",
+    "truth": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/truth.jsonl",
+    "truth_import": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/truth_import.json"
+  },
+  "freeze_sha256": "af7814c0d00888fbc7af3a579cfd746781558062cb9c5b498faadd65e9f28b96",
+  "kind": "one_shot_second_score_evaluation",
+  "metrics": {
+    "results": [
+      {
+        "compared_notes": 3,
+        "duration_matches": 0,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 21,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 1
+        },
+        "note_f1": 0.0,
+        "onset_matches": 1,
+        "pitch_matches": 0,
+        "pred_note_count": 3,
+        "rest_fn": 0,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 1
+      },
+      {
+        "compared_notes": 6,
+        "duration_matches": 4,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 22,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 2
+        },
+        "note_f1": 0.6,
+        "onset_matches": 3,
+        "pitch_matches": 3,
+        "pred_note_count": 4,
+        "rest_fn": 0,
+        "rest_fp": 2,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 6
+      },
+      {
+        "compared_notes": 5,
+        "duration_matches": 5,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 23,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 3
+        },
+        "note_f1": 0.8,
+        "onset_matches": 5,
+        "pitch_matches": 4,
+        "pred_note_count": 5,
+        "rest_fn": 0,
+        "rest_fp": 0,
+        "rest_tp": 1,
+        "status": "evaluated",
+        "truth_note_count": 5
+      },
+      {
+        "compared_notes": 3,
+        "duration_matches": 0,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 24,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 4
+        },
+        "note_f1": 0.0,
+        "onset_matches": 1,
+        "pitch_matches": 0,
+        "pred_note_count": 3,
+        "rest_fn": 1,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 2
+      },
+      {
+        "compared_notes": 3,
+        "duration_matches": 1,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 25,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 5
+        },
+        "note_f1": 0.0,
+        "onset_matches": 1,
+        "pitch_matches": 0,
+        "pred_note_count": 3,
+        "rest_fn": 1,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 2
+      },
+      {
+        "compared_notes": 3,
+        "duration_matches": 0,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 26,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 6
+        },
+        "note_f1": 0.0,
+        "onset_matches": 0,
+        "pitch_matches": 0,
+        "pred_note_count": 3,
+        "rest_fn": 0,
+        "rest_fp": 1,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 1
+      },
+      {
+        "compared_notes": 3,
+        "duration_matches": 1,
+        "exact_measure": false,
+        "identity": {
+          "global_measure_index": 27,
+          "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+          "system_index": 4,
+          "system_measure_index": 7
+        },
+        "note_f1": 0.0,
+        "onset_matches": 0,
+        "pitch_matches": 0,
+        "pred_note_count": 3,
+        "rest_fn": 1,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 2
+      }
+    ],
+    "schema_version": 1,
+    "summary": {
+      "exact_measure_rate": 0.0,
+      "exact_measures": 0,
+      "note_f1": 0.325581,
+      "note_precision": 0.291667,
+      "note_recall": 0.368421,
+      "ordered_duration_accuracy": 0.423077,
+      "ordered_onset_accuracy": 0.423077,
+      "ordered_pitch_accuracy": 0.269231,
+      "predicted": 7,
+      "rest_f1": 0.25,
+      "rest_precision": 0.25,
+      "rest_recall": 0.25,
+      "targets": 7
+    }
+  },
+  "musicxml_sha256": "d6450616b1a45f5d9fc5176f4c260f7b9f8f6ecefffb95f860c67762f58ed6d9",
+  "pipeline_integration_decision": {
+    "exact_event_evidence": false,
+    "existing_qualitative_rule": "Require independent exact-event and rest evidence before pipeline integration.",
+    "numeric_threshold_preregistered": false,
+    "rest_evidence": true,
+    "status": "not_ready"
+  },
+  "schema_version": 1,
+  "segmentation": {
+    "automatic_crop_count": 7,
+    "automatic_crop_to_physical_measures": {
+      "1": [
+        1
+      ],
+      "2": [
+        2,
+        3
+      ],
+      "3": [
+        4
+      ],
+      "4": [
+        5
+      ],
+      "5": [
+        6
+      ],
+      "6": [
+        7
+      ],
+      "7": [
+        8
+      ]
+    },
+    "count_match": false,
+    "mapping_defined_after_independent_transcription_review": true,
+    "mapping_used_at_inference": false,
+    "merged_automatic_crops": [
+      {
+        "automatic_crop": 2,
+        "diagnosis": "missed interior barline",
+        "physical_measures": [
+          2,
+          3
+        ]
+      }
+    ],
+    "missed_barline_count": 1,
+    "physical_measure_count": 8
+  },
+  "status": "evaluated_once_after_frozen_predictions",
+  "truth_import_sha256": "796250a7153fe0b9274e146cf1962902d654bde2c3d6ee248ce1393ee8a074c1",
+  "truth_sha256": "4e3ede2e3e3980bfaa606d504b2383eea737032209bc9b54a101124b17b84d95"
+}

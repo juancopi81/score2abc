@@ -220,6 +220,10 @@ def run(
                     "deskewed_pages": [str(p) for p in segmentation.deskewed_pages],
                     "debug_overlays": [str(p) for p in segmentation.debug_overlays],
                     "debug_manifests": [str(p) for p in segmentation.debug_manifests],
+                    "rejected_candidate_crops": [
+                        str(p) for p in segmentation.rejected_candidate_crops
+                    ],
+                    "candidate_diagnostics": segmentation.candidate_diagnostics,
                 },
                 params={},
                 error=(None if segmentation.system_crops else "No system crops generated"),

@@ -1,10 +1,12 @@
 import json
+import shutil
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 from score2abc.manifest import write_manifest_jsonl
 from score2abc.schemas import WorkItem, WorkMetadata
+from score2abc.utils.imaging import estimate_ink_threshold
 from scripts.build_vlm_melody_inputs import build_vlm_melody_inputs, main
 
 
@@ -40,6 +42,53 @@ def test_build_vlm_melody_inputs_writes_measure_crops_and_context(tmp_path: Path
 
 def test_build_vlm_melody_inputs_cli_rejects_missing_manifest(tmp_path: Path) -> None:
     assert main([str(tmp_path / "missing")]) == 1
+
+
+def test_build_vlm_melody_inputs_splits_consumed_carrizal_system(tmp_path: Path) -> None:
+    slug = "jaime-llanos_19_carrizal_pasillo_emilio-murillo"
+    fixture_dir = Path(__file__).parent / "fixtures" / "barlines" / slug
+    out_dir = tmp_path / "out"
+    work_dir = out_dir / slug
+    systems_dir = work_dir / "systems"
+    systems_dir.mkdir(parents=True)
+    source_pdf = work_dir / "source.pdf"
+    source_pdf.write_bytes(b"%PDF-1.4\n")
+    shutil.copyfile(fixture_dir / "system_004.png", systems_dir / "system_004.png")
+    item = WorkItem(
+        slug=slug,
+        pdf_path=source_pdf,
+        metadata=WorkMetadata(
+            title="Carrizal",
+            composer="Emilio Murillo",
+            rhythm="pasillo",
+            time_signature="3/4",
+            key_hint="one flat: Bb",
+        ),
+    )
+    write_manifest_jsonl([item], out_dir / "manifest.jsonl")
+
+    records = build_vlm_melody_inputs(
+        out_dir,
+        selected_slugs={slug},
+        selected_systems={4},
+    )
+
+    assert len(records) == 8
+    assert [record["system_measure_index"] for record in records] == list(range(1, 9))
+    for record in records:
+        crop_path = Path(record["paths"]["measure_raw"])
+        with Image.open(crop_path) as crop:
+            gray = crop.convert("L")
+            threshold = estimate_ink_threshold(gray)
+            staff_lines = record["staff_lines_y_px_in_system"]
+            nonstaff_ink = sum(
+                gray.getpixel((x, y)) < threshold
+                for y in range(gray.height)
+                if all(abs(y - line_y) > 3 for line_y in staff_lines)
+                for x in range(gray.width)
+            )
+            assert gray.width >= 180
+            assert nonstaff_ink >= 250
 
 
 def _make_pipeline_out(tmp_path: Path) -> Path:

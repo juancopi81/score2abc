@@ -5,7 +5,9 @@ import logging
 import shutil
 import subprocess
 from dataclasses import dataclass
+from itertools import combinations
 from pathlib import Path
+from statistics import fmean
 from typing import List
 
 from PIL import Image, ImageDraw, ImageOps
@@ -14,16 +16,38 @@ from score2abc.utils.imaging import estimate_ink_threshold
 
 BBox = tuple[int, int, int, int]
 
+_REQUIRED_STAFF_LINES = 5
+_MIN_STAFF_LINE_SUPPORT = 0.18
+_MAX_STAFF_SPACING_DEVIATION_RATIO = 0.30
+
 
 @dataclass(frozen=True)
 class DetectedSystem:
     page_number: int
+    source_candidate_index: int
     system_bbox: BBox
     system_crop_bbox: BBox
+    staff_line_rows: tuple[int, ...]
+    staff_line_support: tuple[float, ...]
     chord_bbox_above: BBox
     chord_crop_bbox_above: BBox
     chord_bbox_below: BBox
     chord_crop_bbox_below: BBox
+
+
+@dataclass(frozen=True)
+class SystemCandidateAssessment:
+    page_number: int
+    source_candidate_index: int
+    system_bbox: BBox
+    accepted: bool
+    reason: str
+    long_horizontal_line_rows: tuple[int, ...]
+    long_horizontal_line_support: tuple[float, ...]
+    staff_line_rows: tuple[int, ...]
+    staff_line_support: tuple[float, ...]
+    mean_staff_spacing: float | None
+    max_spacing_deviation_ratio: float | None
 
 
 @dataclass(frozen=True)
@@ -34,6 +58,8 @@ class SegmentationResult:
     deskewed_pages: List[Path]
     debug_overlays: List[Path]
     debug_manifests: List[Path]
+    rejected_candidate_crops: List[Path]
+    candidate_diagnostics: List[dict[str, object]]
 
     @property
     def all_outputs(self) -> List[Path]:
@@ -44,6 +70,7 @@ class SegmentationResult:
             *self.deskewed_pages,
             *self.debug_overlays,
             *self.debug_manifests,
+            *self.rejected_candidate_crops,
         ]
 
 
@@ -85,7 +112,7 @@ def create_system_crops(
     systems_dir.mkdir(parents=True, exist_ok=True)
     if not page_paths:
         logger.warning("No pages available for system crops")
-        return SegmentationResult([], [], [], [], [], [])
+        return SegmentationResult([], [], [], [], [], [], [], [])
 
     _clear_segmentation_outputs(systems_dir)
 
@@ -95,6 +122,8 @@ def create_system_crops(
     deskewed_page_paths: List[Path] = []
     overlay_paths: List[Path] = []
     manifest_paths: List[Path] = []
+    rejected_candidate_paths: List[Path] = []
+    candidate_diagnostics: List[dict[str, object]] = []
     system_index = 1
 
     for page_number, page_path in enumerate(page_paths, start=1):
@@ -110,13 +139,16 @@ def create_system_crops(
             deskewed_page_paths.append(deskewed_page_path)
             logger.info("Wrote deskewed page: %s", deskewed_page_path)
 
-            detected_systems = _detect_systems(page_gray, page_number)
+            detected_systems, candidate_assessments = _detect_systems_with_assessments(
+                page_gray, page_number
+            )
 
             if not detected_systems:
                 logger.warning("No staff systems detected on page %s", page_path)
-                continue
 
+            output_index_by_source_candidate: dict[int, int] = {}
             for detected in detected_systems:
+                output_index_by_source_candidate[detected.source_candidate_index] = system_index
                 system_path = systems_dir / f"system_{system_index:03d}.png"
                 chord_path_above = systems_dir / f"chord_region_above_{system_index:03d}.png"
                 chord_path_below = systems_dir / f"chord_region_below_{system_index:03d}.png"
@@ -131,8 +163,45 @@ def create_system_crops(
                 logger.info("Created chord region crop below: %s", chord_path_below)
                 system_index += 1
 
+            page_candidate_diagnostics: List[dict[str, object]] = []
+            for assessment in candidate_assessments:
+                candidate_crop_bbox = _expand_system_crop_bbox(
+                    assessment.system_bbox, page_rgb.width, page_rgb.height
+                )
+                rejected_crop_path: Path | None = None
+                if not assessment.accepted:
+                    rejected_crop_path = systems_dir / (
+                        f"rejected_candidate_page_{page_number:03d}_"
+                        f"{assessment.source_candidate_index:03d}.png"
+                    )
+                    page_rgb.crop(candidate_crop_bbox).save(rejected_crop_path)
+                    rejected_candidate_paths.append(rejected_crop_path)
+                    logger.info(
+                        "Rejected system candidate page=%s candidate=%s reason=%s: %s",
+                        page_number,
+                        assessment.source_candidate_index,
+                        assessment.reason,
+                        rejected_crop_path,
+                    )
+
+                diagnostic = _candidate_assessment_to_dict(
+                    assessment,
+                    candidate_crop_bbox=candidate_crop_bbox,
+                    output_system_index=output_index_by_source_candidate.get(
+                        assessment.source_candidate_index
+                    ),
+                    rejected_crop_path=rejected_crop_path,
+                )
+                page_candidate_diagnostics.append(diagnostic)
+                candidate_diagnostics.append(diagnostic)
+
             overlay_path = systems_dir / f"page_{page_number:03d}_overlay.png"
-            _write_segmentation_overlay(page_rgb, detected_systems, overlay_path)
+            _write_segmentation_overlay(
+                page_rgb,
+                detected_systems,
+                candidate_assessments,
+                overlay_path,
+            )
             overlay_paths.append(overlay_path)
 
             manifest_path = systems_dir / f"page_{page_number:03d}_segments.json"
@@ -142,11 +211,23 @@ def create_system_crops(
                         "page": str(deskewed_page_path),
                         "source_page": str(page_path),
                         "page_rotation_degrees": round(page_rotation_degrees, 4),
+                        "candidates": page_candidate_diagnostics,
+                        "rejected_candidates": [
+                            item for item in page_candidate_diagnostics if not item["accepted"]
+                        ],
                         "systems": [
                             {
                                 "page_number": detected.page_number,
+                                "output_system_index": output_index_by_source_candidate[
+                                    detected.source_candidate_index
+                                ],
+                                "source_candidate_index": detected.source_candidate_index,
                                 "system_bbox": _bbox_to_dict(detected.system_bbox),
                                 "system_crop_bbox": _bbox_to_dict(detected.system_crop_bbox),
+                                "staff_line_rows": list(detected.staff_line_rows),
+                                "staff_line_support": [
+                                    round(value, 6) for value in detected.staff_line_support
+                                ],
                                 "chord_bbox_above": _bbox_to_dict(detected.chord_bbox_above),
                                 "chord_crop_bbox_above": _bbox_to_dict(
                                     detected.chord_crop_bbox_above
@@ -173,6 +254,8 @@ def create_system_crops(
         deskewed_page_paths,
         overlay_paths,
         manifest_paths,
+        rejected_candidate_paths,
+        candidate_diagnostics,
     )
 
 
@@ -253,9 +336,16 @@ def _find_abcm2ps_output(prefix: Path) -> Path | None:
 
 
 def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSystem]:
+    detected, _ = _detect_systems_with_assessments(page_gray, page_number)
+    return detected
+
+
+def _detect_systems_with_assessments(
+    page_gray: Image.Image, page_number: int
+) -> tuple[List[DetectedSystem], List[SystemCandidateAssessment]]:
     width, height = page_gray.size
     if width == 0 or height == 0:
-        return []
+        return [], []
 
     left_margin = int(width * 0.05)
     right_margin = int(width * 0.95)
@@ -264,7 +354,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
     row_smooth = _moving_average(row_profile, _odd(max(15, int(height * 0.007))))
     peak_density = max(row_smooth, default=0.0)
     if peak_density <= 0:
-        return []
+        return [], []
 
     activity_threshold = max(peak_density * 0.18, 0.015)
     broad_spans = _find_active_spans(
@@ -309,14 +399,42 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
 
         system_bboxes.append((system_left, system_top, system_right, system_bottom))
 
+    candidate_assessments = [
+        _assess_system_candidate(
+            page_gray,
+            page_number=page_number,
+            source_candidate_index=index,
+            system_bbox=system_bbox,
+            ink_threshold=ink_threshold,
+        )
+        for index, system_bbox in enumerate(system_bboxes, start=1)
+    ]
+    accepted_candidates = [
+        assessment for assessment in candidate_assessments if assessment.accepted
+    ]
+    candidate_position_by_source_index = {
+        assessment.source_candidate_index: index
+        for index, assessment in enumerate(candidate_assessments)
+    }
+
     detected: List[DetectedSystem] = []
-    for index, system_bbox in enumerate(system_bboxes):
+    for assessment in accepted_candidates:
+        system_bbox = assessment.system_bbox
         _, system_top, _, system_bottom = system_bbox
         system_height = system_bottom - system_top
         desired_chord_height = max(32, min(96, system_height // 2))
         staff_overlap = max(24, int(system_height * 0.40))
-        previous_system_bottom = 0 if index == 0 else system_bboxes[index - 1][3]
-        next_system_top = height if index + 1 == len(system_bboxes) else system_bboxes[index + 1][1]
+        candidate_position = candidate_position_by_source_index[assessment.source_candidate_index]
+        previous_system_bottom = (
+            0
+            if candidate_position == 0
+            else candidate_assessments[candidate_position - 1].system_bbox[3]
+        )
+        next_system_top = (
+            height
+            if candidate_position + 1 == len(candidate_assessments)
+            else candidate_assessments[candidate_position + 1].system_bbox[1]
+        )
         system_crop_bbox = _expand_system_crop_bbox(system_bbox, width, height)
 
         chord_bbox_above = _build_annotation_band_above(
@@ -349,8 +467,11 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
         detected.append(
             DetectedSystem(
                 page_number=page_number,
+                source_candidate_index=assessment.source_candidate_index,
                 system_bbox=system_bbox,
                 system_crop_bbox=system_crop_bbox,
+                staff_line_rows=assessment.staff_line_rows,
+                staff_line_support=assessment.staff_line_support,
                 chord_bbox_above=chord_bbox_above,
                 chord_crop_bbox_above=chord_crop_bbox_above,
                 chord_bbox_below=chord_bbox_below,
@@ -358,7 +479,107 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
             )
         )
 
-    return detected
+    return detected, candidate_assessments
+
+
+def _assess_system_candidate(
+    page_gray: Image.Image,
+    *,
+    page_number: int,
+    source_candidate_index: int,
+    system_bbox: BBox,
+    ink_threshold: int,
+) -> SystemCandidateAssessment:
+    left, top, right, bottom = system_bbox
+    pixels = page_gray.load()
+    width = max(1, right - left)
+    row_support = [
+        sum(pixels[x, y] < ink_threshold for x in range(left, right)) / width
+        for y in range(top, bottom)
+    ]
+    support_spans = _find_active_spans(
+        row_support,
+        threshold=_MIN_STAFF_LINE_SUPPORT,
+        min_length=1,
+        gap=0,
+    )
+
+    long_line_rows: List[int] = []
+    long_line_support: List[float] = []
+    for span_top, span_bottom in support_spans:
+        strongest_offset = max(
+            range(span_top, span_bottom + 1),
+            key=lambda offset: row_support[offset],
+        )
+        long_line_rows.append(top + strongest_offset)
+        long_line_support.append(row_support[strongest_offset])
+
+    if len(long_line_rows) < _REQUIRED_STAFF_LINES:
+        return SystemCandidateAssessment(
+            page_number=page_number,
+            source_candidate_index=source_candidate_index,
+            system_bbox=system_bbox,
+            accepted=False,
+            reason="insufficient_long_horizontal_lines",
+            long_horizontal_line_rows=tuple(long_line_rows),
+            long_horizontal_line_support=tuple(long_line_support),
+            staff_line_rows=(),
+            staff_line_support=(),
+            mean_staff_spacing=None,
+            max_spacing_deviation_ratio=None,
+        )
+
+    best_sequence: tuple[float, float, tuple[int, ...]] | None = None
+    for indices in combinations(range(len(long_line_rows)), _REQUIRED_STAFF_LINES):
+        rows = tuple(long_line_rows[index] for index in indices)
+        spacings = [rows[index + 1] - rows[index] for index in range(len(rows) - 1)]
+        mean_spacing = fmean(spacings)
+        if mean_spacing < 6 or mean_spacing > 80:
+            continue
+        spacing_deviation = max(abs(spacing - mean_spacing) for spacing in spacings)
+        spacing_deviation_ratio = spacing_deviation / mean_spacing
+        if spacing_deviation_ratio > _MAX_STAFF_SPACING_DEVIATION_RATIO:
+            continue
+        mean_support = fmean(long_line_support[index] for index in indices)
+        score = (spacing_deviation_ratio, -mean_support, indices)
+        if best_sequence is None or score < best_sequence:
+            best_sequence = score
+
+    if best_sequence is None:
+        return SystemCandidateAssessment(
+            page_number=page_number,
+            source_candidate_index=source_candidate_index,
+            system_bbox=system_bbox,
+            accepted=False,
+            reason="inconsistent_horizontal_line_spacing",
+            long_horizontal_line_rows=tuple(long_line_rows),
+            long_horizontal_line_support=tuple(long_line_support),
+            staff_line_rows=(),
+            staff_line_support=(),
+            mean_staff_spacing=None,
+            max_spacing_deviation_ratio=None,
+        )
+
+    spacing_deviation_ratio, _, selected_indices = best_sequence
+    staff_line_rows = tuple(long_line_rows[index] for index in selected_indices)
+    staff_line_support = tuple(long_line_support[index] for index in selected_indices)
+    mean_staff_spacing = fmean(
+        staff_line_rows[index + 1] - staff_line_rows[index]
+        for index in range(len(staff_line_rows) - 1)
+    )
+    return SystemCandidateAssessment(
+        page_number=page_number,
+        source_candidate_index=source_candidate_index,
+        system_bbox=system_bbox,
+        accepted=True,
+        reason="five_consistently_spaced_staff_lines",
+        long_horizontal_line_rows=tuple(long_line_rows),
+        long_horizontal_line_support=tuple(long_line_support),
+        staff_line_rows=staff_line_rows,
+        staff_line_support=staff_line_support,
+        mean_staff_spacing=mean_staff_spacing,
+        max_spacing_deviation_ratio=spacing_deviation_ratio,
+    )
 
 
 def _ink_density_by_row(
@@ -654,10 +875,22 @@ def _odd(value: int) -> int:
 def _write_segmentation_overlay(
     page_rgb: Image.Image,
     detected_systems: List[DetectedSystem],
+    candidate_assessments: List[SystemCandidateAssessment],
     output_path: Path,
 ) -> None:
     overlay = page_rgb.copy()
     draw = ImageDraw.Draw(overlay)
+    for assessment in candidate_assessments:
+        if assessment.accepted:
+            continue
+        draw.rectangle(assessment.system_bbox, outline="orange", width=4)
+        label_x = assessment.system_bbox[0] + 8
+        label_y = max(0, assessment.system_bbox[1] - 18)
+        draw.text(
+            (label_x, label_y),
+            f"rejected candidate {assessment.source_candidate_index}",
+            fill="orange",
+        )
     for index, detected in enumerate(detected_systems, start=1):
         draw.rectangle(detected.chord_crop_bbox_above, outline="blue", width=4)
         draw.rectangle(detected.chord_crop_bbox_below, outline="green", width=4)
@@ -666,6 +899,43 @@ def _write_segmentation_overlay(
         label_y = max(0, detected.chord_crop_bbox_above[1] - 18)
         draw.text((label_x, label_y), f"{index}", fill="red")
     overlay.save(output_path)
+
+
+def _candidate_assessment_to_dict(
+    assessment: SystemCandidateAssessment,
+    *,
+    candidate_crop_bbox: BBox,
+    output_system_index: int | None,
+    rejected_crop_path: Path | None,
+) -> dict[str, object]:
+    return {
+        "page_number": assessment.page_number,
+        "source_candidate_index": assessment.source_candidate_index,
+        "output_system_index": output_system_index,
+        "accepted": assessment.accepted,
+        "reason": assessment.reason,
+        "system_bbox": _bbox_to_dict(assessment.system_bbox),
+        "candidate_crop_bbox": _bbox_to_dict(candidate_crop_bbox),
+        "candidate_crop": str(rejected_crop_path) if rejected_crop_path else None,
+        "required_staff_line_count": _REQUIRED_STAFF_LINES,
+        "minimum_line_support": _MIN_STAFF_LINE_SUPPORT,
+        "long_horizontal_line_rows": list(assessment.long_horizontal_line_rows),
+        "long_horizontal_line_support": [
+            round(value, 6) for value in assessment.long_horizontal_line_support
+        ],
+        "staff_line_rows": list(assessment.staff_line_rows),
+        "staff_line_support": [round(value, 6) for value in assessment.staff_line_support],
+        "mean_staff_spacing": (
+            round(assessment.mean_staff_spacing, 6)
+            if assessment.mean_staff_spacing is not None
+            else None
+        ),
+        "max_spacing_deviation_ratio": (
+            round(assessment.max_spacing_deviation_ratio, 6)
+            if assessment.max_spacing_deviation_ratio is not None
+            else None
+        ),
+    }
 
 
 def _bbox_to_dict(bbox: BBox) -> dict[str, int]:
@@ -685,6 +955,7 @@ def _clear_segmentation_outputs(systems_dir: Path) -> None:
         "page_*_deskewed.png",
         "page_*_overlay.png",
         "page_*_segments.json",
+        "rejected_candidate_page_*.png",
     )
     for pattern in patterns:
         for path in systems_dir.glob(pattern):

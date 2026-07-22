@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -10,6 +11,7 @@ from score2abc.chord_ocr.alignment import (
     measure_boundaries_for_system,
     measures_in_system,
 )
+from scripts.experiments.eval_a1_all_systems import _match, _parse_via
 
 
 def _draw_system(
@@ -95,6 +97,34 @@ def test_detect_barlines_prefers_clean_barline_over_nearby_note_stem(
 
     assert len(detected) == 1
     assert abs(detected[0] - 0.225) < 0.01
+
+
+def test_detect_barlines_recovers_consumed_carrizal_boundary() -> None:
+    fixture_dir = (
+        Path(__file__).parent
+        / "fixtures"
+        / "barlines"
+        / "jaime-llanos_19_carrizal_pasillo_emilio-murillo"
+    )
+    image_path = fixture_dir / "system_004.png"
+    gt_boxes = _parse_via(
+        json.loads((fixture_dir / "system_004_ground_truth.json").read_text(encoding="utf-8"))
+    )
+
+    with Image.open(image_path) as image:
+        detected = detect_barlines(image_path)
+        detected_px = [round(fraction * image.width) for fraction in detected]
+
+    tolerance_px = 9.0
+    matches = _match(gt_boxes, detected_px, tolerance_px)
+    tp = sum(match is not None for match in matches)
+    fp = len(detected_px) - tp
+    fn = len(gt_boxes) - tp
+    assert (tp, fp, fn) == (9, 0, 0)
+
+    boundaries = measure_boundaries_for_system(image_path, detected)
+    assert len(boundaries) == 9
+    assert [round(boundary * image.width) for boundary in boundaries] == detected_px
 
 
 def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:

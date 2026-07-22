@@ -1,0 +1,844 @@
+{
+  "candidates": [
+    {
+      "auto_pitch": "E4",
+      "bbox": {
+        "bottom": 177,
+        "left": 0,
+        "right": 20,
+        "top": 159
+      },
+      "center": {
+        "x": 9.5,
+        "y": 167.5
+      },
+      "features": {
+        "column_peak_density": 0.888889,
+        "core_density": 0.729838,
+        "horizontal_support": 0.95,
+        "ink_count": 167.0,
+        "ink_density": 0.463889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.722222,
+        "vertical_support": 1.0
+      },
+      "id": "c001",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.033688,
+        "y": 0.636882
+      },
+      "rank": 1,
+      "score": 0.831281
+    },
+    {
+      "auto_pitch": "C5",
+      "bbox": {
+        "bottom": 117,
+        "left": 208,
+        "right": 228,
+        "top": 99
+      },
+      "center": {
+        "x": 217.5,
+        "y": 107.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.746616,
+        "horizontal_support": 0.8,
+        "ink_count": 178.0,
+        "ink_density": 0.494444,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.85,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c002",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.771277,
+        "y": 0.408745
+      },
+      "rank": 2,
+      "score": 0.826776
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 123,
+        "right": 143,
+        "top": 135
+      },
+      "center": {
+        "x": 132.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 0.666667,
+        "core_density": 0.738227,
+        "horizontal_support": 0.7,
+        "ink_count": 145.0,
+        "ink_density": 0.402778,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.962963,
+        "vertical_support": 1.0
+      },
+      "id": "c003",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.469858,
+        "y": 0.545627
+      },
+      "rank": 3,
+      "score": 0.792436
+    },
+    {
+      "auto_pitch": "B4",
+      "bbox": {
+        "bottom": 129,
+        "left": 67,
+        "right": 87,
+        "top": 111
+      },
+      "center": {
+        "x": 76.5,
+        "y": 119.5
+      },
+      "features": {
+        "column_peak_density": 0.777778,
+        "core_density": 0.721449,
+        "horizontal_support": 0.75,
+        "ink_count": 150.0,
+        "ink_density": 0.416667,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.55,
+        "stem_evidence": 0.888889,
+        "vertical_support": 1.0
+      },
+      "id": "c004",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.271277,
+        "y": 0.454373
+      },
+      "rank": 4,
+      "score": 0.792422
+    },
+    {
+      "auto_pitch": "A3",
+      "bbox": {
+        "bottom": 225,
+        "left": 174,
+        "right": 194,
+        "top": 207
+      },
+      "center": {
+        "x": 183.5,
+        "y": 215.5
+      },
+      "features": {
+        "column_peak_density": 0.944444,
+        "core_density": 0.687893,
+        "horizontal_support": 0.9,
+        "ink_count": 182.0,
+        "ink_density": 0.505556,
+        "line_dominance": 0.033333,
+        "row_peak_density": 0.6,
+        "stem_evidence": 0.777778,
+        "vertical_support": 0.944444
+      },
+      "id": "c005",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.650709,
+        "y": 0.819392
+      },
+      "rank": 5,
+      "score": 0.791542
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 0,
+        "right": 20,
+        "top": 135
+      },
+      "center": {
+        "x": 9.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.721449,
+        "horizontal_support": 0.6,
+        "ink_count": 167.0,
+        "ink_density": 0.463889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.7,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c006",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.033688,
+        "y": 0.545627
+      },
+      "rank": 6,
+      "score": 0.775533
+    },
+    {
+      "auto_pitch": "F3",
+      "bbox": {
+        "bottom": 249,
+        "left": 125,
+        "right": 145,
+        "top": 231
+      },
+      "center": {
+        "x": 134.5,
+        "y": 239.5
+      },
+      "features": {
+        "column_peak_density": 0.666667,
+        "core_density": 0.671115,
+        "horizontal_support": 1.0,
+        "ink_count": 139.0,
+        "ink_density": 0.386111,
+        "line_dominance": 0.083333,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.944444,
+        "vertical_support": 0.888889
+      },
+      "id": "c007",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.47695,
+        "y": 0.910646
+      },
+      "rank": 7,
+      "score": 0.772824
+    },
+    {
+      "auto_pitch": "B4",
+      "bbox": {
+        "bottom": 129,
+        "left": 0,
+        "right": 20,
+        "top": 111
+      },
+      "center": {
+        "x": 9.5,
+        "y": 119.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.696282,
+        "horizontal_support": 0.55,
+        "ink_count": 167.0,
+        "ink_density": 0.463889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.55,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c008",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.033688,
+        "y": 0.454373
+      },
+      "rank": 8,
+      "score": 0.754956
+    },
+    {
+      "auto_pitch": "B4",
+      "bbox": {
+        "bottom": 129,
+        "left": 175,
+        "right": 195,
+        "top": 111
+      },
+      "center": {
+        "x": 184.5,
+        "y": 119.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.687893,
+        "horizontal_support": 0.6,
+        "ink_count": 143.0,
+        "ink_density": 0.397222,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.5,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c009",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.654255,
+        "y": 0.454373
+      },
+      "rank": 9,
+      "score": 0.752097
+    },
+    {
+      "auto_pitch": "D5",
+      "bbox": {
+        "bottom": 105,
+        "left": 176,
+        "right": 196,
+        "top": 87
+      },
+      "center": {
+        "x": 185.5,
+        "y": 95.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.654337,
+        "horizontal_support": 0.65,
+        "ink_count": 141.0,
+        "ink_density": 0.391667,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.45,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c010",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.657801,
+        "y": 0.363118
+      },
+      "rank": 10,
+      "score": 0.744995
+    },
+    {
+      "auto_pitch": "E4",
+      "bbox": {
+        "bottom": 177,
+        "left": 115,
+        "right": 135,
+        "top": 159
+      },
+      "center": {
+        "x": 124.5,
+        "y": 167.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.587226,
+        "horizontal_support": 0.8,
+        "ink_count": 141.0,
+        "ink_density": 0.391667,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.95,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c011",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.441489,
+        "y": 0.636882
+      },
+      "rank": 11,
+      "score": 0.741124
+    },
+    {
+      "auto_pitch": "E3",
+      "bbox": {
+        "bottom": 261,
+        "left": 89,
+        "right": 109,
+        "top": 243
+      },
+      "center": {
+        "x": 98.5,
+        "y": 251.5
+      },
+      "features": {
+        "column_peak_density": 0.944444,
+        "core_density": 0.662726,
+        "horizontal_support": 0.8,
+        "ink_count": 135.0,
+        "ink_density": 0.375,
+        "line_dominance": 0.083333,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.934343,
+        "vertical_support": 0.888889
+      },
+      "id": "c012",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.349291,
+        "y": 0.956274
+      },
+      "rank": 12,
+      "score": 0.731228
+    },
+    {
+      "auto_pitch": "D5",
+      "bbox": {
+        "bottom": 105,
+        "left": 0,
+        "right": 20,
+        "top": 87
+      },
+      "center": {
+        "x": 9.5,
+        "y": 95.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.620781,
+        "horizontal_support": 0.5,
+        "ink_count": 173.0,
+        "ink_density": 0.480556,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.55,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c013",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.033688,
+        "y": 0.363118
+      },
+      "rank": 13,
+      "score": 0.713226
+    },
+    {
+      "auto_pitch": "G3",
+      "bbox": {
+        "bottom": 237,
+        "left": 143,
+        "right": 163,
+        "top": 219
+      },
+      "center": {
+        "x": 152.5,
+        "y": 227.5
+      },
+      "features": {
+        "column_peak_density": 0.722222,
+        "core_density": 0.595615,
+        "horizontal_support": 0.75,
+        "ink_count": 127.0,
+        "ink_density": 0.352778,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.45,
+        "stem_evidence": 0.425926,
+        "vertical_support": 1.0
+      },
+      "id": "c014",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.54078,
+        "y": 0.865019
+      },
+      "rank": 14,
+      "score": 0.708353
+    },
+    {
+      "auto_pitch": "A5",
+      "bbox": {
+        "bottom": 57,
+        "left": 1,
+        "right": 21,
+        "top": 39
+      },
+      "center": {
+        "x": 10.5,
+        "y": 47.5
+      },
+      "features": {
+        "column_peak_density": 0.5,
+        "core_density": 0.453003,
+        "horizontal_support": 1.0,
+        "ink_count": 132.0,
+        "ink_density": 0.366667,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.5,
+        "stem_evidence": 0.666667,
+        "vertical_support": 1.0
+      },
+      "id": "c015",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.037234,
+        "y": 0.180608
+      },
+      "rank": 15,
+      "score": 0.699048
+    },
+    {
+      "auto_pitch": "E4",
+      "bbox": {
+        "bottom": 177,
+        "left": 139,
+        "right": 159,
+        "top": 159
+      },
+      "center": {
+        "x": 148.5,
+        "y": 167.5
+      },
+      "features": {
+        "column_peak_density": 0.777778,
+        "core_density": 0.486558,
+        "horizontal_support": 0.75,
+        "ink_count": 120.0,
+        "ink_density": 0.333333,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.8,
+        "stem_evidence": 0.944444,
+        "vertical_support": 1.0
+      },
+      "id": "c016",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.526596,
+        "y": 0.636882
+      },
+      "rank": 16,
+      "score": 0.676595
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 258,
+        "right": 278,
+        "top": 135
+      },
+      "center": {
+        "x": 267.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.620781,
+        "horizontal_support": 0.7,
+        "ink_count": 128.0,
+        "ink_density": 0.355556,
+        "line_dominance": 0.141667,
+        "row_peak_density": 0.85,
+        "stem_evidence": 1.0,
+        "vertical_support": 0.833333
+      },
+      "id": "c017",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.948582,
+        "y": 0.545627
+      },
+      "rank": 17,
+      "score": 0.671559
+    },
+    {
+      "auto_pitch": "G3",
+      "bbox": {
+        "bottom": 237,
+        "left": 82,
+        "right": 102,
+        "top": 219
+      },
+      "center": {
+        "x": 91.5,
+        "y": 227.5
+      },
+      "features": {
+        "column_peak_density": 0.444444,
+        "core_density": 0.511725,
+        "horizontal_support": 0.95,
+        "ink_count": 114.0,
+        "ink_density": 0.316667,
+        "line_dominance": 0.061111,
+        "row_peak_density": 0.55,
+        "stem_evidence": 0.481481,
+        "vertical_support": 0.888889
+      },
+      "id": "c018",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.324468,
+        "y": 0.865019
+      },
+      "rank": 18,
+      "score": 0.667208
+    },
+    {
+      "auto_pitch": "F5",
+      "bbox": {
+        "bottom": 81,
+        "left": 179,
+        "right": 199,
+        "top": 63
+      },
+      "center": {
+        "x": 188.5,
+        "y": 71.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.620781,
+        "horizontal_support": 0.35,
+        "ink_count": 106.0,
+        "ink_density": 0.294444,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.5,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c019",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.66844,
+        "y": 0.271863
+      },
+      "rank": 19,
+      "score": 0.663893
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 173,
+        "right": 193,
+        "top": 135
+      },
+      "center": {
+        "x": 182.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.578837,
+        "horizontal_support": 0.75,
+        "ink_count": 134.0,
+        "ink_density": 0.372222,
+        "line_dominance": 0.15,
+        "row_peak_density": 0.9,
+        "stem_evidence": 1.0,
+        "vertical_support": 0.833333
+      },
+      "id": "c020",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.647163,
+        "y": 0.545627
+      },
+      "rank": 20,
+      "score": 0.661932
+    },
+    {
+      "auto_pitch": "C6",
+      "bbox": {
+        "bottom": 33,
+        "left": 7,
+        "right": 27,
+        "top": 15
+      },
+      "center": {
+        "x": 16.5,
+        "y": 23.5
+      },
+      "features": {
+        "column_peak_density": 0.5,
+        "core_density": 0.503336,
+        "horizontal_support": 0.75,
+        "ink_count": 110.0,
+        "ink_density": 0.305556,
+        "line_dominance": 0.022222,
+        "row_peak_density": 0.4,
+        "stem_evidence": 0.833333,
+        "vertical_support": 0.944444
+      },
+      "id": "c021",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.058511,
+        "y": 0.089354
+      },
+      "rank": 21,
+      "score": 0.659646
+    },
+    {
+      "auto_pitch": "B4",
+      "bbox": {
+        "bottom": 129,
+        "left": 258,
+        "right": 278,
+        "top": 111
+      },
+      "center": {
+        "x": 267.5,
+        "y": 119.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.562059,
+        "horizontal_support": 0.55,
+        "ink_count": 124.0,
+        "ink_density": 0.344444,
+        "line_dominance": 0.044444,
+        "row_peak_density": 0.8,
+        "stem_evidence": 1.0,
+        "vertical_support": 0.944444
+      },
+      "id": "c022",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.948582,
+        "y": 0.454373
+      },
+      "rank": 22,
+      "score": 0.658436
+    },
+    {
+      "auto_pitch": "C4",
+      "bbox": {
+        "bottom": 201,
+        "left": 3,
+        "right": 23,
+        "top": 183
+      },
+      "center": {
+        "x": 12.5,
+        "y": 191.5
+      },
+      "features": {
+        "column_peak_density": 0.388889,
+        "core_density": 0.453003,
+        "horizontal_support": 0.85,
+        "ink_count": 109.0,
+        "ink_density": 0.302778,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.35,
+        "stem_evidence": 0.481481,
+        "vertical_support": 1.0
+      },
+      "id": "c023",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.044326,
+        "y": 0.728137
+      },
+      "rank": 23,
+      "score": 0.656974
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 58,
+        "right": 78,
+        "top": 135
+      },
+      "center": {
+        "x": 67.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.511725,
+        "horizontal_support": 0.55,
+        "ink_count": 114.0,
+        "ink_density": 0.316667,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.7,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c024",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.239362,
+        "y": 0.545627
+      },
+      "rank": 24,
+      "score": 0.652394
+    }
+  ],
+  "final_noteheads": [
+    {
+      "auto_pitch": "B4",
+      "center": {
+        "x": 76.5,
+        "y": 119.5
+      },
+      "order": 1,
+      "pitch": "Bb4",
+      "pitch_corrected": true,
+      "source": {
+        "candidate_id": "c004",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "G4",
+      "center": {
+        "x": 132.5,
+        "y": 143.5
+      },
+      "order": 2,
+      "pitch": "A4",
+      "pitch_corrected": true,
+      "source": {
+        "candidate_id": "c003",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "C5",
+      "center": {
+        "x": 217.5,
+        "y": 107.5
+      },
+      "order": 3,
+      "pitch": "C5",
+      "pitch_corrected": false,
+      "source": {
+        "candidate_id": "c002",
+        "kind": "candidate"
+      }
+    }
+  ],
+  "identity": {
+    "global_measure_index": 1,
+    "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+    "system_index": 1,
+    "system_measure_index": 2
+  },
+  "kind": "vlm_melody_notehead_candidate_review",
+  "manual_noteheads": [],
+  "provenance": {
+    "review_tool_path": "scripts/review_vlm_notehead_candidates.py",
+    "review_type": "human",
+    "scope": "spike_only",
+    "source_review_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_reviews/system_001/measure_002/review.json"
+  },
+  "schema_version": 1,
+  "source": {
+    "candidate_artifact_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_notehead_localization/system_001/measure_002/candidates.json",
+    "candidate_artifact_sha256": "b1345f4620f87a47dc47d06f29d2fc9f6b166415efa80d9103f20a6afb1d5463",
+    "candidate_cap": 24,
+    "coordinate_space": "source image pixels, origin at top-left",
+    "image_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_inputs/system_001/measure_002_raw.png",
+    "image_sha256": "576285d816007f04ca0679eca88f9e372449319298c3d3379fccc8a70e7ce227"
+  },
+  "timing": {
+    "active_review_ms": 30000,
+    "inactivity_timeout_ms": 30000,
+    "saved_at": "2026-07-15T23:16:36.663992+00:00"
+  }
+}

@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from PIL.ImageStat import Stat
 
-from score2abc.render import _darken_ink, create_system_crops
+from score2abc.render import _assess_system_candidate, _darken_ink, create_system_crops
 
 
 def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) -> None:
@@ -115,6 +115,40 @@ def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     assert deskewed_score > reskewed_score
 
 
+def test_create_system_crops_rejects_non_staff_band_and_preserves_source_index(
+    tmp_path: Path,
+) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_synthetic_page(page_path, with_title_band=True)
+    stale_rejected = systems_dir / "rejected_candidate_page_001_999.png"
+    stale_rejected.write_bytes(b"stale")
+
+    result = create_system_crops(
+        [page_path], systems_dir, logging.getLogger("test.render.eligibility")
+    )
+
+    assert len(result.system_crops) == 2
+    assert len(result.rejected_candidate_crops) == 1
+    assert not stale_rejected.exists()
+    assert result.rejected_candidate_crops[0].exists()
+
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert len(manifest["candidates"]) == 3
+    assert [item["source_candidate_index"] for item in manifest["systems"]] == [2, 3]
+    assert [item["output_system_index"] for item in manifest["systems"]] == [1, 2]
+
+    rejected = manifest["rejected_candidates"]
+    assert len(rejected) == 1
+    assert rejected[0]["source_candidate_index"] == 1
+    assert rejected[0]["output_system_index"] is None
+    assert rejected[0]["reason"] == "insufficient_long_horizontal_lines"
+    assert rejected[0]["candidate_crop"] == str(result.rejected_candidate_crops[0])
+    assert manifest["systems"][0]["chord_bbox_above"]["top"] > rejected[0]["system_bbox"]["bottom"]
+    assert result.candidate_diagnostics == manifest["candidates"]
+
+
 def test_darken_ink_crushes_mid_tones_and_preserves_extremes() -> None:
     probe = Image.new("RGB", (3, 1), (255, 255, 255))
     probe.putpixel((0, 0), (0, 0, 0))
@@ -127,6 +161,26 @@ def test_darken_ink_crushes_mid_tones_and_preserves_extremes() -> None:
     assert darkened.getpixel((2, 0)) == (255, 255, 255)
     mid_after = darkened.getpixel((1, 0))[0]
     assert mid_after < 40, mid_after
+
+
+def test_system_candidate_rejects_five_inconsistently_spaced_lines() -> None:
+    image = Image.new("L", (1000, 180), "white")
+    draw = ImageDraw.Draw(image)
+    for y in (18, 33, 58, 93, 138):
+        draw.line((40, y, 940, y), fill="black", width=3)
+
+    assessment = _assess_system_candidate(
+        image,
+        page_number=1,
+        source_candidate_index=1,
+        system_bbox=(0, 0, 1000, 180),
+        ink_threshold=220,
+    )
+
+    assert not assessment.accepted
+    assert assessment.reason == "inconsistent_horizontal_line_spacing"
+    assert len(assessment.long_horizontal_line_rows) == 5
+    assert not assessment.staff_line_rows
 
 
 def test_darken_ink_preserves_off_white_background() -> None:
@@ -145,11 +199,22 @@ def test_darken_ink_preserves_off_white_background() -> None:
     assert ink < 30, ink
 
 
-def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:
+def _write_synthetic_page(
+    page_path: Path,
+    skew_degrees: float = 0.0,
+    *,
+    with_title_band: bool = False,
+) -> None:
     image = Image.new("RGB", (1800, 2400), "white")
     draw = ImageDraw.Draw(image)
     left = 160
     right = 1640
+
+    if with_title_band:
+        # Separated title/author blocks span enough width and height to become
+        # a broad proposal, but do not contain five long horizontal lines.
+        draw.rectangle((420, 140, 650, 185), fill="black")
+        draw.rectangle((1160, 175, 1390, 220), fill="black")
 
     for system_index, top in enumerate((360, 1320), start=1):
         if system_index == 1:

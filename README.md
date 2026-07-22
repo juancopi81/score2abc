@@ -24,6 +24,11 @@ Notes:
   push faded pencil ink toward black while leaving the already-uniform
   paper white untouched. It then writes system crops plus annotation-band
   crops above and below each staff under each work's `systems/` directory.
+  Broad horizontal proposals must contain five long, consistently spaced
+  staff lines before they receive a system number. Rejected proposals are
+  preserved as `rejected_candidate_page_*.png` with reasons in the per-page
+  segment manifest; accepted systems are renumbered while retaining their
+  original candidate index in metadata.
   Chord bands overlap the outer staff lines so chord symbols that sit
   against the staff aren't clipped. Per-page overlays and JSON bbox
   manifests (with the detected `page_rotation_degrees`) are written
@@ -49,6 +54,255 @@ Outputs are written under `out/<slug>/vlm_melody_inputs/`:
 - `measure_NNN_staff_overlay.png`: staff-line overlay for inspection/prompt experiments.
 - `measure_NNN_context.json`: metadata, measure indices, detected barlines, and path references.
 - `manifest.jsonl`: one record per measure for batch prompt experiments.
+
+To index all local image variants for a selected measure without calling a
+model, build the spike-only variant manifest:
+
+```bash
+uv run python scripts/build_vlm_melody_variants.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --variant all --overwrite
+```
+
+This writes `out/vlm_melody_variants_manifest.jsonl` plus
+`out/<slug>/vlm_melody_inputs/variants_manifest.jsonl`. Derived pitch-ruler
+filenames include both style and source crop so staff and staff-overlay variants
+can be compared without overwriting each other. The `neighbor_context` variant
+includes one adjacent measure on each side and marks the target with thin ticks
+in white margins, allowing models to learn the writer's stem/barline style
+without drawing helpers over the music.
+
+To pre-render the prompt variants associated with those images, run:
+
+```bash
+uv run python scripts/build_vlm_melody_prompt_variants.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --variant all --prompt all --overwrite
+```
+
+This writes `out/vlm_melody_prompt_variants_manifest.jsonl` and prompt folders
+under `out/vlm_melody_prompt_variants/`. Each manifest row ties one
+`variant_id` to one compatible `prompt_id`, the exact image path, prompt files,
+and optional JSON schema.
+
+To plan or run a sweep from that manifest, use the batch runner. It defaults to
+`--max-calls 0`, so the first command is a no-network dry run that records which
+calls would happen:
+
+```bash
+uv run python scripts/run_vlm_melody_experiment_batch.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --variant-id staff \
+  --prompt-id direct_pitch_v0 \
+  --provider openai --model gpt-5.5 \
+  --openai-reasoning-effort medium \
+  --max-calls 0
+```
+
+Batch artifacts are written under `out/vlm_melody_batches/`. Increase
+`--max-calls` only when you intentionally want live provider calls; add
+`--journal` to snapshot each completed result with its exact image, prompts,
+schema, fixture, eval report, and replay command.
+
+The direct-call history, strict event benchmark, promoted review fixtures,
+automatic notehead experiments, and anchored rhythm result are documented in
+[`docs/VLM_MELODY_SPIKE.md`](docs/VLM_MELODY_SPIKE.md).
+
+The cap-24 detector covers every annotated notehead in the four-measure
+development slice, so the current spike exposes those proposals in a local,
+GT-blind reviewer:
+
+```bash
+uv run python scripts/review_vlm_notehead_candidates.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 \
+  --measure 1 --measure 2 --measure 3 --measure 4
+```
+
+Open the printed localhost URL. Confirm candidate circles, add any missing
+notehead with the `+` control, and correct pitches before saving. Reviews and
+overlays are written to
+`out/<slug>/vlm_melody_reviews/system_NNN/measure_NNN/`. The browser never
+receives ground truth or evaluation metrics; when independent coordinate GT is
+available, hidden metrics are attached to `review.json` only after submission.
+This is spike infrastructure and does not yet feed the production pipeline.
+
+Promote completed reviews into deterministic, portable training fixtures before
+using them in local experiments:
+
+```bash
+uv run python scripts/promote_vlm_notehead_reviews.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 \
+  --measure 1 --measure 2 --measure 3 --measure 4
+```
+
+Build the leak-resistant event benchmark after the measure inputs exist:
+
+```bash
+uv run python scripts/build_vlm_melody_event_benchmark.py build out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --ground-truth dataset/ground_truth \
+  --clef treble --time-signature 3/4 --key-hint "one flat: Bb"
+```
+
+The benchmark freezes request images, hashes, physical measure mappings, and
+allowed context before reading truth. It separates development systems 1-2,
+validation systems 7-8, and one-shot heldout system 3. System 3 has now been
+consumed by the preregistered variable-threshold arm and must not be used for
+further model selection. These local spike commands reproduce the strongest
+development results without network calls:
+
+```bash
+uv run python scripts/experiments/spike_notehead_patch_templates.py out
+uv run python scripts/experiments/spike_anchored_rhythm_parser.py --out-dir out
+uv run python scripts/experiments/spike_meter_gap_resolver.py out
+```
+
+The original patch-selector report is supported by four-measure leave-one-out
+evidence; the review-augmented arm expands model selection to 11 measures across
+systems 1 and 7. The rhythm parser is an explicit HITL upper bound: it
+uses promoted human centers and pitches as anchors, then predicts durations and
+rests from pixels. The meter-gap arm adds the promoted system-7 reviews and
+raises consumed system-8 strict note F1 to `0.426`, but still needs a fresh
+independent score before pipeline integration. None of these paths is connected
+to `score2abc run` yet.
+
+The second-score gate froze Carrizal system 4 before truth. Its prediction
+runner has no truth or MusicXML argument and refuses to overwrite the existing
+freeze:
+
+```bash
+uv run python scripts/experiments/freeze_second_score_heldout.py out
+```
+
+Do not rerun it. The sealed requests, predictions, inference trace, hashes, and
+overlays are under
+`out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/`.
+The independent transcription established that the seven automatic crops
+contain eight physical measures: automatic crop 2 spans physical measures 2
+and 3. The separate evaluator preserves that segmentation miss and verifies all
+frozen hashes before reading MusicXML:
+
+```bash
+uv run python scripts/experiments/evaluate_second_score_heldout.py out \
+  --musicxml out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/\
+vlm_melody_fresh_heldout/system_004/carrizal_system_4.musicxml
+```
+
+The sealed one-shot result was strict note F1 `0.325581`, ordered pitch
+`0.269231`, rest F1 `0.25`, and `0/7` exact automatic crops. This is consumed
+negative heldout evidence: the automatic recognizer remains spike-only and is
+not ready for `score2abc run` integration.
+
+### Current cross-score slice and third-score freeze
+
+The Carrizal system-4 segmentation fix now gives `TP=9 FP=0 FN=0`; the Aviador
+barline benchmark remains `TP=69 FP=7 FN=1`, aggregate F1 `0.945`. The consumed
+Carrizal 8-crop v2 adjudication contains 20 noteheads (`18` high, `2` medium;
+`14` candidate selections, `6` manual). It is agent-reviewed training material,
+not human-reviewed or promotion-eligible ground truth.
+
+The score-disjoint retraining selected configuration C: macro notehead F1
+`0.706944`, conditional pitch accuracy on matched noteheads `0.813910`,
+end-to-end correct-pitch recall `0.601531`, coordinate exactness `0.136364`, and coordinate-plus-pitch
+exactness `0.090909`. The corrected replay model hash remains `6e2f17c...`.
+
+La Chata system 7 completed the fresh third-score gate. Its v2 predictions were
+truth-blind and sealed before transcription: 7 crops, 34 predicted heads,
+prediction hash `89d5723...`, freeze hash `d140cf3...`, and seal hash
+`56e5105...`. The one-shot result was note-count F1 `0.901408`, ordered-pitch
+accuracy `0.435897`, and `1/7` exact crops. Rhythm, onset, rest, and meter remain
+unscored because the frozen request lacked time/key context. This is now
+consumed heldout evidence, not a model-selection set.
+
+The seven-measure transcription is stored at
+`out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/la_chata_system_007.musicxml`
+and was evaluated with:
+
+```bash
+uv run python scripts/experiments/evaluate_frozen_third_score_heldout.py \
+  out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/frozen/sealed_manifest.json \
+  --musicxml out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/la_chata_system_007.musicxml
+```
+
+The transcription contains 37 noteheads in 25 onset groups. The simultaneous
+heads share stems and are intentionally represented as chords in voice 1. A
+create-once postmortem preserved the sealed inputs and separated two failure
+modes:
+
+- a visible one-sharp key change from measure 2 raises exact ordered-pitch
+  matches from `17` to `20` without changing selected heads;
+- the frozen x-only selector suppresses chord heads and also admits spurious
+  onsets. Unfiltered recovery improves context-aware exact pitch groups from
+  `12/25` to `17/25`, but overproduces `46` heads for 37 true heads.
+
+A candidate-local stem filter narrows that result to 39 heads and `16/25`
+exact pitch groups, but it is not adoptable: on 19 consumed Aviador/Carrizal
+measures it changes candidate F1 from `0.791367` to `0.785714` by adding one
+false positive and no true positives.
+
+The visual key slice now handles the consumed initial one-flat signature plus
+changed one-sharp, two-sharp, and two-flat signatures. Its six-case report is
+`6/6`, including two repeat/double-bar controls, and a broader change-mode scan
+fires only on the three actual changes across 89 Aviador, Carrizal, and La
+Chata crops. Its work-scoped context now feeds the frozen La Chata pitch replay
+directly: exact ordered pitches improve `17 -> 20`, exact pitch groups improve
+`11 -> 12`, and candidate selection is unchanged. This is still a consumed,
+bounded spike rather than independent general key recognition.
+
+Automatic onset deletion remains rejected. The original work-disjoint group
+filter is a no-op at `TP=63 FP=7 FN=6`, F1 `0.906475`; a candidate-patch veto
+either remains a no-op or loses enough true Aviador groups to reduce aggregate
+F1. A non-mutating meter-deficit validator is useful for review triage on the
+consumed Aviador/Carrizal set: it catches `8/10` error measures with `0` false
+alerts while flagging `8/19` measures. It does not generalize cleanly to La
+Chata's count-only replay (`3/6` caught, one false alert), so it is not wired
+into runtime. No fourth score was frozen. The code and artifacts remain spike-only.
+System detection also remains open: La Chata `systems/system_001.png` is title
+and author handwriting, not a musical staff, so downstream work must not assume
+every detected horizontal band is music.
+Exact evidence and replay commands are in
+[`docs/VLM_MELODY_SPIKE.md`](docs/VLM_MELODY_SPIKE.md).
+
+For live transcription spikes, keep every tested image/prompt/config/result in a
+journal folder after recording and evaluating a fixture. This makes later
+prompt/model comparisons reproducible without relying on shell history:
+
+```bash
+uv run python scripts/record_vlm_melody_fixtures.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --input-kind staff \
+  --provider openai --model gpt-5.5 \
+  --transcription-mode pitch \
+  --openai-reasoning-effort medium \
+  --max-calls 1 --force
+
+uv run python scripts/eval_vlm_melody_fixtures.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --input-kind staff \
+  --provider openai --model gpt-5.5 \
+  --transcription-mode pitch \
+  --openai-reasoning-effort medium
+
+uv run python scripts/journal_vlm_melody_experiment.py out \
+  --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia \
+  --system 1 --measure 3 \
+  --input-kind staff \
+  --provider openai --model gpt-5.5 \
+  --transcription-mode pitch \
+  --openai-reasoning-effort medium \
+  --notes "Short hypothesis/result note"
+```
+
+Journals are written under `out/vlm_melody_experiments/` and include the exact
+input image, prompt files, copied fixture, eval result, git snapshot, and replay
+commands.
 
 ### Optional melody OMR backends
 
