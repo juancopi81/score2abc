@@ -529,7 +529,7 @@ so this remains a diagnostic review signal and is not connected to
 
 - `out/vlm_melody_consumed_training/consumed_meter_deficit_validator_v1/`
 
-No fourth score was frozen. The La Chata segmentation gap is now closed by a
+The La Chata segmentation gap is now closed by a
 truth-blind five-line system-eligibility gate. Rejected proposals remain
 inspectable as crops with reasoned manifest records, while accepted systems are
 renumbered and retain their original candidate index. Fresh regression accepts
@@ -539,5 +539,26 @@ band before mapping its old musical systems 2-11 to new systems 1-10. All
 accepted crops are pixel-identical to their prior musical counterparts, and no
 frozen heldout artifact was rewritten.
 
-Next: acquire meter context independently and validate key state plus review
-triage on a newly frozen score/system before pipeline integration.
+### Fourth-Score Freeze Awaiting Truth
+
+Gato'e Fique system 3 was selected from a three-score layout-only pool and
+sealed before any target MusicXML was opened. The gate contains six automatic
+crops. It pins configuration-C predictions, an automatic initial one-flat
+result (`fifths=-1`), and an explicit provisional `Pasillo -> 3/4` metadata
+prior. The prior is not presented as visual meter recognition or target truth.
+
+The historical configuration-C model could not pass the provenance gate
+because its implementation script changed after artifact creation. Replaying
+the same Aviador+Carrizal training into a new create-once directory reproduced
+the exact serialized model hash (`6e2f17c...`) and refreshed the implementation
+provenance without using Gato'e Fique. The fourth-score prediction hash is
+`2b5475a...`, freeze hash is `d74b230...`, and seal hash is `0d0e745...`.
+
+Evidence is at:
+
+- `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/`
+- `out/vlm_melody_consumed_training/cross_score_notehead_v1_replay_20260722/`
+
+Next: transcribe the sealed source system independently, preserve any physical
+measure-count mismatch explicitly, and then evaluate key state, event/rest
+accuracy, and non-mutating review triage without changing frozen predictions.

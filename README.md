@@ -198,7 +198,7 @@ The sealed one-shot result was strict note F1 `0.325581`, ordered pitch
 negative heldout evidence: the automatic recognizer remains spike-only and is
 not ready for `score2abc run` integration.
 
-### Current cross-score slice and third-score freeze
+### Current cross-score slice and heldout freezes
 
 The Carrizal system-4 segmentation fix now gives `TP=9 FP=0 FN=0`; the Aviador
 barline benchmark remains `TP=69 FP=7 FN=1`, aggregate F1 `0.945`. The consumed
@@ -261,10 +261,21 @@ F1. A non-mutating meter-deficit validator is useful for review triage on the
 consumed Aviador/Carrizal set: it catches `8/10` error measures with `0` false
 alerts while flagging `8/19` measures. It does not generalize cleanly to La
 Chata's count-only replay (`3/6` caught, one false alert), so it is not wired
-into runtime. No fourth score was frozen. The code and artifacts remain spike-only.
-System detection also remains open: La Chata `systems/system_001.png` is title
-and author handwriting, not a musical staff, so downstream work must not assume
-every detected horizontal band is music.
+into runtime.
+
+Gato'e Fique system 3 is now the fresh fourth-score gate. Six layout-selected
+crops and their automatic predictions were sealed before target MusicXML was
+opened. The frozen context records an automatic initial one-flat prediction
+and a provisional `Pasillo -> 3/4` metadata prior; neither is target truth.
+Prediction hash: `2b5475a...`; freeze hash: `d74b230...`; seal hash:
+`0d0e745...`. Accuracy is intentionally unknown pending the independent
+transcription at
+`out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/gatoe_fique_system_003.musicxml`.
+
+Fresh segmentation now rejects La Chata's title/author band and renumbers only
+musical systems. Existing historical `out/` crops remain unchanged so sealed
+heldout hashes and prior evidence stay reproducible. The code and artifacts
+remain spike-only.
 Exact evidence and replay commands are in
 [`docs/VLM_MELODY_SPIKE.md`](docs/VLM_MELODY_SPIKE.md).
 

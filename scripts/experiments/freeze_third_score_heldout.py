@@ -55,6 +55,38 @@ class LayoutPolicy:
     max_spacing_cv: float = 0.35
 
 
+@dataclass(frozen=True)
+class HeldoutGateSpec:
+    key: str
+    output_subdir: str
+    evaluator_version: str
+    implementation_path: Path
+
+    @property
+    def selection_kind(self) -> str:
+        return f"{self.key}_layout_only_selection"
+
+    @property
+    def prepare_kind(self) -> str:
+        return f"{self.key}_fresh_heldout_prepare"
+
+    @property
+    def freeze_kind(self) -> str:
+        return f"{self.key}_fresh_heldout_freeze"
+
+    @property
+    def sealed_kind(self) -> str:
+        return f"{self.key}_fresh_heldout_sealed_manifest"
+
+
+THIRD_SCORE_GATE = HeldoutGateSpec(
+    key="third_score",
+    output_subdir=OUTPUT_SUBDIR,
+    evaluator_version=EVALUATOR_VERSION,
+    implementation_path=Path(__file__),
+)
+
+
 DEFAULT_CANDIDATE_POOL = (
     Candidate(
         slug="jaime-llanos_64_la-chata_pasillo_luis-a-calvo",
@@ -115,6 +147,24 @@ def prepare_third_score(
     policy: LayoutPolicy | None = None,
 ) -> dict[str, Any]:
     """Prepare one layout-selected candidate without target-score truth access."""
+    return prepare_heldout_score(
+        out_dir,
+        namespace=namespace,
+        candidate_pool=candidate_pool,
+        policy=policy,
+        gate=THIRD_SCORE_GATE,
+    )
+
+
+def prepare_heldout_score(
+    out_dir: Path,
+    *,
+    namespace: str,
+    candidate_pool: Sequence[Candidate],
+    gate: HeldoutGateSpec,
+    policy: LayoutPolicy | None = None,
+) -> dict[str, Any]:
+    """Prepare one configurable, layout-selected truth-blind score gate."""
     policy = policy or LayoutPolicy()
     _validate_namespace(namespace)
     if not candidate_pool:
@@ -131,13 +181,13 @@ def prepare_third_score(
             f"{', '.join(row['rejection_reasons'])}"
             for row in analyses
         )
-        raise ValueError(f"No third-score candidate passed the layout-only policy: {blockers}")
+        raise ValueError(f"No {gate.key} candidate passed the layout-only policy: {blockers}")
 
     slug = str(selected["candidate"]["slug"])
     system_index = int(selected["candidate"]["system_index"])
-    namespace_root = out_dir / slug / OUTPUT_SUBDIR / namespace / f"system_{system_index:03d}"
+    namespace_root = out_dir / slug / gate.output_subdir / namespace / f"system_{system_index:03d}"
     if namespace_root.exists():
-        raise ValueError(f"Prepared third-score namespace already exists: {namespace_root}")
+        raise ValueError(f"Prepared {gate.key} namespace already exists: {namespace_root}")
     namespace_root.mkdir(parents=True, exist_ok=False)
 
     source_path = out_dir / str(selected["source_system_path"])
@@ -162,7 +212,7 @@ def prepare_third_score(
     evaluator_path = namespace_root / "evaluator_spec.json"
     evaluator_spec = {
         "schema_version": SCHEMA_VERSION,
-        "version": EVALUATOR_VERSION,
+        "version": gate.evaluator_version,
         "split": SPLIT_NAME,
         "status": "preregistered_before_prediction_and_truth",
         "truth_gate": "canonical truth and physical-measure mapping may be added only after freeze",
@@ -178,7 +228,7 @@ def prepare_third_score(
     selection_path = namespace_root / "selection.json"
     selection_payload = {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_layout_only_selection",
+        "kind": gate.selection_kind,
         "status": "selected_before_prediction_and_truth",
         "split": SPLIT_NAME,
         "truth_accessed": False,
@@ -198,7 +248,7 @@ def prepare_third_score(
     prepared_path = namespace_root / "prepared_manifest.json"
     prepared_payload = {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_fresh_heldout_prepare",
+        "kind": gate.prepare_kind,
         "status": "prepared_awaiting_model_predictions",
         "split": SPLIT_NAME,
         "truth_accessed": False,
@@ -214,11 +264,11 @@ def prepare_third_score(
                 "row_sha256": request_hashes,
             },
             "evaluator": {
-                "version": EVALUATOR_VERSION,
+                "version": gate.evaluator_version,
                 "path": "evaluator_spec.json",
                 "sha256": _sha256(evaluator_path),
-                "implementation_path": _repo_display_path(Path(__file__)),
-                "implementation_sha256": _sha256(Path(__file__)),
+                "implementation_path": _repo_display_path(gate.implementation_path),
+                "implementation_sha256": _sha256(gate.implementation_path),
             },
             "source_system": {
                 "path_relative_to_out": str(selected["source_system_path"]),
@@ -247,6 +297,24 @@ def freeze_prepared_third_score(
     training_artifact_paths: Sequence[Path],
 ) -> dict[str, Any]:
     """Snapshot explicit inference artifacts into an immutable frozen namespace."""
+    return freeze_prepared_heldout_score(
+        prepared_manifest_path,
+        predictions_path=predictions_path,
+        model_artifact_paths=model_artifact_paths,
+        training_artifact_paths=training_artifact_paths,
+        gate=THIRD_SCORE_GATE,
+    )
+
+
+def freeze_prepared_heldout_score(
+    prepared_manifest_path: Path,
+    *,
+    predictions_path: Path,
+    model_artifact_paths: Sequence[Path],
+    training_artifact_paths: Sequence[Path],
+    gate: HeldoutGateSpec,
+) -> dict[str, Any]:
+    """Snapshot inference artifacts for a configurable held-out score gate."""
     if not model_artifact_paths:
         raise ValueError("At least one model artifact is required")
     if not training_artifact_paths:
@@ -256,11 +324,16 @@ def freeze_prepared_third_score(
     frozen_dir = namespace_root / "frozen"
     if frozen_dir.exists():
         raise ValueError(
-            f"Third-score freeze already exists and cannot be overwritten: {frozen_dir}"
+            f"{gate.key} freeze already exists and cannot be overwritten: {frozen_dir}"
         )
 
     prepared = _read_json(prepared_manifest_path)
-    _verify_prepared_manifest(namespace_root, prepared_manifest_path, prepared)
+    _verify_prepared_manifest(
+        namespace_root,
+        prepared_manifest_path,
+        prepared,
+        expected_kind=gate.prepare_kind,
+    )
     all_inputs = [predictions_path, *model_artifact_paths, *training_artifact_paths]
     target_slug = str(prepared["target"]["slug"])
     for path in all_inputs:
@@ -285,7 +358,7 @@ def freeze_prepared_third_score(
     freeze_path = frozen_dir / "freeze.json"
     freeze_payload = {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_fresh_heldout_freeze",
+        "kind": gate.freeze_kind,
         "status": "frozen_awaiting_truth",
         "split": SPLIT_NAME,
         "truth_accessed": False,
@@ -309,7 +382,7 @@ def freeze_prepared_third_score(
     sealed_path = frozen_dir / "sealed_manifest.json"
     sealed_payload = {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_fresh_heldout_sealed_manifest",
+        "kind": gate.sealed_kind,
         "status": "frozen_awaiting_truth",
         "split": SPLIT_NAME,
         "truth_accessed": False,
@@ -458,9 +531,11 @@ def _verify_prepared_manifest(
     namespace_root: Path,
     manifest_path: Path,
     payload: Mapping[str, Any],
+    *,
+    expected_kind: str = THIRD_SCORE_GATE.prepare_kind,
 ) -> None:
-    if payload.get("kind") != "third_score_fresh_heldout_prepare":
-        raise ValueError(f"Not a third-score prepared manifest: {manifest_path}")
+    if payload.get("kind") != expected_kind:
+        raise ValueError(f"Prepared manifest kind mismatch: {manifest_path}")
     if payload.get("status") != "prepared_awaiting_model_predictions":
         raise ValueError("Prepared manifest is not awaiting model predictions")
     if payload.get("split") != SPLIT_NAME or payload.get("truth_accessed") is not False:
@@ -471,6 +546,10 @@ def _verify_prepared_manifest(
         path = namespace_root / str(record["path"])
         if _sha256(path) != str(record["sha256"]):
             raise ValueError(f"Prepared {name} hash drift: {path}")
+    for name, record in artifacts.get("context", {}).items():
+        path = namespace_root / str(record["path"])
+        if _sha256(path) != str(record["sha256"]):
+            raise ValueError(f"Prepared context artifact hash drift ({name}): {path}")
     source = artifacts["source_system"]
     source_path = _find_out_dir(namespace_root) / str(source["path_relative_to_out"])
     if _sha256(source_path) != str(source["sha256"]):

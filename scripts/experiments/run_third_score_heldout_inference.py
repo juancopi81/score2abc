@@ -24,6 +24,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import build_vlm_melody_inputs as melody_inputs  # noqa: E402
+from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
 from scripts.experiments import spike_composed_melody_chain as composed  # noqa: E402
 from scripts.experiments import spike_meter_gap_resolver as gap  # noqa: E402
@@ -32,13 +33,30 @@ from scripts.experiments import spike_review_augmented_selector as dense  # noqa
 
 SCHEMA_VERSION = 1
 INFERENCE_VERSION = "third-score-inference-v2"
+FOURTH_SCORE_INFERENCE_VERSION = "fourth-score-inference-v1"
 DEFAULT_INFERENCE_DIRNAME = "inference_v2"
 DEFAULT_MODEL_DIR = REPO_ROOT / "out/vlm_melody_consumed_training/cross_score_notehead_v1"
 LA_CHATA_SLUG = "jaime-llanos_64_la-chata_pasillo_luis-a-calvo"
 TRUTH_PATH_MARKERS = (
     "/dataset/ground_truth/",
-    f"/dataset/musicxml/{LA_CHATA_SLUG}",
+    "/dataset/musicxml/",
 )
+
+
+GATE_CONFIGS = {
+    freezer.THIRD_SCORE_GATE.prepare_kind: {
+        "gate": freezer.THIRD_SCORE_GATE,
+        "inference_version": INFERENCE_VERSION,
+        "manifest_kind": "third_score_truth_blind_inference_manifest",
+        "binding_kind": "third_score_inference_provenance_binding",
+    },
+    fourth_freezer.FOURTH_SCORE_GATE.prepare_kind: {
+        "gate": fourth_freezer.FOURTH_SCORE_GATE,
+        "inference_version": FOURTH_SCORE_INFERENCE_VERSION,
+        "manifest_kind": "fourth_score_truth_blind_inference_manifest",
+        "binding_kind": "fourth_score_inference_provenance_binding",
+    },
+}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -92,6 +110,8 @@ def materialize_third_score_inference(
 
     validated = _validate_inputs(prepared_manifest_path, model_dir=model_dir)
     prepared = validated["prepared"]
+    gate_config = validated["gate_config"]
+    expected_count = validated["expected_count"]
     model_payload = validated["model"]
     requests = validated["prepared_requests"]
     metadata = validated["metadata"]
@@ -103,7 +123,11 @@ def materialize_third_score_inference(
         raise FileExistsError(f"Refusing stale temporary inference: {temp_dir}")
     temp_dir.mkdir(parents=False)
     try:
-        assumptions = _context_assumptions(metadata, validated["metadata_record"])
+        assumptions = _context_assumptions(
+            metadata,
+            validated["metadata_record"],
+            prepared_context=validated.get("prepared_context"),
+        )
         materialized_requests = [
             _materialize_request(
                 row,
@@ -128,8 +152,10 @@ def materialize_third_score_inference(
             )
             for request in materialized_requests
         ]
-        if len(items) != 7:
-            raise ValueError(f"Third-score inference requires exactly 7 outputs, got {len(items)}")
+        if len(items) != expected_count:
+            raise ValueError(
+                f"Held-out inference requires exactly {expected_count} outputs, got {len(items)}"
+            )
         predictions = [item.prediction for item in items]
         inference_rows = [_inference_record(item) for item in items]
         if any(row.get("truth_used") is not False for row in inference_rows):
@@ -148,8 +174,8 @@ def materialize_third_score_inference(
         artifacts = _artifact_records(temp_dir)
         manifest = {
             "schema_version": SCHEMA_VERSION,
-            "kind": "third_score_truth_blind_inference_manifest",
-            "version": INFERENCE_VERSION,
+            "kind": gate_config["manifest_kind"],
+            "version": gate_config["inference_version"],
             "status": "inferred_awaiting_freeze",
             "split": "fresh_heldout",
             "truth_accessed": False,
@@ -161,6 +187,11 @@ def materialize_third_score_inference(
             "implementation": _file_record(Path(__file__)),
             "context": {
                 "metadata": validated["metadata_record"],
+                **(
+                    {"prepared_context": validated["prepared_context_record"]}
+                    if validated.get("prepared_context_record")
+                    else {}
+                ),
                 "assumptions": {
                     "path": "assumptions.json",
                     "sha256": artifacts["assumptions.json"]["sha256"],
@@ -195,7 +226,7 @@ def materialize_third_score_inference(
         "predictions": str(output_dir / "predictions.jsonl"),
         "predictions_sha256": _sha256(output_dir / "predictions.jsonl"),
         "inference_sha256": _sha256(output_dir / "inference.jsonl"),
-        "output_count": 7,
+        "output_count": expected_count,
         "warnings": assumptions["warnings"],
     }
 
@@ -213,8 +244,6 @@ def freeze_inference(
     for path in (prepared_manifest_path, inference_dir, model_dir):
         _reject_truth_path(path)
     manifest = _read_json(inference_dir / "manifest.json")
-    if manifest.get("kind") != "third_score_truth_blind_inference_manifest":
-        raise ValueError("Inference manifest kind mismatch")
     validated = _verify_inference_binding(
         prepared_manifest_path,
         model_dir=model_dir,
@@ -241,13 +270,15 @@ def freeze_inference(
             inference_dir / "requests.jsonl",
             inference_dir / "replay.json",
             inference_dir / "inference.jsonl",
+            *validated.get("prepared_context_paths", ()),
         ]
     )
-    result = freezer.freeze_prepared_third_score(
+    result = freezer.freeze_prepared_heldout_score(
         prepared_manifest_path,
         predictions_path=inference_dir / "predictions.jsonl",
         model_artifact_paths=model_paths,
         training_artifact_paths=training_paths,
+        gate=validated["gate_config"]["gate"],
     )
     frozen_dir = prepared_manifest_path.parent / "frozen"
     _seal_inference_binding(
@@ -394,13 +425,27 @@ def reconstruct_model(
 
 def _validate_inputs(prepared_path: Path, *, model_dir: Path) -> dict[str, Any]:
     prepared = _read_json(prepared_path)
-    freezer._verify_prepared_manifest(prepared_path.parent, prepared_path, prepared)
-    if prepared.get("target") != {"slug": LA_CHATA_SLUG, "system_index": 7}:
-        raise ValueError("Prepared target is not sealed La Chata system 007")
+    gate_config = GATE_CONFIGS.get(str(prepared.get("kind")))
+    if gate_config is None:
+        raise ValueError(f"Unsupported held-out prepared manifest kind: {prepared.get('kind')}")
+    freezer._verify_prepared_manifest(
+        prepared_path.parent,
+        prepared_path,
+        prepared,
+        expected_kind=str(prepared["kind"]),
+    )
+    target = prepared.get("target")
+    if not isinstance(target, Mapping) or not target.get("slug"):
+        raise ValueError("Prepared target is missing")
+    target_slug = str(target["slug"])
+    _reject_target_truth_path(prepared_path, target_slug=target_slug)
     requests_path = prepared_path.parent / str(prepared["artifacts"]["requests"]["path"])
     requests = _read_jsonl(requests_path)
-    if len(requests) != 7:
-        raise ValueError(f"Prepared request count drift: expected 7, got {len(requests)}")
+    expected_count = len(prepared["artifacts"]["requests"]["row_sha256"])
+    if expected_count <= 0 or len(requests) != expected_count:
+        raise ValueError(
+            f"Prepared request count drift: expected {expected_count}, got {len(requests)}"
+        )
     row_hashes = [_hash_json(row) for row in requests]
     if row_hashes != list(prepared["artifacts"]["requests"]["row_sha256"]):
         raise ValueError("Prepared request row hash drift")
@@ -447,6 +492,11 @@ def _validate_inputs(prepared_path: Path, *, model_dir: Path) -> dict[str, Any]:
         raise ValueError("Model/training key drift")
     if list(final["review_hashes"]) != list(model_payload["training"]["review_hashes"]):
         raise ValueError("Model/training review hash drift")
+    training_scores = {str(value) for value in final.get("scores", [])}
+    training_scores.update(str(value) for value in model_payload["training"].get("scores", []))
+    training_scores.update(str(value).split(":", 1)[0] for value in final["keys"])
+    if target_slug in training_scores:
+        raise ValueError(f"Selected model was trained on held-out target: {target_slug}")
     training_input_paths = []
     for group in training_selection["input_provenance"].values():
         for record in group:
@@ -457,9 +507,25 @@ def _validate_inputs(prepared_path: Path, *, model_dir: Path) -> dict[str, Any]:
             training_input_paths.append(source.resolve())
 
     out_dir = freezer._find_out_dir(prepared_path.parent)
-    metadata_path = out_dir / LA_CHATA_SLUG / "metadata.json"
+    metadata_path = out_dir / target_slug / "metadata.json"
     _reject_truth_path(metadata_path)
+    _reject_target_truth_path(metadata_path, target_slug=target_slug)
     metadata = _read_json(metadata_path)
+    prepared_context = None
+    prepared_context_record = None
+    prepared_context_paths: tuple[Path, ...] = ()
+    context_artifacts = prepared["artifacts"].get("context", {})
+    if context_artifacts:
+        prepared_context_paths = tuple(
+            (prepared_path.parent / str(record["path"])).resolve()
+            for record in context_artifacts.values()
+        )
+        allowed_record = context_artifacts.get("allowed_context")
+        if not isinstance(allowed_record, Mapping):
+            raise ValueError("Prepared context is missing allowed_context")
+        allowed_path = prepared_path.parent / str(allowed_record["path"])
+        prepared_context = _read_json(allowed_path)
+        prepared_context_record = _file_record(allowed_path)
     return {
         "prepared": prepared,
         "prepared_requests": requests,
@@ -468,6 +534,11 @@ def _validate_inputs(prepared_path: Path, *, model_dir: Path) -> dict[str, Any]:
         "report": report,
         "metadata": metadata,
         "metadata_record": _file_record(metadata_path),
+        "prepared_context": prepared_context,
+        "prepared_context_record": prepared_context_record,
+        "prepared_context_paths": prepared_context_paths,
+        "expected_count": expected_count,
+        "gate_config": gate_config,
         "model_artifact_paths": tuple(
             (model_dir / name).resolve() for name in sorted(model_manifest["artifacts"])
         ),
@@ -482,8 +553,30 @@ def _validate_inputs(prepared_path: Path, *, model_dir: Path) -> dict[str, Any]:
 
 
 def _context_assumptions(
-    metadata: Mapping[str, Any], metadata_record: Mapping[str, str]
+    metadata: Mapping[str, Any],
+    metadata_record: Mapping[str, str],
+    *,
+    prepared_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if prepared_context is not None:
+        if (
+            prepared_context.get("truth_used") is not False
+            or prepared_context.get("truth_accessed") is not False
+        ):
+            raise ValueError("Prepared musical context is not truth-blind")
+        allowed = prepared_context.get("allowed_context")
+        provenance = prepared_context.get("provenance")
+        if not isinstance(allowed, Mapping) or not isinstance(provenance, Mapping):
+            raise ValueError("Prepared musical context is malformed")
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "kind": "fresh_score_allowed_context_assumptions",
+            "truth_used": False,
+            "metadata": dict(metadata_record),
+            "allowed_context": dict(allowed),
+            "provenance": dict(provenance),
+            "warnings": list(prepared_context.get("warnings", [])),
+        }
     time_signature = metadata.get("time_signature")
     expected_beats = _expected_beats(time_signature)
     warnings = []
@@ -685,13 +778,20 @@ def _verify_inference_binding(
     manifest: Mapping[str, Any],
 ) -> dict[str, Any]:
     """Prove that an inference run belongs to the exact supplied inputs."""
-    if manifest.get("version") != INFERENCE_VERSION:
+    validated = _validate_inputs(prepared_manifest_path, model_dir=model_dir)
+    gate_config = validated["gate_config"]
+    if manifest.get("kind") != gate_config["manifest_kind"]:
+        raise ValueError("Inference manifest kind mismatch")
+    if manifest.get("version") != gate_config["inference_version"]:
         raise ValueError(
-            f"Inference manifest version mismatch: expected {INFERENCE_VERSION}, "
+            f"Inference manifest version mismatch: expected {gate_config['inference_version']}, "
             f"got {manifest.get('version')}"
         )
-    _verify_inference_manifest(inference_dir, manifest)
-    validated = _validate_inputs(prepared_manifest_path, model_dir=model_dir)
+    _verify_inference_manifest(
+        inference_dir,
+        manifest,
+        expected_count=validated["expected_count"],
+    )
     if manifest.get("target") != validated["prepared"].get("target"):
         raise ValueError("Inference/prepared target substitution")
     _verify_file_record(
@@ -715,6 +815,17 @@ def _verify_inference_binding(
         _resolve_record_path(validated["metadata_record"]),
         label="Inference metadata",
     )
+    expected_prepared_context = validated.get("prepared_context_record")
+    if expected_prepared_context:
+        if context.get("prepared_context") != expected_prepared_context:
+            raise ValueError("Inference prepared-context provenance substitution")
+        _verify_file_record(
+            context["prepared_context"],
+            _resolve_record_path(expected_prepared_context),
+            label="Inference prepared context",
+        )
+    elif "prepared_context" in context:
+        raise ValueError("Inference introduced an unprepared musical context")
     for key, filename in (
         ("assumptions", "assumptions.json"),
         ("requests", "requests.jsonl"),
@@ -724,7 +835,11 @@ def _verify_inference_binding(
         _verify_relative_record(context[key], inference_dir, filename, label=f"Inference {key}")
 
     assumptions = _read_json(inference_dir / "assumptions.json")
-    expected_assumptions = _context_assumptions(validated["metadata"], validated["metadata_record"])
+    expected_assumptions = _context_assumptions(
+        validated["metadata"],
+        validated["metadata_record"],
+        prepared_context=validated.get("prepared_context"),
+    )
     if assumptions != expected_assumptions:
         raise ValueError("Inference assumptions do not match hash-pinned metadata/context")
     _, _, expected_replay = reconstruct_model(validated["model"])
@@ -734,8 +849,11 @@ def _verify_inference_binding(
     requests = _read_jsonl(inference_dir / "requests.jsonl")
     predictions = _read_jsonl(inference_dir / "predictions.jsonl")
     detailed = _read_jsonl(inference_dir / "inference.jsonl")
-    if not (len(requests) == len(predictions) == len(detailed) == 7):
-        raise ValueError("Inference replay artifacts must contain exactly seven aligned rows")
+    expected_count = validated["expected_count"]
+    if not (len(requests) == len(predictions) == len(detailed) == expected_count):
+        raise ValueError(
+            f"Inference replay artifacts must contain exactly {expected_count} aligned rows"
+        )
     for request, prediction, detail in zip(requests, predictions, detailed, strict=True):
         identity = request.get("identity")
         if prediction.get("identity") != identity or detail.get("identity") != identity:
@@ -777,8 +895,8 @@ def _seal_inference_binding(
     training_inputs = [pin(path) for path in validated["training_input_paths"]]
     binding = {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_inference_provenance_binding",
-        "version": INFERENCE_VERSION,
+        "kind": validated["gate_config"]["binding_kind"],
+        "version": validated["gate_config"]["inference_version"],
         "prepared_manifest": _file_record(prepared_manifest_path),
         "selected_model": {
             "manifest": pin(model_dir / "manifest.json"),
@@ -790,6 +908,15 @@ def _seal_inference_binding(
             "manifest": pin(inference_dir / "manifest.json"),
             "implementation": pin(Path(__file__)),
             "metadata": pin(_resolve_record_path(validated["metadata_record"])),
+            **(
+                {
+                    "prepared_context": pin(
+                        _resolve_record_path(validated["prepared_context_record"])
+                    )
+                }
+                if validated.get("prepared_context_record")
+                else {}
+            ),
             "assumptions": pin(inference_dir / "assumptions.json"),
             "requests": pin(inference_dir / "requests.jsonl"),
             "replay": pin(inference_dir / "replay.json"),
@@ -824,7 +951,8 @@ def verify_frozen_outputs(frozen_dir: Path) -> None:
         if str(pin["source_sha256"]) != str(pin["snapshot_sha256"]):
             raise ValueError(f"Frozen source/snapshot hash mismatch: {snapshot}")
     binding = freeze.get("inference_binding")
-    if not isinstance(binding, dict) or binding.get("version") != INFERENCE_VERSION:
+    allowed_versions = {config["inference_version"] for config in GATE_CONFIGS.values()}
+    if not isinstance(binding, dict) or binding.get("version") not in allowed_versions:
         raise ValueError("Frozen inference provenance binding is missing or has the wrong version")
     if _hash_json(binding) != str(sealed.get("inference_binding_sha256")):
         raise ValueError("Sealed inference provenance binding hash drift")
@@ -960,6 +1088,8 @@ def _verify_frozen_inference_context_binding(
         "detailed_inference",
         "predictions",
     }
+    if "prepared_context" in inference_manifest.get("context", {}):
+        expected_roles.add("prepared_context")
     if set(inference_binding) != expected_roles:
         raise ValueError("Frozen inference provenance roles differ")
     if inference_binding["predictions"] != frozen_predictions:
@@ -975,6 +1105,8 @@ def _verify_frozen_inference_context_binding(
         "replay",
         "detailed_inference",
     }
+    if "prepared_context" in context:
+        expected_context_roles.add("prepared_context")
     if set(context) != expected_context_roles:
         raise ValueError("Frozen inference context roles differ")
     _verify_source_record_matches_pin(
@@ -982,6 +1114,12 @@ def _verify_frozen_inference_context_binding(
         inference_binding["metadata"],
         label="Frozen inference metadata binding",
     )
+    if "prepared_context" in context:
+        _verify_source_record_matches_pin(
+            context["prepared_context"],
+            inference_binding["prepared_context"],
+            label="Frozen inference prepared-context binding",
+        )
 
     relative_roles = {
         "assumptions": "assumptions.json",
@@ -1044,8 +1182,13 @@ def _read_frozen_json(frozen_dir: Path, pin: Mapping[str, Any]) -> dict[str, Any
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _verify_inference_manifest(root: Path, manifest: Mapping[str, Any]) -> None:
-    if manifest.get("output_count") != 7 or manifest.get("truth_used") is not False:
+def _verify_inference_manifest(
+    root: Path,
+    manifest: Mapping[str, Any],
+    *,
+    expected_count: int,
+) -> None:
+    if manifest.get("output_count") != expected_count or manifest.get("truth_used") is not False:
         raise ValueError("Inference manifest count/truth gate mismatch")
     for record in manifest["artifacts"].values():
         if isinstance(record, list):
@@ -1160,12 +1303,14 @@ def _deduplicate_paths(paths: Iterable[Path]) -> tuple[Path, ...]:
 def _reject_truth_path(path: Path) -> None:
     normalized = "/" + path.resolve().as_posix().lower().lstrip("/")
     if any(marker in normalized for marker in TRUTH_PATH_MARKERS):
-        raise ValueError(f"La Chata truth/MusicXML path is forbidden: {path}")
-    target_marker = f"/out/{LA_CHATA_SLUG}/"
-    if target_marker in normalized and (
-        "truth" in path.name.lower() or path.name == "musicxml.xml"
-    ):
-        raise ValueError(f"La Chata truth-like output path is forbidden: {path}")
+        raise ValueError(f"Truth/MusicXML path is forbidden during held-out inference: {path}")
+
+
+def _reject_target_truth_path(path: Path, *, target_slug: str) -> None:
+    for candidate in (path.absolute(), path.resolve()):
+        parts = tuple(part.casefold() for part in candidate.parts)
+        if freezer._is_forbidden_target_truth_path(parts, target_slug=target_slug):
+            raise ValueError(f"Held-out target truth/MusicXML path is forbidden: {path}")
 
 
 def _validate_output_name(value: str) -> None:

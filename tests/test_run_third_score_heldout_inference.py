@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageDraw
 
+from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer
 from scripts.experiments import freeze_third_score_heldout as freezer
 from scripts.experiments import run_third_score_heldout_inference as spike
 
@@ -116,6 +117,87 @@ def test_rejects_la_chata_truth_path(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="forbidden"):
         spike.materialize_third_score_inference(truth, model_dir=tmp_path)
+
+
+def test_materializes_and_freezes_variable_count_fourth_score_with_pinned_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = freezer.Candidate(fourth_freezer.GATOE_FIQUE_SLUG, 3, "test")
+    boundaries = tuple(index / 6 for index in range(7))
+    monkeypatch.setattr(freezer, "detect_barlines", lambda _path: list(boundaries))
+    monkeypatch.setattr(
+        freezer,
+        "measure_boundaries_for_system",
+        lambda _path, _detected: list(boundaries),
+    )
+    target = _system_image(tmp_path, candidate)
+    initial = target.with_name("system_001.png")
+    shutil.copyfile(target, initial)
+    metadata = tmp_path / candidate.slug / "metadata.json"
+    metadata.write_text(
+        json.dumps(
+            {
+                "title": "Synthetic",
+                "composer": "Test",
+                "rhythm": "Pasillo",
+                "time_signature": None,
+                "key_hint": None,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        fourth_freezer.key_detector,
+        "detect_signature",
+        lambda path, mode: {
+            "input": {"path": str(path), "sha256": spike._sha256(path)},
+            "mode": mode,
+            "fifths": -1,
+            "gate_passed": True,
+            "truth_used_for_prediction": False,
+        },
+    )
+    monkeypatch.setattr(
+        fourth_freezer.key_detector,
+        "_draw_overlay",
+        lambda _prediction, path: Image.open(initial).save(path),
+    )
+    prepared_report = fourth_freezer.prepare_fourth_score(
+        tmp_path,
+        candidate_pool=(candidate,),
+        policy=freezer.LayoutPolicy(
+            min_width_px=500,
+            min_height_px=50,
+            min_measure_count=6,
+            max_measure_count=6,
+            min_crop_width_px=50,
+            max_spacing_cv=0.1,
+        ),
+    )
+    prepared = Path(prepared_report["prepared_manifest"])
+    model_dir = _model_dir(tmp_path)
+
+    inference = spike.materialize_third_score_inference(prepared, model_dir=model_dir)
+
+    assert inference["output_count"] == 6
+    manifest = spike._read_json(Path(inference["manifest"]))
+    assumptions = spike._read_json(Path(inference["inference_dir"]) / "assumptions.json")
+    assert manifest["kind"] == "fourth_score_truth_blind_inference_manifest"
+    assert manifest["version"] == "fourth-score-inference-v1"
+    assert assumptions["allowed_context"]["expected_measure_beats"] == 3.0
+    assert "Bb" in assumptions["allowed_context"]["key_hint"]
+
+    frozen = spike.freeze_inference(
+        prepared,
+        inference_dir=Path(inference["inference_dir"]),
+        model_dir=model_dir,
+    )
+    freeze = spike._read_json(Path(frozen["freeze"]))
+    assert freeze["kind"] == "fourth_score_fresh_heldout_freeze"
+    assert freeze["inference_binding"]["version"] == "fourth-score-inference-v1"
+    assert "prepared_context" in freeze["inference_binding"]["inference"]
+    spike.verify_frozen_outputs(prepared.parent / "frozen")
 
 
 def test_freeze_pins_predictions_model_and_training(
