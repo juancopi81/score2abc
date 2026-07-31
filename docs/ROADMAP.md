@@ -61,17 +61,18 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Compose the expanded key detector with frozen pitch replay using work-scoped, truth-free events. On consumed La Chata the expanded report preserves identical head selection while improving exact ordered pitches `17/37 -> 20/37` and exact pitch groups `11/25 -> 12/25`, matching the earlier one-sharp-only replay without evaluation labels driving prediction.
 - [x] Replace automatic false-onset deletion with a non-mutating meter-deficit review signal. Candidate-level deletion was also rejected: recall-first is a no-op and balanced thresholds regress aggregate onset F1. The review validator catches `8/10` consumed Aviador/Carrizal error measures with no false alerts, but its La Chata count-only replay catches only `3/6` with one false alert, so runtime integration remains blocked.
 - [x] Reject non-musical system proposals before measure segmentation. A truth-blind five-line eligibility gate now preserves rejected crops/reasons and accepted-to-source numbering. Fresh regression keeps all 10 Aviador systems, keeps Carrizal systems 1-11 while rejecting its terminal incomplete four-line ruled tail, and maps La Chata's old musical systems 2-11 to new systems 1-10 while rejecting only the title/author band. Every accepted crop is pixel-identical to its prior musical counterpart; frozen heldout artifacts were not rewritten.
-- [x] Prepare and freeze Gato'e Fique system 3 as a fourth-score truth-blind gate. Six automatic crops, configuration-C predictions, the automatic initial one-flat result, and a provisional `Pasillo -> 3/4` metadata prior were hash-sealed before MusicXML access. The regenerated Aviador+Carrizal model has the same serialized model hash as the historical fit; only stale implementation provenance was refreshed. Accuracy remains unknown until the independent transcription is supplied.
-- [ ] Generalize the key detector and onset validator on an independently frozen score before connecting either path to the pipeline. The next gate must preserve transcription outputs, demonstrate key-state accuracy outside the consumed patterns, and improve review prioritization without La Chata-style false alerts.
+- [x] Prepare, freeze, and evaluate Gato'e Fique system 3 as a fourth-score truth-blind gate. Six automatic crops, configuration-C predictions, the automatic initial one-flat result, and a provisional `Pasillo -> 3/4` metadata prior were hash-sealed before MusicXML access. Independent scoring reached note-count F1 `0.941177`, ordered-pitch accuracy `0.222222`, and `0/6` exact crops. The transcription has two sharps; a consumed key-corrected replay preserves selected heads while raising ordered-pitch accuracy to `0.666667` and exact pitch groups from `5/24` to `16/24`.
+- [ ] Generalize initial key-signature recognition using the independently exposed Gato'e Fique miss, then add a review-time key correction/replay path. The automatic detector must distinguish this two-sharp signature from one flat without regressing the six consumed signature/control cases; corrected key context must never rewrite the sealed heldout score.
+- [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: transcribe and evaluate the already-sealed Gato'e Fique
-system 3 gate. Verify the visual one-flat prediction, score the provisional
-meter context, and audit review-triage flags without changing frozen outputs.
-Do not use the meter-deficit signal to delete notes; it is review
-prioritization only. Pipeline integration remains gated on independent
-exact-event/rest evidence and La Chata-style generalization. See
-`docs/VLM_MELODY_SPIKE.md`.
+Next main M2 focus: diagnose and fix the Gato'e Fique initial-key miss. Add the
+two-sharp source as consumed regression evidence only after preserving the
+one-shot report, require the detector to retain its existing six-case consumed
+gate, and expose key correction as an explicit review action that replays pitch
+without changing notehead selection. Then evaluate onset/meter review triage;
+do not use it to delete notes. Pipeline integration remains gated on
+independent exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

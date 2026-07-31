@@ -539,7 +539,7 @@ band before mapping its old musical systems 2-11 to new systems 1-10. All
 accepted crops are pixel-identical to their prior musical counterparts, and no
 frozen heldout artifact was rewritten.
 
-### Fourth-Score Freeze Awaiting Truth
+### Fourth-Score One-Shot Evaluation
 
 Gato'e Fique system 3 was selected from a three-score layout-only pool and
 sealed before any target MusicXML was opened. The gate contains six automatic
@@ -554,11 +554,39 @@ the exact serialized model hash (`6e2f17c...`) and refreshed the implementation
 provenance without using Gato'e Fique. The fourth-score prediction hash is
 `2b5475a...`, freeze hash is `d74b230...`, and seal hash is `0d0e745...`.
 
+The independent transcription also contains six physical measures, so the
+evaluator used a deterministic one-to-one crop mapping. The one-shot result is:
+
+| Metric | Result |
+|---|---:|
+| Predicted / truth noteheads | `25 / 26` |
+| Note-count F1 | `0.941177` |
+| Ordered-pitch alignment accuracy | `0.222222` |
+| Exact ordered pitches | `6` |
+| Exact automatic crops | `0 / 6` |
+
+The provisional `3/4` context matched the MusicXML. The automatic key context
+did not: it predicted one flat, while the transcription encodes two sharps.
+The frozen prediction remains the authoritative heldout result.
+
+A create-once consumed replay then changed only the supplied key context to two
+sharps. Candidate IDs and note counts stayed identical. Exact ordered pitches
+rose `6 -> 18`, ordered-pitch alignment accuracy rose
+`0.222222 -> 0.666667`, edit distance fell `21 -> 9`, and exact pitch groups
+rose `5/24 -> 16/24`. The context lane equals the diagnostic accidental oracle
+on this slice, making initial key recognition the highest-leverage next fix.
+This replay is postmortem evidence and cannot replace the sealed score.
+
 Evidence is at:
 
 - `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/`
+- `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/evaluation_v1/`
+- `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/postmortem_key_truth_context_v2/`
 - `out/vlm_melody_consumed_training/cross_score_notehead_v1_replay_20260722/`
 
-Next: transcribe the sealed source system independently, preserve any physical
-measure-count mismatch explicitly, and then evaluate key state, event/rest
-accuracy, and non-mutating review triage without changing frozen predictions.
+Next: add the Gato'e Fique initial two-sharp miss as consumed detector
+regression evidence, improve initial-signature discrimination without
+regressing the existing consumed key/control suite, and expose a human key
+correction that deterministically replays pitches while leaving selected heads
+unchanged. Event/rest accuracy and non-mutating review triage remain separate
+gates.

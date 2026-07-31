@@ -186,6 +186,31 @@ def test_non_seven_measure_musicxml_requires_explicit_mapping(tmp_path: Path) ->
         spike.evaluate_frozen_heldout(fixture["sealed"], musicxml_path=musicxml)
 
 
+def test_fourth_score_uses_six_crop_default_and_gate_specific_outputs(tmp_path: Path) -> None:
+    pitches = [[60], [62, 64], [65], [67], [69, 71], [72]]
+    fixture = _frozen_fixture(
+        tmp_path,
+        predictions=pitches,
+        evaluation_spec=spike.FOURTH_SCORE_EVALUATION,
+    )
+    musicxml = _write_musicxml(tmp_path / "six.musicxml", pitches)
+
+    result = spike.evaluate_frozen_heldout(fixture["sealed"], musicxml_path=musicxml)
+
+    report = json.loads(Path(result["report"]).read_text(encoding="utf-8"))
+    manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+    assert report["kind"] == "fourth_score_pitch_only_one_shot_evaluation"
+    assert report["metrics"]["summary"]["automatic_crop_count"] == 6
+    assert report["metrics"]["summary"]["exact_automatic_crops"] == 6
+    assert report["source_musicxml_context"] == {
+        "clef": ["G", 2],
+        "key_fifths": -1,
+        "time_signature": "3/4",
+    }
+    assert manifest["kind"] == "fourth_score_post_freeze_evaluation_manifest"
+    assert manifest["truth_opened_after_all_frozen_hashes_verified"] is True
+
+
 def test_one_shot_output_refuses_overwrite_before_reopening_truth(tmp_path: Path) -> None:
     fixture = _frozen_fixture(tmp_path, predictions=[[60]] * 7)
     musicxml = _write_musicxml(tmp_path / "seven.musicxml", [[60]] * 7)
@@ -219,10 +244,17 @@ def test_frozen_prediction_hash_drift_fails_closed(tmp_path: Path) -> None:
         )
 
 
-def _frozen_fixture(tmp_path: Path, *, predictions: Sequence[Sequence[int]]) -> dict[str, Any]:
+def _frozen_fixture(
+    tmp_path: Path,
+    *,
+    predictions: Sequence[Sequence[int]],
+    evaluation_spec: spike.HeldoutEvaluationSpec = spike.THIRD_SCORE_EVALUATION,
+) -> dict[str, Any]:
     slug = "synthetic-score"
     system_index = 7
-    namespace_root = tmp_path / slug / freezer.OUTPUT_SUBDIR / "v2" / f"system_{system_index:03d}"
+    gate = evaluation_spec.gate
+    gate_config = inference.GATE_CONFIGS[gate.prepare_kind]
+    namespace_root = tmp_path / slug / gate.output_subdir / "v2" / f"system_{system_index:03d}"
     namespace_root.mkdir(parents=True)
     out_dir = namespace_root.parents[3]
     source_system = out_dir / slug / "systems/system_007.png"
@@ -261,7 +293,7 @@ def _frozen_fixture(tmp_path: Path, *, predictions: Sequence[Sequence[int]]) -> 
     prepared_path = namespace_root / "prepared_manifest.json"
     prepared = {
         "schema_version": 1,
-        "kind": spike.EXPECTED_PREPARED_KIND,
+        "kind": gate.prepare_kind,
         "status": "prepared_awaiting_model_predictions",
         "split": freezer.SPLIT_NAME,
         "truth_accessed": False,
@@ -429,8 +461,8 @@ def _frozen_fixture(tmp_path: Path, *, predictions: Sequence[Sequence[int]]) -> 
     detailed_inference_pin = pin(detailed_inference_snapshot)
     binding = {
         "schema_version": 1,
-        "kind": "third_score_inference_provenance_binding",
-        "version": inference.INFERENCE_VERSION,
+        "kind": gate_config["binding_kind"],
+        "version": gate_config["inference_version"],
         "prepared_manifest": {
             "path": prepared_path.resolve().as_posix(),
             "sha256": freezer._sha256(prepared_path),
@@ -461,7 +493,7 @@ def _frozen_fixture(tmp_path: Path, *, predictions: Sequence[Sequence[int]]) -> 
     freeze_path = frozen_dir / "freeze.json"
     freeze = {
         "schema_version": 1,
-        "kind": spike.EXPECTED_FREEZE_KIND,
+        "kind": gate.freeze_kind,
         "status": "frozen_awaiting_truth",
         "split": freezer.SPLIT_NAME,
         "truth_accessed": False,
@@ -497,7 +529,7 @@ def _frozen_fixture(tmp_path: Path, *, predictions: Sequence[Sequence[int]]) -> 
         sealed_path,
         {
             "schema_version": 1,
-            "kind": spike.EXPECTED_SEALED_KIND,
+            "kind": gate.sealed_kind,
             "status": "frozen_awaiting_truth",
             "split": freezer.SPLIT_NAME,
             "truth_accessed": False,

@@ -5,9 +5,10 @@ touching the sealed inference or evaluation artifacts.  It evaluates an
 x-only NMS baseline and a small, explicit 2D NMS sweep.  Truth is opened only
 after natural-context and optional context-hint predictions are materialized.
 
-This is postmortem evidence: the automatic lane has no key hint, the context
-lane requires an explicitly supplied human/external hint file, and the oracle
-lane is diagnostic only.  No MusicXML is read here.
+This is postmortem evidence: the automatic lane replays any key hint frozen in
+the inference rows, the context lane requires an explicitly supplied
+human/external hint file, and the oracle lane is diagnostic only. No MusicXML
+is read here.
 """
 
 from __future__ import annotations
@@ -787,6 +788,25 @@ def _identity_measure(row: Mapping[str, Any]) -> int:
     return int(identity["automatic_measure_index"])
 
 
+def _row_key_hint(row: Mapping[str, Any]) -> Any:
+    context = row.get("allowed_context")
+    return context.get("key_hint") if isinstance(context, Mapping) else None
+
+
+def _automatic_context_summary(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    hints = {
+        str(_identity_measure(row)): _row_key_hint(row)
+        for row in rows
+        if _row_key_hint(row) is not None
+    }
+    if not hints:
+        return {"key_hint": None, "source": "natural_staff_context"}
+    return {
+        "key_hints_by_measure": hints,
+        "source": "frozen_inference_allowed_context",
+    }
+
+
 def _materialize_predictions(
     rows: Sequence[Mapping[str, Any]],
     selector: Mapping[str, Any],
@@ -806,7 +826,11 @@ def _materialize_predictions(
             if row.get("truth_used") is True:
                 raise ValueError("Inference row is marked truth_used; refusing automatic replay")
             measure = _identity_measure(row)
-            hint = context_hints.get(measure) if context_hints is not None else None
+            hint = (
+                context_hints.get(measure, _row_key_hint(row))
+                if context_hints is not None
+                else _row_key_hint(row)
+            )
             alterations = _key_accidentals(hint)
             selected = select_candidates(
                 row,
@@ -838,7 +862,11 @@ def _materialize_predictions(
             if row.get("truth_used") is True:
                 raise ValueError("Inference row is marked truth_used; refusing automatic replay")
             measure = _identity_measure(row)
-            hint = context_hints.get(measure) if context_hints is not None else None
+            hint = (
+                context_hints.get(measure, _row_key_hint(row))
+                if context_hints is not None
+                else _row_key_hint(row)
+            )
             alterations = _key_accidentals(hint)
             baseline_selected = select_candidates(row, selector)
             recovered = recover_chord_candidates(
@@ -883,7 +911,11 @@ def _materialize_predictions(
             if row.get("truth_used") is True:
                 raise ValueError("Inference row is marked truth_used; refusing automatic replay")
             measure = _identity_measure(row)
-            hint = context_hints.get(measure) if context_hints is not None else None
+            hint = (
+                context_hints.get(measure, _row_key_hint(row))
+                if context_hints is not None
+                else _row_key_hint(row)
+            )
             alterations = _key_accidentals(hint)
             stem_features, stem_metadata = candidate_local_stem_features(row)
             baseline_selected = select_candidates(row, selector)
@@ -1141,7 +1173,23 @@ def _verify_x_only_replay_parity(
         if not isinstance(canonical, Mapping) or not isinstance(canonical.get("notes"), list):
             raise ValueError(f"Inference row {measure} has no frozen canonical_prediction notes")
         frozen_notes = canonical["notes"]
-        frozen_ids = [str(note["candidate_id"]) for note in frozen_notes]
+        if all(isinstance(note, Mapping) and note.get("candidate_id") for note in frozen_notes):
+            frozen_ids = [str(note["candidate_id"]) for note in frozen_notes]
+        else:
+            anchors = row.get("automatic_anchors")
+            if not isinstance(anchors, list) or len(anchors) != len(frozen_notes):
+                raise ValueError(
+                    f"Inference row {measure} cannot bind canonical notes to automatic anchors"
+                )
+            frozen_ids = [
+                str(anchor["source"]["candidate_id"])
+                for anchor in anchors
+                if isinstance(anchor, Mapping) and isinstance(anchor.get("source"), Mapping)
+            ]
+            if len(frozen_ids) != len(frozen_notes):
+                raise ValueError(
+                    f"Inference row {measure} has incomplete automatic-anchor identities"
+                )
         frozen_pitches = [int(note["pitch_midi"]) for note in frozen_notes]
         replay_notes = x_only[measure]["notes"]
         replay_ids = [str(note["candidate_id"]) for note in replay_notes]
@@ -1676,6 +1724,8 @@ def run_experiment(
         context_hint_path,
         measure_indices=[_identity_measure(row) for row in inference_rows],
     )
+    automatic_context = _automatic_context_summary(inference_rows)
+    automatic_uses_key_hint = automatic_context["source"] == "frozen_inference_allowed_context"
     selector = selector_config_from_model(model)
     automatic_predictions = _materialize_predictions(
         inference_rows,
@@ -1802,7 +1852,7 @@ def run_experiment(
         "baseline_parity": baseline_parity,
         "automatic_claims": {
             "source_lane": LANE_AUTOMATIC,
-            "key_hint": None,
+            "key_context": automatic_context,
             "truth_used_for_selection": False,
             "context_hint_and_oracle_metrics_excluded": True,
             "runtime_adoption_note": (
@@ -1814,7 +1864,7 @@ def run_experiment(
             LANE_AUTOMATIC: _lane_payload(
                 LANE_AUTOMATIC,
                 sweep=automatic_sweep,
-                context={"key_hint": None, "source": "natural_staff_context"},
+                context=automatic_context,
                 truth_used=False,
             ),
             LANE_CONTEXT: _lane_payload(
@@ -1853,7 +1903,7 @@ def run_experiment(
             "access_audit": {
                 "predictions_materialized_before_truth_read": True,
                 "predictions_materialized_before_truth_derived_evaluation_report_read": True,
-                "automatic_lane_used_key_hint": False,
+                "automatic_lane_used_key_hint": automatic_uses_key_hint,
                 "automatic_lane_read_musicxml": False,
                 "truth_used_for_automatic_selection": False,
             },

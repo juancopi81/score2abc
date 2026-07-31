@@ -108,6 +108,35 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def test_replay_uses_frozen_context_and_anchor_ids_when_canonical_ids_are_absent(
+    tmp_path: Path,
+) -> None:
+    paths = _write_fixture(tmp_path)
+    row = json.loads(paths["inference"].read_text(encoding="utf-8"))
+    row["allowed_context"] = {"key_hint": "one flat: Bb"}
+    row["automatic_anchors"] = [
+        {"source": {"candidate_id": "high"}},
+        {"source": {"candidate_id": "next"}},
+    ]
+    row["canonical_prediction"]["notes"] = [{"pitch_midi": 70}, {"pitch_midi": 70}]
+    selector = spike.selector_config_from_model(
+        json.loads(paths["model"].read_text(encoding="utf-8"))
+    )
+
+    predictions = spike._materialize_predictions(
+        [row],
+        selector,
+        [None],
+        lane=spike.LANE_AUTOMATIC,
+    )
+
+    assert [note["pitch_midi"] for note in predictions["x_only"][1]["notes"]] == [70, 70]
+    assert (
+        spike._verify_x_only_replay_parity([row], predictions)["status"]
+        == "exact_frozen_baseline_replay"
+    )
+
+
 def _feature_row(tmp_path: Path, *, expected_sha256: str | None = None) -> dict:
     image_path = tmp_path / "feature.png"
     image = Image.new("L", (80, 80), 255)

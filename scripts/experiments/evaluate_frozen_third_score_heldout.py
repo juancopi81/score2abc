@@ -1,4 +1,4 @@
-"""Materialize and score a sealed third-score heldout exactly once.
+"""Materialize and score a supported sealed heldout exactly once.
 
 This spike-only evaluator verifies every prepared and frozen hash before it
 opens user-supplied MusicXML or mapping data. Frozen predictions contain only
@@ -23,15 +23,49 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from score2abc import musicxml as musicxml_utils  # noqa: E402
+from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
 from scripts.experiments import run_third_score_heldout_inference as inference  # noqa: E402
 
 SCHEMA_VERSION = 1
 DEFAULT_EVALUATION_VERSION = "v1"
-EXPECTED_SEALED_KIND = "third_score_fresh_heldout_sealed_manifest"
-EXPECTED_FREEZE_KIND = "third_score_fresh_heldout_freeze"
-EXPECTED_PREPARED_KIND = "third_score_fresh_heldout_prepare"
 NOT_SCORED = "not_scored_missing_frozen_context"
+
+
+@dataclass(frozen=True)
+class HeldoutEvaluationSpec:
+    gate: freezer.HeldoutGateSpec
+    default_one_to_one_count: int
+
+    @property
+    def report_kind(self) -> str:
+        return f"{self.gate.key}_pitch_only_one_shot_evaluation"
+
+    @property
+    def manifest_kind(self) -> str:
+        return f"{self.gate.key}_post_freeze_evaluation_manifest"
+
+
+THIRD_SCORE_EVALUATION = HeldoutEvaluationSpec(
+    gate=freezer.THIRD_SCORE_GATE,
+    default_one_to_one_count=7,
+)
+FOURTH_SCORE_EVALUATION = HeldoutEvaluationSpec(
+    gate=fourth_freezer.FOURTH_SCORE_GATE,
+    default_one_to_one_count=6,
+)
+EVALUATION_SPECS = {
+    spec.gate.sealed_kind: spec
+    for spec in (
+        THIRD_SCORE_EVALUATION,
+        FOURTH_SCORE_EVALUATION,
+    )
+}
+
+# Backward-compatible names used by the established third-score fixtures.
+EXPECTED_SEALED_KIND = THIRD_SCORE_EVALUATION.gate.sealed_kind
+EXPECTED_FREEZE_KIND = THIRD_SCORE_EVALUATION.gate.freeze_kind
+EXPECTED_PREPARED_KIND = THIRD_SCORE_EVALUATION.gate.prepare_kind
 
 
 @dataclass(frozen=True)
@@ -56,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help=(
             "Optional crop-to-physical-measure mapping JSON. Required unless the "
-            "MusicXML and frozen prediction set both contain exactly seven measures/crops."
+            "MusicXML and frozen prediction set match the gate's configured one-to-one count."
         ),
     )
     parser.add_argument(
@@ -130,7 +164,11 @@ def evaluate_frozen_heldout(
     truth = truth_loader(musicxml_path)
     crop_indices = tuple(sorted(frozen["predictions_by_crop"]))
     if mapping_path is None:
-        mapping = _default_mapping(truth.measure_numbers, crop_indices)
+        mapping = _default_mapping(
+            truth.measure_numbers,
+            crop_indices,
+            expected_count=frozen["evaluation_spec"].default_one_to_one_count,
+        )
         mapping_mode = "deterministic_default_one_to_one"
     else:
         mapping = _load_mapping(mapping_path)
@@ -151,7 +189,13 @@ def evaluate_frozen_heldout(
         frozen["predictions_by_crop"],
         target=frozen["target"],
         mapping_mode=mapping_mode,
+        report_kind=frozen["evaluation_spec"].report_kind,
     )
+    report["source_musicxml_context"] = {
+        "time_signature": truth.time_signature,
+        "key_fifths": truth.key_fifths,
+        "clef": list(truth.clef) if truth.clef is not None else None,
+    }
 
     temp_dir.mkdir(parents=False, exist_ok=False)
     try:
@@ -210,7 +254,7 @@ def evaluate_frozen_heldout(
 
         manifest = {
             "schema_version": SCHEMA_VERSION,
-            "kind": "third_score_post_freeze_evaluation_manifest",
+            "kind": frozen["evaluation_spec"].manifest_kind,
             "status": "evaluated_exactly_once_after_frozen_predictions",
             "create_once": True,
             "evaluation_version": evaluation_version,
@@ -246,7 +290,8 @@ def verify_frozen_gate(sealed_manifest_path: Path) -> dict[str, Any]:
     if not sealed_manifest_path.is_file():
         raise FileNotFoundError(f"Sealed manifest does not exist: {sealed_manifest_path}")
     sealed = _read_json(sealed_manifest_path)
-    if sealed.get("kind") != EXPECTED_SEALED_KIND:
+    evaluation_spec = EVALUATION_SPECS.get(str(sealed.get("kind")))
+    if evaluation_spec is None:
         raise ValueError(f"Unexpected sealed manifest kind: {sealed.get('kind')}")
     if sealed.get("status") != "frozen_awaiting_truth":
         raise ValueError("Sealed manifest is not awaiting truth")
@@ -261,7 +306,7 @@ def verify_frozen_gate(sealed_manifest_path: Path) -> dict[str, Any]:
     if freeze_sha256 != str(sealed["freeze"]["sha256"]):
         raise ValueError("Freeze manifest hash drift")
     freeze = _read_json(freeze_path)
-    if freeze.get("kind") != EXPECTED_FREEZE_KIND:
+    if freeze.get("kind") != evaluation_spec.gate.freeze_kind:
         raise ValueError(f"Unexpected freeze manifest kind: {freeze.get('kind')}")
     if freeze.get("status") != "frozen_awaiting_truth":
         raise ValueError("Freeze manifest is not awaiting truth")
@@ -281,11 +326,16 @@ def verify_frozen_gate(sealed_manifest_path: Path) -> dict[str, Any]:
     if prepared_sha256 != str(sealed["prepared_manifest_sha256"]):
         raise ValueError("Prepared manifest hash drift against sealed manifest")
     prepared = _read_json(prepared_path)
-    if prepared.get("kind") != EXPECTED_PREPARED_KIND:
+    if prepared.get("kind") != evaluation_spec.gate.prepare_kind:
         raise ValueError(f"Unexpected prepared manifest kind: {prepared.get('kind')}")
     if prepared.get("target") != freeze.get("target"):
         raise ValueError("Prepared and frozen targets differ")
-    freezer._verify_prepared_manifest(namespace_root, prepared_path, prepared)
+    freezer._verify_prepared_manifest(
+        namespace_root,
+        prepared_path,
+        prepared,
+        expected_kind=evaluation_spec.gate.prepare_kind,
+    )
     if str(freeze.get("selection_sha256")) != str(prepared["artifacts"]["selection"]["sha256"]):
         raise ValueError("Frozen selection hash differs from prepared manifest")
 
@@ -334,6 +384,7 @@ def verify_frozen_gate(sealed_manifest_path: Path) -> dict[str, Any]:
         "target": dict(freeze["target"]),
         "requests_by_crop": requests_by_crop,
         "predictions_by_crop": predictions_by_crop,
+        "evaluation_spec": evaluation_spec,
     }
 
 
@@ -551,6 +602,7 @@ def evaluate_pitch_only(
     *,
     target: Mapping[str, Any],
     mapping_mode: str,
+    report_kind: str = THIRD_SCORE_EVALUATION.report_kind,
 ) -> dict[str, Any]:
     crop_reports = []
     total_predicted = 0
@@ -609,7 +661,7 @@ def evaluate_pitch_only(
     }
     return {
         "schema_version": SCHEMA_VERSION,
-        "kind": "third_score_pitch_only_one_shot_evaluation",
+        "kind": report_kind,
         "status": "evaluated_exactly_once_after_frozen_predictions",
         "target": dict(target),
         "mapping_mode": mapping_mode,
@@ -704,11 +756,17 @@ def _align_pitches(predicted: Sequence[int], truth: Sequence[int]) -> dict[str, 
     }
 
 
-def _default_mapping(measure_numbers: Sequence[int], crop_indices: Sequence[int]) -> dict[str, Any]:
-    if len(measure_numbers) != 7 or len(crop_indices) != 7:
+def _default_mapping(
+    measure_numbers: Sequence[int],
+    crop_indices: Sequence[int],
+    *,
+    expected_count: int = THIRD_SCORE_EVALUATION.default_one_to_one_count,
+) -> dict[str, Any]:
+    if len(measure_numbers) != expected_count or len(crop_indices) != expected_count:
         raise ValueError(
-            "Automatic default mapping is available only for exactly seven MusicXML "
-            "measures and seven frozen crops; provide --mapping"
+            "Automatic default mapping is available only when MusicXML measures and "
+            f"frozen crops both contain the configured count ({expected_count}); "
+            "provide --mapping"
         )
     return {
         "schema_version": SCHEMA_VERSION,

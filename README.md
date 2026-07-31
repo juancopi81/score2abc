@@ -263,14 +263,30 @@ alerts while flagging `8/19` measures. It does not generalize cleanly to La
 Chata's count-only replay (`3/6` caught, one false alert), so it is not wired
 into runtime.
 
-Gato'e Fique system 3 is now the fresh fourth-score gate. Six layout-selected
-crops and their automatic predictions were sealed before target MusicXML was
-opened. The frozen context records an automatic initial one-flat prediction
-and a provisional `Pasillo -> 3/4` metadata prior; neither is target truth.
-Prediction hash: `2b5475a...`; freeze hash: `d74b230...`; seal hash:
-`0d0e745...`. Accuracy is intentionally unknown pending the independent
-transcription at
-`out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/gatoe_fique_system_003.musicxml`.
+Gato'e Fique system 3 completed the fresh fourth-score gate. Six
+layout-selected crops and their automatic predictions were sealed before target
+MusicXML was opened. The independent six-measure transcription produced
+note-count F1 `0.941177` (`25` predicted heads versus `26` truth), ordered-pitch
+accuracy `0.222222`, and `0/6` exact crops. The provisional `Pasillo -> 3/4`
+prior matched the transcription, but rhythm/rest remain unscored because the
+frozen output contains no usable onset or duration predictions.
+
+The independent key result exposed the dominant pitch failure: the frozen
+visual context predicted one flat, while the MusicXML contains two sharps. A
+consumed replay with the correct key and identical selected candidates raises
+exact ordered pitches from `6` to `18`, alignment accuracy from `0.222222` to
+`0.666667`, and exact pitch groups from `5/24` to `16/24`. This is diagnostic
+evidence, not a revised heldout score. Prediction hash: `2b5475a...`; freeze
+hash: `d74b230...`; seal hash: `0d0e745...`. Evaluate with:
+
+```bash
+uv run python scripts/experiments/evaluate_frozen_fourth_score_heldout.py \
+  out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/frozen/sealed_manifest.json \
+  --musicxml out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/gatoe_fique_system_003.musicxml
+```
+
+The checked-out `out/` gate already contains the create-once `evaluation_v1`;
+do not rerun it.
 
 Fresh segmentation now rejects La Chata's title/author band and renumbers only
 musical systems. Existing historical `out/` crops remain unchanged so sealed
