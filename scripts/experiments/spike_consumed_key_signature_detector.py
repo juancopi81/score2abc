@@ -27,7 +27,7 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.experiments import spike_consumed_key_state_detector as legacy  # noqa: E402
 
 SCHEMA_VERSION = 1
-OUTPUT_VERSION = "consumed_key_signature_detector_v2"
+OUTPUT_VERSION = "consumed_key_signature_detector_v3"
 MODE_INITIAL = "initial"
 MODE_CHANGE = "change"
 FAMILY_SHARP = "sharp"
@@ -39,6 +39,9 @@ FLAT_POSITIONS = (2.0, 0.5, 2.5, 1.0, 3.0, 1.5, 3.5)
 POSITION_TOLERANCE_SPACES = 0.55
 MIN_GLYPH_SCORE = 0.34
 MAX_CHANGE_PREFIX_SPACES = 1.65
+MIN_FRAGMENTED_CLEF_WIDTH_SPACES = 0.55
+MIN_BROAD_SHARP_WIDTH_SPACES = 0.65
+MIN_BROAD_SHARP_HEIGHT_SPACES = 4.0
 
 
 @dataclass(frozen=True)
@@ -398,9 +401,19 @@ def _initial_clef_right(
     )
     for left, right, support in tracks:
         width_spaces = (right - left + 1) / spacing
-        if 0.8 <= width_spaces <= 3.2 and support >= 0.22:
+        if MIN_FRAGMENTED_CLEF_WIDTH_SPACES <= width_spaces <= 3.2 and support >= 0.22:
             return right
     return None
+
+
+def _sharp_shape_eligible(glyph: Mapping[str, Any]) -> bool:
+    if len(glyph["tracks"]) >= 2:
+        return True
+    return (
+        len(glyph["cross_rows_y_px"]) >= 2
+        and float(glyph["width_staff_spaces"]) >= MIN_BROAD_SHARP_WIDTH_SPACES
+        and float(glyph["height_staff_spaces"]) >= MIN_BROAD_SHARP_HEIGHT_SPACES
+    )
 
 
 def _best_signature(
@@ -414,44 +427,48 @@ def _best_signature(
             for glyph in glyphs
             if float(glyph["family_scores"][family]) >= MIN_GLYPH_SCORE
             and float(glyph["width_staff_spaces"]) <= max_width
-            and (family != FAMILY_SHARP or len(glyph["tracks"]) >= 2)
+            and (family != FAMILY_SHARP or _sharp_shape_eligible(glyph))
         ],
         key=lambda glyph: (int(glyph["bbox"]["left"]), int(glyph["bbox"]["right"])),
     )
-    best: tuple[int, float, list[Mapping[str, Any]]] | None = None
-    for start in range(len(eligible)):
-        selected: list[Mapping[str, Any]] = []
-        score = 0.0
-        previous_right = None
-        for expected_position in expected:
-            choices = []
-            for glyph in eligible[start:]:
-                if glyph in selected:
-                    continue
-                left = int(glyph["bbox"]["left"])
-                if previous_right is not None and left <= previous_right:
-                    continue
-                position = float(glyph["anchor_positions"][family])
-                error = abs(position - expected_position)
-                if error > POSITION_TOLERANCE_SPACES:
-                    continue
-                choices.append((error, -float(glyph["family_scores"][family]), left, glyph))
-            if not choices:
-                break
-            error, negative_score, _, glyph = min(choices, key=lambda item: item[:3])
+
+    candidates: list[tuple[int, float, list[Mapping[str, Any]]]] = []
+
+    def visit(
+        selected: list[Mapping[str, Any]],
+        score: float,
+        expected_index: int,
+        eligible_index: int,
+        previous_right: int | None,
+    ) -> None:
+        if selected:
+            candidates.append((len(selected), score, list(selected)))
+        if expected_index >= len(expected):
+            return
+        for index in range(eligible_index, len(eligible)):
+            glyph = eligible[index]
+            left = int(glyph["bbox"]["left"])
+            right = int(glyph["bbox"]["right"])
             if previous_right is not None:
-                gap = int(glyph["bbox"]["left"]) - previous_right
-                if gap > 1.35 * spacing:
-                    break
-            selected.append(glyph)
-            previous_right = int(glyph["bbox"]["right"])
-            score += -negative_score - 0.25 * error
-        candidate = (len(selected), score, selected)
-        if selected and (best is None or candidate[:2] > best[:2]):
-            best = candidate
-    if best is None:
+                if left <= previous_right:
+                    continue
+                if left - previous_right > 1.35 * spacing:
+                    continue
+            error = abs(float(glyph["anchor_positions"][family]) - expected[expected_index])
+            if error > POSITION_TOLERANCE_SPACES:
+                continue
+            visit(
+                [*selected, glyph],
+                score + float(glyph["family_scores"][family]) - 0.25 * error,
+                expected_index + 1,
+                index + 1,
+                right,
+            )
+
+    visit([], 0.0, 0, 0, None)
+    if not candidates:
         return None
-    count, score, selected = best
+    count, score, selected = max(candidates, key=lambda item: (item[0], item[1]))
     return {
         "family": family,
         "count": count,
@@ -578,7 +595,7 @@ def analyze_events(
 
     context_hints = {
         "schema_version": SCHEMA_VERSION,
-        "source": "automatic_visual_key_signature_detector_v2",
+        "source": "automatic_visual_key_signature_detector_v3",
         "truth_used": False,
         "events": [
             {

@@ -472,7 +472,7 @@ from vertical ink, skips cancellation naturals by matching the standard
 left-to-right staff-position sequence, and keeps separate gates for an initial
 treble-clef signature and a change after a double bar.
 
-The materialized six-case report is exact:
+The materialized v3 seven-case report is exact:
 
 | Case | Expected fifths | Predicted fifths |
 | --- | ---: | ---: |
@@ -482,12 +482,13 @@ The materialized six-case report is exact:
 | La Chata change to one sharp | `+1` | `+1` |
 | Aviador repeat control 1 | unknown | unknown |
 | Aviador repeat control 2 | unknown | unknown |
+| Gato'e Fique initial two sharps | `+2` | `+2` |
 
 A broader truth-blind change-mode scan covers 67 Aviador, 15 Carrizal, and 7
 La Chata crops. It emits only the three actual changed signatures. These are
 consumed controls, not an independent accuracy estimate. Evidence is at:
 
-- `out/vlm_melody_consumed_training/consumed_key_signature_detector_v2/`
+- `out/vlm_melody_consumed_training/consumed_key_signature_detector_v3/`
 
 The expanded detector now emits work-scoped events and feeds the frozen La
 Chata x-only pitch replay directly. Predictions are persisted before consumed
@@ -577,16 +578,29 @@ rose `5/24 -> 16/24`. The context lane equals the diagnostic accidental oracle
 on this slice, making initial key recognition the highest-leverage next fix.
 This replay is postmortem evidence and cannot replace the sealed score.
 
+After preserving that one-shot result, the initial signature was added as a
+consumed detector case. The failure came from a fragmented clef that pushed the
+search window into the first sharp, followed by greedy single-glyph matching.
+The v3 detector accepts a bounded full-height broad sharp shape and scores
+complete ordered accidental sequences. It now passes all seven consumed cases;
+the 89-crop change-mode scan remains unchanged at three true hits.
+
+The review-time fallback is
+`apply_vlm_melody_key_correction.py`. It accepts repeatable
+`START_MEASURE=FIFTHS` events, reuses frozen automatic anchors, recomputes only
+pitch, and refuses to write if candidate IDs, coordinates, note counts, or
+rhythm change. On Gato'e Fique, the create-once `+2` output has 25 unchanged
+heads and 15 changed pitches and exactly matches the previously scored consumed
+context lane. It does not rewrite `evaluation_v1`.
+
 Evidence is at:
 
 - `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/`
 - `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/evaluation_v1/`
 - `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/postmortem_key_truth_context_v2/`
+- `out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/review_key_correction_v1/`
 - `out/vlm_melody_consumed_training/cross_score_notehead_v1_replay_20260722/`
 
-Next: add the Gato'e Fique initial two-sharp miss as consumed detector
-regression evidence, improve initial-signature discrimination without
-regressing the existing consumed key/control suite, and expose a human key
-correction that deterministically replays pitches while leaving selected heads
-unchanged. Event/rest accuracy and non-mutating review triage remain separate
-gates.
+Next: test event/rest accuracy and non-mutating onset/meter review triage on
+fresh independent evidence. Keep visual-key recognition and explicit key
+correction review-only until they generalize beyond the consumed suite.

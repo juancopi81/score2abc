@@ -181,6 +181,80 @@ def test_context_event_records_work_slug_from_out_path(tmp_path: Path) -> None:
     assert report["context_hints"]["events"][0]["source"]["slug"] == "demo-work"
 
 
+def test_ordered_sequence_beats_later_single_glyph() -> None:
+    def glyph(
+        glyph_id: str,
+        left: int,
+        right: int,
+        position: float,
+        *,
+        score: float = 0.8,
+    ) -> dict[str, object]:
+        return {
+            "glyph_id": glyph_id,
+            "bbox": {"left": left, "right": right},
+            "width_staff_spaces": 0.8,
+            "height_staff_spaces": 4.5,
+            "tracks": [{}, {}],
+            "cross_rows_y_px": [10, 20],
+            "family_scores": {
+                detector.FAMILY_SHARP: score,
+                detector.FAMILY_FLAT: 0.0,
+            },
+            "anchor_positions": {
+                detector.FAMILY_SHARP: position,
+                detector.FAMILY_FLAT: position,
+            },
+        }
+
+    result = detector._best_signature(
+        [
+            glyph("first_approximate", 10, 20, 0.2),
+            glyph("second", 25, 35, 1.6),
+            glyph("first_perfect_but_late", 30, 40, 0.0),
+        ],
+        detector.FAMILY_SHARP,
+        spacing=20.0,
+    )
+
+    assert result is not None
+    assert result["fifths"] == 2
+    assert result["glyph_ids"] == ["first_approximate", "second"]
+
+
+def test_broad_full_height_sharp_shape_is_eligible() -> None:
+    glyph = {
+        "tracks": [{}],
+        "cross_rows_y_px": [20, 40],
+        "width_staff_spaces": detector.MIN_BROAD_SHARP_WIDTH_SPACES,
+        "height_staff_spaces": detector.MIN_BROAD_SHARP_HEIGHT_SPACES,
+    }
+
+    assert detector._sharp_shape_eligible(glyph) is True
+    assert (
+        detector._sharp_shape_eligible(
+            {
+                **glyph,
+                "height_staff_spaces": detector.MIN_BROAD_SHARP_HEIGHT_SPACES - 0.1,
+            }
+        )
+        is False
+    )
+
+
+def test_fragmented_clef_stops_before_first_accidental() -> None:
+    image = Image.new("L", (160, 150), 255)
+    draw = ImageDraw.Draw(image)
+    staff_lines = [30, 50, 70, 90, 110]
+    for y in staff_lines:
+        draw.line((0, y, image.width - 1, y), fill=0, width=1)
+    draw.rectangle((30, 20, 41, 120), fill=0)
+    draw.rectangle((60, 20, 76, 120), fill=0)
+    mask, _, spacing, _ = detector._staff_geometry(image)
+
+    assert detector._initial_clef_right(mask, staff_lines, spacing, boundary=8) == 41
+
+
 def test_expected_fifths_parser_supports_none() -> None:
     assert detector._expected_fifths("control=none") == ("control", None)
     assert detector._expected_fifths("two_flats=-2") == ("two_flats", -2)
@@ -216,13 +290,24 @@ def test_real_consumed_cases_when_artifacts_exist() -> None:
             detector.REPO_ROOT / "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/"
             "vlm_melody_third_score_heldout/v2/system_007/crops/measure_002.png",
             detector.MODE_CHANGE,
+            1,
         ),
         (
             detector.REPO_ROOT / "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/"
             "vlm_melody_inputs/system_002/measure_009_staff.png",
             detector.MODE_CHANGE,
+            2,
+        ),
+        (
+            detector.REPO_ROOT / "out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/"
+            "systems/system_001.png",
+            detector.MODE_INITIAL,
+            2,
         ),
     ]
-    for path, mode in cases:
+    for path, mode, expected in cases:
         if path.is_file():
-            assert detector.detect_signature(path, mode=mode)["truth_used_for_prediction"] is False
+            result = detector.detect_signature(path, mode=mode)
+            assert result["truth_used_for_prediction"] is False
+            if expected is not None:
+                assert result["fifths"] == expected

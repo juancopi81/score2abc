@@ -245,14 +245,15 @@ exact pitch groups, but it is not adoptable: on 19 consumed Aviador/Carrizal
 measures it changes candidate F1 from `0.791367` to `0.785714` by adding one
 false positive and no true positives.
 
-The visual key slice now handles the consumed initial one-flat signature plus
-changed one-sharp, two-sharp, and two-flat signatures. Its six-case report is
-`6/6`, including two repeat/double-bar controls, and a broader change-mode scan
-fires only on the three actual changes across 89 Aviador, Carrizal, and La
-Chata crops. Its work-scoped context now feeds the frozen La Chata pitch replay
-directly: exact ordered pitches improve `17 -> 20`, exact pitch groups improve
-`11 -> 12`, and candidate selection is unchanged. This is still a consumed,
-bounded spike rather than independent general key recognition.
+The visual key slice now handles consumed initial one-flat and two-sharp
+signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its
+seven-case report is `7/7`, including two repeat/double-bar controls and the
+independently exposed Gato'e Fique miss. A broader change-mode scan still fires
+only on the three actual changes across 89 Aviador, Carrizal, and La Chata
+crops. Its work-scoped context feeds the frozen La Chata pitch replay directly:
+exact ordered pitches improve `17 -> 20`, exact pitch groups improve `11 -> 12`,
+and candidate selection is unchanged. This is still a consumed, bounded spike
+rather than independent general key recognition.
 
 Automatic onset deletion remains rejected. The original work-disjoint group
 filter is a no-op at `TP=63 FP=7 FN=6`, F1 `0.906475`; a candidate-patch veto
@@ -287,6 +288,21 @@ uv run python scripts/experiments/evaluate_frozen_fourth_score_heldout.py \
 
 The checked-out `out/` gate already contains the create-once `evaluation_v1`;
 do not rerun it.
+
+The consumed detector now recognizes the initial two-sharp signature while
+retaining the existing six cases and 89-crop control sweep. An explicit review
+action can also apply a human key correction without changing frozen notehead
+selection or rhythm:
+
+```bash
+uv run python scripts/experiments/apply_vlm_melody_key_correction.py \
+  out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/inference_v2/inference.jsonl \
+  --key-event 1=2 \
+  --output-dir out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/review_key_correction_v1
+```
+
+Repeat `--key-event START_MEASURE=FIFTHS` when a later system changes key.
+The output is create-once and records invariant checks plus pitch overlays.
 
 Fresh segmentation now rejects La Chata's title/author band and renumbers only
 musical systems. Existing historical `out/` crops remain unchanged so sealed

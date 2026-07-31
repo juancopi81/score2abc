@@ -62,17 +62,15 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Replace automatic false-onset deletion with a non-mutating meter-deficit review signal. Candidate-level deletion was also rejected: recall-first is a no-op and balanced thresholds regress aggregate onset F1. The review validator catches `8/10` consumed Aviador/Carrizal error measures with no false alerts, but its La Chata count-only replay catches only `3/6` with one false alert, so runtime integration remains blocked.
 - [x] Reject non-musical system proposals before measure segmentation. A truth-blind five-line eligibility gate now preserves rejected crops/reasons and accepted-to-source numbering. Fresh regression keeps all 10 Aviador systems, keeps Carrizal systems 1-11 while rejecting its terminal incomplete four-line ruled tail, and maps La Chata's old musical systems 2-11 to new systems 1-10 while rejecting only the title/author band. Every accepted crop is pixel-identical to its prior musical counterpart; frozen heldout artifacts were not rewritten.
 - [x] Prepare, freeze, and evaluate Gato'e Fique system 3 as a fourth-score truth-blind gate. Six automatic crops, configuration-C predictions, the automatic initial one-flat result, and a provisional `Pasillo -> 3/4` metadata prior were hash-sealed before MusicXML access. Independent scoring reached note-count F1 `0.941177`, ordered-pitch accuracy `0.222222`, and `0/6` exact crops. The transcription has two sharps; a consumed key-corrected replay preserves selected heads while raising ordered-pitch accuracy to `0.666667` and exact pitch groups from `5/24` to `16/24`.
-- [ ] Generalize initial key-signature recognition using the independently exposed Gato'e Fique miss, then add a review-time key correction/replay path. The automatic detector must distinguish this two-sharp signature from one flat without regressing the six consumed signature/control cases; corrected key context must never rewrite the sealed heldout score.
+- [x] Generalize initial key-signature recognition using the independently exposed Gato'e Fique miss, then add a review-time key correction/replay path. Ordered glyph-sequence matching now distinguishes its two sharps while retaining all six prior consumed signature/control cases (`7/7` total), and the 89-crop change scan still emits only the same three real changes. The create-once correction action replays pitch from explicit measure-indexed fifths while asserting candidate IDs, coordinates, counts, and rhythm are unchanged; the sealed heldout score remains untouched.
 - [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: diagnose and fix the Gato'e Fique initial-key miss. Add the
-two-sharp source as consumed regression evidence only after preserving the
-one-shot report, require the detector to retain its existing six-case consumed
-gate, and expose key correction as an explicit review action that replays pitch
-without changing notehead selection. Then evaluate onset/meter review triage;
-do not use it to delete notes. Pipeline integration remains gated on
-independent exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
+Next main M2 focus: evaluate onset/meter review triage on fresh independent
+evidence; do not use it to delete notes. Key correction remains an explicit
+review action until visual-key behavior generalizes beyond the seven consumed
+cases. Pipeline integration remains gated on independent exact-event/rest
+evidence. See `docs/VLM_MELODY_SPIKE.md`.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 
