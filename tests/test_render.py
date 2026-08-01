@@ -84,6 +84,32 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     assert below_darkness[1] > above_darkness[1]
 
 
+def test_create_system_crops_splits_connected_staff_systems(tmp_path: Path) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_synthetic_page(page_path)
+
+    page = Image.open(page_path)
+    draw = ImageDraw.Draw(page)
+    draw.rectangle((850, 440, 930, 1320), fill="black")
+    page.save(page_path)
+
+    result = create_system_crops(
+        [page_path],
+        systems_dir,
+        logging.getLogger("test.render.connected-systems"),
+    )
+
+    assert len(result.system_crops) == 2
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert len(manifest["systems"]) == 2
+    assert all(
+        len(item["staff_line_rows"]) == 5 and len(item["long_horizontal_line_rows"]) == 5
+        for item in manifest["candidates"]
+    )
+
+
 def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     page_path = tmp_path / "page_001.png"
     systems_dir = tmp_path / "systems"

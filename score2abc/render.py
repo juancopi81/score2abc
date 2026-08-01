@@ -22,6 +22,15 @@ _MAX_STAFF_SPACING_DEVIATION_RATIO = 0.30
 
 
 @dataclass(frozen=True)
+class _StaffLineSequence:
+    indices: tuple[int, ...]
+    rows: tuple[int, ...]
+    support: tuple[float, ...]
+    mean_spacing: float
+    spacing_deviation_ratio: float
+
+
+@dataclass(frozen=True)
 class DetectedSystem:
     page_number: int
     source_candidate_index: int
@@ -399,6 +408,16 @@ def _detect_systems_with_assessments(
 
         system_bboxes.append((system_left, system_top, system_right, system_bottom))
 
+    split_system_bboxes: List[BBox] = []
+    for system_bbox in system_bboxes:
+        split_system_bboxes.extend(
+            _split_multi_staff_candidate(
+                page_gray,
+                system_bbox=system_bbox,
+                ink_threshold=ink_threshold,
+            )
+        )
+
     candidate_assessments = [
         _assess_system_candidate(
             page_gray,
@@ -407,7 +426,7 @@ def _detect_systems_with_assessments(
             system_bbox=system_bbox,
             ink_threshold=ink_threshold,
         )
-        for index, system_bbox in enumerate(system_bboxes, start=1)
+        for index, system_bbox in enumerate(split_system_bboxes, start=1)
     ]
     accepted_candidates = [
         assessment for assessment in candidate_assessments if assessment.accepted
@@ -514,13 +533,19 @@ def _assess_system_candidate(
         long_line_rows.append(top + strongest_offset)
         long_line_support.append(row_support[strongest_offset])
 
-    if len(long_line_rows) < _REQUIRED_STAFF_LINES:
+    staff_sequences = _find_staff_line_sequences(long_line_rows, long_line_support)
+    if not staff_sequences:
+        reason = (
+            "insufficient_long_horizontal_lines"
+            if len(long_line_rows) < _REQUIRED_STAFF_LINES
+            else "inconsistent_horizontal_line_spacing"
+        )
         return SystemCandidateAssessment(
             page_number=page_number,
             source_candidate_index=source_candidate_index,
             system_bbox=system_bbox,
             accepted=False,
-            reason="insufficient_long_horizontal_lines",
+            reason=reason,
             long_horizontal_line_rows=tuple(long_line_rows),
             long_horizontal_line_support=tuple(long_line_support),
             staff_line_rows=(),
@@ -529,7 +554,34 @@ def _assess_system_candidate(
             max_spacing_deviation_ratio=None,
         )
 
-    best_sequence: tuple[float, float, tuple[int, ...]] | None = None
+    best_sequence = min(
+        staff_sequences,
+        key=lambda sequence: (
+            sequence.spacing_deviation_ratio,
+            -fmean(sequence.support),
+            sequence.indices,
+        ),
+    )
+    return SystemCandidateAssessment(
+        page_number=page_number,
+        source_candidate_index=source_candidate_index,
+        system_bbox=system_bbox,
+        accepted=True,
+        reason="five_consistently_spaced_staff_lines",
+        long_horizontal_line_rows=tuple(long_line_rows),
+        long_horizontal_line_support=tuple(long_line_support),
+        staff_line_rows=best_sequence.rows,
+        staff_line_support=best_sequence.support,
+        mean_staff_spacing=best_sequence.mean_spacing,
+        max_spacing_deviation_ratio=best_sequence.spacing_deviation_ratio,
+    )
+
+
+def _find_staff_line_sequences(
+    long_line_rows: List[int],
+    long_line_support: List[float],
+) -> List[_StaffLineSequence]:
+    sequences: List[_StaffLineSequence] = []
     for indices in combinations(range(len(long_line_rows)), _REQUIRED_STAFF_LINES):
         rows = tuple(long_line_rows[index] for index in indices)
         spacings = [rows[index + 1] - rows[index] for index in range(len(rows) - 1)]
@@ -540,45 +592,121 @@ def _assess_system_candidate(
         spacing_deviation_ratio = spacing_deviation / mean_spacing
         if spacing_deviation_ratio > _MAX_STAFF_SPACING_DEVIATION_RATIO:
             continue
-        mean_support = fmean(long_line_support[index] for index in indices)
-        score = (spacing_deviation_ratio, -mean_support, indices)
-        if best_sequence is None or score < best_sequence:
-            best_sequence = score
+        sequences.append(
+            _StaffLineSequence(
+                indices=indices,
+                rows=rows,
+                support=tuple(long_line_support[index] for index in indices),
+                mean_spacing=mean_spacing,
+                spacing_deviation_ratio=spacing_deviation_ratio,
+            )
+        )
+    return sequences
 
-    if best_sequence is None:
-        return SystemCandidateAssessment(
-            page_number=page_number,
-            source_candidate_index=source_candidate_index,
-            system_bbox=system_bbox,
-            accepted=False,
-            reason="inconsistent_horizontal_line_spacing",
-            long_horizontal_line_rows=tuple(long_line_rows),
-            long_horizontal_line_support=tuple(long_line_support),
-            staff_line_rows=(),
-            staff_line_support=(),
-            mean_staff_spacing=None,
-            max_spacing_deviation_ratio=None,
+
+def _split_multi_staff_candidate(
+    page_gray: Image.Image,
+    *,
+    system_bbox: BBox,
+    ink_threshold: int,
+) -> List[BBox]:
+    assessment = _assess_system_candidate(
+        page_gray,
+        page_number=0,
+        source_candidate_index=0,
+        system_bbox=system_bbox,
+        ink_threshold=ink_threshold,
+    )
+    staff_sequences = _find_staff_line_sequences(
+        list(assessment.long_horizontal_line_rows),
+        list(assessment.long_horizontal_line_support),
+    )
+    distinct_sequences = _select_distinct_staff_sequences(staff_sequences)
+    if len(distinct_sequences) <= 1:
+        return [system_bbox]
+
+    left, top, right, bottom = system_bbox
+    split_bboxes: List[BBox] = []
+    for index, sequence in enumerate(distinct_sequences):
+        previous_sequence = distinct_sequences[index - 1] if index else None
+        next_sequence = (
+            distinct_sequences[index + 1] if index + 1 < len(distinct_sequences) else None
+        )
+        upper_boundary = (
+            top
+            if previous_sequence is None
+            else (previous_sequence.rows[-1] + sequence.rows[0]) // 2
+        )
+        lower_boundary = (
+            bottom if next_sequence is None else (sequence.rows[-1] + next_sequence.rows[0]) // 2
+        )
+        vertical_margin = max(48, int(round(sequence.mean_spacing * 4)))
+        system_top = max(top, upper_boundary, sequence.rows[0] - vertical_margin)
+        system_bottom = min(
+            bottom,
+            lower_boundary,
+            sequence.rows[-1] + vertical_margin,
+        )
+        system_left, system_right = _detect_horizontal_bounds(
+            page_gray,
+            ink_threshold=ink_threshold,
+            top=system_top,
+            bottom=system_bottom,
+        )
+        if system_right - system_left < int(page_gray.width * 0.35):
+            system_left, system_right = left, right
+        split_bboxes.append((system_left, system_top, system_right, system_bottom))
+    return split_bboxes
+
+
+def _select_distinct_staff_sequences(
+    sequences: List[_StaffLineSequence],
+) -> List[_StaffLineSequence]:
+    ordered = sorted(
+        sequences,
+        key=lambda sequence: (
+            sequence.rows[-1],
+            sequence.spacing_deviation_ratio,
+            -fmean(sequence.support),
+            sequence.indices,
+        ),
+    )
+    best_through: List[List[_StaffLineSequence]] = []
+    for index, sequence in enumerate(ordered):
+        best_with_sequence = [sequence]
+        for previous_index in range(index):
+            previous_selection = best_through[previous_index]
+            previous = previous_selection[-1]
+            minimum_gap = max(
+                12,
+                int(round(min(previous.mean_spacing, sequence.mean_spacing) * 1.5)),
+            )
+            if sequence.rows[0] - previous.rows[-1] < minimum_gap:
+                continue
+            candidate = [*previous_selection, sequence]
+            if _staff_sequence_selection_key(candidate) > _staff_sequence_selection_key(
+                best_with_sequence
+            ):
+                best_with_sequence = candidate
+
+        best_without_sequence = best_through[index - 1] if index else []
+        best_through.append(
+            best_with_sequence
+            if _staff_sequence_selection_key(best_with_sequence)
+            > _staff_sequence_selection_key(best_without_sequence)
+            else best_without_sequence
         )
 
-    spacing_deviation_ratio, _, selected_indices = best_sequence
-    staff_line_rows = tuple(long_line_rows[index] for index in selected_indices)
-    staff_line_support = tuple(long_line_support[index] for index in selected_indices)
-    mean_staff_spacing = fmean(
-        staff_line_rows[index + 1] - staff_line_rows[index]
-        for index in range(len(staff_line_rows) - 1)
-    )
-    return SystemCandidateAssessment(
-        page_number=page_number,
-        source_candidate_index=source_candidate_index,
-        system_bbox=system_bbox,
-        accepted=True,
-        reason="five_consistently_spaced_staff_lines",
-        long_horizontal_line_rows=tuple(long_line_rows),
-        long_horizontal_line_support=tuple(long_line_support),
-        staff_line_rows=staff_line_rows,
-        staff_line_support=staff_line_support,
-        mean_staff_spacing=mean_staff_spacing,
-        max_spacing_deviation_ratio=spacing_deviation_ratio,
+    return sorted(best_through[-1], key=lambda sequence: sequence.rows[0]) if ordered else []
+
+
+def _staff_sequence_selection_key(
+    sequences: List[_StaffLineSequence],
+) -> tuple[int, float, float]:
+    return (
+        len(sequences),
+        -sum(sequence.spacing_deviation_ratio for sequence in sequences),
+        sum(fmean(sequence.support) for sequence in sequences),
     )
 
 
