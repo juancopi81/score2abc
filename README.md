@@ -304,6 +304,15 @@ uv run python scripts/experiments/apply_vlm_melody_key_correction.py \
 Repeat `--key-event START_MEASURE=FIFTHS` when a later system changes key.
 The output is create-once and records invariant checks plus pitch overlays.
 
+Coqueteos system 2 completed the fresh fifth-score full-event gate. Its six
+frozen automatic crops map to seven physical measures because the pre-truth
+segmentation missed the final internal barline. The one-shot result is note F1
+`0.363636`, ordered pitch `0.375`, onset `0.28125`, duration `0.59375`, rest
+F1 `0`, and `0/6` exact crops. The truth-blind review signal flags three real
+error crops with no false alerts but misses three others. Postmortem barline
+cleanup recovers all seven measure boundaries without changing any other
+generated system or the sealed evaluation.
+
 Fresh segmentation now rejects La Chata's title/author band and renumbers only
 musical systems. Existing historical `out/` crops remain unchanged so sealed
 heldout hashes and prior evidence stay reproducible. The code and artifacts

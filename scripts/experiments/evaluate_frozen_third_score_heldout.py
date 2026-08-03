@@ -23,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from score2abc import musicxml as musicxml_utils  # noqa: E402
+from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer  # noqa: E402
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
 from scripts.experiments import run_third_score_heldout_inference as inference  # noqa: E402
@@ -54,11 +55,16 @@ FOURTH_SCORE_EVALUATION = HeldoutEvaluationSpec(
     gate=fourth_freezer.FOURTH_SCORE_GATE,
     default_one_to_one_count=6,
 )
+FIFTH_SCORE_EVALUATION = HeldoutEvaluationSpec(
+    gate=fifth_freezer.FIFTH_SCORE_GATE,
+    default_one_to_one_count=6,
+)
 EVALUATION_SPECS = {
     spec.gate.sealed_kind: spec
     for spec in (
         THIRD_SCORE_EVALUATION,
         FOURTH_SCORE_EVALUATION,
+        FIFTH_SCORE_EVALUATION,
     )
 }
 

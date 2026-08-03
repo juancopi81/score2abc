@@ -182,6 +182,102 @@ def test_freeze_hash_is_deterministic_for_identical_pinned_inputs(tmp_path: Path
     assert frozen[0]["sealed_manifest_sha256"] == frozen[1]["sealed_manifest_sha256"]
 
 
+def test_freeze_stages_then_atomically_publishes_frozen_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    prepared_path = _prepared_manifest(tmp_path, namespace="atomic-freeze-v1")
+    predictions = _artifact(tmp_path / "predictions.jsonl")
+    model = _artifact(tmp_path / "model.json")
+    training = _artifact(tmp_path / "training.json")
+    namespace_root = prepared_path.parent
+    temp_dir = namespace_root / ".frozen.tmp"
+    final_dir = namespace_root / "frozen"
+    staged_dirs: list[Path] = []
+    original_snapshot = spike._snapshot_artifact
+
+    def record_staging(*args, **kwargs):
+        staged_dirs.append(kwargs["frozen_dir"])
+        assert temp_dir.is_dir()
+        assert not final_dir.exists()
+        return original_snapshot(*args, **kwargs)
+
+    monkeypatch.setattr(spike, "_snapshot_artifact", record_staging)
+
+    result = spike.freeze_prepared_third_score(
+        prepared_path,
+        predictions_path=predictions,
+        model_artifact_paths=(model,),
+        training_artifact_paths=(training,),
+    )
+
+    assert staged_dirs == [temp_dir, temp_dir, temp_dir]
+    assert not temp_dir.exists()
+    assert final_dir.is_dir()
+    assert Path(result["freeze"]) == final_dir / "freeze.json"
+    assert Path(result["sealed_manifest"]) == final_dir / "sealed_manifest.json"
+
+
+def test_freeze_rejects_stale_temp_directory(tmp_path: Path) -> None:
+    prepared_path = _prepared_manifest(tmp_path, namespace="stale-temp-v1")
+    artifact = _artifact(tmp_path / "artifact.json")
+    temp_dir = prepared_path.parent / ".frozen.tmp"
+    marker = temp_dir / "partial.txt"
+    marker.parent.mkdir()
+    marker.write_text("do not remove", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="stale temporary freeze"):
+        spike.freeze_prepared_third_score(
+            prepared_path,
+            predictions_path=artifact,
+            model_artifact_paths=(artifact,),
+            training_artifact_paths=(artifact,),
+        )
+
+    assert marker.read_text(encoding="utf-8") == "do not remove"
+    assert not (prepared_path.parent / "frozen").exists()
+
+
+def test_freeze_cleans_new_temp_directory_after_snapshot_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    prepared_path = _prepared_manifest(tmp_path, namespace="snapshot-failure-v1")
+    artifact = _artifact(tmp_path / "artifact.json")
+    namespace_root = prepared_path.parent
+    temp_dir = namespace_root / ".frozen.tmp"
+    original_snapshot = spike._snapshot_artifact
+    calls = 0
+
+    def fail_after_snapshot(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        pin = original_snapshot(*args, **kwargs)
+        if calls == 2:
+            raise RuntimeError("injected snapshot failure")
+        return pin
+
+    monkeypatch.setattr(spike, "_snapshot_artifact", fail_after_snapshot)
+
+    with pytest.raises(RuntimeError, match="injected snapshot failure"):
+        spike.freeze_prepared_third_score(
+            prepared_path,
+            predictions_path=artifact,
+            model_artifact_paths=(artifact,),
+            training_artifact_paths=(artifact,),
+        )
+
+    assert not temp_dir.exists()
+    assert not (namespace_root / "frozen").exists()
+
+    monkeypatch.setattr(spike, "_snapshot_artifact", original_snapshot)
+    result = spike.freeze_prepared_third_score(
+        prepared_path,
+        predictions_path=artifact,
+        model_artifact_paths=(artifact,),
+        training_artifact_paths=(artifact,),
+    )
+    assert Path(result["sealed_manifest"]).is_file()
+
+
 def test_freeze_rejects_truth_artifact_path(tmp_path: Path) -> None:
     candidate = spike.Candidate("fresh", 3, "only")
     _system_image(tmp_path, candidate, width=800, barlines=(20, 200, 400, 600, 780))

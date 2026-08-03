@@ -604,3 +604,59 @@ Evidence is at:
 Next: test event/rest accuracy and non-mutating onset/meter review triage on
 fresh independent evidence. Keep visual-key recognition and explicit key
 correction review-only until they generalize beyond the consumed suite.
+
+### Fifth-Score One-Shot Evaluation
+
+Coqueteos system 2 was frozen as the fifth fresh independent gate. The
+pre-truth segmentation produced six automatic crops with width-spacing CV
+`0.212794` under the unchanged layout threshold. This segmentation is part of
+the sealed result and was not changed after transcription.
+
+The gate uses the replayed cross-score selector trained only on Aviador and
+Carrizal. Before any Coqueteos MusicXML was opened, it sealed the six source
+crops, full event predictions, model/training provenance, treble clef, a
+provisional metadata-derived `Pasillo -> 3/4` prior, and an unknown key because
+the automatic initial-key detector was inconclusive. Important pins are:
+
+- prepared manifest: `e6b92a4b75f627949acc1ea97091d26cf6b57d733ccd8db168a42060d35f2765`
+- canonical predictions: `1950e076c46c8b61107ce70db985348828066924001ec0fc618bf7a2533d9157`
+- model: `6e2f17c043e94a68cdd642a0dbd02a52bcefb011e493bb13b72a31d1f59cf2a6`
+- freeze: `5aaf35921ed8951b38bdae0c9924f627cfd06e5b11cfe120b9f3508cc85abce3`
+- sealed manifest: `ecaa6c990e7bfc4dfa5ac6f13ab222e156292378edef7aefd99e9e343eab7c2d`
+
+The independent transcription contains seven valid `3/4` measures with one
+flat. Automatic crops 1-5 map to physical measures 1-5; crop 6 maps to
+physical measures 6-7. Crop 1 starts after a false leading boundary, so scoring
+it against the complete first measure intentionally counts the lost beginning
+as an automatic segmentation failure.
+
+| Metric | Result |
+|---|---:|
+| Predicted / truth noteheads | `24 / 31` |
+| Note F1 | `0.363636` |
+| Ordered-pitch accuracy | `0.375` |
+| Ordered-onset accuracy | `0.28125` |
+| Ordered-duration accuracy | `0.59375` |
+| Rest F1 | `0` |
+| Exact automatic crops | `0 / 6` |
+| Meter-valid automatic crops | `5 / 6` |
+
+The provisional `3/4` context matched the MusicXML. Frozen key context was
+unknown, while the transcription contains one flat. The truth-blind,
+non-mutating meter sidecar had flagged automatic measures 3, 4, and 5. All
+three are genuine event errors, but automatic measures 1, 2, and 6 are also
+wrong, giving triage precision `1.0`, recall `0.5`, F1 `0.666667`, and review
+load `3/6`. This supports review prioritization but not automatic deletion.
+
+Transcription review also corrected the segmentation diagnosis. x=150 is an
+upward note stem after musical ink, while x=2041 is the true barline before the
+final dotted-half measure. The postmortem image-aware cleanup now yields
+boundaries `[0, 541, 902, 1091, 1390, 1735, 2041, 2126]`. A replay over every
+generated system changes only Coqueteos system 2, and the Aviador benchmark
+remains `TP=69`, `FP=7`, `FN=1`, F1 `0.945`. The sealed six-crop evaluation
+remains authoritative.
+
+Evidence is at:
+
+- `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/evaluation_v1/`
+- `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/pretruth_meter_triage_v1/`

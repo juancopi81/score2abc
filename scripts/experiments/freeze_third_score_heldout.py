@@ -322,9 +322,14 @@ def freeze_prepared_heldout_score(
 
     namespace_root = prepared_manifest_path.parent
     frozen_dir = namespace_root / "frozen"
-    if frozen_dir.exists():
+    temp_frozen_dir = namespace_root / ".frozen.tmp"
+    if frozen_dir.exists() or frozen_dir.is_symlink():
         raise ValueError(
             f"{gate.key} freeze already exists and cannot be overwritten: {frozen_dir}"
+        )
+    if temp_frozen_dir.exists() or temp_frozen_dir.is_symlink():
+        raise ValueError(
+            f"{gate.key} stale temporary freeze must be removed before retry: {temp_frozen_dir}"
         )
 
     prepared = _read_json(prepared_manifest_path)
@@ -339,64 +344,92 @@ def freeze_prepared_heldout_score(
     for path in all_inputs:
         _validate_external_artifact(path, target_slug=target_slug)
 
-    frozen_dir.mkdir(parents=False, exist_ok=False)
-    prediction_pin = _snapshot_artifact(
-        predictions_path,
-        frozen_dir=frozen_dir,
-        role="predictions",
-        index=1,
-    )
-    model_pins = [
-        _snapshot_artifact(path, frozen_dir=frozen_dir, role="model", index=index)
-        for index, path in enumerate(model_artifact_paths, start=1)
-    ]
-    training_pins = [
-        _snapshot_artifact(path, frozen_dir=frozen_dir, role="training", index=index)
-        for index, path in enumerate(training_artifact_paths, start=1)
-    ]
+    temp_created = False
+    try:
+        temp_frozen_dir.mkdir(parents=False, exist_ok=False)
+        temp_created = True
+        prediction_pin = _snapshot_artifact(
+            predictions_path,
+            frozen_dir=temp_frozen_dir,
+            published_frozen_dir=frozen_dir,
+            role="predictions",
+            index=1,
+        )
+        model_pins = [
+            _snapshot_artifact(
+                path,
+                frozen_dir=temp_frozen_dir,
+                published_frozen_dir=frozen_dir,
+                role="model",
+                index=index,
+            )
+            for index, path in enumerate(model_artifact_paths, start=1)
+        ]
+        training_pins = [
+            _snapshot_artifact(
+                path,
+                frozen_dir=temp_frozen_dir,
+                published_frozen_dir=frozen_dir,
+                role="training",
+                index=index,
+            )
+            for index, path in enumerate(training_artifact_paths, start=1)
+        ]
+
+        temp_freeze_path = temp_frozen_dir / "freeze.json"
+        freeze_payload = {
+            "schema_version": SCHEMA_VERSION,
+            "kind": gate.freeze_kind,
+            "status": "frozen_awaiting_truth",
+            "split": SPLIT_NAME,
+            "truth_accessed": False,
+            "truth_must_be_added_only_after_freeze": True,
+            "target": prepared["target"],
+            "namespace": prepared["namespace"],
+            "prepared_manifest": {
+                "path": "../prepared_manifest.json",
+                "sha256": _sha256(prepared_manifest_path),
+            },
+            "selection_sha256": prepared["artifacts"]["selection"]["sha256"],
+            "requests": prepared["artifacts"]["requests"],
+            "evaluator": prepared["artifacts"]["evaluator"],
+            "forbidden_truth_paths": prepared["forbidden_truth_paths"],
+            "predictions": prediction_pin,
+            "model_artifacts": model_pins,
+            "training_artifacts": training_pins,
+        }
+        _write_json(temp_freeze_path, freeze_payload)
+        freeze_sha256 = _sha256(temp_freeze_path)
+
+        temp_sealed_path = temp_frozen_dir / "sealed_manifest.json"
+        sealed_payload = {
+            "schema_version": SCHEMA_VERSION,
+            "kind": gate.sealed_kind,
+            "status": "frozen_awaiting_truth",
+            "split": SPLIT_NAME,
+            "truth_accessed": False,
+            "target": prepared["target"],
+            "freeze": {"path": "freeze.json", "sha256": freeze_sha256},
+            "prepared_manifest_sha256": _sha256(prepared_manifest_path),
+            "next_gate": "verify all hashes, then materialize canonical truth exactly once",
+        }
+        _write_json(temp_sealed_path, sealed_payload)
+        sealed_manifest_sha256 = _sha256(temp_sealed_path)
+
+        temp_frozen_dir.rename(frozen_dir)
+        temp_created = False
+    except Exception:
+        if temp_created and temp_frozen_dir.exists():
+            shutil.rmtree(temp_frozen_dir)
+        raise
 
     freeze_path = frozen_dir / "freeze.json"
-    freeze_payload = {
-        "schema_version": SCHEMA_VERSION,
-        "kind": gate.freeze_kind,
-        "status": "frozen_awaiting_truth",
-        "split": SPLIT_NAME,
-        "truth_accessed": False,
-        "truth_must_be_added_only_after_freeze": True,
-        "target": prepared["target"],
-        "namespace": prepared["namespace"],
-        "prepared_manifest": {
-            "path": "../prepared_manifest.json",
-            "sha256": _sha256(prepared_manifest_path),
-        },
-        "selection_sha256": prepared["artifacts"]["selection"]["sha256"],
-        "requests": prepared["artifacts"]["requests"],
-        "evaluator": prepared["artifacts"]["evaluator"],
-        "forbidden_truth_paths": prepared["forbidden_truth_paths"],
-        "predictions": prediction_pin,
-        "model_artifacts": model_pins,
-        "training_artifacts": training_pins,
-    }
-    _write_json(freeze_path, freeze_payload)
-
     sealed_path = frozen_dir / "sealed_manifest.json"
-    sealed_payload = {
-        "schema_version": SCHEMA_VERSION,
-        "kind": gate.sealed_kind,
-        "status": "frozen_awaiting_truth",
-        "split": SPLIT_NAME,
-        "truth_accessed": False,
-        "target": prepared["target"],
-        "freeze": {"path": "freeze.json", "sha256": _sha256(freeze_path)},
-        "prepared_manifest_sha256": _sha256(prepared_manifest_path),
-        "next_gate": "verify all hashes, then materialize canonical truth exactly once",
-    }
-    _write_json(sealed_path, sealed_payload)
     return {
         "freeze": str(freeze_path),
-        "freeze_sha256": _sha256(freeze_path),
+        "freeze_sha256": freeze_sha256,
         "sealed_manifest": str(sealed_path),
-        "sealed_manifest_sha256": _sha256(sealed_path),
+        "sealed_manifest_sha256": sealed_manifest_sha256,
     }
 
 
@@ -572,6 +605,7 @@ def _snapshot_artifact(
     source: Path,
     *,
     frozen_dir: Path,
+    published_frozen_dir: Path | None = None,
     role: str,
     index: int,
 ) -> dict[str, Any]:
@@ -583,10 +617,14 @@ def _snapshot_artifact(
     snapshot_hash = _sha256(snapshot)
     if source_hash != snapshot_hash:
         raise ValueError(f"Snapshot hash mismatch for {source}")
+    published_frozen_dir = published_frozen_dir or frozen_dir
+    published_snapshot = published_frozen_dir / snapshot.relative_to(frozen_dir)
     return {
         "source_path": _repo_display_path(source),
         "source_sha256": source_hash,
-        "snapshot_path_relative_to_namespace": snapshot.relative_to(frozen_dir.parent).as_posix(),
+        "snapshot_path_relative_to_namespace": published_snapshot.relative_to(
+            published_frozen_dir.parent
+        ).as_posix(),
         "snapshot_sha256": snapshot_hash,
     }
 

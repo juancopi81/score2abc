@@ -130,6 +130,8 @@ def measure_boundaries_for_system(
             gray,
             _dedupe_boundaries(sorted(float(b) for b in barlines if 0.0 <= float(b) <= 1.0)),
         )
+        cleaned_barlines = _reject_leading_note_stem(gray, cleaned_barlines)
+        cleaned_barlines = _reject_note_stem_before_terminal_barline(gray, cleaned_barlines)
         boundaries = measure_boundaries(cleaned_barlines)
         boundaries = _trim_blank_tail(gray, boundaries)
         return _merge_accidental_slices(gray, boundaries)
@@ -434,6 +436,159 @@ def _side_ink_density_between_staff_lines(
 
 def _near_staff_line(y: int, staff_line_rows: Sequence[int]) -> bool:
     return any(abs(y - line_y) <= 3 for line_y in staff_line_rows)
+
+
+def _reject_leading_note_stem(
+    gray: Image.Image,
+    barlines: Sequence[float],
+) -> list[float]:
+    if not barlines or barlines[0] <= 0.05 or barlines[0] > LEADING_BARLINE_FRACTION:
+        return list(barlines)
+
+    width, height = gray.size
+    threshold = estimate_ink_threshold(gray)
+    pixels = gray.load()
+    staff_top, staff_bot = _staff_band(pixels, width, height, threshold, pad=4)
+    staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
+    if len(staff_line_rows) < 5:
+        return list(barlines)
+
+    staff_spacings = [
+        right - left for left, right in zip(staff_line_rows, staff_line_rows[1:], strict=False)
+    ]
+    candidate_x = round(barlines[0] * width)
+    top_extension = _contiguous_vertical_extension(
+        pixels,
+        width=width,
+        height=height,
+        threshold=threshold,
+        x=candidate_x,
+        start_y=staff_top - 1,
+        step=-1,
+    )
+    if top_extension < 0.9 * median(staff_spacings):
+        return list(barlines)
+
+    left_ink_density = _nonstaff_ink_density(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x0=0,
+        x1=max(0, candidate_x - 12),
+    )
+    if left_ink_density < 0.02:
+        return list(barlines)
+
+    return list(barlines[1:])
+
+
+def _reject_note_stem_before_terminal_barline(
+    gray: Image.Image,
+    barlines: Sequence[float],
+) -> list[float]:
+    if len(barlines) < 2:
+        return list(barlines)
+
+    terminal = barlines[-1]
+    candidate = barlines[-2]
+    if terminal < TRAILING_BARLINE_FRACTION or candidate >= TRAILING_BARLINE_FRACTION:
+        return list(barlines)
+
+    width, height = gray.size
+    threshold = estimate_ink_threshold(gray)
+    pixels = gray.load()
+    staff_top, staff_bot = _staff_band(pixels, width, height, threshold, pad=4)
+    staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
+    if len(staff_line_rows) < 5:
+        return list(barlines)
+
+    staff_spacings = [
+        right - left for left, right in zip(staff_line_rows, staff_line_rows[1:], strict=False)
+    ]
+    gap_px = round((terminal - candidate) * width)
+    if gap_px > 4.0 * median(staff_spacings):
+        return list(barlines)
+
+    candidate_x = round(candidate * width)
+    terminal_x = round(terminal * width)
+    candidate_cluster = _vertical_cluster_width(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        x=candidate_x,
+    )
+    terminal_cluster = _vertical_cluster_width(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        x=terminal_x,
+    )
+    if candidate_cluster >= 8 or terminal_cluster < 8:
+        return list(barlines)
+
+    top_extension = _contiguous_vertical_extension(
+        pixels,
+        width=width,
+        height=height,
+        threshold=threshold,
+        x=candidate_x,
+        start_y=staff_top - 1,
+        step=-1,
+    )
+    if top_extension < 0.7 * median(staff_spacings):
+        return list(barlines)
+
+    candidate_side_ink = _side_ink_density_between_staff_lines(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x=candidate_x,
+    )
+    terminal_side_ink = _side_ink_density_between_staff_lines(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x=terminal_x,
+    )
+    if candidate_side_ink < terminal_side_ink + 0.02:
+        return list(barlines)
+
+    return [*barlines[:-2], terminal]
+
+
+def _contiguous_vertical_extension(
+    pixels,
+    *,
+    width: int,
+    height: int,
+    threshold: int,
+    x: int,
+    start_y: int,
+    step: int,
+) -> int:
+    extension = 0
+    y = start_y
+    while 0 <= y < height:
+        if not any(
+            pixels[xx, y] < threshold for xx in range(max(0, x - 1), min(width - 1, x + 1) + 1)
+        ):
+            break
+        extension += 1
+        y += step
+    return extension
 
 
 def _trim_blank_tail(gray: Image.Image, boundaries: Sequence[float]) -> list[float]:

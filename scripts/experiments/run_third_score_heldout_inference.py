@@ -24,6 +24,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import build_vlm_melody_inputs as melody_inputs  # noqa: E402
+from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer  # noqa: E402
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
 from scripts.experiments import spike_composed_melody_chain as composed  # noqa: E402
@@ -34,6 +35,7 @@ from scripts.experiments import spike_review_augmented_selector as dense  # noqa
 SCHEMA_VERSION = 1
 INFERENCE_VERSION = "third-score-inference-v2"
 FOURTH_SCORE_INFERENCE_VERSION = "fourth-score-inference-v1"
+FIFTH_SCORE_INFERENCE_VERSION = "fifth-score-inference-v1"
 DEFAULT_INFERENCE_DIRNAME = "inference_v2"
 DEFAULT_MODEL_DIR = REPO_ROOT / "out/vlm_melody_consumed_training/cross_score_notehead_v1"
 LA_CHATA_SLUG = "jaime-llanos_64_la-chata_pasillo_luis-a-calvo"
@@ -55,6 +57,12 @@ GATE_CONFIGS = {
         "inference_version": FOURTH_SCORE_INFERENCE_VERSION,
         "manifest_kind": "fourth_score_truth_blind_inference_manifest",
         "binding_kind": "fourth_score_inference_provenance_binding",
+    },
+    fifth_freezer.FIFTH_SCORE_GATE.prepare_kind: {
+        "gate": fifth_freezer.FIFTH_SCORE_GATE,
+        "inference_version": FIFTH_SCORE_INFERENCE_VERSION,
+        "manifest_kind": "fifth_score_truth_blind_inference_manifest",
+        "binding_kind": "fifth_score_inference_provenance_binding",
     },
 }
 

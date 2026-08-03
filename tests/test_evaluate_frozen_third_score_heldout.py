@@ -211,6 +211,26 @@ def test_fourth_score_uses_six_crop_default_and_gate_specific_outputs(tmp_path: 
     assert manifest["truth_opened_after_all_frozen_hashes_verified"] is True
 
 
+def test_fifth_score_uses_six_crop_default_and_gate_specific_outputs(tmp_path: Path) -> None:
+    pitches = [[60], [62, 64], [65], [67], [69, 71], [72]]
+    fixture = _frozen_fixture(
+        tmp_path,
+        predictions=pitches,
+        evaluation_spec=spike.FIFTH_SCORE_EVALUATION,
+    )
+    musicxml = _write_musicxml(tmp_path / "six.musicxml", pitches)
+
+    result = spike.evaluate_frozen_heldout(fixture["sealed"], musicxml_path=musicxml)
+
+    report = json.loads(Path(result["report"]).read_text(encoding="utf-8"))
+    manifest = json.loads(Path(result["manifest"]).read_text(encoding="utf-8"))
+    assert report["kind"] == "fifth_score_pitch_only_one_shot_evaluation"
+    assert report["metrics"]["summary"]["automatic_crop_count"] == 6
+    assert report["metrics"]["summary"]["exact_automatic_crops"] == 6
+    assert manifest["kind"] == "fifth_score_post_freeze_evaluation_manifest"
+    assert manifest["truth_opened_after_all_frozen_hashes_verified"] is True
+
+
 def test_one_shot_output_refuses_overwrite_before_reopening_truth(tmp_path: Path) -> None:
     fixture = _frozen_fixture(tmp_path, predictions=[[60]] * 7)
     musicxml = _write_musicxml(tmp_path / "seven.musicxml", [[60]] * 7)

@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageDraw
 
+from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer
 from scripts.experiments import freeze_third_score_heldout as freezer
 from scripts.experiments import run_third_score_heldout_inference as spike
@@ -198,6 +199,109 @@ def test_materializes_and_freezes_variable_count_fourth_score_with_pinned_contex
     assert freeze["inference_binding"]["version"] == "fourth-score-inference-v1"
     assert "prepared_context" in freeze["inference_binding"]["inference"]
     spike.verify_frozen_outputs(prepared.parent / "frozen")
+
+
+def test_materializes_and_freezes_six_crop_fifth_score_with_unknown_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = freezer.Candidate(fifth_freezer.COQUETEOS_SLUG, 2, "test")
+    boundaries = tuple(index / 6 for index in range(7))
+    monkeypatch.setattr(freezer, "detect_barlines", lambda _path: list(boundaries))
+    monkeypatch.setattr(
+        freezer,
+        "measure_boundaries_for_system",
+        lambda _path, _detected: list(boundaries),
+    )
+    target = _system_image(tmp_path, candidate)
+    initial = target.with_name("system_001.png")
+    shutil.copyfile(target, initial)
+    metadata = tmp_path / candidate.slug / "metadata.json"
+    metadata.write_text(
+        json.dumps(
+            {
+                "title": "Synthetic",
+                "composer": "Test",
+                "rhythm": "Pasillo",
+                "time_signature": None,
+                "key_hint": None,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        fifth_freezer.key_detector,
+        "detect_signature",
+        lambda _path, mode: {
+            "mode": mode,
+            "fifths": -1,
+            "gate_passed": False,
+            "truth_used_for_prediction": False,
+        },
+    )
+    monkeypatch.setattr(
+        fifth_freezer.key_detector,
+        "_draw_overlay",
+        lambda _prediction, path: Image.open(initial).save(path),
+    )
+    prepared_report = fifth_freezer.prepare_fifth_score(
+        tmp_path,
+        candidate_pool=(candidate,),
+        policy=freezer.LayoutPolicy(
+            min_width_px=500,
+            min_height_px=50,
+            min_measure_count=6,
+            max_measure_count=6,
+            min_crop_width_px=50,
+            max_spacing_cv=0.1,
+        ),
+    )
+    prepared = Path(prepared_report["prepared_manifest"])
+    model_dir = _model_dir(tmp_path)
+
+    inference_result = spike.materialize_third_score_inference(prepared, model_dir=model_dir)
+
+    assert inference_result["output_count"] == 6
+    manifest = spike._read_json(Path(inference_result["manifest"]))
+    assumptions = spike._read_json(Path(inference_result["inference_dir"]) / "assumptions.json")
+    assert manifest["kind"] == "fifth_score_truth_blind_inference_manifest"
+    assert manifest["version"] == "fifth-score-inference-v1"
+    assert assumptions["allowed_context"] == {
+        "allow_pickup": False,
+        "clef": "treble",
+        "expected_measure_beats": 3.0,
+        "key_hint": None,
+        "time_signature": "3/4",
+    }
+
+    frozen = spike.freeze_inference(
+        prepared,
+        inference_dir=Path(inference_result["inference_dir"]),
+        model_dir=model_dir,
+    )
+    freeze = spike._read_json(Path(frozen["freeze"]))
+    assert freeze["kind"] == "fifth_score_fresh_heldout_freeze"
+    assert freeze["inference_binding"]["version"] == "fifth-score-inference-v1"
+    spike.verify_frozen_outputs(prepared.parent / "frozen")
+
+    model_payload = spike._read_json(model_dir / "model.json")
+    model_payload["training"]["scores"] = [fifth_freezer.COQUETEOS_SLUG]
+    spike._write_json(model_dir / "model.json", model_payload)
+    training = spike._read_json(model_dir / "training_selection.json")
+    training["final_training"]["scores"] = [fifth_freezer.COQUETEOS_SLUG]
+    spike._write_json(model_dir / "training_selection.json", training)
+    model_manifest = spike._read_json(model_dir / "manifest.json")
+    for name in ("model.json", "training_selection.json"):
+        model_manifest["artifacts"][name]["sha256"] = spike._sha256(model_dir / name)
+    spike._write_json(model_dir / "manifest.json", model_manifest)
+
+    with pytest.raises(ValueError, match="trained on held-out target"):
+        spike.materialize_third_score_inference(
+            prepared,
+            model_dir=model_dir,
+            inference_dirname="target_leak",
+        )
+    assert not (prepared.parent / "target_leak").exists()
 
 
 def test_freeze_pins_predictions_model_and_training(
