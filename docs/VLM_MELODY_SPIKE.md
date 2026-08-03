@@ -660,3 +660,68 @@ Evidence is at:
 
 - `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/evaluation_v1/`
 - `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/pretruth_meter_triage_v1/`
+
+### Coqueteos Corrected-Segmentation Postmortem
+
+After the one-shot gate was consumed, the corrected seven boundaries were
+materialized in a separate `coqueteos_system_002_seg_v2` namespace. The replay
+uses the exact frozen model hash `6e2f17c...` and the same truth-blind treble,
+provisional `3/4`, and unknown-key context. It writes requests, predictions,
+detailed inference, and meter-triage observations before opening the consumed
+MusicXML. It never modifies the sealed six-crop gate.
+
+| Metric | Sealed 6 crops | Corrected 7 crops | Delta |
+|---|---:|---:|---:|
+| Note F1 | `0.363636` | `0.280702` | `-0.082934` |
+| Note precision | `0.416667` | `0.307692` | `-0.108975` |
+| Note recall | `0.322581` | `0.258065` | `-0.064516` |
+| Ordered pitch | `0.375` | `0.30303` | `-0.07197` |
+| Ordered onset | `0.28125` | `0.333333` | `+0.052083` |
+| Ordered duration | `0.59375` | `0.575758` | `-0.017992` |
+| Meter-valid crops | `5/6` | `7/7` | structural gain |
+| Exact crops | `0/6` | `0/7` | no gain |
+
+This is a useful negative result: corrected segmentation restores physical
+measure structure and meter coverage but does not fix selector, pitch, rhythm,
+or rest recognition. The corrected review-only meter signal flags measures 3,
+4, 5, and 7. All are genuine event errors, giving precision `1.0`, recall
+`0.571429`, F1 `0.727273`, and review load `4/7`; all seven measures are wrong,
+so the signal still misses three and remains unsuitable for automatic repair.
+
+The corrected, GT-blind candidate builder plus consumed MusicXML alignment
+produces an explicitly unreviewed proposal queue. It finds pitch-compatible
+candidates for `27/31` expected notes:
+
+| Measure | Expected | Proposed matches | Unresolved expected |
+|---:|---:|---:|---:|
+| 1 | 6 | 5 | 1 |
+| 2 | 6 | 5 | 1 |
+| 3 | 1 | 0 | 1 |
+| 4 | 5 | 5 | 0 |
+| 5 | 6 | 6 | 0 |
+| 6 | 6 | 5 | 1 |
+| 7 | 1 | 1 | 0 |
+
+The frozen selector chose only two of six expected notes in measure 5 even
+though all six have pitch-compatible candidates. This isolates selector recall
+as the highest-value next target. The queue remains
+`eligible_for_training=false` and `human_reviewed=false`; MusicXML events do
+not provide notehead pixel coordinates, so deterministic assignments must be
+visually adjudicated before retraining.
+
+Reproduce the consumed slice:
+
+```bash
+uv run python scripts/experiments/build_consumed_cross_score_training_inputs.py out \
+  --slug jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia \
+  --system 2 --namespace coqueteos_system_002_seg_v2 --expected-measures 7
+uv run python scripts/experiments/spike_consumed_coqueteos_corrected_replay.py out
+uv run python scripts/experiments/prepare_consumed_cross_score_proposals.py out \
+  --mapping out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/mapping.json \
+  --consumption-mapping out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/consumed_corrected_replay_v1/consumption_mapping.json
+```
+
+Evidence is at:
+
+- `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/consumed_corrected_replay_v1/`
+- `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/proposals/`

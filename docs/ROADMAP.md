@@ -64,15 +64,18 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Prepare, freeze, and evaluate Gato'e Fique system 3 as a fourth-score truth-blind gate. Six automatic crops, configuration-C predictions, the automatic initial one-flat result, and a provisional `Pasillo -> 3/4` metadata prior were hash-sealed before MusicXML access. Independent scoring reached note-count F1 `0.941177`, ordered-pitch accuracy `0.222222`, and `0/6` exact crops. The transcription has two sharps; a consumed key-corrected replay preserves selected heads while raising ordered-pitch accuracy to `0.666667` and exact pitch groups from `5/24` to `16/24`.
 - [x] Generalize initial key-signature recognition using the independently exposed Gato'e Fique miss, then add a review-time key correction/replay path. Ordered glyph-sequence matching now distinguishes its two sharps while retaining all six prior consumed signature/control cases (`7/7` total), and the 89-crop change scan still emits only the same three real changes. The create-once correction action replays pitch from explicit measure-indexed fifths while asserting candidate IDs, coordinates, counts, and rhythm are unchanged; the sealed heldout score remains untouched.
 - [x] Complete the Coqueteos system-2 fifth-score independent gate. Six automatic crops and full event predictions were sealed before the seven-measure MusicXML was opened. Whole-measure scoring reached note F1 `0.363636`, ordered pitch `0.375`, onset `0.28125`, duration `0.59375`, rest F1 `0`, and `0/6` exact crops. The pre-truth meter triage flags three genuine error crops with no false alerts but misses the other three. Transcription review exposed a false leading stem and missed x=2041 barline; the postmortem correction recovers all seven boundaries while changing no other generated system and preserving Aviador F1 `0.945`.
+- [x] Replay the exact frozen Coqueteos recognizer on corrected one-to-one segmentation without rewriting heldout evidence. Meter-valid crops improve `5/6 -> 7/7`, but note F1 regresses `0.363636 -> 0.280702`; segmentation is retained for structural correctness, not claimed as recognition gain. Corrected meter triage flags `4/7` genuine error measures at precision `1.0`, and the unreviewed proposal queue finds pitch-compatible candidates for `27/31` expected notes. The queue remains ineligible for training pending coordinate review.
 - [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: use the consumed Coqueteos evidence to improve recall in
-notehead selection and meter review without weakening the independently
-confirmed precision. Do not use the triage to delete notes. Key correction
-remains an explicit review action until visual-key behavior generalizes beyond
-the consumed suite. Pipeline integration remains gated on independent
-exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
+Next main M2 focus: visually adjudicate the corrected Coqueteos proposal queue,
+then rerun score-disjoint selector training and preserve prior heldout
+regressions. Prioritize the four-head miss in measure 5, sparse false positives
+in measures 3 and 7, and one-head misses in measures 1, 2, and 6. Do not use the
+triage to delete notes. Key correction remains an explicit review action until
+visual-key behavior generalizes beyond the consumed suite. Pipeline integration
+remains gated on independent exact-event/rest evidence. See
+`docs/VLM_MELODY_SPIKE.md`.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

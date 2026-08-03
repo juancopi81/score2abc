@@ -774,24 +774,26 @@ def _validate_corrected_crop_mapping(
     physical_measure_numbers: Sequence[int],
     candidate_crop_indices: set[int],
 ) -> list[dict[str, Any]]:
+    expected_measures = list(physical_measure_numbers)
+    if expected_measures != list(range(1, len(expected_measures) + 1)):
+        raise ValueError(
+            "Corrected one-to-one mapping requires contiguous physical measures from 1"
+        )
+    if len(raw_crops) != len(expected_measures):
+        raise ValueError(
+            "Corrected mapping crop count must match the physical MusicXML measure count"
+        )
     result = []
     for index, raw in enumerate(raw_crops, start=1):
         if not isinstance(raw, dict):
             raise ValueError(f"Corrected crops[{index - 1}] must be an object")
         crop_index = _required_positive_int(raw, "system_measure_index", f"Crop {index}")
         numbers = raw.get("physical_measure_numbers")
-        if numbers != [index] or crop_index != index:
-            raise ValueError(
-                "Corrected mapping must be one-to-one for physical measures 1 through 8"
-            )
+        if numbers != [expected_measures[index - 1]] or crop_index != index:
+            raise ValueError("Corrected mapping must be one-to-one for every physical measure")
         result.append(dict(raw))
-    expected = list(physical_measure_numbers)
-    if expected != list(range(1, 9)) or len(result) != 8:
-        raise ValueError(
-            "Corrected proposal materialization requires exactly 8 physical MusicXML measures"
-        )
-    if candidate_crop_indices != set(range(1, 9)):
-        raise ValueError("Corrected candidates manifest must contain crops 1 through 8")
+    if candidate_crop_indices != set(range(1, len(expected_measures) + 1)):
+        raise ValueError("Corrected candidates manifest must contain contiguous crops from 1")
     return result
 
 
@@ -816,7 +818,7 @@ def _coverage_rows(tasks: Sequence[Mapping[str, Any]]) -> list[dict[str, int]]:
 
 def _coverage_markdown(rows: Sequence[Mapping[str, int]]) -> str:
     lines = [
-        "# Corrected Carrizal Proposal Coverage",
+        "# Corrected Consumed-System Proposal Coverage",
         "",
         "Unreviewed deterministic proposals only. These rows are not training eligible.",
         "",

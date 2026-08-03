@@ -313,6 +313,25 @@ error crops with no false alerts but misses three others. Postmortem barline
 cleanup recovers all seven measure boundaries without changing any other
 generated system or the sealed evaluation.
 
+The consumed corrected replay now quantifies that cleanup separately. Reusing
+the exact frozen model and context raises meter-valid crops from `5/6` to
+`7/7`, but note F1 falls from `0.363636` to `0.280702`; segmentation alone is
+therefore not a recognition improvement. The non-mutating meter sidecar flags
+four of seven genuine error measures with precision `1.0` and recall
+`0.571429`. A separate unreviewed proposal queue finds pitch-compatible
+candidates for `27/31` expected notes, including all expected heads in measures
+4, 5, and 7. Those assignments are not training data until visually reviewed.
+
+```bash
+uv run python scripts/experiments/build_consumed_cross_score_training_inputs.py out \
+  --slug jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia \
+  --system 2 --namespace coqueteos_system_002_seg_v2 --expected-measures 7
+uv run python scripts/experiments/spike_consumed_coqueteos_corrected_replay.py out
+uv run python scripts/experiments/prepare_consumed_cross_score_proposals.py out \
+  --mapping out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/mapping.json \
+  --consumption-mapping out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/consumed_corrected_replay_v1/consumption_mapping.json
+```
+
 Fresh segmentation now rejects La Chata's title/author band and renumbers only
 musical systems. Existing historical `out/` crops remain unchanged so sealed
 heldout hashes and prior evidence stay reproducible. The code and artifacts

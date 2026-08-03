@@ -13,6 +13,8 @@ from scripts.experiments.build_consumed_cross_score_training_inputs import (
     build_consumed_cross_score_training_inputs,
 )
 
+COQUETEOS_SLUG = "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia"
+
 
 def test_builds_isolated_eight_measure_namespace_with_blind_candidates(
     tmp_path: Path,
@@ -88,6 +90,32 @@ def test_generation_is_deterministic_for_same_source_and_namespace(tmp_path: Pat
     assert _tree_hashes(second) == first_hashes
 
 
+def test_supports_explicit_seven_measure_consumed_namespace(tmp_path: Path) -> None:
+    out_dir = _make_out(
+        tmp_path,
+        slug=COQUETEOS_SLUG,
+        title="Coqueteos",
+        composer="Fulgencio Garcia",
+        system_index=2,
+    )
+
+    destination = build_consumed_cross_score_training_inputs(
+        out_dir,
+        slug=COQUETEOS_SLUG,
+        system_index=2,
+        namespace="coqueteos_system_002_seg_v2",
+        expected_measure_count=7,
+    )
+
+    manifest = _json(destination / "manifest.json")
+    mapping = _json(destination / "mapping.json")
+    assert manifest["measure_count"] == 7
+    assert [row["system_measure_index"] for row in mapping["crops"]] == list(range(1, 8))
+    assert [row["physical_measure_numbers"] for row in mapping["crops"]] == [
+        [index] for index in range(1, 8)
+    ]
+
+
 def test_refuses_existing_and_protected_namespaces(tmp_path: Path) -> None:
     out_dir = _make_carrizal_out(tmp_path)
     destination = build_consumed_cross_score_training_inputs(out_dir)
@@ -108,24 +136,51 @@ def test_refuses_existing_and_protected_namespaces(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Unsafe"):
         build_consumed_cross_score_training_inputs(out_dir, namespace="../escape")
 
+    with pytest.raises(ValueError, match="must be positive"):
+        build_consumed_cross_score_training_inputs(
+            out_dir,
+            namespace="invalid_count",
+            expected_measure_count=0,
+        )
+
 
 def _make_carrizal_out(tmp_path: Path) -> Path:
+    return _make_out(
+        tmp_path,
+        slug=DEFAULT_SLUG,
+        title="Carrizal",
+        composer="Emilio Murillo",
+        system_index=4,
+    )
+
+
+def _make_out(
+    tmp_path: Path,
+    *,
+    slug: str,
+    title: str,
+    composer: str,
+    system_index: int,
+) -> Path:
     out_dir = tmp_path / "out"
-    work_dir = out_dir / DEFAULT_SLUG
+    work_dir = out_dir / slug
     systems_dir = work_dir / "systems"
     systems_dir.mkdir(parents=True)
     source_pdf = work_dir / "source.pdf"
     source_pdf.write_bytes(b"%PDF-1.4\n")
-    fixture_dir = Path(__file__).parent / "fixtures" / "barlines" / DEFAULT_SLUG
-    shutil.copyfile(fixture_dir / "system_004.png", systems_dir / "system_004.png")
+    fixture_dir = Path(__file__).parent / "fixtures" / "barlines" / slug
+    shutil.copyfile(
+        fixture_dir / f"system_{system_index:03d}.png",
+        systems_dir / f"system_{system_index:03d}.png",
+    )
     write_manifest_jsonl(
         [
             WorkItem(
-                slug=DEFAULT_SLUG,
+                slug=slug,
                 pdf_path=source_pdf,
                 metadata=WorkMetadata(
-                    title="Carrizal",
-                    composer="Emilio Murillo",
+                    title=title,
+                    composer=composer,
                     rhythm="pasillo",
                     time_signature="3/4",
                     key_hint="one flat: Bb",

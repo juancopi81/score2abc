@@ -133,6 +133,24 @@ def test_corrected_proposals_reject_non_blind_candidate_lineage(tmp_path: Path) 
         )
 
 
+def test_corrected_mapping_supports_seven_contiguous_measures() -> None:
+    crops = [
+        {
+            "system_measure_index": index,
+            "physical_measure_numbers": [index],
+        }
+        for index in range(1, 8)
+    ]
+
+    result = prepare._validate_corrected_crop_mapping(
+        crops,
+        physical_measure_numbers=tuple(range(1, 8)),
+        candidate_crop_indices=set(range(1, 8)),
+    )
+
+    assert result == crops
+
+
 def _fixture(tmp_path: Path) -> dict[str, Path]:
     out_dir = tmp_path / "out"
     slug = "carrizal"

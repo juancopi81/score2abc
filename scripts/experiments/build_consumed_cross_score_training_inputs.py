@@ -61,6 +61,12 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_NAMESPACE,
         help="Create-once leaf under vlm_melody_training_inputs/.",
     )
+    parser.add_argument(
+        "--expected-measures",
+        type=int,
+        default=EXPECTED_MEASURE_COUNT,
+        help="Required corrected measure count (default: 8).",
+    )
     args = parser.parse_args(argv)
     try:
         destination = build_consumed_cross_score_training_inputs(
@@ -68,6 +74,7 @@ def main(argv: list[str] | None = None) -> int:
             slug=args.slug,
             system_index=args.system,
             namespace=args.namespace,
+            expected_measure_count=args.expected_measures,
         )
     except (FileExistsError, FileNotFoundError, OSError, TypeError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -82,9 +89,12 @@ def build_consumed_cross_score_training_inputs(
     slug: str = DEFAULT_SLUG,
     system_index: int = DEFAULT_SYSTEM,
     namespace: str = DEFAULT_NAMESPACE,
+    expected_measure_count: int = EXPECTED_MEASURE_COUNT,
 ) -> Path:
-    """Create the isolated eight-crop Carrizal training-input namespace."""
+    """Create an isolated corrected-crop consumed-training namespace."""
     out_root = out_dir.resolve()
+    if expected_measure_count <= 0:
+        raise ValueError("expected_measure_count must be positive")
     destination = _validated_destination(out_root, slug=slug, namespace=namespace)
     if destination.exists():
         raise FileExistsError(f"Refusing to overwrite existing training namespace: {destination}")
@@ -99,9 +109,9 @@ def build_consumed_cross_score_training_inputs(
 
     barlines = sorted(detect_barlines(system_path))
     boundaries = measure_boundaries_for_system(system_path, barlines)
-    if len(boundaries) - 1 != EXPECTED_MEASURE_COUNT:
+    if len(boundaries) - 1 != expected_measure_count:
         raise ValueError(
-            f"Expected {EXPECTED_MEASURE_COUNT} corrected measures for {slug} system "
+            f"Expected {expected_measure_count} corrected measures for {slug} system "
             f"{system_index}, found {len(boundaries) - 1}: {boundaries}"
         )
 
@@ -120,7 +130,12 @@ def build_consumed_cross_score_training_inputs(
             boundaries=boundaries,
             overwrite=False,
         )
-        _validate_records(records, slug=slug, system_index=system_index)
+        _validate_records(
+            records,
+            slug=slug,
+            system_index=system_index,
+            expected_measure_count=expected_measure_count,
+        )
 
         inputs_manifest_path = destination / "inputs_manifest.jsonl"
         _write_jsonl(inputs_manifest_path, records)
@@ -157,6 +172,7 @@ def build_consumed_cross_score_training_inputs(
                 inputs_manifest_path=inputs_manifest_path,
                 candidates_manifest_path=candidates_manifest_path,
                 candidate_records=candidate_records,
+                expected_measure_count=expected_measure_count,
             ),
         )
         _write_json(
@@ -170,6 +186,7 @@ def build_consumed_cross_score_training_inputs(
                 inputs_manifest_path=inputs_manifest_path,
                 candidates_manifest_path=candidates_manifest_path,
                 mapping_path=mapping_path,
+                expected_measure_count=expected_measure_count,
             ),
         )
     except Exception:
@@ -299,6 +316,7 @@ def _mapping_payload(
     inputs_manifest_path: Path,
     candidates_manifest_path: Path,
     candidate_records: Sequence[dict[str, Any]],
+    expected_measure_count: int,
 ) -> dict[str, Any]:
     by_measure = {
         int(record["identity"]["system_measure_index"]): record for record in candidate_records
@@ -327,7 +345,7 @@ def _mapping_payload(
                 "physical_measure_numbers": [index],
                 "candidate_artifact": by_measure[index]["artifacts"]["candidates"],
             }
-            for index in range(1, EXPECTED_MEASURE_COUNT + 1)
+            for index in range(1, expected_measure_count + 1)
         ],
     }
 
@@ -342,6 +360,7 @@ def _namespace_manifest(
     inputs_manifest_path: Path,
     candidates_manifest_path: Path,
     mapping_path: Path,
+    expected_measure_count: int,
 ) -> dict[str, Any]:
     script_path = Path(__file__).resolve()
     candidate_builder_path = REPO_ROOT / "scripts" / "build_vlm_notehead_localization_inputs.py"
@@ -355,7 +374,7 @@ def _namespace_manifest(
         "eligible_for_promotion": False,
         "identity": {"slug": slug, "system_index": system_index},
         "segmentation_namespace": namespace,
-        "measure_count": EXPECTED_MEASURE_COUNT,
+        "measure_count": expected_measure_count,
         "source_system": _file_record(system_path),
         "artifacts": {
             "segmentation": _file_record(segmentation_path),
@@ -439,7 +458,11 @@ def _validated_destination(out_dir: Path, *, slug: str, namespace: str) -> Path:
 
 
 def _validate_records(
-    records: Sequence[Mapping[str, Any]], *, slug: str, system_index: int
+    records: Sequence[Mapping[str, Any]],
+    *,
+    slug: str,
+    system_index: int,
+    expected_measure_count: int,
 ) -> None:
     identities = [
         (
@@ -449,7 +472,7 @@ def _validate_records(
         )
         for record in records
     ]
-    expected = [(slug, system_index, index) for index in range(1, EXPECTED_MEASURE_COUNT + 1)]
+    expected = [(slug, system_index, index) for index in range(1, expected_measure_count + 1)]
     if identities != expected:
         raise ValueError(
             f"Corrected crop identities changed: expected {expected}, got {identities}"
