@@ -1,0 +1,175 @@
+{
+  "identity": {
+    "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+    "system_index": 2
+  },
+  "kind": "vlm_melody_corrected_consumed_cross_score_proposals",
+  "schema_version": 1,
+  "segmentation_namespace": "coqueteos_system_002_seg_v2",
+  "tasks": [
+    {
+      "identity": {
+        "physical_measure_number": 1,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 1
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c011"
+          },
+          {
+            "candidate_id": "c003"
+          },
+          {
+            "candidate_id": "c001"
+          },
+          {
+            "candidate_id": "c008"
+          },
+          {
+            "candidate_id": "c016"
+          }
+        ]
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 2,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 2
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c012"
+          },
+          {
+            "candidate_id": "c009"
+          },
+          {
+            "candidate_id": "c001"
+          },
+          {
+            "candidate_id": "c002"
+          },
+          {
+            "candidate_id": "c003"
+          }
+        ]
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 3,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 3
+      },
+      "proposal": {
+        "assignments": []
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 4,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 4
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c004"
+          },
+          {
+            "candidate_id": "c002"
+          },
+          {
+            "candidate_id": "c003"
+          },
+          {
+            "candidate_id": "c001"
+          },
+          {
+            "candidate_id": "c006"
+          }
+        ]
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 5,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 5
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c013"
+          },
+          {
+            "candidate_id": "c009"
+          },
+          {
+            "candidate_id": "c002"
+          },
+          {
+            "candidate_id": "c001"
+          },
+          {
+            "candidate_id": "c005"
+          },
+          {
+            "candidate_id": "c007"
+          }
+        ]
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 6,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 6
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c009"
+          },
+          {
+            "candidate_id": "c011"
+          },
+          {
+            "candidate_id": "c006"
+          },
+          {
+            "candidate_id": "c001"
+          },
+          {
+            "candidate_id": "c008"
+          }
+        ]
+      }
+    },
+    {
+      "identity": {
+        "physical_measure_number": 7,
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 7
+      },
+      "proposal": {
+        "assignments": [
+          {
+            "candidate_id": "c004"
+          }
+        ]
+      }
+    }
+  ]
+}

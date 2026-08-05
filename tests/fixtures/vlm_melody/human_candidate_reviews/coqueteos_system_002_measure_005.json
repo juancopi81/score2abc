@@ -1,0 +1,118 @@
+{
+  "accepted_heads": [
+    {
+      "candidate_id": "c013",
+      "order": 1,
+      "sounding_pitch": "F4",
+      "staff_pitch": "F4"
+    },
+    {
+      "candidate_id": "c009",
+      "order": 2,
+      "sounding_pitch": "E4",
+      "staff_pitch": "E4"
+    },
+    {
+      "candidate_id": "c006",
+      "order": 3,
+      "sounding_pitch": "D4",
+      "staff_pitch": "D4"
+    },
+    {
+      "candidate_id": "c001",
+      "order": 4,
+      "sounding_pitch": "C#4",
+      "staff_pitch": "C4"
+    },
+    {
+      "candidate_id": "c005",
+      "order": 5,
+      "sounding_pitch": "D4",
+      "staff_pitch": "D4"
+    },
+    {
+      "candidate_id": "c015",
+      "order": 6,
+      "sounding_pitch": "D#4",
+      "staff_pitch": "D4"
+    }
+  ],
+  "eligible_for_heldout_claim": false,
+  "eligible_for_spike_training": true,
+  "human_reviewed": true,
+  "identity": {
+    "physical_measure_number": 5,
+    "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+    "system_index": 2,
+    "system_measure_index": 5
+  },
+  "kind": "vlm_melody_consumed_human_candidate_review_decision",
+  "rejected_candidate_classes": [
+    {
+      "candidate_ids": [
+        "c021",
+        "c018",
+        "c010",
+        "c011"
+      ],
+      "class": "stem",
+      "description": "Vertical stem fragments belonging to handwritten notes."
+    },
+    {
+      "candidate_ids": [
+        "c022",
+        "c002",
+        "c003",
+        "c004",
+        "c007",
+        "c012"
+      ],
+      "class": "accidental",
+      "description": "Fragments of the explicit C-sharp and D-sharp accidentals."
+    },
+    {
+      "candidate_ids": [
+        "c014",
+        "c019",
+        "c020"
+      ],
+      "class": "barline",
+      "description": "Fragments of the barline separating this measure from the next."
+    },
+    {
+      "candidate_ids": [
+        "c023",
+        "c016"
+      ],
+      "class": "slur",
+      "description": "Fragments of the expressive legato slur."
+    },
+    {
+      "candidate_ids": [
+        "c024",
+        "c017",
+        "c008"
+      ],
+      "class": "neighboring_system",
+      "description": "Visible fragments from the staff system below the reviewed crop."
+    }
+  ],
+  "reviewer_type": "human_candidate_adjudication",
+  "schema_version": 1,
+  "segmentation_namespace": "coqueteos_system_002_seg_v2",
+  "source": {
+    "candidate_artifact": {
+      "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_005/candidates.json",
+      "sha256": "e9db4a74593001488d4e8faa316525f9a57ac4bcdaad1e08b536854bcf28ed76"
+    },
+    "proposals": {
+      "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/coqueteos_system_002_seg_v2/proposals.json",
+      "sha256": "4e845c8db0da8a6a27f00dc4f967fe0097be867752a0ee8e39e57106a952359c"
+    },
+    "raw_image": {
+      "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_005/raw.png",
+      "sha256": "48145f1e87495b36cf124e9052891fa5bdc3c6dabc3e760356b4b42ca267ae06"
+    }
+  },
+  "split_status": "consumed_training"
+}

@@ -1,0 +1,479 @@
+{
+  "eligible_for_heldout_claim": false,
+  "kind": "vlm_melody_hollow_notehead_fixture_manifest",
+  "measure_count": 22,
+  "measures": [
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_001/candidates.json",
+        "sha256": "2ff2503d4c7bf34a39ba2f310b51261625ba1d1f593874c34efb68c27c8b99d6"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 1,
+        "system_measure_index": 1
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_001/raw.png",
+        "sha256": "696eb90f5fd97de75c3bfea6c15d62cfda8e0c8a8d78691ff3eb2834f5ef60a0"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_001_measure_001.json",
+        "sha256": "a98aac903544ced1a1d387c2b17b1493e13f7937caa5d311e049e37cf1004143"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_002/candidates.json",
+        "sha256": "e30ed4eabd7f003329907a38b307f06a35635f888ad6eb5f30bd64a4f0356b76"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 1,
+        "system_measure_index": 2
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_002/raw.png",
+        "sha256": "576285d816007f04ca0679eca88f9e372449319298c3d3379fccc8a70e7ce227"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_001_measure_002.json",
+        "sha256": "982a9380cbeb80d8b0d3a78fe0acf3ff7fcf09a4ef0fb9d33e152a64429a19fe"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_003/candidates.json",
+        "sha256": "3d45d9d5de773d15a5bef1bf7fdfbda66592f2380fdbada32a1b39aa4b70082d"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 1,
+        "system_measure_index": 3
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_003/raw.png",
+        "sha256": "e1b7c7bf073cb2749bc0e7315efa7cfa716ae1848dcb27a0af07e9cd4a43cc32"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_001_measure_003.json",
+        "sha256": "e1e2975b86d72446f6a04ed0af82a8724b8a3b048758f7a5998202a3c9ac35b5"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_004/candidates.json",
+        "sha256": "d6cbf2c4929400cf7aacabdd48ff317015a52e5252791cd4a485e306408deba1"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 1,
+        "system_measure_index": 4
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_001/measure_004/raw.png",
+        "sha256": "5d00c47af093300ed5439fb5da645bdf85736f4000dba2f09a7494a4516ab1d5"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_001_measure_004.json",
+        "sha256": "c79b1f8b39ecb0b543ce8909c122ba7f201e360590e349be68699de2fa873736"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_001/candidates.json",
+        "sha256": "a5906da514faf053a9ee69fb233c1a2afc310cbdeac5fbaf2bbe19ec178cbb8a"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 1
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_001/raw.png",
+        "sha256": "8eb4bec184dd6285a7a5fe5735b7e9a124ddf32dfaabbd1deaa8eb646456174a"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_001.json",
+        "sha256": "85a8e2e5cf07e813ba90925d9ad28284a994e410ac1f22e4b09104f27f5d282f"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_002/candidates.json",
+        "sha256": "e80135f54afbbd8d91d7d5e5bc1d08db0a755d1a94ff624bd1ebb67921d7a4c2"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 2
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_002/raw.png",
+        "sha256": "dfb3d9234a4e1fee7575f3561d99f2512da86813889324507e3111bfc4f1b5ff"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_002.json",
+        "sha256": "d5a67aa88ba835052fd2466cf61ce840cc02bd048f713430617226b1624de6ba"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_003/candidates.json",
+        "sha256": "4dfce78ce8c2fe3e36825f09e72da9e2cc0ce694961fc385b707e0d1ce335da9"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 3
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_003/raw.png",
+        "sha256": "b5b29730b1ea5f8f7eafbf09fbc0b78f08d0cd92d34105b0d1671fd558be69b9"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_003.json",
+        "sha256": "c7504ef69ee66a3c68e92364bee61eed413ac888687450d6c9fc4314c161a044"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_004/candidates.json",
+        "sha256": "b19fc039653142b3dae9842a447b300710453a4235aa9837d8634c87e6b67f7c"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 4
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_004/raw.png",
+        "sha256": "2277135be96b2c47fce3a1a45ced03ef4a7478ffe71b733e02b3582fda2e4208"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_004.json",
+        "sha256": "a9447bc9f40f29f6633de60ba39d5edc363179bf0dc35d0b90706e6ba17a8c9d"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_005/candidates.json",
+        "sha256": "07cd5da5bcfa37acb82e3ef0d5ab67549e64e15f6e069500e4f977029995098f"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 5
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_005/raw.png",
+        "sha256": "76c0a5ebb0d178894b96b619b57afcf7297224e8dfad22b33f6cb903fa2c80ad"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_005.json",
+        "sha256": "55333783be8964dc29d3c5db3255bdcaf012d38e8e13f48c5d31f86404d7a7eb"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_006/candidates.json",
+        "sha256": "6ac9cc3a8a3a3bffd9ffa1ea15666587fcf80ad628df97991e3c464b5df7cc48"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 6
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_006/raw.png",
+        "sha256": "b63868fbd1bb156b311df2cd013c63052d269d08621820c230d139b622669538"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_006.json",
+        "sha256": "50266ed6ed2cc63f3f3ed3ef3fe911e9900ff7aa1f9ee2a6788eb6d524eb6fae"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_007/candidates.json",
+        "sha256": "1c2be161d77be1b69b02f8d002bad676b2ff791005e38006ff8f322b27f0a150"
+      },
+      "identity": {
+        "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+        "system_index": 7,
+        "system_measure_index": 7
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/system_007/measure_007/raw.png",
+        "sha256": "75174809073c5b0c8bf389b9c32459deb6635fe05a74da40eb625d705ef0604b"
+      },
+      "lane": "human_promoted_aviador",
+      "truth_source": {
+        "kind": "promoted_notehead_review",
+        "path": "tests/fixtures/vlm_melody/notehead_reviews/jaime-llanos_12_aviador_pasillo_fulgencio-garcia_system_007_measure_007.json",
+        "sha256": "1b4b3595a15f44c209eee6e546590468c3ac8597ca5a932ef8dda31e75b1c345"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_001/candidates.json",
+        "sha256": "f59bf8ebbfeb1bb6b9411757fa9288543c1f06f5a56b08850fba6e1cbc4ef745"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 1
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_001/raw.png",
+        "sha256": "b01bedcfa4a1a65fb929c611355620cd1db80490d4b0913cd0a9de1d32991c77"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 1,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_002/candidates.json",
+        "sha256": "d7b1d36f8b311572ea795c3e5965f0d706c46d16d33a2e343cbe55c5164689aa"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 2
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_002/raw.png",
+        "sha256": "764e7a0c089f4c0866b5870194c503017610166128f56387e71ead7971ec921e"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 2,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_003/candidates.json",
+        "sha256": "471824e383089f671fde6d00fbee40aeb849e1aad775578c7f0e42d79eac3ea9"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 3
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_003/raw.png",
+        "sha256": "3514e407cd4b82b95a2869689ff033f781d12d90364f85b41575ed8535a85962"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 3,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_004/candidates.json",
+        "sha256": "56daa000f90c11fbff4a9241fe242855503df0990b63fb44438aac2149b60abc"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 4
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_004/raw.png",
+        "sha256": "f90100d16bc7ca1d0f1bf2a2202c1c926bbc468bc3a5ffc6de606cc3f7c451f0"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 4,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_005/candidates.json",
+        "sha256": "54e9f8acc72b971ebf411413dd5d1328491b5ff6580428dc1fc73410afdc2f96"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 5
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_005/raw.png",
+        "sha256": "8d5bdc6a377b1ced3686c9dd812eeec27c4c948800efb9529a9fbfe2920f2d49"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 5,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_006/candidates.json",
+        "sha256": "aa9049ff5ea8624466672c82920428643aa04c3dc173aa5e7f3057093677b15a"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 6
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_006/raw.png",
+        "sha256": "32383b42405387b8c057eb023fcd421396f7722609a00219f06a7b81af9cb4c7"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 6,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_007/candidates.json",
+        "sha256": "899ee9868465859cf3f6116554b5f87cfd3523f4a475596427ec89eb2e2205c7"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 7
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_007/raw.png",
+        "sha256": "5748a2e301b2115202fe75185083816d622df64c4adc93f816692254adc13fcb"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 7,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_008/candidates.json",
+        "sha256": "6f91439c5bc539c2a65b84b7d84f02f009f6e9b05c7c702a88dd7219377b876e"
+      },
+      "identity": {
+        "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+        "system_index": 4,
+        "system_measure_index": 8
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_19_carrizal_pasillo_emilio-murillo/system_004/measure_008/raw.png",
+        "sha256": "26296a420ed2191290c99e25c7c3baf94375f86c12594bfc78647bdc2da92c74"
+      },
+      "lane": "agent_adjudicated_carrizal",
+      "truth_source": {
+        "kind": "carrizal_adjudication",
+        "path": "tests/fixtures/vlm_melody/agent_visual_adjudication/carrizal_system_004_seg_v2.json",
+        "review_measure_index": 8,
+        "sha256": "edf5682c2fa7375484f7c27f2516a470ab050716ace54272cc79f4c5684e2c53"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_003/candidates.json",
+        "sha256": "7559932418ad6d2b6592c76c1ba8c5097189795b58faabe364050b0ffec8a93c"
+      },
+      "identity": {
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 3
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_003/raw.png",
+        "sha256": "454499f3fcda212e4410a0aaca6578359bc8b05540b98fe55ed16522bebdbcf7"
+      },
+      "lane": "human_adjudicated_coqueteos",
+      "truth_source": {
+        "kind": "human_candidate_decision",
+        "path": "tests/fixtures/vlm_melody/human_candidate_reviews/coqueteos_system_002_measure_003.json",
+        "sha256": "2325f0eb543d68d9cdae476919351f3a0391395b76a295d675f86492d46608e3"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_005/candidates.json",
+        "sha256": "e9db4a74593001488d4e8faa316525f9a57ac4bcdaad1e08b536854bcf28ed76"
+      },
+      "identity": {
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 5
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_005/raw.png",
+        "sha256": "48145f1e87495b36cf124e9052891fa5bdc3c6dabc3e760356b4b42ca267ae06"
+      },
+      "lane": "human_adjudicated_coqueteos",
+      "truth_source": {
+        "kind": "human_candidate_decision",
+        "path": "tests/fixtures/vlm_melody/human_candidate_reviews/coqueteos_system_002_measure_005.json",
+        "sha256": "559f58e1e04e79caa8e4f73ca5c040c1edf5fb48cceb622165d81bc1e6f93c72"
+      }
+    },
+    {
+      "candidates": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_007/candidates.json",
+        "sha256": "86d676ee1d0dcf1a6ad3fee00b6c4857240ca0967155a81b999524c399e67f63"
+      },
+      "identity": {
+        "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+        "system_index": 2,
+        "system_measure_index": 7
+      },
+      "image": {
+        "path": "tests/fixtures/vlm_melody/hollow_notehead_inputs/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/system_002/measure_007/raw.png",
+        "sha256": "beba7ee7875c229feac51547f206f8d4586b782487fdacfd8d11850d83bd71ac"
+      },
+      "lane": "human_adjudicated_coqueteos",
+      "truth_source": {
+        "kind": "human_candidate_decision",
+        "path": "tests/fixtures/vlm_melody/human_candidate_reviews/coqueteos_system_002_measure_007.json",
+        "sha256": "ba61f8d6083b16315eaf08de95dafff7ca51b1b49feaa5e8c91491979d129a98"
+      }
+    }
+  ],
+  "schema_version": 1,
+  "split_status": "consumed_postmortem"
+}

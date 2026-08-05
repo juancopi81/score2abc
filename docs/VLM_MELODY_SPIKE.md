@@ -709,6 +709,81 @@ as the highest-value next target. The queue remains
 not provide notehead pixel coordinates, so deterministic assignments must be
 visually adjudicated before retraining.
 
+#### Human Candidate Adjudication
+
+Consumed proposal measures can become explicit human-reviewed training
+evidence only after every candidate is classified. The decision fixture pins
+the raw image, candidate artifact, and automatic proposal by SHA256. The
+materializer refuses stale sources, incomplete candidate partitions, and
+overwrites:
+
+```bash
+uv run python scripts/experiments/materialize_consumed_human_candidate_review.py out \
+  --decision-fixture \
+  tests/fixtures/vlm_melody/human_candidate_reviews/coqueteos_system_002_measure_005.json
+```
+
+For Coqueteos system 2 measure 5, the human review confirmed all six noteheads
+were present. The automatic proposal matched four, confused two sharp
+fragments for noteheads, and therefore scored `TP=4`, `FP=2`, `FN=2`,
+`F1=0.666667`. Rejected candidates are additionally classified as stems,
+accidental fragments, barline fragments, slur fragments, or neighboring-system
+leakage.
+
+Measures 3 and 7 expose a different localization failure: each contains one
+hollow dotted-half notehead, but the candidate generator places detections on
+opposite rims. Their version-2 decisions preserve both rim candidates as
+support and deterministically derive one notehead center using the mean of the
+candidate centers. The resulting reviewed centers are:
+
+- measure 3: `(62.0, 173.5)`, `F4`, supported by `c001` and `c002`;
+- measure 7: `(52.0, 136.0)`, staff pitch `B4` and sounding pitch `Bb4`,
+  supported by `c001` and `c003`.
+
+This is consumed training evidence, not a heldout accuracy claim. It provides
+a concrete target for a future hollow-head ellipse/ring proposal without
+treating two rim detections as two notes.
+
+#### Hollow-Notehead Center Proposal
+
+The follow-up spike implements that target without expected pitches or note
+counts. It considers pairs of strong local candidates on adjacent staff
+positions, requires the manuscript's rising-right notehead diagonal, and then
+accepts either an enclosed elongated white region aligned with the pair or a
+high-coverage open contour with a light center. Staff-line intersections are
+suppressed for the ring measurement. The source image and candidate artifact
+are the only proposal inputs; reviewed coordinates enter only during scoring.
+All 22 image/candidate pairs and their truth-source references are committed in
+a SHA256-pinned fixture manifest, so this result does not depend on ignored
+local `out/` state.
+
+```bash
+uv run python scripts/experiments/spike_consumed_hollow_notehead_proposals.py
+```
+
+On the currently reviewed consumed suite, the fixed rule produces:
+
+| Review lane | Measures | Proposals | Recovered misses | False proposals |
+|---|---:|---:|---:|---:|
+| Aviador human-promoted | 11 | 0 | 0 | 0 |
+| Carrizal agent-adjudicated | 8 | 3 | 3 | 0 |
+| Coqueteos human-adjudicated | 3 | 2 | 2 | 0 |
+| **Total** | **22** | **5** | **5** | **0** |
+
+The Coqueteos proposals recover both dotted-half centers at `(62.0, 173.5)`
+and `(52.0, 136.0)`. Review overlays and the create-once report are written to
+`out/vlm_melody_consumed_training/hollow_notehead_proposals_v1/`.
+The reproducible inputs live under
+`tests/fixtures/vlm_melody/hollow_notehead_inputs/`.
+
+This is a material consumed-data improvement, not a generalization result.
+The thresholds were selected while inspecting these three score styles. Keep
+the proposer out of runtime candidate generation until the rule is frozen and
+tested on hollow notes from a newly reviewed score. The next engineering slice
+should then compose accepted centers with the existing candidates and rerun
+score-disjoint selector/regression evaluation without changing prior sealed
+heldout artifacts.
+
 Reproduce the consumed slice:
 
 ```bash
