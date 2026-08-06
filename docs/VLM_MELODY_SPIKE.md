@@ -784,6 +784,29 @@ should then compose accepted centers with the existing candidates and rerun
 score-disjoint selector/regression evaluation without changing prior sealed
 heldout artifacts.
 
+#### Chispazo Unseen Morphology Gate
+
+Chispazo system 4 was preregistered before candidate or hollow-proposal
+generation. The committed selection pins the source PDF, raw system image,
+eight visually checked measure boundaries, alignment implementation, and fixed
+hollow-notehead rule. The create-once freeze then seals every raw crop,
+candidate artifact, and proposal artifact without reading MusicXML, note
+ground truth, or review files.
+
+```bash
+uv run python scripts/experiments/freeze_hollow_notehead_unseen_gate.py out
+
+MANIFEST=out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_hollow_notehead_gate/v1/system_004/frozen/sealed_manifest.json
+uv run python scripts/experiments/review_hollow_notehead_unseen_gate.py "$MANIFEST"
+```
+
+The freeze is complete and awaiting raw-image-only human labels. The reviewer
+does not expose automatic candidates, proposal locations, or proposal counts
+to the browser. Each measure is finalized once and writes only human hollow
+notehead centers plus source hashes. No integration or accuracy claim is
+allowed until all eight measures are finalized and scored against the sealed
+proposals.
+
 Reproduce the consumed slice:
 
 ```bash
