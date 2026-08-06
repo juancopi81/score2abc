@@ -1,0 +1,393 @@
+{
+  "kind": "fifth_score_full_event_one_shot_evaluation",
+  "mapping_mode": "explicit_whole_measure_mapping",
+  "meter": {
+    "context": {
+      "allowed_expected_measure_beats": 3,
+      "allowed_time_signature": "3/4",
+      "truth_measure_length_beats": 3,
+      "truth_time_signature": "3/4"
+    },
+    "crops": [
+      {
+        "automatic_crop_index": 1,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": true,
+        "expected_extent_beats": 3,
+        "meter_valid": true,
+        "physical_measure_numbers": [
+          1
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": true
+      },
+      {
+        "automatic_crop_index": 2,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": true,
+        "expected_extent_beats": 3,
+        "meter_valid": true,
+        "physical_measure_numbers": [
+          2
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": true
+      },
+      {
+        "automatic_crop_index": 3,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": true,
+        "expected_extent_beats": 3,
+        "meter_valid": true,
+        "physical_measure_numbers": [
+          3
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": true
+      },
+      {
+        "automatic_crop_index": 4,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": true,
+        "expected_extent_beats": 3,
+        "meter_valid": true,
+        "physical_measure_numbers": [
+          4
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": true
+      },
+      {
+        "automatic_crop_index": 5,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": true,
+        "expected_extent_beats": 3,
+        "meter_valid": true,
+        "physical_measure_numbers": [
+          5
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": true
+      },
+      {
+        "automatic_crop_index": 6,
+        "event_coverage_beats": 3,
+        "event_coverage_complete": false,
+        "expected_extent_beats": 6,
+        "meter_valid": false,
+        "physical_measure_numbers": [
+          6,
+          7
+        ],
+        "predicted_extent_beats": 3,
+        "predicted_extent_match": false
+      }
+    ],
+    "summary": {
+      "context_match": true,
+      "prediction_crop_count": 6,
+      "truth_measure_count": 7,
+      "valid_prediction_crop_rate": 0.833333,
+      "valid_prediction_crops": 5,
+      "valid_truth_measure_rate": 1.0,
+      "valid_truth_measures": 7
+    },
+    "truth_measures": [
+      {
+        "extent_beats": 3,
+        "measure_number": 1,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 2,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 3,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 4,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 5,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 6,
+        "meter_valid": true
+      },
+      {
+        "extent_beats": 3,
+        "measure_number": 7,
+        "meter_valid": true
+      }
+    ]
+  },
+  "metric_support": {
+    "exact_measures": "scored",
+    "meter_context_match": "scored",
+    "meter_validity": "scored",
+    "note_f1": "scored",
+    "ordered_duration": "scored",
+    "ordered_onset": "scored",
+    "ordered_pitch": "scored",
+    "rests": "scored"
+  },
+  "metrics": {
+    "results": [
+      {
+        "compared_notes": 6,
+        "duration_matches": 5,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 1,
+          "global_measure_index": 1,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 1
+        },
+        "note_f1": 0.363636,
+        "onset_matches": 2,
+        "pitch_matches": 2,
+        "pred_note_count": 5,
+        "rest_fn": 0,
+        "rest_fp": 1,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 6
+      },
+      {
+        "compared_notes": 6,
+        "duration_matches": 5,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 2,
+          "global_measure_index": 2,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 2
+        },
+        "note_f1": 0.545455,
+        "onset_matches": 3,
+        "pitch_matches": 2,
+        "pred_note_count": 5,
+        "rest_fn": 0,
+        "rest_fp": 1,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 6
+      },
+      {
+        "compared_notes": 2,
+        "duration_matches": 0,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 3,
+          "global_measure_index": 3,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 3
+        },
+        "note_f1": 0.0,
+        "onset_matches": 1,
+        "pitch_matches": 1,
+        "pred_note_count": 2,
+        "rest_fn": 0,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 1
+      },
+      {
+        "compared_notes": 5,
+        "duration_matches": 4,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 4,
+          "global_measure_index": 4,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 4
+        },
+        "note_f1": 0.2,
+        "onset_matches": 0,
+        "pitch_matches": 3,
+        "pred_note_count": 5,
+        "rest_fn": 1,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 5
+      },
+      {
+        "compared_notes": 6,
+        "duration_matches": 0,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 5,
+          "global_measure_index": 5,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 5
+        },
+        "note_f1": 0.0,
+        "onset_matches": 1,
+        "pitch_matches": 1,
+        "pred_note_count": 2,
+        "rest_fn": 0,
+        "rest_fp": 0,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 6
+      },
+      {
+        "compared_notes": 7,
+        "duration_matches": 5,
+        "exact_measure": false,
+        "identity": {
+          "automatic_measure_index": 6,
+          "global_measure_index": 6,
+          "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+          "system_index": 2,
+          "system_measure_index": 6
+        },
+        "note_f1": 0.666667,
+        "onset_matches": 2,
+        "pitch_matches": 3,
+        "pred_note_count": 5,
+        "rest_fn": 0,
+        "rest_fp": 1,
+        "rest_tp": 0,
+        "status": "evaluated",
+        "truth_note_count": 7
+      }
+    ],
+    "schema_version": 1,
+    "summary": {
+      "exact_measure_rate": 0.0,
+      "exact_measures": 0,
+      "meter_context_match": true,
+      "meter_truth_valid_measure_rate": 1.0,
+      "meter_truth_valid_measures": 7,
+      "meter_valid_crop_rate": 0.833333,
+      "meter_valid_crops": 5,
+      "note_f1": 0.363636,
+      "note_precision": 0.416667,
+      "note_recall": 0.322581,
+      "ordered_duration_accuracy": 0.59375,
+      "ordered_onset_accuracy": 0.28125,
+      "ordered_pitch_accuracy": 0.375,
+      "predicted": 6,
+      "rest_f1": 0.0,
+      "rest_precision": 0.0,
+      "rest_recall": 0.0,
+      "targets": 6
+    }
+  },
+  "pins": {
+    "allowed_context": {
+      "snapshot_path": "frozen_allowed_context.json",
+      "snapshot_sha256": "18389690cddda1e5d4909cd5a021ddbbfd2e368b29edc7dcf91527d5ce604449",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/context/allowed_context.json",
+      "source_sha256": "18389690cddda1e5d4909cd5a021ddbbfd2e368b29edc7dcf91527d5ce604449"
+    },
+    "evaluator": {
+      "snapshot_path": "evaluator.py",
+      "snapshot_sha256": "fb38c06fdcf6de046067f81aad8c34b1e11edd680e7f90eded808f62257241a6",
+      "source_path": "scripts/experiments/evaluate_frozen_fifth_score_heldout.py",
+      "source_sha256": "fb38c06fdcf6de046067f81aad8c34b1e11edd680e7f90eded808f62257241a6"
+    },
+    "event_benchmark": {
+      "snapshot_path": "event_benchmark.py",
+      "snapshot_sha256": "5eb3807bc42d1bb4f117e6f2a45e83ae5fc06f2b7abe332fe0ce10c9a50fa137",
+      "source_path": "scripts/build_vlm_melody_event_benchmark.py",
+      "source_sha256": "5eb3807bc42d1bb4f117e6f2a45e83ae5fc06f2b7abe332fe0ce10c9a50fa137"
+    },
+    "frozen_freeze_manifest": {
+      "snapshot_path": "frozen_freeze.json",
+      "snapshot_sha256": "5aaf35921ed8951b38bdae0c9924f627cfd06e5b11cfe120b9f3508cc85abce3",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/frozen/freeze.json",
+      "source_sha256": "5aaf35921ed8951b38bdae0c9924f627cfd06e5b11cfe120b9f3508cc85abce3"
+    },
+    "frozen_predictions": {
+      "snapshot_path": "frozen_predictions.jsonl",
+      "snapshot_sha256": "1950e076c46c8b61107ce70db985348828066924001ec0fc618bf7a2533d9157",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/frozen/artifacts/predictions/001_predictions.jsonl",
+      "source_sha256": "1950e076c46c8b61107ce70db985348828066924001ec0fc618bf7a2533d9157"
+    },
+    "frozen_prepared_manifest": {
+      "snapshot_path": "frozen_prepared_manifest.json",
+      "snapshot_sha256": "e6b92a4b75f627949acc1ea97091d26cf6b57d733ccd8db168a42060d35f2765",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/prepared_manifest.json",
+      "source_sha256": "e6b92a4b75f627949acc1ea97091d26cf6b57d733ccd8db168a42060d35f2765"
+    },
+    "frozen_requests": {
+      "snapshot_path": "frozen_requests.jsonl",
+      "snapshot_sha256": "519a42672d6ba4a67671d920718d5cca872ac86cd3f210f3f8e37f5469cbca07",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/requests.jsonl",
+      "source_sha256": "519a42672d6ba4a67671d920718d5cca872ac86cd3f210f3f8e37f5469cbca07"
+    },
+    "frozen_sealed_manifest": {
+      "snapshot_path": "frozen_sealed_manifest.json",
+      "snapshot_sha256": "ecaa6c990e7bfc4dfa5ac6f13ab222e156292378edef7aefd99e9e343eab7c2d",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/frozen/sealed_manifest.json",
+      "source_sha256": "ecaa6c990e7bfc4dfa5ac6f13ab222e156292378edef7aefd99e9e343eab7c2d"
+    },
+    "heldout_verifier": {
+      "snapshot_path": "heldout_verifier.py",
+      "snapshot_sha256": "9c47eb7b16b996f66201156ad0d02d09e0ea1b2252f52eec7343d6b7a2a44d3b",
+      "source_path": "scripts/experiments/evaluate_frozen_third_score_heldout.py",
+      "source_sha256": "9c47eb7b16b996f66201156ad0d02d09e0ea1b2252f52eec7343d6b7a2a44d3b"
+    },
+    "mapping": {
+      "snapshot_path": "mapping.json",
+      "snapshot_sha256": "2955d0ef792fa394e57738acec5c42a9044d05ed803fa1e0bc6d269992b02e05",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/coqueteos_system_002_crop_mapping.json",
+      "source_sha256": "e2a89363ce9a8cc10b3dbb6067259bc4cf45ff639258402424b9f96352a0745c"
+    },
+    "musicxml_truth_loader": {
+      "snapshot_path": "musicxml_truth_loader.py",
+      "snapshot_sha256": "45f0f108c7ed112c2b04fca4752aca661dc98f55b252be5caae97573dbd205b9",
+      "source_path": "scripts/experiments/evaluate_second_score_heldout.py",
+      "source_sha256": "45f0f108c7ed112c2b04fca4752aca661dc98f55b252be5caae97573dbd205b9"
+    },
+    "source_musicxml": {
+      "snapshot_path": "source.musicxml",
+      "snapshot_sha256": "0c5fbed179fbc43eba5b35cc7f6bbc718ffb26c710e4992b83e42fdf73299804",
+      "source_path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/coqueteos_system_002.musicxml",
+      "source_sha256": "0c5fbed179fbc43eba5b35cc7f6bbc718ffb26c710e4992b83e42fdf73299804"
+    },
+    "truth": {
+      "snapshot_path": "truth.jsonl",
+      "snapshot_sha256": "42dd5b1ab5a1d4849dfe49174d879165804d7e806be9e788a4e5d78506f5c6f4",
+      "source_path": null,
+      "source_sha256": null
+    }
+  },
+  "schema_version": 1,
+  "source_musicxml_context": {
+    "clef": [
+      "G",
+      2
+    ],
+    "key_fifths": -1,
+    "time_signature": "3/4"
+  },
+  "status": "evaluated_exactly_once_after_frozen_predictions",
+  "target": {
+    "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+    "system_index": 2
+  },
+  "truth_materialization": {
+    "loader": "evaluate_second_score_heldout.load_musicxml_truth",
+    "mapping_semantics": "whole_physical_measures_only",
+    "partial_measure_spans_allowed": false
+  }
+}

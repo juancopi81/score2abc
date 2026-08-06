@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "vlm_melody_cross_score_error_breakdown_input_manifest",
+  "split_status": "independent_score_heldout_reports",
+  "eligible_for_end_to_end_accuracy_claim": false,
+  "reports": [
+    {
+      "score_id": "carrizal",
+      "scope": "full_event",
+      "target_slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+      "target_system_index": 4,
+      "expected_automatic_crop_count": 7,
+      "expected_physical_measure_numbers": [1, 2, 3, 4, 5, 6, 7, 8],
+      "path": "carrizal_system_004_evaluation.json",
+      "sha256": "9c789c3af3f8adc6af6c8e81c01ce49101dd58dccefc0c1a4ba592b7698094b5",
+      "expected_kind": "one_shot_second_score_evaluation"
+    },
+    {
+      "score_id": "la_chata",
+      "scope": "pitch_only",
+      "target_slug": "jaime-llanos_64_la-chata_pasillo_luis-a-calvo",
+      "target_system_index": 7,
+      "expected_automatic_crop_count": 7,
+      "expected_physical_measure_numbers": [1, 2, 3, 4, 5, 6, 7],
+      "path": "la_chata_system_007_evaluation.json",
+      "sha256": "d77106b407f8bb0b5e8bce8262d2af52baaa5e918fd7f33e887fa57cb4786579",
+      "expected_kind": "third_score_pitch_only_one_shot_evaluation"
+    },
+    {
+      "score_id": "gatoe_fique",
+      "scope": "pitch_only",
+      "target_slug": "jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo",
+      "target_system_index": 3,
+      "expected_automatic_crop_count": 6,
+      "expected_physical_measure_numbers": [1, 2, 3, 4, 5, 6],
+      "path": "gatoe_fique_system_003_evaluation.json",
+      "sha256": "7cce6eabc812284da468c4c4b92b1791b686c314813394a8e3a86cbe19779b47",
+      "expected_kind": "fourth_score_pitch_only_one_shot_evaluation"
+    },
+    {
+      "score_id": "coqueteos",
+      "scope": "full_event",
+      "target_slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+      "target_system_index": 2,
+      "expected_automatic_crop_count": 6,
+      "expected_physical_measure_numbers": [1, 2, 3, 4, 5, 6, 7],
+      "path": "coqueteos_system_002_evaluation.json",
+      "sha256": "03132a9f64d91a2a47fb23266cc0ffdd31316e420eb6bd7342b6f528c15eca5c",
+      "expected_kind": "fifth_score_full_event_one_shot_evaluation"
+    }
+  ],
+  "exclusions": [
+    {
+      "evidence": "Aviador system 3",
+      "reason": "within-score heldout, not an independent score"
+    },
+    {
+      "evidence": "Chispazo system 4",
+      "reason": "morphology-only gate without end-to-end melody events"
+    },
+    {
+      "evidence": "consumed postmortems and corrected replays",
+      "reason": "diagnostic model-selection evidence, not independent frozen predictions"
+    }
+  ]
+}

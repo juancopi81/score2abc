@@ -828,6 +828,47 @@ with several visually apparent hollow heads that the frozen baseline candidate
 set genuinely misses; do not tune on Chispazo and then reuse it as heldout
 evidence.
 
+#### Independent Cross-Score Error Breakdown
+
+The four independent score reports now have portable, SHA256-pinned copies
+under `tests/fixtures/vlm_melody/cross_score_error_breakdown/`. The breakdown
+reads only these already-frozen reports:
+
+```bash
+uv run python scripts/experiments/build_cross_score_error_breakdown.py
+```
+
+It excludes Aviador because that gate is within-score, Chispazo because it is
+morphology-only, and all consumed postmortems because they are diagnostic
+model-selection evidence. It also excludes Carrizal's merged crop 2 and
+Coqueteos' merged final crop from downstream root-cause ranking. Their missing
+boundaries remain visible as segmentation errors, but their pitch/onset errors
+are not counted when selecting the next target.
+
+Across the remaining 24 one-to-one crops from four independent scores:
+
+- the count-capacity F1 upper bound is `0.878788` (`13` deficits and
+  `11` surpluses); this checks per-crop count agreement only and is not
+  note-level event F1;
+- exact ordered pitch conditional on count capacity is `0.413793`, with
+  `51/87` count-alignable notes wrong;
+- onset accuracy is `0.483871` and duration accuracy is `0.677419` on the
+  11 clean crops from Carrizal and Coqueteos;
+- rest F1 is `0.222222`, but only five truth rests are available;
+- candidate-pool coverage is `not_identifiable_from_frozen_reports`, not zero.
+
+The report therefore selects `pitch_mapping_and_key_context`: it has the
+largest supported clean-unit error burden across all four scores. This is an
+engineering-priority result, not a causal claim that every pitch error comes
+from the key signature. Staff geometry, note ordering, key state, and explicit
+accidentals remain confounded inside the pitch metric.
+
+The next controlled experiment must keep candidate IDs, coordinates, and note
+counts fixed while comparing pitch-mapping variants. A runtime change requires
+better exact ordered pitch on at least two new independent scores without
+localization drift. The validated report and human-readable summary are under
+`out/vlm_melody_cross_score_error_breakdown/v2/`.
+
 Reproduce the consumed slice:
 
 ```bash
