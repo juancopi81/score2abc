@@ -798,14 +798,35 @@ uv run python scripts/experiments/freeze_hollow_notehead_unseen_gate.py out
 
 MANIFEST=out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_hollow_notehead_gate/v1/system_004/frozen/sealed_manifest.json
 uv run python scripts/experiments/review_hollow_notehead_unseen_gate.py "$MANIFEST"
+uv run python scripts/experiments/evaluate_hollow_notehead_unseen_gate.py "$MANIFEST"
 ```
 
-The freeze is complete and awaiting raw-image-only human labels. The reviewer
-does not expose automatic candidates, proposal locations, or proposal counts
-to the browser. Each measure is finalized once and writes only human hollow
-notehead centers plus source hashes. No integration or accuracy claim is
-allowed until all eight measures are finalized and scored against the sealed
-proposals.
+The reviewer did not expose automatic candidates, proposal locations, or
+proposal counts to the browser. All eight measures were finalized once. The
+human review marked two hollow/open noteheads, in measures 4 and 6. Both are
+matched by the frozen baseline staff-grid candidates, for baseline recall
+`2/2`; therefore this system has zero baseline-missed hollow heads for the new
+rule to recover. Nine candidate pairs passed its geometry prefilter across the
+eight measures, but all failed the fixed pixel/shape gates, so the frozen rule
+emitted zero proposals.
+
+The create-once evaluator records `not_promoted` for three independent reasons:
+
+- two reviewed hollow heads are below the evaluator's conservative five-head
+  promotion minimum;
+- baseline candidates already cover both reviewed heads, leaving no recovery
+  opportunity;
+- the frozen rule emitted no heldout proposal whose precision could be
+  measured.
+
+This result does not show a candidate regression: augmented recall remains
+`2/2` and there are zero false proposals. It does show that the strong consumed
+result (`5/5` recovered misses) did not receive a useful independent
+generalization test on this target. Keep the rule out of runtime. A future
+morphology gate is worthwhile only if truth-blind screening finds a new score
+with several visually apparent hollow heads that the frozen baseline candidate
+set genuinely misses; do not tune on Chispazo and then reuse it as heldout
+evidence.
 
 Reproduce the consumed slice:
 

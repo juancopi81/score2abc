@@ -66,19 +66,20 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Complete the Coqueteos system-2 fifth-score independent gate. Six automatic crops and full event predictions were sealed before the seven-measure MusicXML was opened. Whole-measure scoring reached note F1 `0.363636`, ordered pitch `0.375`, onset `0.28125`, duration `0.59375`, rest F1 `0`, and `0/6` exact crops. The pre-truth meter triage flags three genuine error crops with no false alerts but misses the other three. Transcription review exposed a false leading stem and missed x=2041 barline; the postmortem correction recovers all seven boundaries while changing no other generated system and preserving Aviador F1 `0.945`.
 - [x] Replay the exact frozen Coqueteos recognizer on corrected one-to-one segmentation without rewriting heldout evidence. Meter-valid crops improve `5/6 -> 7/7`, but note F1 regresses `0.363636 -> 0.280702`; segmentation is retained for structural correctness, not claimed as recognition gain. Corrected meter triage flags `4/7` genuine error measures at precision `1.0`, and the unreviewed proposal queue finds pitch-compatible candidates for `27/31` expected notes. The queue remains ineligible for training pending coordinate review.
 - [x] Materialize complete human candidate reviews for the three highest-value Coqueteos measures and spike a GT-free hollow-notehead center proposer. Across 22 consumed reviewed measures from Aviador, Carrizal, and Coqueteos, the fixed rule adds five proposals, recovers five previously missed reviewed centers, and adds zero false proposals. This is consumed model-selection evidence; runtime integration remains blocked on an unseen-score gate.
-- [ ] Complete the preregistered Chispazo system-4 hollow-notehead gate. The target, eight measure boundaries, source image, and fixed consumed rule were committed before inference; the create-once freeze is sealed and awaiting raw-image-only human center labels. Do not tune or integrate the proposer until those labels are finalized and scored.
+- [x] Complete the preregistered Chispazo system-4 hollow-notehead gate. Eight raw-only reviews contain two hollow heads, both matched by the existing candidate set (`2/2` baseline recall). The frozen consumed rule emits no proposals, leaving zero recovery opportunities; the sample is also below the five-head promotion minimum. The gate is therefore `not_promoted`: this is clean heldout evidence to keep the rule out of runtime, not evidence that the rule regressed transcription.
 - [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: finalize the blind Chispazo system-4 hollow-notehead labels
-and score the already frozen rule. If that gate passes, compose the new centers
-with the existing candidate set, rerun score-disjoint selector training, and
-preserve all prior consumed and sealed heldout regressions.
-Remaining Coqueteos measures 1, 2, and 6 can extend consumed labels but cannot
-serve as the unseen gate. Do not use meter triage to delete notes. Key
-correction remains an explicit review action until visual-key behavior
-generalizes beyond the consumed suite. Pipeline integration remains gated on
-independent exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
+Next main M2 focus: improve the general candidate selector and independent
+pitch/rhythm validation rather than integrating the consumed hollow-head rule.
+The Chispazo gate showed that its two hollow heads were already covered by the
+baseline, so another heldout morphology gate would only be useful after a
+truth-blind target is found with several genuine baseline misses. Remaining
+Coqueteos measures 1, 2, and 6 can extend consumed labels but cannot serve as
+new heldout evidence. Do not use meter triage to delete notes. Key correction
+remains an explicit review action until visual-key behavior generalizes beyond
+the consumed suite. Pipeline integration remains gated on independent
+exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 
