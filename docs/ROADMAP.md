@@ -68,18 +68,18 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Materialize complete human candidate reviews for the three highest-value Coqueteos measures and spike a GT-free hollow-notehead center proposer. Across 22 consumed reviewed measures from Aviador, Carrizal, and Coqueteos, the fixed rule adds five proposals, recovers five previously missed reviewed centers, and adds zero false proposals. This is consumed model-selection evidence; runtime integration remains blocked on an unseen-score gate.
 - [x] Complete the preregistered Chispazo system-4 hollow-notehead gate. Eight raw-only reviews contain two hollow heads, both matched by the existing candidate set (`2/2` baseline recall). The frozen consumed rule emits no proposals, leaving zero recovery opportunities; the sample is also below the five-head promotion minimum. The gate is therefore `not_promoted`: this is clean heldout evidence to keep the rule out of runtime, not evidence that the rule regressed transcription.
 - [x] Build a portable cross-score error breakdown from the four independent score gates. After excluding the two merged crops from root-cause ranking, the clean one-to-one count-capacity F1 upper bound is `0.878788`, but conditional exact pitch is only `0.413793` (`51/87` count-alignable notes wrong). Candidate coverage is not identifiable from these reports, onset is `0.483871` on the two-score full-event subset, and unsupported rhythm fields remain explicit. The next engineering target is pitch mapping and key context with note identities and coordinates frozen.
+- [x] Isolate automatic key state from staff geometry on the 24 clean consumed crops. With candidate IDs, coordinates, and note counts fixed, automatic key state raises exact ordered-pitch matches `40/87 -> 55/87` (`+12` Gato'e Fique, `+3` La Chata, no component-level regressions). Local common-shift staff tracking adds `0` matches. The key component passes the consumed development gate but remains out of runtime pending two new independent scores; the geometry component is rejected.
 - [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: isolate pitch from note selection. Freeze the current
-candidate identities and coordinates, then compare automatic local staff
-geometry and stateful key/accidental mapping without changing note counts.
-Promotion requires better exact ordered pitch on at least two new independent
-scores with identical localization. The Chispazo hollow-head rule remains out
-of runtime; candidate coverage also remains unidentifiable from aggregate
-heldout reports. Do not use meter triage to delete notes. Pipeline integration
-remains gated on independent exact-event/rest evidence. See
-`docs/VLM_MELODY_SPIKE.md`.
+Next main M2 focus: freeze the automatic key-state component alone and prepare
+two new independent-score gates before human transcription is opened. Keep
+candidate identities, coordinates, and note counts identical, and require
+better exact ordered pitch on both scores without regression. Do not carry the
+local common-shift staff tracker into that gate: it added no pitch matches on
+the consumed comparison. The Chispazo hollow-head rule and meter-based note
+deletion remain out of runtime. Pipeline integration remains gated on
+independent exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
 
 Done when: evaluation shows clear improvement over M1 baseline and meter validity is 100% after repair.
 

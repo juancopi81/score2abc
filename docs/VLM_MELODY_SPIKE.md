@@ -869,6 +869,49 @@ better exact ordered pitch on at least two new independent scores without
 localization drift. The validated report and human-readable summary are under
 `out/vlm_melody_cross_score_error_breakdown/v2/`.
 
+#### Controlled Cross-Score Pitch Mapping
+
+The follow-up experiment freezes the 24 clean one-to-one crops, 98 selected
+noteheads, their candidate IDs, and their pixel coordinates in a portable
+SHA256-pinned consumed fixture. It materializes and seals all five prediction
+lanes before opening pitch truth:
+
+```bash
+uv run python scripts/experiments/spike_cross_score_pitch_mapping.py
+```
+
+| Lane | Exact pitches | Count capacity | Conditional accuracy |
+|---|---:|---:|---:|
+| Historical frozen baseline | `41` | `87` | `0.471264` |
+| Global staff + frozen key | `40` | `87` | `0.459770` |
+| Global staff + automatic key | `55` | `87` | `0.632184` |
+| Locally tracked staff + frozen key | `40` | `87` | `0.459770` |
+| Locally tracked staff + automatic key | `55` | `87` | `0.632184` |
+
+The global replay differs from the historical mapper at two Coqueteos measure-5
+pitch values and loses one truth match. Component decisions therefore use the
+global-staff/frozen-key lane as the exact comparator. Against that comparator,
+automatic key state adds `15` exact pitches: `+12` on Gato'e Fique and `+3` on
+La Chata, while Carrizal and Coqueteos are unchanged. Candidate IDs,
+coordinates, and note counts are identical across all 96 lane/measure
+comparisons. Relative to the historical frozen baseline, the automatic-key
+lane still adds `14` exact pitches.
+
+Local common-shift staff tracking adds no pitch matches on any score. The
+combined lane has the same result as automatic key state alone, so its apparent
+pass is entirely attributable to key recognition. Advance only the key
+component; reject this geometry tracker for now.
+
+This remains consumed postmortem evidence. The detector recognizes La Chata's
+one-sharp change and Gato'e Fique's initial two sharps, falls back to Carrizal's
+frozen one-flat context when no stable staff is found, and remains unknown for
+Coqueteos. No runtime or pipeline change is justified until the frozen key
+component improves exact ordered pitch on two newly selected independent
+scores with localization unchanged. The report, prediction seal, and summary
+are under `out/vlm_melody_consumed_training/cross_score_pitch_mapping_v2/`;
+the portable inputs are under
+`tests/fixtures/vlm_melody/cross_score_pitch_mapping/`.
+
 Reproduce the consumed slice:
 
 ```bash
