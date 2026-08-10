@@ -912,6 +912,52 @@ are under `out/vlm_melody_consumed_training/cross_score_pitch_mapping_v2/`;
 the portable inputs are under
 `tests/fixtures/vlm_melody/cross_score_pitch_mapping/`.
 
+#### Independent Automatic-Key Gates
+
+Two score-disjoint gates are now frozen before human transcription. Each gate
+runs the configuration-C selector once and derives both pitch lanes from the
+same candidate IDs and pixel coordinates. The baseline uses no key signature;
+the automatic lane uses only the visual key state pinned at preparation time.
+Meter, rhythm, onset, duration, and rest decoding are withheld so this gate
+isolates pitch mapping.
+
+| Gate | Key source | Automatic state | Crops | Selected heads |
+|---|---|---:|---:|---:|
+| Estrella del Caribe system 3 | initial signature in system 1 | `fifths=-1` | `6` | `24` |
+| Sobre el Humo system 7 | double-bar change in system 7 | `fifths=-4` | `7` | `31` |
+
+Selection invariance passes for all `55` selected heads. These counts and key
+states are frozen predictions, not truth or accuracy results. An earlier
+Estrella system-1 gate is excluded: pre-truth visual QA found that its first
+automatic crop contained clef/key preamble rather than a measure.
+
+The authoritative sealed manifests are:
+
+- `out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/frozen/sealed_manifest.json`
+- `out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/frozen/sealed_manifest.json`
+
+Do not rerun them. The next human action is to transcribe each complete source
+system in its original order and export MusicXML to:
+
+- `out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/estrella_system_003.musicxml`
+- `out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/sobre_el_humo_system_007.musicxml`
+
+Preserve every physical measure, rest, accidental, tie, and simultaneous note
+in the MusicXML. Do not force the transcription to match the automatic crop
+count; an explicit crop-to-physical-measure mapping can be added after truth is
+final. Promotion requires exact ordered-pitch improvement on both scores with
+no score-level regression and unchanged localization.
+
+The create-once commands used before truth were:
+
+```bash
+uv run python scripts/experiments/freeze_independent_key_state_gates.py out
+uv run python scripts/experiments/run_independent_key_state_gate.py \
+  out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/prepared_manifest.json
+uv run python scripts/experiments/run_independent_key_state_gate.py \
+  out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/prepared_manifest.json
+```
+
 Reproduce the consumed slice:
 
 ```bash

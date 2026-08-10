@@ -69,15 +69,16 @@ Goal: improve recognition quality with prioritized de-risking.
 - [x] Complete the preregistered Chispazo system-4 hollow-notehead gate. Eight raw-only reviews contain two hollow heads, both matched by the existing candidate set (`2/2` baseline recall). The frozen consumed rule emits no proposals, leaving zero recovery opportunities; the sample is also below the five-head promotion minimum. The gate is therefore `not_promoted`: this is clean heldout evidence to keep the rule out of runtime, not evidence that the rule regressed transcription.
 - [x] Build a portable cross-score error breakdown from the four independent score gates. After excluding the two merged crops from root-cause ranking, the clean one-to-one count-capacity F1 upper bound is `0.878788`, but conditional exact pitch is only `0.413793` (`51/87` count-alignable notes wrong). Candidate coverage is not identifiable from these reports, onset is `0.483871` on the two-score full-event subset, and unsupported rhythm fields remain explicit. The next engineering target is pitch mapping and key context with note identities and coordinates frozen.
 - [x] Isolate automatic key state from staff geometry on the 24 clean consumed crops. With candidate IDs, coordinates, and note counts fixed, automatic key state raises exact ordered-pitch matches `40/87 -> 55/87` (`+12` Gato'e Fique, `+3` La Chata, no component-level regressions). Local common-shift staff tracking adds `0` matches. The key component passes the consumed development gate but remains out of runtime pending two new independent scores; the geometry component is rejected.
+- [x] Prepare and seal two independent automatic-key-state gates before truth. Estrella del Caribe system 3 pins an initial one-flat prediction from system 1 (`6` crops, `24` selected heads); Sobre el Humo system 7 pins a four-flat double-bar change (`7` crops, `31` selected heads). Both gates use one selector pass and prove candidate IDs, coordinates, and counts identical across no-key and automatic-key lanes. Estrella system 1 was sealed but rejected during pre-truth visual QA because its first crop was clef/key preamble; it is not evaluation evidence. The authoritative two gates now await human MusicXML.
 - [ ] Generalize the onset validator on independent evidence before connecting it to the pipeline. It must preserve transcription outputs and improve review prioritization without La Chata-style false alerts.
 - [ ] Implement musical validation/repair (meter enforcement, quantization).
 
-Next main M2 focus: freeze the automatic key-state component alone and prepare
-two new independent-score gates before human transcription is opened. Keep
-candidate identities, coordinates, and note counts identical, and require
-better exact ordered pitch on both scores without regression. Do not carry the
-local common-shift staff tracker into that gate: it added no pitch matches on
-the consumed comparison. The Chispazo hollow-head rule and meter-based note
+Next main M2 focus: transcribe the two sealed independent systems, then evaluate
+the already-frozen no-key and automatic-key lanes. Require better exact ordered
+pitch on both scores without localization drift or a score-level regression;
+otherwise keep automatic key state out of runtime. Do not carry the local
+common-shift staff tracker into that gate: it added no pitch matches on the
+consumed comparison. The Chispazo hollow-head rule and meter-based note
 deletion remain out of runtime. Pipeline integration remains gated on
 independent exact-event/rest evidence. See `docs/VLM_MELODY_SPIKE.md`.
 
