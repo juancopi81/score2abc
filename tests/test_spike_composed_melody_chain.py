@@ -8,6 +8,7 @@ from PIL import Image
 
 from scripts.experiments import spike_composed_melody_chain as spike
 from scripts.experiments import spike_notehead_patch_templates as selector
+from scripts.experiments import strict_initial_key_context as key_context
 
 
 class DetectorScoreScorer:
@@ -33,6 +34,37 @@ def test_composes_selected_candidates_into_canonical_events(tmp_path: Path) -> N
     assert len(composed.prediction["notes"]) == 2
     assert composed.prediction["identity"] == request["identity"]
     assert composed.prediction["inference_provenance"]["review_anchors_used"] is False
+
+
+def test_visual_key_state_changes_pitch_only_after_system_boundary(tmp_path: Path) -> None:
+    request, measure = _request_and_measure(tmp_path)
+    request["allowed_context"]["visual_key_state"] = {
+        "schema_version": 1,
+        "kind": key_context.KIND,
+        "status": key_context.STATUS_CONFIRMED,
+        "fifths": 2,
+        "previous_fifths": None,
+        "source_system_index": 7,
+        "applies_after_system_x_px": 40,
+    }
+    request["prepared_provenance"] = {"bbox_px": [0, 0, 140, 125]}
+
+    composed = spike.compose_measure(
+        request,
+        measure,
+        _model(learned_count=2),
+        out_dir=tmp_path,
+    )
+
+    assert [anchor["source"]["candidate_id"] for anchor in composed.anchors] == [
+        "c003",
+        "c002",
+    ]
+    assert [(anchor["center"]["x"], anchor["center"]["y"]) for anchor in composed.anchors] == [
+        (55.0, 20.0),
+        (95.0, 60.0),
+    ]
+    assert [anchor["pitch"] for anchor in composed.anchors] == ["F#5", "B4"]
 
 
 def test_rhythm_inference_receives_only_predicted_candidate_anchors(

@@ -214,6 +214,43 @@ def test_measure_boundaries_for_system_merges_accidental_only_slices(tmp_path: P
     assert boundaries == [0.05, 0.25, 0.55, 0.95]
 
 
+def test_measure_boundaries_for_system_merges_narrow_note_stem_slice(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 300, 600, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(700, 70), (700, 112)], fill=0, width=2)
+    draw.ellipse([(682, 94), (706, 112)], fill=0)
+    for x in (780, 840, 900):
+        draw.line([(x, 68), (x, 112)], fill=0, width=2)
+        draw.ellipse([(x - 18, 94), (x + 6, 112)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.3, 0.6, 0.7, 0.95])
+
+    assert boundaries == [0.05, 0.3, 0.6, 0.95]
+
+
+def test_measure_boundaries_for_system_merges_wide_blank_trailing_slice(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 250, 500, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(750, 50), (750, 112)], fill=0, width=2)
+    draw.ellipse([(728, 94), (754, 112)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.25, 0.5, 0.75, 0.95])
+
+    assert boundaries == [0.05, 0.25, 0.5, 0.95]
+
+
 def test_measure_boundaries_for_system_recovers_all_coqueteos_measures() -> None:
     path = (
         Path(__file__).parent

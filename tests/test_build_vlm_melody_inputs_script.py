@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw
 from score2abc.manifest import write_manifest_jsonl
 from score2abc.schemas import WorkItem, WorkMetadata
 from score2abc.utils.imaging import estimate_ink_threshold
+from scripts import build_vlm_melody_inputs as builder
 from scripts.build_vlm_melody_inputs import build_vlm_melody_inputs, main
 
 
@@ -24,6 +25,8 @@ def test_build_vlm_melody_inputs_writes_measure_crops_and_context(tmp_path: Path
     assert first["allow_pickup"] is True
     assert first["expected_measure_beats"] == "2"
     assert len(first["staff_lines_y_px_in_system"]) == 5
+    assert "key_context_mode" not in first
+    assert "visual_key_state" not in first
 
     for record in records:
         for key in ("measure_raw", "measure_staff", "measure_staff_overlay", "context"):
@@ -42,6 +45,43 @@ def test_build_vlm_melody_inputs_writes_measure_crops_and_context(tmp_path: Path
 
 def test_build_vlm_melody_inputs_cli_rejects_missing_manifest(tmp_path: Path) -> None:
     assert main([str(tmp_path / "missing")]) == 1
+
+
+def test_strict_visual_context_scans_prior_systems_and_inherits_supported_key(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    out_dir = _make_pipeline_out(tmp_path)
+    calls: list[str] = []
+
+    def fake_detect(path: Path) -> dict:
+        calls.append(path.stem)
+        if path.stem == "system_001":
+            return _key_prediction(fifths=-1, selected_ids=["g1"], right_px=90)
+        raise ValueError("no strict initial signature")
+
+    def fake_overlay(_: dict, path: Path) -> None:
+        Image.new("RGB", (20, 20), "white").save(path)
+
+    monkeypatch.setattr(builder, "_detect_initial_signature", fake_detect)
+    monkeypatch.setattr(builder, "_write_visual_key_overlay", fake_overlay)
+
+    records = build_vlm_melody_inputs(
+        out_dir,
+        selected_slugs={"demo"},
+        selected_systems={2},
+        overwrite=True,
+        key_context_mode=builder.KEY_CONTEXT_STRICT_VISUAL,
+    )
+
+    assert calls == ["system_001", "system_002"]
+    assert records
+    assert {record["system_index"] for record in records} == {2}
+    assert {record["key_hint"] for record in records} == {"1 flat(s): Bb"}
+    assert {record["visual_key_state"]["status"] for record in records} == {"inherited"}
+    assert {record["visual_key_state"]["source_system_index"] for record in records} == {2}
+    state_path = Path(records[0]["paths"]["visual_key_state"])
+    assert json.loads(state_path.read_text(encoding="utf-8"))["fifths"] == -1
 
 
 def test_build_vlm_melody_inputs_splits_consumed_carrizal_system(tmp_path: Path) -> None:
@@ -138,3 +178,18 @@ def _draw_system(
 
     draw.ellipse((100, 80, 120, 96), fill="black")
     image.save(path)
+
+
+def _key_prediction(*, fifths: int, selected_ids: list[str], right_px: int) -> dict:
+    return {
+        "mode": "initial",
+        "fifths": fifths,
+        "gate_passed": True,
+        "truth_used_for_prediction": False,
+        "selection_method": "standard_position_sequence",
+        "predicted_signature_family": "flat" if fifths < 0 else "sharp",
+        "accidental_count": len(selected_ids),
+        "selected_glyph_ids": selected_ids,
+        "search_region": {"left_px": 20, "right_px": right_px},
+        "input": {"path": "system.png", "sha256": "abc"},
+    }

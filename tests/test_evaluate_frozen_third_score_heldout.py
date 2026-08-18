@@ -120,6 +120,20 @@ def test_default_one_to_one_materializes_visible_tie_heads_and_sounding_accident
     }
 
 
+def test_visible_musicxml_truth_preserves_key_change_events(tmp_path: Path) -> None:
+    musicxml = _write_musicxml(
+        tmp_path / "key-change.musicxml",
+        [[61], [63]],
+        alters={(1, 0): 1, (2, 0): -1},
+        key_changes={1: 2, 2: -2},
+    )
+
+    truth = spike.load_visible_musicxml_truth(musicxml)
+
+    assert truth.key_fifths == -2
+    assert truth.key_events == ((1, 2), (2, -2))
+
+
 def test_explicit_mapping_supports_one_to_many_and_many_to_one(tmp_path: Path) -> None:
     fixture = _frozen_fixture(
         tmp_path,
@@ -574,9 +588,11 @@ def _write_musicxml(
     *,
     ties: dict[tuple[int, int], str] | None = None,
     alters: dict[tuple[int, int], int] | None = None,
+    key_changes: dict[int, int] | None = None,
 ) -> Path:
     ties = ties or {}
     alters = alters or {}
+    key_changes = key_changes or {}
     measure_xml = []
     for measure_number, pitches in enumerate(measures, start=1):
         notes = []
@@ -596,10 +612,16 @@ def _write_musicxml(
             )
         attributes = ""
         if measure_number == 1:
+            fifths = key_changes.get(1, -1)
             attributes = (
-                "<attributes><divisions>1</divisions><key><fifths>-1</fifths></key>"
+                f"<attributes><divisions>1</divisions><key><fifths>{fifths}</fifths></key>"
                 "<time><beats>3</beats><beat-type>4</beat-type></time>"
                 "<clef><sign>G</sign><line>2</line></clef></attributes>"
+            )
+        elif measure_number in key_changes:
+            attributes = (
+                f"<attributes><key><fifths>{key_changes[measure_number]}</fifths></key>"
+                "</attributes>"
             )
         measure_xml.append(
             f'<measure number="{measure_number}">{attributes}{"".join(notes)}</measure>'

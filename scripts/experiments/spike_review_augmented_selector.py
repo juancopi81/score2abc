@@ -33,6 +33,7 @@ from scripts import build_vlm_notehead_candidates as detector  # noqa: E402
 from scripts.experiments import spike_anchored_rhythm_parser as rhythm  # noqa: E402
 from scripts.experiments import spike_composed_melody_chain as composed  # noqa: E402
 from scripts.experiments import spike_notehead_patch_templates as patches  # noqa: E402
+from scripts.experiments import strict_initial_key_context as visual_key_context  # noqa: E402
 
 DEFAULT_OUT_DIR = REPO_ROOT / "out"
 DEFAULT_SLUG = patches.DEFAULT_SLUG
@@ -1172,7 +1173,10 @@ def _build_pitch_predictor(
         image: Image.Image,
     ) -> str:
         staff_lines = [int(value) for value in request["staff_geometry"]["raw_staff_lines_y_px"]]
-        key_hint = request.get("allowed_context", {}).get("key_hint")
+        key_hint = visual_key_context.key_hint_for_candidate(
+            request,
+            candidate_x_px=candidate.center_x,
+        )
         base = composed._pitch_for_y(candidate.center_y, staff_lines, key_hint=key_hint)
         if model is None:
             return base

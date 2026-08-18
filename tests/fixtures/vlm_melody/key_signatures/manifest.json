@@ -1,0 +1,50 @@
+{
+  "fixtures": [
+    {
+      "adjudication_status": "human-reviewed consumed key-change label",
+      "cancellation_prefix": "B natural cancels the previous B flat",
+      "expected_fifths": 2,
+      "expected_internal_boundary_x_px": 566,
+      "image": "coqueteos_system_007.png",
+      "mode": "internal-change-scan",
+      "provenance": "consumed user-identified internal key-change regression",
+      "sha256": "0d3ebf3b72c3731f191929dd5ec287a9d526d787056aae667c4aaf84fbe9371b",
+      "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+      "system": 7
+    },
+    {
+      "adjudication_status": "human-reviewed consumed key-change label",
+      "cancellation_prefix": null,
+      "expected_fifths": -2,
+      "expected_internal_boundary_x_px": 1400,
+      "image": "sobre_el_humo_system_003.png",
+      "mode": "internal-change-scan",
+      "provenance": "consumed user-identified internal key-change regression",
+      "sha256": "3ac47c81027a54333111f738c37de8b206d0fa6d13d6563b67b1212c06529fc0",
+      "slug": "jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia",
+      "system": 3
+    },
+    {
+      "adjudication_status": "consumed after sealed diagnostic-key evaluation",
+      "cancellation_prefix": null,
+      "expected_fifths": -2,
+      "expected_internal_boundary_x_px": 1284,
+      "image": "chispazo_system_003.png",
+      "mode": "internal-change-scan",
+      "provenance": "consumed repair target after truth-blind Chispazo system-3 freeze",
+      "sha256": "62e3a18497c0e5ec96228aefd88de7355591a5f22435dbab049603f854d8292a",
+      "slug": "jaime-llanos_25_chispazo_pasillo_pedro-morales-pino",
+      "system": 3
+    },
+    {
+      "expected_fifths": 2,
+      "image": "sobre_el_humo_system_007.png",
+      "mode": "change",
+      "provenance": "consumed postmortem after sealed independent-key evaluation",
+      "sha256": "071ce7a64e017baaa6fb0286d6e2b46d765184b4a244ce916715fb732b7a2c64",
+      "slug": "jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia",
+      "system": 7
+    }
+  ],
+  "schema_version": 1
+}

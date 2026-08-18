@@ -39,6 +39,14 @@ DEFAULT_RECOVERY_MIN_Y_GAP_GRID = (1.0, 1.5)
 DEFAULT_RECOVERY_SCORE_RATIO_GRID = (0.5, 0.75)
 DEFAULT_RECOVERY_MAX_Y_GAP_STAFF_SPACES = 3.0
 DEFAULT_STEM_SCORE_GRID = (0.8, 0.9, 1.0)
+EDGE_SAFE_STEM_DYAD_CONFIG_ID = "edge_safe_stem_dyad__y_1_3__ratio_0.5__stem_0.55__leading_x_1"
+EDGE_SAFE_STEM_DYAD_PARAMETERS = {
+    "minimum_y_gap_staff_spaces": 1.0,
+    "maximum_y_gap_staff_spaces": 3.0,
+    "minimum_score_ratio": 0.5,
+    "minimum_stem_score": 0.55,
+    "minimum_group_x_staff_spaces": 1.0,
+}
 STEM_SEARCH_SIDE_PIXELS = 5
 STEM_SEARCH_EXTRA_SPACES = 4.0
 STEM_MAX_GAP_PIXELS = 3
@@ -689,6 +697,154 @@ def recover_stem_aware_chord_candidates(
         chosen["stem_attachment_score"] = float(feature["score"])
         filtered.append(chosen)
     return filtered
+
+
+def recover_edge_safe_stem_aware_chord_candidates(
+    inference_row: Mapping[str, Any],
+    selector: Mapping[str, Any],
+    baseline_selected: Sequence[Mapping[str, Any]],
+    *,
+    minimum_y_gap_staff_spaces: float,
+    maximum_y_gap_staff_spaces: float,
+    minimum_score_ratio: float,
+    minimum_stem_score: float,
+    minimum_group_x_staff_spaces: float,
+    stem_features: Mapping[str, Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Recover stem-supported companions away from ambiguous leading-edge ink.
+
+    The leading staff-space often contains a crop barline, clef fragment, or
+    key-signature ink.  Recovery is intentionally fail-closed there while the
+    original x-only selection remains untouched.
+    """
+    if minimum_group_x_staff_spaces < 0:
+        raise ValueError("Recovery minimum group x must be non-negative")
+    recovered = recover_stem_aware_chord_candidates(
+        inference_row,
+        selector,
+        baseline_selected,
+        minimum_y_gap_staff_spaces=minimum_y_gap_staff_spaces,
+        maximum_y_gap_staff_spaces=maximum_y_gap_staff_spaces,
+        minimum_score_ratio=minimum_score_ratio,
+        minimum_stem_score=minimum_stem_score,
+        stem_features=stem_features,
+    )
+    spacing = _staff_spacing(inference_row)
+    minimum_x = minimum_group_x_staff_spaces * spacing
+    filtered = []
+    for candidate in recovered:
+        candidate_x = float(candidate["center"]["x"])
+        if candidate_x < minimum_x:
+            continue
+        chosen = dict(candidate)
+        chosen["leading_edge_distance_staff_spaces"] = candidate_x / spacing
+        filtered.append(chosen)
+    return filtered
+
+
+def recover_edge_safe_stem_aware_multihead_candidates(
+    inference_row: Mapping[str, Any],
+    selector: Mapping[str, Any],
+    baseline_selected: Sequence[Mapping[str, Any]],
+    *,
+    minimum_y_gap_staff_spaces: float,
+    maximum_y_gap_staff_spaces: float,
+    minimum_score_ratio: float,
+    minimum_stem_score: float,
+    minimum_group_x_staff_spaces: float,
+    maximum_recovered_heads_per_group: int,
+    stem_features: Mapping[str, Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Recover a bounded vertical chain inside each existing onset group.
+
+    Candidates remain tied to a baseline x-group and are accepted in ranked
+    order. Each accepted companion becomes a vertical anchor for the next one,
+    allowing triads or four-note chords without inventing a new onset.
+    """
+    if minimum_y_gap_staff_spaces < 0:
+        raise ValueError("Recovery minimum y gap must be non-negative")
+    if maximum_y_gap_staff_spaces < minimum_y_gap_staff_spaces:
+        raise ValueError("Recovery maximum y gap must be at least the minimum")
+    if not 0 <= minimum_score_ratio <= 1:
+        raise ValueError("Recovery score ratio must be between zero and one")
+    if minimum_group_x_staff_spaces < 0:
+        raise ValueError("Recovery minimum group x must be non-negative")
+    if maximum_recovered_heads_per_group < 1:
+        raise ValueError("Recovery per-group cap must be positive")
+
+    spacing = _staff_spacing(inference_row)
+    x_radius = spacing * float(selector["nms_x_spaces"])
+    threshold = float(selector["threshold"])
+    minimum_x = minimum_group_x_staff_spaces * spacing
+    baseline = list(baseline_selected)
+    groups = _horizontal_candidate_groups(baseline, x_radius)
+    ranked = _ranked_candidate_predictions(inference_row)
+    selected_ids = {str(candidate["candidate_id"]) for candidate in baseline}
+    recovered: list[dict[str, Any]] = []
+
+    for group_index, group in enumerate(groups, start=1):
+        best_selected = min(
+            group,
+            key=lambda candidate: (
+                -float(candidate["score"]),
+                int(candidate["detector_rank"]),
+                str(candidate["candidate_id"]),
+            ),
+        )
+        best_score = float(best_selected["score"])
+        anchors = list(group)
+        group_recovered: list[dict[str, Any]] = []
+        while len(group_recovered) < maximum_recovered_heads_per_group:
+            eligible = []
+            for candidate in ranked:
+                candidate_id = str(candidate["candidate_id"])
+                if candidate_id in selected_ids or any(
+                    candidate_id == str(item["candidate_id"]) for item in recovered
+                ):
+                    continue
+                candidate_x = float(candidate["center"]["x"])
+                candidate_y = float(candidate["center"]["y"])
+                if candidate_x < minimum_x:
+                    continue
+                if not any(
+                    abs(candidate_x - float(anchor["center"]["x"])) < x_radius for anchor in group
+                ):
+                    continue
+                nearest_y_gap = min(
+                    abs(candidate_y - float(anchor["center"]["y"])) / spacing for anchor in anchors
+                )
+                if not minimum_y_gap_staff_spaces <= nearest_y_gap <= (maximum_y_gap_staff_spaces):
+                    continue
+                if float(candidate["score"]) < threshold:
+                    continue
+                if float(candidate["score"]) < best_score * minimum_score_ratio:
+                    continue
+                stem = stem_features.get(candidate_id)
+                if stem is None:
+                    raise ValueError(f"Missing stem feature for candidate {candidate_id}")
+                if float(stem["score"]) < minimum_stem_score:
+                    continue
+                eligible.append((candidate, nearest_y_gap, float(stem["score"])))
+            if not eligible:
+                break
+            candidate, nearest_y_gap, stem_score = eligible[0]
+            chosen = dict(candidate)
+            chosen["recovery_group_index"] = group_index
+            chosen["recovery_y_gap_staff_spaces"] = nearest_y_gap
+            chosen["recovery_score_ratio"] = (
+                float(chosen["score"]) / best_score if best_score > 0 else None
+            )
+            chosen["stem_attachment_score"] = stem_score
+            chosen["leading_edge_distance_staff_spaces"] = float(chosen["center"]["x"]) / spacing
+            group_recovered.append(chosen)
+            recovered.append(chosen)
+            anchors.append(chosen)
+
+    if _onset_group_count([*baseline, *recovered], x_radius) != _onset_group_count(
+        baseline, x_radius
+    ):
+        raise ValueError("Multihead recovery created a new onset group")
+    return recovered
 
 
 def _number(value: str) -> int | None:

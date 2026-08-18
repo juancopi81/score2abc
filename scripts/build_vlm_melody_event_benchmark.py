@@ -262,35 +262,51 @@ def prepare_requests(
                 "height_px": height,
             }
 
-        requests.append(
-            {
-                "schema_version": SCHEMA_VERSION,
-                "split": split_name,
-                "identity": {
-                    "slug": slug,
-                    "system_index": target.system_index,
-                    "system_measure_index": target.system_measure_index,
-                    "global_measure_index": target.global_measure_index,
-                },
-                "mapping": {
-                    "manifest_global_measure_index": actual_global_index,
-                    "canonical_global_measure_index": target.global_measure_index,
-                    "index_correction": target.global_measure_index - actual_global_index,
-                },
-                "images": images,
-                "staff_geometry": {
-                    "raw_staff_lines_y_px": record["staff_lines_y_px_in_system"],
-                    "staff_crop_lines_y_px": record["staff_lines_y_px_in_staff_crop"],
-                },
-                "allowed_context": {
-                    "clef": clef,
-                    "time_signature": time_signature,
-                    "key_hint": key_hint,
-                    "expected_measure_beats": _fraction_text(measure_length),
-                    "allow_pickup": bool(record.get("allow_pickup", False)),
-                },
-            }
+        visual_key_state = record.get("visual_key_state") if key_hint is None else None
+        resolved_key_hint = (
+            record.get("key_hint") if isinstance(visual_key_state, Mapping) else key_hint
         )
+        allowed_context = {
+            "clef": clef,
+            "time_signature": time_signature,
+            "key_hint": resolved_key_hint,
+            "expected_measure_beats": _fraction_text(measure_length),
+            "allow_pickup": bool(record.get("allow_pickup", False)),
+        }
+        if isinstance(visual_key_state, Mapping):
+            allowed_context["visual_key_state"] = dict(visual_key_state)
+
+        request = {
+            "schema_version": SCHEMA_VERSION,
+            "split": split_name,
+            "identity": {
+                "slug": slug,
+                "system_index": target.system_index,
+                "system_measure_index": target.system_measure_index,
+                "global_measure_index": target.global_measure_index,
+            },
+            "mapping": {
+                "manifest_global_measure_index": actual_global_index,
+                "canonical_global_measure_index": target.global_measure_index,
+                "index_correction": target.global_measure_index - actual_global_index,
+            },
+            "images": images,
+            "staff_geometry": {
+                "raw_staff_lines_y_px": record["staff_lines_y_px_in_system"],
+                "staff_crop_lines_y_px": record["staff_lines_y_px_in_staff_crop"],
+            },
+            "allowed_context": allowed_context,
+        }
+        if isinstance(visual_key_state, Mapping):
+            request["prepared_provenance"] = {
+                "bbox_px": [
+                    int(record["x_bounds_px"]["left"]),
+                    0,
+                    int(record["x_bounds_px"]["right"]),
+                    int(images["raw"]["height_px"]),
+                ]
+            }
+        requests.append(request)
     return requests
 
 

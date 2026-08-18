@@ -12,6 +12,9 @@ wheels/
 # Pipeline outputs
 out/
 
+# Locally supplied sources that are not cleared for the tracked golden dataset
+dataset/local_restricted/
+
 # Local secrets and caches
 .env
 .cache/

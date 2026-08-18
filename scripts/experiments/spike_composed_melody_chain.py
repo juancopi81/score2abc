@@ -34,6 +34,7 @@ if str(REPO_ROOT) not in sys.path:
 from scripts import build_vlm_melody_event_benchmark as benchmark  # noqa: E402
 from scripts.experiments import spike_anchored_rhythm_parser as rhythm  # noqa: E402
 from scripts.experiments import spike_notehead_patch_templates as selector  # noqa: E402
+from scripts.experiments import strict_initial_key_context as visual_key_context  # noqa: E402
 
 DEFAULT_OUT_DIR = REPO_ROOT / "out"
 DEFAULT_SLUG = selector.DEFAULT_SLUG
@@ -613,7 +614,6 @@ def compose_measure(
         image = opened.convert("RGB")
     staff_lines = [int(value) for value in request["staff_geometry"]["raw_staff_lines_y_px"]]
     spacing = rhythm.staff_spacing(staff_lines)
-    key_hint = request.get("allowed_context", {}).get("key_hint")
     ordered = sorted(selected, key=lambda candidate: (candidate.center_x, candidate.center_y))
     anchors = [
         {
@@ -621,7 +621,14 @@ def compose_measure(
             "pitch": (
                 pitch_predictor(candidate, request, image)
                 if pitch_predictor is not None
-                else _pitch_for_y(candidate.center_y, staff_lines, key_hint=key_hint)
+                else _pitch_for_y(
+                    candidate.center_y,
+                    staff_lines,
+                    key_hint=visual_key_context.key_hint_for_candidate(
+                        request,
+                        candidate_x_px=candidate.center_x,
+                    ),
+                )
             ),
             "center": {
                 "x": round(candidate.center_x, 3),

@@ -484,6 +484,124 @@ def test_stem_aware_recovery_keeps_groups_and_is_deterministic() -> None:
     assert spike._onset_group_count([*baseline, *first], 10.0) == 1
 
 
+def test_edge_safe_stem_recovery_rejects_leading_ink_and_weak_stems() -> None:
+    row = {
+        "staff_geometry": {"raw_staff_lines_y_px": [0, 10, 20, 30, 40]},
+        "candidate_predictions": [
+            {"candidate_id": "leading", "center": {"x": 5, "y": 20}, "score": 0.95},
+            {
+                "candidate_id": "leading-extra",
+                "center": {"x": 5, "y": 0},
+                "score": 0.8,
+            },
+            {"candidate_id": "anchor", "center": {"x": 30, "y": 20}, "score": 0.9},
+            {"candidate_id": "good", "center": {"x": 30, "y": 0}, "score": 0.8},
+            {"candidate_id": "weak", "center": {"x": 31, "y": 40}, "score": 0.79},
+        ],
+    }
+    selector = {
+        "threshold": 0.5,
+        "nms_x_spaces": 1.0,
+        "minimum_selected_count": 0,
+        "maximum_selected_count": 2,
+    }
+    baseline = spike.select_candidates(row, selector)
+
+    recovered = spike.recover_edge_safe_stem_aware_chord_candidates(
+        row,
+        selector,
+        baseline,
+        minimum_y_gap_staff_spaces=1.0,
+        maximum_y_gap_staff_spaces=3.0,
+        minimum_score_ratio=0.5,
+        minimum_stem_score=0.55,
+        minimum_group_x_staff_spaces=1.0,
+        stem_features={
+            "leading-extra": {"score": 0.95},
+            "good": {"score": 0.8},
+            "weak": {"score": 0.4},
+        },
+    )
+
+    assert [candidate["candidate_id"] for candidate in recovered] == ["good"]
+    assert recovered[0]["leading_edge_distance_staff_spaces"] == 3.0
+    assert spike._onset_group_count([*baseline, *recovered], 10.0) == 2
+
+
+def test_edge_safe_multihead_recovery_builds_bounded_vertical_chain() -> None:
+    row = {
+        "staff_geometry": {"raw_staff_lines_y_px": [0, 10, 20, 30, 40]},
+        "candidate_predictions": [
+            {"candidate_id": "anchor", "center": {"x": 30, "y": 40}, "score": 0.9},
+            {"candidate_id": "middle", "center": {"x": 30, "y": 20}, "score": 0.8},
+            {"candidate_id": "high", "center": {"x": 30, "y": 0}, "score": 0.7},
+            {"candidate_id": "overflow", "center": {"x": 30, "y": -20}, "score": 0.6},
+            {"candidate_id": "new-onset", "center": {"x": 55, "y": 20}, "score": 0.85},
+        ],
+    }
+    selector = {
+        "threshold": 0.5,
+        "nms_x_spaces": 1.0,
+        "minimum_selected_count": 0,
+        "maximum_selected_count": 1,
+    }
+    baseline = spike.select_candidates(row, selector)
+
+    recovered = spike.recover_edge_safe_stem_aware_multihead_candidates(
+        row,
+        selector,
+        baseline,
+        minimum_y_gap_staff_spaces=1.0,
+        maximum_y_gap_staff_spaces=3.0,
+        minimum_score_ratio=0.5,
+        minimum_stem_score=0.55,
+        minimum_group_x_staff_spaces=1.0,
+        maximum_recovered_heads_per_group=2,
+        stem_features={
+            "middle": {"score": 0.9},
+            "high": {"score": 0.8},
+            "overflow": {"score": 0.9},
+            "new-onset": {"score": 0.9},
+        },
+    )
+
+    assert [candidate["candidate_id"] for candidate in recovered] == ["middle", "high"]
+    assert [candidate["recovery_group_index"] for candidate in recovered] == [1, 1]
+    assert spike._onset_group_count([*baseline, *recovered], 10.0) == 1
+
+
+def test_edge_safe_multihead_recovery_fails_closed_at_leading_edge() -> None:
+    row = {
+        "staff_geometry": {"raw_staff_lines_y_px": [0, 10, 20, 30, 40]},
+        "candidate_predictions": [
+            {"candidate_id": "anchor", "center": {"x": 5, "y": 40}, "score": 0.9},
+            {"candidate_id": "companion", "center": {"x": 5, "y": 20}, "score": 0.8},
+        ],
+    }
+    selector = {
+        "threshold": 0.5,
+        "nms_x_spaces": 1.0,
+        "minimum_selected_count": 0,
+        "maximum_selected_count": 1,
+    }
+    baseline = spike.select_candidates(row, selector)
+
+    recovered = spike.recover_edge_safe_stem_aware_multihead_candidates(
+        row,
+        selector,
+        baseline,
+        minimum_y_gap_staff_spaces=1.0,
+        maximum_y_gap_staff_spaces=3.0,
+        minimum_score_ratio=0.5,
+        minimum_stem_score=0.55,
+        minimum_group_x_staff_spaces=1.0,
+        maximum_recovered_heads_per_group=3,
+        stem_features={"companion": {"score": 0.9}},
+    )
+
+    assert recovered == []
+
+
 def test_unfiltered_recovery_behavior_is_unchanged_by_stem_family() -> None:
     row = {
         "staff_geometry": {"raw_staff_lines_y_px": [0, 10, 20, 30, 40]},

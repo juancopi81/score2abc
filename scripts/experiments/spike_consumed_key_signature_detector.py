@@ -24,6 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from score2abc.chord_ocr.alignment import detect_barlines  # noqa: E402
 from scripts.experiments import spike_consumed_key_state_detector as legacy  # noqa: E402
 
 SCHEMA_VERSION = 1
@@ -42,6 +43,22 @@ MAX_CHANGE_PREFIX_SPACES = 1.65
 MIN_FRAGMENTED_CLEF_WIDTH_SPACES = 0.55
 MIN_BROAD_SHARP_WIDTH_SPACES = 0.65
 MIN_BROAD_SHARP_HEIGHT_SPACES = 4.0
+MIN_INDEPENDENT_SHAPE_SCORE = 0.70
+MIN_INDEPENDENT_SHAPE_MARGIN = 0.18
+MIN_STRONG_SHIFTED_SHARP_SCORE = 0.90
+MIN_STRONG_SHIFTED_SHARP_MARGIN = 0.70
+INTERNAL_BOUNDARY_SEARCH_SPACES = 1.25
+INTERNAL_SCAN_EDGE_FRACTION = 0.08
+MAX_HINTED_SIGNATURE_START_SPACES = 3.6
+MIN_HINTED_FLAT_SCORE = 0.55
+MIN_HINTED_FLAT_MARGIN = 0.12
+MIN_HINTED_WEAK_FLAT_SCORE = 0.64
+MIN_HINTED_WEAK_FLAT_RIGHT_INK_RATIO = 0.30
+MIN_HINTED_STRONG_FLAT_SCORE = 0.70
+MIN_HINTED_STRONG_FLAT_MARGIN = 0.18
+MIN_HINTED_STRONG_FLAT_RIGHT_INK_RATIO = 0.35
+MIN_HINTED_TWO_FLAT_RIVALRY_MARGIN = 0.12
+MIN_HINTED_KEY_CHANGE_BAR_GAP_SPACES = 0.50
 
 
 @dataclass(frozen=True)
@@ -416,6 +433,333 @@ def _sharp_shape_eligible(glyph: Mapping[str, Any]) -> bool:
     )
 
 
+def _independent_shape_representatives(
+    glyphs: Sequence[Mapping[str, Any]],
+    family: str,
+    *,
+    minimum_score: float = MIN_INDEPENDENT_SHAPE_SCORE,
+    minimum_margin: float = MIN_INDEPENDENT_SHAPE_MARGIN,
+) -> list[Mapping[str, Any]]:
+    """Collapse overlapping hypotheses into independently supported glyphs."""
+    other_family = FAMILY_FLAT if family == FAMILY_SHARP else FAMILY_SHARP
+    eligible = sorted(
+        [
+            glyph
+            for glyph in glyphs
+            if float(glyph["family_scores"][family]) >= minimum_score
+            and float(glyph["family_scores"][family]) - float(glyph["family_scores"][other_family])
+            >= minimum_margin
+            and (family != FAMILY_SHARP or _sharp_shape_eligible(glyph))
+        ],
+        key=lambda glyph: (int(glyph["bbox"]["left"]), int(glyph["bbox"]["right"])),
+    )
+    groups: list[list[Mapping[str, Any]]] = []
+    for glyph in eligible:
+        left = int(glyph["bbox"]["left"])
+        if groups and left <= max(int(item["bbox"]["right"]) for item in groups[-1]):
+            groups[-1].append(glyph)
+        else:
+            groups.append([glyph])
+    return [max(group, key=lambda glyph: float(glyph["family_scores"][family])) for group in groups]
+
+
+def _shape_support(glyphs: Sequence[Mapping[str, Any]]) -> dict[str, dict[str, Any]]:
+    support = {}
+    for family in (FAMILY_SHARP, FAMILY_FLAT):
+        representatives = _independent_shape_representatives(glyphs, family)
+        support[family] = {
+            "count": len(representatives),
+            "glyph_ids": [str(glyph["glyph_id"]) for glyph in representatives],
+            "minimum_score": MIN_INDEPENDENT_SHAPE_SCORE,
+            "minimum_family_margin": MIN_INDEPENDENT_SHAPE_MARGIN,
+        }
+    return support
+
+
+def _strong_shifted_two_sharps(
+    glyphs: Sequence[Mapping[str, Any]], boundary: int, spacing: float
+) -> dict[str, Any] | None:
+    """Recognize two unmistakable sharps when handwritten placement is nonstandard."""
+    representatives = _independent_shape_representatives(
+        glyphs,
+        FAMILY_SHARP,
+        minimum_score=MIN_STRONG_SHIFTED_SHARP_SCORE,
+        minimum_margin=MIN_STRONG_SHIFTED_SHARP_MARGIN,
+    )
+    if len(representatives) != 2:
+        return None
+    first_left = int(representatives[0]["bbox"]["left"])
+    if (first_left - boundary) / spacing > MAX_CHANGE_PREFIX_SPACES:
+        return None
+    return {
+        "family": FAMILY_SHARP,
+        "count": 2,
+        "fifths": 2,
+        "score": round(
+            sum(float(glyph["family_scores"][FAMILY_SHARP]) for glyph in representatives),
+            6,
+        ),
+        "glyph_ids": [str(glyph["glyph_id"]) for glyph in representatives],
+    }
+
+
+def _boundary_near(
+    mask: list[list[bool]],
+    staff_lines: Sequence[int],
+    spacing: float,
+    hint_x: int,
+) -> tuple[int, dict[str, Any]]:
+    """Resolve a structural bar near a full-system x-coordinate hint."""
+    height = len(mask)
+    width = len(mask[0]) if height else 0
+    if width <= 0 or not 0 <= hint_x < width:
+        raise ValueError(f"boundary hint must be within image width: {hint_x}")
+    top = max(0, round(staff_lines[0] - spacing * 0.4))
+    bottom = min(height - 1, round(staff_lines[-1] + spacing * 0.4))
+    staff_rows = legacy._line_rows(staff_lines, spacing, height)
+    radius = max(4, round(spacing * INTERNAL_BOUNDARY_SEARCH_SPACES))
+    left = max(0, hint_x - radius)
+    right = min(width - 1, hint_x + radius)
+    usable_rows = [y for y in range(top, bottom + 1) if y not in staff_rows]
+    support = [
+        sum(mask[y][x] for y in usable_rows) / max(1, len(usable_rows))
+        for x in range(left, right + 1)
+    ]
+    strong = [
+        left + offset
+        for offset, value in enumerate(support)
+        if value >= legacy.BOUNDARY_TRACK_SUPPORT
+    ]
+    tracks = [
+        {
+            "left": start,
+            "right": end,
+            "center": round((start + end) / 2, 3),
+            "support": round(max(support[start - left : end - left + 1]), 6),
+        }
+        for start, end in legacy._cluster_indices(strong)
+    ]
+    pairs = []
+    for first, second in zip(tracks, tracks[1:], strict=False):
+        gap = (float(second["center"]) - float(first["center"])) / spacing
+        if legacy.MIN_DOUBLE_BAR_GAP_SPACES <= gap <= legacy.MAX_DOUBLE_BAR_GAP_SPACES:
+            pairs.append(
+                (
+                    abs((float(first["center"]) + float(second["center"])) / 2 - hint_x),
+                    first,
+                    second,
+                    gap,
+                )
+            )
+    if pairs:
+        _, first, second, gap = min(pairs, key=lambda item: item[0])
+        boundary = int(second["right"])
+        return boundary, {
+            "method": "hinted_full_system_vertical_tracks",
+            "style": "double_bar",
+            "tracks": tracks,
+            "bbox": {"left": int(first["left"]), "right": boundary},
+            "support": float(first["support"]),
+            "double_bar_gap_staff_spaces": round(gap, 6),
+            "hint_x_px": hint_x,
+        }
+    if tracks:
+        nearest = min(tracks, key=lambda item: abs(float(item["center"]) - hint_x))
+        boundary = int(nearest["right"])
+        return boundary, {
+            "method": "hinted_full_system_vertical_tracks",
+            "style": "single_bar",
+            "tracks": tracks,
+            "bbox": {"left": int(nearest["left"]), "right": boundary},
+            "support": float(nearest["support"]),
+            "double_bar_gap_staff_spaces": None,
+            "hint_x_px": hint_x,
+        }
+    return hint_x, {
+        "method": "hinted_full_system_fallback",
+        "style": "unknown",
+        "tracks": [],
+        "bbox": {"left": hint_x, "right": hint_x},
+        "support": 0.0,
+        "double_bar_gap_staff_spaces": None,
+        "hint_x_px": hint_x,
+    }
+
+
+def _left_groups(
+    glyphs: Sequence[Mapping[str, Any]], spacing: float
+) -> list[list[Mapping[str, Any]]]:
+    groups: list[list[Mapping[str, Any]]] = []
+    for glyph in sorted(glyphs, key=lambda item: int(item["bbox"]["left"])):
+        left = int(glyph["bbox"]["left"])
+        if groups and left - int(groups[-1][0]["bbox"]["left"]) <= 0.35 * spacing:
+            groups[-1].append(glyph)
+        else:
+            groups.append([glyph])
+    return groups
+
+
+def _hinted_two_flat_signature(
+    glyphs: Sequence[Mapping[str, Any]], boundary: int, spacing: float
+) -> dict[str, Any] | None:
+    """Recover two left-stem flat shapes after an internal double bar."""
+    groups = [
+        group
+        for group in _left_groups(glyphs, spacing)
+        if (int(group[0]["bbox"]["left"]) - boundary) / spacing <= MAX_HINTED_SIGNATURE_START_SPACES
+    ]
+    selected = []
+    for group in groups:
+        glyph = max(group, key=lambda item: float(item["family_scores"][FAMILY_FLAT]))
+        flat_score = float(glyph["family_scores"][FAMILY_FLAT])
+        sharp_score = float(glyph["family_scores"][FAMILY_SHARP])
+        if flat_score < MIN_HINTED_FLAT_SCORE or flat_score - sharp_score < MIN_HINTED_FLAT_MARGIN:
+            continue
+        if float(glyph["strongest_track_x_fraction"]) > 0.35:
+            continue
+        if float(glyph["right_ink_ratio"]) < 0.35:
+            continue
+        selected.append(glyph)
+    if len(selected) != 2:
+        return None
+    first_left = int(selected[0]["bbox"]["left"])
+    second_left = int(selected[1]["bbox"]["left"])
+    gap = (second_left - first_left) / spacing
+    anchor_drop = float(selected[0]["anchor_positions"][FAMILY_FLAT]) - float(
+        selected[1]["anchor_positions"][FAMILY_FLAT]
+    )
+    if not 0.8 <= gap <= 2.5 or not 0.8 <= anchor_drop <= 3.2:
+        return None
+    return {
+        "family": FAMILY_FLAT,
+        "count": 2,
+        "fifths": -2,
+        "score": round(
+            sum(float(glyph["family_scores"][FAMILY_FLAT]) for glyph in selected),
+            6,
+        ),
+        "glyph_ids": [str(glyph["glyph_id"]) for glyph in selected],
+    }
+
+
+def _hinted_one_strong_two_flat_signature(
+    signatures: Sequence[Mapping[str, Any]],
+    glyphs: Sequence[Mapping[str, Any]],
+    boundary: int,
+    spacing: float,
+) -> dict[str, Any] | None:
+    """Recover a two-flat sequence whose second glyph is partially merged.
+
+    This consumed-data fallback is intentionally stricter than the generic
+    hinted-flat path: the positional flat family must beat a same-count sharp
+    rival, both glyphs must retain weak flat morphology, and at least one must
+    retain strong independent flat morphology.
+    """
+    flat_candidates = [
+        signature
+        for signature in signatures
+        if signature["family"] == FAMILY_FLAT and int(signature["count"]) == 2
+    ]
+    rival_candidates = [
+        signature
+        for signature in signatures
+        if signature["family"] != FAMILY_FLAT and int(signature["count"]) == 2
+    ]
+    if not flat_candidates or not rival_candidates:
+        return None
+    selected = max(flat_candidates, key=lambda item: float(item["score"]))
+    rival = max(rival_candidates, key=lambda item: float(item["score"]))
+    if float(selected["score"]) - float(rival["score"]) < MIN_HINTED_TWO_FLAT_RIVALRY_MARGIN:
+        return None
+
+    glyph_by_id = {str(glyph["glyph_id"]): glyph for glyph in glyphs}
+    selected_glyphs = [glyph_by_id[str(glyph_id)] for glyph_id in selected["glyph_ids"]]
+    first_left = int(selected_glyphs[0]["bbox"]["left"])
+    if (first_left - boundary) / spacing > MAX_HINTED_SIGNATURE_START_SPACES:
+        return None
+
+    weak_support = []
+    strong_support = []
+    for glyph in selected_glyphs:
+        flat_score = float(glyph["family_scores"][FAMILY_FLAT])
+        sharp_score = float(glyph["family_scores"][FAMILY_SHARP])
+        margin = flat_score - sharp_score
+        track_fraction = float(glyph["strongest_track_x_fraction"])
+        right_ink_ratio = float(glyph["right_ink_ratio"])
+        weak_support.append(
+            flat_score >= MIN_HINTED_WEAK_FLAT_SCORE
+            and margin >= MIN_HINTED_FLAT_MARGIN
+            and track_fraction <= 0.35
+            and right_ink_ratio >= MIN_HINTED_WEAK_FLAT_RIGHT_INK_RATIO
+        )
+        strong_support.append(
+            flat_score >= MIN_HINTED_STRONG_FLAT_SCORE
+            and margin >= MIN_HINTED_STRONG_FLAT_MARGIN
+            and track_fraction <= 0.35
+            and right_ink_ratio >= MIN_HINTED_STRONG_FLAT_RIGHT_INK_RATIO
+        )
+    if not all(weak_support) or not any(strong_support):
+        return None
+
+    second_left = int(selected_glyphs[1]["bbox"]["left"])
+    gap = (second_left - first_left) / spacing
+    anchor_drop = float(selected_glyphs[0]["anchor_positions"][FAMILY_FLAT]) - float(
+        selected_glyphs[1]["anchor_positions"][FAMILY_FLAT]
+    )
+    if not 0.8 <= gap <= 2.5 or not 0.8 <= anchor_drop <= 3.2:
+        return None
+    return dict(selected)
+
+
+def _hinted_cancellation_two_sharps(
+    signatures: Sequence[Mapping[str, Any]],
+    glyphs: Sequence[Mapping[str, Any]],
+    boundary: int,
+    spacing: float,
+    shape_support: Mapping[str, Mapping[str, Any]],
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """Accept a positional two-sharp sequence after a separate cancellation glyph."""
+    candidates = [
+        signature
+        for signature in signatures
+        if signature["family"] == FAMILY_SHARP
+        and int(signature["count"]) == 2
+        and float(signature["score"]) >= 0.85
+    ]
+    if not candidates or int(shape_support[FAMILY_SHARP]["count"]) < 1:
+        return None
+    selected = max(candidates, key=lambda item: float(item["score"]))
+    selected_glyphs = [
+        next(glyph for glyph in glyphs if glyph["glyph_id"] == glyph_id)
+        for glyph_id in selected["glyph_ids"]
+    ]
+    if int(selected_glyphs[0]["bbox"]["right"]) >= int(selected_glyphs[1]["bbox"]["left"]):
+        return None
+    anchor_rise = float(selected_glyphs[1]["anchor_positions"][FAMILY_SHARP]) - float(
+        selected_glyphs[0]["anchor_positions"][FAMILY_SHARP]
+    )
+    if not 0.5 <= anchor_rise <= 2.2:
+        return None
+    first_left = int(selected_glyphs[0]["bbox"]["left"])
+    prefix_limit = first_left - round(spacing * 0.75)
+    prefix_groups = [
+        group
+        for group in _left_groups(glyphs, spacing)
+        if boundary < int(group[0]["bbox"]["left"]) <= prefix_limit
+    ]
+    if len(prefix_groups) != 1:
+        return None
+    prefix = max(
+        prefix_groups[0],
+        key=lambda glyph: max(float(value) for value in glyph["family_scores"].values()),
+    )
+    return dict(selected), {
+        "kind": "natural_cancellation_prefix",
+        "glyph_ids": [str(prefix["glyph_id"])],
+        "bbox": dict(prefix["bbox"]),
+    }
+
+
 def _best_signature(
     glyphs: Sequence[Mapping[str, Any]], family: str, spacing: float
 ) -> dict[str, Any] | None:
@@ -478,15 +822,26 @@ def _best_signature(
     }
 
 
-def detect_signature(image_path: Path, *, mode: str) -> dict[str, Any]:
+def detect_signature(
+    image_path: Path,
+    *,
+    mode: str,
+    boundary_hint_x: int | None = None,
+) -> dict[str, Any]:
     if mode not in {MODE_INITIAL, MODE_CHANGE}:
         raise ValueError(f"unsupported key-signature mode: {mode}")
+    if boundary_hint_x is not None and mode != MODE_CHANGE:
+        raise ValueError("boundary hints are supported only in change mode")
     image_path = image_path.expanduser().resolve()
     with Image.open(image_path) as opened:
         image = opened.convert("RGB")
     mask, staff_lines, spacing, threshold = _staff_geometry(image)
     residual = _residual_mask(mask, staff_lines, spacing)
-    boundary, boundary_features = legacy._find_boundary(mask, staff_lines, spacing)
+    boundary, boundary_features = (
+        _boundary_near(mask, staff_lines, spacing, boundary_hint_x)
+        if boundary_hint_x is not None
+        else legacy._find_boundary(mask, staff_lines, spacing)
+    )
     top = max(0, round(staff_lines[0] - spacing * 1.0))
     bottom = min(image.height - 1, round(staff_lines[-1] + spacing * 1.0))
     clef_right = (
@@ -524,9 +879,14 @@ def detect_signature(image_path: Path, *, mode: str) -> dict[str, Any]:
     ]
     signatures.sort(key=lambda item: (int(item["count"]), float(item["score"])), reverse=True)
     selected = signatures[0] if gate_passed and signatures else None
+    selection_method = "standard_position_sequence" if selected is not None else None
+    rejected_standard_signature = None
+    suppressed_internal_default_signature = None
+    cancellation_prefix = None
     if len(signatures) >= 2 and signatures[0]["count"] == signatures[1]["count"]:
         if float(signatures[0]["score"]) - float(signatures[1]["score"]) < 0.18:
             selected = None
+            selection_method = None
     if selected is not None and mode == MODE_CHANGE:
         first_selected = next(
             glyph for glyph in glyphs if glyph["glyph_id"] == selected["glyph_ids"][0]
@@ -534,6 +894,64 @@ def detect_signature(image_path: Path, *, mode: str) -> dict[str, Any]:
         prefix_spaces = (int(first_selected["bbox"]["left"]) - boundary) / spacing
         if prefix_spaces > MAX_CHANGE_PREFIX_SPACES:
             selected = None
+            selection_method = None
+    shape_support = _shape_support(glyphs)
+    if selected is not None and mode == MODE_CHANGE:
+        selected_family = str(selected["family"])
+        if int(shape_support[selected_family]["count"]) < int(selected["count"]):
+            rejected_standard_signature = {
+                **selected,
+                "reason": "insufficient_independent_shape_support",
+                "independent_shape_count": int(shape_support[selected_family]["count"]),
+            }
+            selected = None
+            selection_method = None
+        else:
+            selection_method = "standard_position_sequence_shape_validated"
+    if selected is None and gate_passed and mode == MODE_CHANGE:
+        shifted_sharps = _strong_shifted_two_sharps(glyphs, boundary, spacing)
+        if shifted_sharps is not None:
+            selected = shifted_sharps
+            selection_method = "strong_shifted_two_sharp_shape"
+    if selected is not None and boundary_hint_x is not None:
+        suppressed_internal_default_signature = {
+            **selected,
+            "selection_method": selection_method,
+            "reason": "internal_scan_requires_validated_hinted_pattern",
+        }
+        selected = None
+        selection_method = None
+    hinted_change_gate = (
+        boundary_hint_x is not None
+        and float(boundary_features.get("double_bar_gap_staff_spaces") or 0.0)
+        >= MIN_HINTED_KEY_CHANGE_BAR_GAP_SPACES
+    )
+    if selected is None and gate_passed and hinted_change_gate:
+        cancellation_sharps = _hinted_cancellation_two_sharps(
+            signatures,
+            glyphs,
+            boundary,
+            spacing,
+            shape_support,
+        )
+        if cancellation_sharps is not None:
+            selected, cancellation_prefix = cancellation_sharps
+            selection_method = "hinted_cancellation_prefix_two_sharp_sequence"
+    if selected is None and gate_passed and hinted_change_gate:
+        hinted_flats = _hinted_two_flat_signature(glyphs, boundary, spacing)
+        if hinted_flats is not None:
+            selected = hinted_flats
+            selection_method = "hinted_two_flat_shape_sequence"
+    if selected is None and gate_passed and boundary_hint_x is not None:
+        hinted_flats = _hinted_one_strong_two_flat_signature(
+            signatures,
+            glyphs,
+            boundary,
+            spacing,
+        )
+        if hinted_flats is not None:
+            selected = hinted_flats
+            selection_method = "hinted_one_strong_two_flat_shape_sequence"
     return {
         "schema_version": SCHEMA_VERSION,
         "input": {"path": str(image_path), "sha256": _sha256(image_path)},
@@ -546,12 +964,55 @@ def detect_signature(image_path: Path, *, mode: str) -> dict[str, Any]:
         "search_region": {"left_px": search_start, "right_px": search_end},
         "glyphs": glyphs,
         "signature_candidates": signatures,
+        "independent_shape_support": shape_support,
+        "rejected_standard_signature": rejected_standard_signature,
+        "suppressed_internal_default_signature": suppressed_internal_default_signature,
         "gate_passed": gate_passed,
         "predicted_signature_family": selected["family"] if selected else None,
         "accidental_count": int(selected["count"]) if selected else 0,
         "fifths": int(selected["fifths"]) if selected else None,
         "predicted_change": selected["family"] if selected else PREDICTION_UNKNOWN,
         "selected_glyph_ids": list(selected["glyph_ids"]) if selected else [],
+        "selection_method": selection_method,
+        "cancellation_prefix": cancellation_prefix,
+        "truth_used_for_prediction": False,
+    }
+
+
+def scan_internal_change_signatures(image_path: Path) -> dict[str, Any]:
+    """Evaluate every detected interior bar while preserving full-system context."""
+    image_path = image_path.expanduser().resolve()
+    with Image.open(image_path) as opened:
+        width = opened.width
+    barline_fractions = detect_barlines(image_path)
+    predictions = []
+    seen_boundaries: set[int] = set()
+    for fraction in barline_fractions:
+        if fraction <= INTERNAL_SCAN_EDGE_FRACTION or fraction >= 1 - INTERNAL_SCAN_EDGE_FRACTION:
+            continue
+        hint_x = round(fraction * width)
+        prediction = detect_signature(
+            image_path,
+            mode=MODE_CHANGE,
+            boundary_hint_x=hint_x,
+        )
+        boundary = int(prediction["structural_boundary"]["x_px"])
+        if boundary in seen_boundaries:
+            continue
+        seen_boundaries.add(boundary)
+        predictions.append(prediction)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "full_system_internal_key_change_scan",
+        "input": {"path": str(image_path), "sha256": _sha256(image_path)},
+        "detected_barlines_x_fraction": [round(value, 12) for value in barline_fractions],
+        "prediction_count": len(predictions),
+        "double_bar_count": sum(
+            prediction["structural_boundary"]["style"] == "double_bar" for prediction in predictions
+        ),
+        "hit_count": sum(prediction["fifths"] is not None for prediction in predictions),
+        "predictions": predictions,
+        "hits": [prediction for prediction in predictions if prediction["fifths"] is not None],
         "truth_used_for_prediction": False,
     }
 

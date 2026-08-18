@@ -15,6 +15,7 @@ from scripts.build_vlm_melody_event_benchmark import (
     evaluate_predictions,
     prepare_requests,
 )
+from scripts.experiments import strict_initial_key_context as key_context
 
 
 def test_prepare_requests_freezes_images_and_validates_mapping_without_truth(
@@ -47,6 +48,18 @@ def test_prepare_requests_freezes_images_and_validates_mapping_without_truth(
     assert (
         requests[0]["images"]["raw"]["sha256"] == hashlib.sha256(raw_path.read_bytes()).hexdigest()
     )
+
+    without_key = prepare_requests(
+        out_dir,
+        slug="demo",
+        targets=(BenchmarkTarget(1, 1, 0, 0),),
+        split_name="development",
+        clef="treble",
+        time_signature="3/4",
+        key_hint=None,
+    )
+    assert without_key[0]["allowed_context"]["key_hint"] is None
+    assert "prepared_provenance" not in without_key[0]
 
     with pytest.raises(ValueError, match="mapping drift"):
         prepare_requests(
@@ -87,6 +100,37 @@ def test_build_benchmark_writes_requests_before_truth_is_opened(tmp_path: Path) 
     request_path = out_dir / "demo" / "vlm_melody_event_benchmark/development/requests.jsonl"
     assert request_path.exists()
     assert len(request_path.read_text(encoding="utf-8").splitlines()) == 4
+
+
+def test_prepare_requests_preserves_visual_key_state_and_crop_origin(tmp_path: Path) -> None:
+    out_dir = _make_out(tmp_path, measure_count=1)
+    manifest_path = out_dir / "demo" / "vlm_melody_inputs" / "manifest.jsonl"
+    record = json.loads(manifest_path.read_text(encoding="utf-8"))
+    record["key_hint"] = "2 sharp(s): F#, C#"
+    record["visual_key_state"] = {
+        "schema_version": 1,
+        "kind": key_context.KIND,
+        "status": key_context.STATUS_CONFIRMED,
+        "fifths": 2,
+        "previous_fifths": None,
+        "source_system_index": 1,
+        "applies_after_system_x_px": 120,
+    }
+    record["x_bounds_px"] = {"left": 80, "right": 160}
+    manifest_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+
+    requests = prepare_requests(
+        out_dir,
+        slug="demo",
+        targets=(BenchmarkTarget(1, 1, 0, 0),),
+        split_name="validation",
+        clef="treble",
+        time_signature="3/4",
+        key_hint=None,
+    )
+
+    assert requests[0]["allowed_context"]["visual_key_state"] == record["visual_key_state"]
+    assert requests[0]["prepared_provenance"]["bbox_px"] == [80, 0, 160, 40]
 
 
 def test_build_truth_rows_derives_pickup_internal_and_full_measure_rests() -> None:

@@ -25,7 +25,9 @@ if str(REPO_ROOT) not in sys.path:
 from score2abc import musicxml as musicxml_utils  # noqa: E402
 from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer  # noqa: E402
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
+from scripts.experiments import freeze_independent_key_state_gates as key_freezer  # noqa: E402
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
+from scripts.experiments import run_independent_key_state_gate as key_runner  # noqa: E402
 from scripts.experiments import run_third_score_heldout_inference as inference  # noqa: E402
 
 SCHEMA_VERSION = 1
@@ -59,12 +61,20 @@ FIFTH_SCORE_EVALUATION = HeldoutEvaluationSpec(
     gate=fifth_freezer.FIFTH_SCORE_GATE,
     default_one_to_one_count=6,
 )
+INDEPENDENT_KEY_EVALUATIONS = tuple(
+    HeldoutEvaluationSpec(
+        gate=case.gate,
+        default_one_to_one_count=case.expected_crop_count,
+    )
+    for case in (*key_freezer.CASES.values(), *key_freezer.CHALLENGE_CASES.values())
+)
 EVALUATION_SPECS = {
     spec.gate.sealed_kind: spec
     for spec in (
         THIRD_SCORE_EVALUATION,
         FOURTH_SCORE_EVALUATION,
         FIFTH_SCORE_EVALUATION,
+        *INDEPENDENT_KEY_EVALUATIONS,
     )
 }
 
@@ -81,6 +91,7 @@ class VisibleMusicXMLTruth:
     time_signature: str
     key_fifths: int | None
     clef: tuple[str, int] | None
+    key_events: tuple[tuple[int, int], ...] = ()
 
 
 TruthLoader = Callable[[Path], VisibleMusicXMLTruth]
@@ -306,7 +317,11 @@ def verify_frozen_gate(sealed_manifest_path: Path) -> dict[str, Any]:
 
     frozen_dir = sealed_manifest_path.parent
     namespace_root = frozen_dir.parent
-    inference.verify_frozen_outputs(frozen_dir)
+    independent_kinds = {spec.gate.sealed_kind for spec in INDEPENDENT_KEY_EVALUATIONS}
+    if sealed.get("kind") in independent_kinds:
+        key_runner.verify_frozen_paired_outputs(frozen_dir)
+    else:
+        inference.verify_frozen_outputs(frozen_dir)
     freeze_path = _safe_child(frozen_dir, str(sealed["freeze"]["path"]))
     freeze_sha256 = freezer._sha256(freeze_path)
     if freeze_sha256 != str(sealed["freeze"]["sha256"]):
@@ -404,6 +419,7 @@ def load_visible_musicxml_truth(path: Path) -> VisibleMusicXMLTruth:
         raise ValueError(f"Expected exactly one MusicXML part, found {len(parts)}")
 
     key_fifths: int | None = None
+    key_events: list[tuple[int, int]] = []
     clef: tuple[str, int] | None = None
     measure_numbers: list[int] = []
     notes_by_measure: dict[int, tuple[dict[str, Any], ...]] = {}
@@ -421,6 +437,7 @@ def load_visible_musicxml_truth(path: Path) -> VisibleMusicXMLTruth:
                 fifths_text = child.findtext("key/fifths")
                 if fifths_text is not None:
                     key_fifths = int(fifths_text)
+                    key_events.append((number, key_fifths))
                 sign = child.findtext("clef/sign")
                 line = child.findtext("clef/line")
                 if sign is not None and line is not None:
@@ -478,6 +495,7 @@ def load_visible_musicxml_truth(path: Path) -> VisibleMusicXMLTruth:
         time_signature=str(canonical["time_signature"]),
         key_fifths=key_fifths,
         clef=clef,
+        key_events=tuple(key_events),
     )
 
 

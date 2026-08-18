@@ -936,19 +936,211 @@ The authoritative sealed manifests are:
 - `out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/frozen/sealed_manifest.json`
 - `out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/frozen/sealed_manifest.json`
 
-Do not rerun them. The next human action is to transcribe each complete source
-system in its original order and export MusicXML to:
+Do not rerun them. The completed human transcriptions are stored at:
 
 - `out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/estrella_system_003.musicxml`
 - `out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/sobre_el_humo_system_007.musicxml`
 
-Preserve every physical measure, rest, accidental, tie, and simultaneous note
-in the MusicXML. Do not force the transcription to match the automatic crop
-count; an explicit crop-to-physical-measure mapping can be added after truth is
-final. Promotion requires exact ordered-pitch improvement on both scores with
-no score-level regression and unchanged localization.
+The create-once evaluation verifies both frozen gates before opening either
+MusicXML and records the two post-transcription false-split mappings. Estrella's
+automatic one-flat state is correct and improves exact ordered-pitch matches
+`14 -> 16`. Sobre el Humo's automatic four-flat state is wrong; the transcription
+contains a two-sharp change, and exact matches regress `21 -> 4`. Aggregate
+matches fall `35 -> 20`. Candidate IDs, coordinates, and counts remain identical
+for all `55` selected heads, so this result isolates key state rather than
+localization drift.
 
-The create-once commands used before truth were:
+The preregistered promotion gate is therefore `not_promoted`. Keep automatic
+key state out of runtime. Use Sobre el Humo only as consumed detector-debugging
+evidence, require ambiguous change signatures to fail closed, retain Estrella
+and prior signature controls as regressions, and use a new score-disjoint gate
+for the next accuracy claim. The evaluation report is under
+`out/vlm_melody_independent_key_gate_evaluation/v1/`.
+
+#### Consumed Sobre Key-Detector Repair
+
+Post-transcription review showed why the frozen Sobre prediction failed. The
+position-sequence lane proposed four flat-like fragments carved from the two
+physical sharp glyphs and nearby connecting ink. The detector now validates
+changed signatures against a second, overlap-collapsed shape count. The old
+four-flat proposal has only two independently supported flat regions and is
+rejected. Two separate high-confidence sharp shapes then recover `fifths=+2`
+despite their nonstandard handwritten vertical placement.
+
+This repair preserves all seven prior consumed signature/control cases (`7/7`)
+and leaves the 89-image change scan unchanged at three real hits. Replaying
+`+2` through the already frozen Sobre candidate coordinates changes no IDs,
+coordinates, or counts and improves exact ordered-pitch matches from the frozen
+wrong-key result of `4` to `24`; the no-key lane had `21`. Combined with the
+unchanged Estrella result, the repaired consumed projection is `40` exact pitch
+matches versus `35` without key context and `20` in the original frozen
+automatic lane.
+
+The source gate and its original `fifths=-4` prediction remain immutable. This
+is consumed model-selection evidence because the rule was designed after the
+Sobre transcription was opened. It does not reverse the original `not_promoted`
+decision. The exact regression image is committed under
+`tests/fixtures/vlm_melody/key_signatures/`, and the local detector report is at
+`out/vlm_melody_consumed_training/consumed_key_signature_detector_v4_sobre_repair/`.
+The fixed-localization pitch replay is at
+`out/vlm_melody_consumed_training/independent_key_detector_repair_v1/` and is
+reproduced by `scripts/experiments/evaluate_consumed_key_detector_repair.py`.
+The next accuracy claim still requires a newly frozen score-disjoint
+change-signature gate.
+
+#### Consumed Internal-Change Extraction
+
+Sobre el Humo system 3 and Coqueteos system 7 exposed a separate input-contract
+failure: normal measure crops split an internal double bar from the cancellation
+and replacement signature immediately after it. The consumed full-system
+scanner now uses existing barline detections only as x-coordinate hints, keeps
+staff geometry from the complete system, and evaluates each hinted boundary in
+place. Real-image regressions pin the user-confirmed change boundaries at x=1400
+and x=566 respectively.
+
+Human review labels Sobre's replacement signature as B-flat/E-flat
+(`fifths=-2`). Coqueteos explicitly cancels the previous B-flat with a B-natural,
+then writes F-sharp/C-sharp as the replacement signature (`fifths=+2`). The
+detector records that natural as a cancellation prefix rather than counting it
+as part of the new key.
+
+The recovery remains restricted to full-system internal scans. Existing
+left-edge hypotheses are suppressed in that mode unless they match a reviewed
+internal pattern, and the internal double-bar spacing gate rejects tightly
+paired note/bar strokes. Across 112 available system images, 10 non-staff or
+unstable-staff crops fail closed and exactly the two reviewed systems emit a
+key. These remain consumed regression results, not independent accuracy
+evidence. The current report and overlays are under
+`out/vlm_melody_consumed_training/internal_key_change_scan_v2/`.
+
+Reproduce the scan with:
+
+```bash
+uv run python scripts/experiments/scan_consumed_internal_key_changes.py \
+  out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/systems/system_003.png \
+  out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/systems/system_007.png \
+  --out-dir <new-output-directory>
+```
+
+The next detector slice is a new score-disjoint gate frozen before its key or
+transcription is opened. Until that passes, this internal scanner stays out of
+the runtime pipeline.
+
+#### Independent Chispazo Internal-Change Challenge
+
+A truth-blind corpus audit selected Chispazo system 3 before any Chispazo
+MusicXML was opened. The full system contains a credible internal double bar at
+x=1284 followed by two flat-shaped glyphs. The precision-first detector still
+returns `unknown`: its best positional candidate is `fifths=-2`, but it does not
+pass the independent-shape acceptance gate. This is therefore an honest
+score-disjoint false-negative challenge, not a selected detector success.
+
+The frozen experiment preserves one score-disjoint selector pass over eight
+automatic crops and 27 selected anchors. Candidate IDs, coordinates, and counts
+are identical across lanes. The strict lane remains no-key because the detector
+failed closed. A separate, explicitly non-promotable diagnostic lane applies
+the top `-2` candidate only at system x >= 1284: 16 anchors remain before the
+event and 11 receive the changed state. The diagnostic lane measures the value
+of a correct acceptance decision; it cannot be used as automatic-key promotion
+evidence.
+
+The authoritative seal is:
+
+- `out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_independent_key_gate/v1_chispazo_internal_change_s3/system_003/frozen/sealed_manifest.json`
+
+Do not rerun or overwrite it. The complete visible-evidence system-3 MusicXML
+transcription is at:
+
+- `out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_independent_key_gate/v1_chispazo_internal_change_s3/system_003/chispazo_system_003.musicxml`
+
+The create-once evaluator verified the seal before opening this transcription.
+It maps nine physical measures to eight automatic crops; crop 5 spans physical
+measures 5 and 6 because the automatic segmentation missed the key-change
+barline. The MusicXML records `fifths=+2` at measure 1 and `fifths=-2` at
+measure 6. The source does not repeat the inherited initial signature at this
+system's left edge, and its final note is clipped or missing; these are recorded
+as source limitations rather than annotation errors.
+
+With the same 27 candidate IDs and coordinates in both lanes, the no-key lane
+gets `10` exact ordered-pitch matches and `0.285714` alignment accuracy. The
+stateful diagnostic lane gets `14` matches and `0.4` accuracy, a `+4` gain; its
+sixth crop is exact (`5/5` pitches). This confirms that the visual two-flat
+change is musically useful. It does **not** promote the detector: the strict
+truth-blind detector returned `unknown`, while `-2` was retained only as an
+inconclusive top-candidate diagnostic.
+
+The immutable report is:
+
+- `out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_independent_key_gate/v1_chispazo_internal_change_s3/system_003/evaluation_v1/report.json`
+
+The strict detector repair and its consumed replay are documented below. A
+different score-disjoint positive target still must be frozen before automatic
+internal key state can be promoted.
+
+The Chispazo create-once commands used before truth were:
+
+```bash
+uv run python scripts/experiments/freeze_independent_key_state_gates.py out \
+  --case chispazo_internal_change_s3
+uv run python scripts/experiments/run_independent_key_state_gate.py \
+  out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/\
+vlm_melody_independent_key_gate/v1_chispazo_internal_change_s3/\
+system_003/prepared_manifest.json
+uv run python scripts/experiments/evaluate_chispazo_internal_key_gate.py out
+```
+
+#### Consumed Chispazo Strict-Detector Repair
+
+Post-transcription analysis localized the miss to the second handwritten flat.
+The first glyph retained strong independent flat morphology; the second was
+positionally correct but merged with neighboring ink and fell below the generic
+right-side-ink threshold. The repair does not simply lower that threshold. Its
+fallback requires all of the following after a detected internal double bar:
+
+- the top positional two-flat candidate beats the same-count two-sharp rival;
+- both selected glyphs retain weak flat score, margin, left-stem, and right-ink
+  support;
+- at least one selected glyph retains the original strong flat morphology; and
+- the pair follows the expected horizontal spacing and descending flat-anchor
+  sequence.
+
+The complete 112-system replay has the same 10 fail-closed non-staff crops, the
+same 59 detected double bars, and exactly one changed decision: Chispazo system
+3 at x=1284 moves from `unknown` to `fifths=-2`. Coqueteos system 7 and Sobre el
+Humo system 3 keep their previous methods and predictions. The repaired hit set
+is therefore exactly the three reviewed internal changes, with no unrelated new
+hit. The report and overlays are under:
+
+- `out/vlm_melody_consumed_training/internal_key_change_scan_v3_chispazo_repair/`
+
+The consumed replay verifies the original Chispazo seal, rebuilds the stateful
+`-2` lane from the repaired strict detector event, and proves that its candidate
+IDs, coordinates, counts, and pitches match the previously frozen diagnostic
+lane across all 27 anchors. Exact pitch remains `10 -> 14`, and ordered-pitch
+alignment remains `0.285714 -> 0.4`. The report is:
+
+- `out/vlm_melody_consumed_training/chispazo_key_detector_repair_v1/report.json`
+
+This is model-selection evidence because the acceptance rule was designed after
+the Chispazo transcription was opened. It does not convert the original gate
+into a heldout success and does not make automatic key state pipeline-ready.
+
+A visual audit of all 59 double-bar overlays found no unused positive internal
+change in the current corpus. The only credible positives are the three systems
+already consumed by detector development. Selecting another current system
+after this sweep would manufacture a heldout claim. The next independent gate
+therefore requires a new PDF/system outside these 112 images; it must be frozen
+before its key or transcription is opened.
+
+Reproduce the consumed repair after creating a fresh scan directory with:
+
+```bash
+uv run python scripts/experiments/evaluate_consumed_chispazo_key_detector_repair.py out \
+  --detector-report <fresh-112-system-scan>/report.json \
+  --output-dir <new-output-directory>
+```
+
+The earlier two-score gate commands were:
 
 ```bash
 uv run python scripts/experiments/freeze_independent_key_state_gates.py out
@@ -956,6 +1148,7 @@ uv run python scripts/experiments/run_independent_key_state_gate.py \
   out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/prepared_manifest.json
 uv run python scripts/experiments/run_independent_key_state_gate.py \
   out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/prepared_manifest.json
+uv run python scripts/experiments/evaluate_independent_key_state_gates.py out
 ```
 
 Reproduce the consumed slice:
@@ -974,3 +1167,195 @@ Evidence is at:
 
 - `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/consumed_corrected_replay_v1/`
 - `out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_training_inputs/coqueteos_system_002_seg_v2/proposals/`
+
+### Frozen Alcira New-PDF Key-Change Gate
+
+Alcira system 6 is the first new-PDF key-state target acquired after the
+112-system consumed sweep. Before any MusicXML existed, system segmentation was
+fixed and manually approved, then measure cleanup reduced ten false-heavy
+slices to six coherent crops. The strict visual detector selected two sharp
+glyphs and pinned `fifths=+2`. Because the changed signature occurs immediately
+after the system's leading structural bar, the gate uses the left-edge
+signature detector but replays the key state only after x=328, beyond both
+selected glyphs.
+
+One score-disjoint selector pass produced 18 anchors across six crops. The
+no-key and automatic-key lanes have identical candidate IDs, coordinates, and
+counts. The seal was written with `truth_accessed=false` and status
+`frozen_awaiting_truth`:
+
+- `out/local_restricted/jaime-llanos_5_alcira_bambuco_oriol-rangel/vlm_melody_independent_key_gate/v1_alcira_system_entry_change_s6/system_006/frozen/sealed_manifest.json`
+
+Do not rerun or overwrite the prepared, inference, or frozen directories. The
+six-measure transcription preserves the visible noteheads, including dyads,
+rests, and durations, and encodes the two-sharp key signature in measure 1. It
+is saved at:
+
+- `out/local_restricted/jaime-llanos_5_alcira_bambuco_oriol-rangel/vlm_melody_independent_key_gate/v1_alcira_system_entry_change_s6/system_006/alcira_system_006.musicxml`
+
+The create-once evaluator verified the seal before opening MusicXML. With the
+same 18 selected candidates in both lanes, the strict automatic-key lane raises
+exact ordered-pitch matches from `11` to `16` and ordered-pitch alignment
+accuracy from `0.323529` to `0.470588`. The MusicXML confirms treble clef,
+`3/4`, six physical measures, and one `fifths=+2` key event in measure 1.
+
+Absolute note-count F1 is `0.666667` (`18` selected anchors versus `33` visible
+MusicXML noteheads) because several source events are dyads while the frozen
+selector often emits one melodic anchor. This limits the absolute transcription
+score but does not confound the paired key-state delta: candidate IDs,
+coordinates, and counts are identical. The gate therefore passes for strict
+initial/system-entry key state only. Internal double-bar changes remain outside
+this evidence and must continue to fail closed.
+
+Create-once evidence is at:
+
+- `out/local_restricted/jaime-llanos_5_alcira_bambuco_oriol-rangel/vlm_melody_independent_key_gate/v1_alcira_system_entry_change_s6/system_006/evaluation_v1/`
+
+The bounded integration is now implemented behind the opt-in
+`--key-context strict-visual` input-builder switch. It scans systems in score
+order even when only a later system is selected, carries forward only a prior
+accepted one-flat/two-sharp state, and applies a newly confirmed state only
+after the detector's absolute system-x boundary. The benchmark request records
+that crop origin, so candidate pitch mapping can resolve the boundary without
+changing candidate IDs, coordinates, or counts.
+
+The default metadata mode preserves its previous record shape. A portable
+four-case acceptance fixture covers one flat, two sharps, an ordinary
+accidental, and a title/non-staff rejection. A disposable real-Alcira smoke
+produced six system-6 records with inherited `-1`, confirmed `+2`, and boundary
+x=328 while leaving the sealed gate untouched. Internal double-bar changes and
+unsupported signature counts remain out of this path.
+
+The next main error is no longer this bounded key-state handoff. Alcira still
+has 18 selected anchors for 33 visible MusicXML noteheads because several
+events are dyads. The next spike should therefore isolate chord/dyad head
+recovery with localization and key context held fixed, while leaving this key
+mode opt-in until broader exact-event/rest evidence exists.
+
+### Frozen No lo Creas Polyphonic Gate
+
+The consumed Alcira/La Chata result selected one fixed recovery rule before a
+new target was inspected: add at most one score-qualified, stem-supported
+companion to an existing x-group, reject the crop's leading staff-space, and
+never remove or reposition the baseline candidate. No lo Creas system 8 was
+then selected as a new score-disjoint target because it contains repeated
+stacked hollow-note chords and passes the existing automatic layout policy.
+
+Before any target MusicXML or melody truth existed, the gate sealed eleven
+automatic crops and replayed the provenance-refreshed score-disjoint selector.
+The paired artifact keeps the generic canonical prediction for audit, but maps
+both comparison lanes from the same frozen staff coordinates with natural
+treble-clef diatonic positions. This isolates the recovery rule from key-state
+and historical pitch-predictor differences. Meter, rhythm, duration, rests,
+chromatic key, and accidentals are explicitly unsupported.
+
+The fixed rule adds two companions, both in automatic crop 1. It preserves all
+baseline candidate IDs and coordinates, reuses the two existing onset-group
+identities, and creates no new x-group. Visual inspection of the frozen overlay
+shows both additions on plausible stacked noteheads sharing the selected stems.
+
+The finalized seven-measure MusicXML was initially evaluated with an explicit mapping
+from eleven automatic crops. A post-evaluation audit found that the first physical
+measure had been split `9 + 3` notes across automatic crops 1 and 2, while the frozen
+x-groups show two onset groups in each crop. The correct split is `6 + 6`. The original
+`evaluation_v1` remains immutable evidence of the mistake; it is superseded for
+interpretation by create-once `evaluation_v2_mapping_erratum`.
+
+With the corrected mapping, note-count F1 still improves `0.584616 -> 0.626865`,
+recall `0.463415 -> 0.512195`, and precision `0.791667 -> 0.807692`. Exact natural
+diatonic staff-position matches remain `6 -> 6`, chord-size alignment remains
+`0.166667`, exact chord-size matches remain `4 -> 4`, and exact structure crops remain
+`0`. The preregistered promotion condition therefore still fails, now without the
+incorrect pitch-improvement claim. The one-companion rule remains spike-only.
+
+Frozen artifacts are under:
+
+- `out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/vlm_melody_independent_dyad_recovery_gate/v1/system_008/`
+- seal: `frozen/sealed_manifest.json`
+- paired overlay: `baseline_inference_v1/dyad_recovery_v1/overlays/measure_001.png`
+
+Do not rerun or overwrite the prepared, inference, recovery, frozen,
+`evaluation_v1`, or `evaluation_v2_mapping_erratum` directories. The evaluated
+transcription is:
+
+- `out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/vlm_melody_independent_dyad_recovery_gate/v1/system_008/no_lo_creas_system_008.musicxml`
+
+The corrected authoritative post-freeze crop mapping is
+`no_lo_creas_system_008_mapping.json`; it maps the seven physical measures across
+the eleven automatic crops. The original create-once evaluator command was:
+
+```bash
+uv run python scripts/experiments/evaluate_independent_dyad_recovery_gate.py \
+  out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/\
+vlm_melody_independent_dyad_recovery_gate/v1/system_008/frozen/sealed_manifest.json \
+  --musicxml out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/\
+vlm_melody_independent_dyad_recovery_gate/v1/system_008/no_lo_creas_system_008.musicxml \
+  --mapping out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/\
+vlm_melody_independent_dyad_recovery_gate/v1/system_008/no_lo_creas_system_008_mapping.json
+```
+
+The original result is preserved under `evaluation_v1/report.json`. The mapping-only
+correction is preserved under `evaluation_v2_mapping_erratum/report.json` and was
+created by `supersede_independent_dyad_mapping_erratum.py`, which verifies every
+frozen and source hash before rescoring. Do not rerun either result under the same or
+a replacement version to search for a more favorable outcome.
+
+The create-once erratum command shape is:
+
+```bash
+uv run python scripts/experiments/supersede_independent_dyad_mapping_erratum.py \
+  <sealed-manifest> \
+  --prior-evaluation <evaluation-v1-manifest> \
+  --mapping <corrected-mapping.json>
+```
+
+### Consumed Multi-Head Chord Recovery Selection
+
+The corrected No lo Creas result showed that adding one companion was too narrow to
+recover the visible stacked chords. A bounded follow-up grid therefore tested a
+multi-head variant on consumed Alcira, La Chata, corrected No lo Creas, and the
+Aviador/Carrizal candidate reviews. The rule keeps the same onset groups, requires a
+stem-supported vertical chain, fails closed near the crop's leading edge, and caps
+recovery at two companions per group.
+
+All eight preregistered parameter combinations produced the same scored behavior.
+The selected conservative configuration is:
+
+```text
+minimum_y_gap_staff_spaces=1.0
+maximum_y_gap_staff_spaces=3.0
+minimum_score_ratio=0.5
+minimum_stem_score=0.55
+minimum_group_x_staff_spaces=1.0
+maximum_recovered_heads_per_group=2
+```
+
+Against the corrected No lo Creas evidence, it improves over the previous dyad lane:
+
+- note-count F1 `0.626865 -> 0.666667`;
+- exact natural-diatonic staff-position matches `6 -> 8`;
+- exact chord-size matches `4 -> 6`;
+- chord-size alignment `0.166667 -> 0.25`;
+- exact structure crops `0 -> 1`.
+
+It also preserves or improves the consumed development sets: Alcira exact pitch
+matches improve `16 -> 19` with note-count F1 `0.666667 -> 0.827586`; La Chata exact
+pitch groups improve `12 -> 17`; and Aviador/Carrizal candidate F1 remains exactly
+`0.791367` with zero recovered false positives.
+
+The create-once result is:
+
+- `out/vlm_melody_consumed_training/multihead_chord_recovery_v1/report.json`
+- `out/vlm_melody_consumed_training/multihead_chord_recovery_v1/report.md`
+
+A new output directory can reproduce the model-selection sweep:
+
+```bash
+uv run python scripts/experiments/spike_consumed_multihead_chord_recovery.py \
+  out --output-dir <new-dir>
+```
+
+This does not make the rule runtime-eligible. The remaining untouched scores in the
+current corpus are monophonic, so they cannot provide a positive score-disjoint chord
+recovery gate. The next valid step is to freeze this exact selected configuration on
+a genuinely unseen polyphonic score or system before its transcription is opened.

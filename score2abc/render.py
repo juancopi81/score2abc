@@ -4,7 +4,7 @@ import json
 import logging
 import shutil
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import combinations
 from pathlib import Path
 from statistics import fmean
@@ -19,6 +19,8 @@ BBox = tuple[int, int, int, int]
 _REQUIRED_STAFF_LINES = 5
 _MIN_STAFF_LINE_SUPPORT = 0.18
 _MAX_STAFF_SPACING_DEVIATION_RATIO = 0.30
+_MIN_TRAILING_MUSICAL_INK_DENSITY = 0.09
+_MIN_STAFF_EXTENT_LINE_FRACTION = 0.35
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,7 @@ class SystemCandidateAssessment:
     staff_line_support: tuple[float, ...]
     mean_staff_spacing: float | None
     max_spacing_deviation_ratio: float | None
+    staff_residual_ink_density: float | None = None
 
 
 @dataclass(frozen=True)
@@ -404,7 +407,16 @@ def _detect_systems_with_assessments(
             bottom=system_bottom,
         )
         if system_right - system_left < int(width * 0.35):
-            continue
+            recovered_bounds = _recover_staff_horizontal_bounds(
+                page_gray,
+                ink_threshold=ink_threshold,
+                top=system_top,
+                bottom=system_bottom,
+                reference_bounds=(system_left, system_right),
+            )
+            if recovered_bounds is None:
+                continue
+            system_left, system_right = recovered_bounds
 
         system_bboxes.append((system_left, system_top, system_right, system_bottom))
 
@@ -428,6 +440,11 @@ def _detect_systems_with_assessments(
         )
         for index, system_bbox in enumerate(split_system_bboxes, start=1)
     ]
+    candidate_assessments = [
+        _refine_accepted_system_candidate(page_gray, assessment, ink_threshold)
+        for assessment in candidate_assessments
+    ]
+    candidate_assessments = _reject_trailing_blank_staff_candidates(candidate_assessments)
     accepted_candidates = [
         assessment for assessment in candidate_assessments if assessment.accepted
     ]
@@ -604,6 +621,151 @@ def _find_staff_line_sequences(
     return sequences
 
 
+def _refine_accepted_system_candidate(
+    page_gray: Image.Image,
+    assessment: SystemCandidateAssessment,
+    ink_threshold: int,
+) -> SystemCandidateAssessment:
+    if not assessment.accepted or not assessment.staff_line_rows:
+        return assessment
+    expanded_bbox = _expand_left_bound_to_staff_extent(
+        page_gray,
+        assessment.system_bbox,
+        assessment.staff_line_rows,
+        ink_threshold,
+    )
+    density = _staff_residual_ink_density(
+        page_gray,
+        expanded_bbox,
+        assessment.staff_line_rows,
+        ink_threshold,
+    )
+    return replace(
+        assessment,
+        system_bbox=expanded_bbox,
+        staff_residual_ink_density=density,
+    )
+
+
+def _expand_left_bound_to_staff_extent(
+    page_gray: Image.Image,
+    system_bbox: BBox,
+    staff_line_rows: tuple[int, ...],
+    ink_threshold: int,
+) -> BBox:
+    left, top, right, bottom = system_bbox
+    if len(staff_line_rows) != _REQUIRED_STAFF_LINES or left <= 0:
+        return system_bbox
+
+    spacing = fmean(
+        staff_line_rows[index + 1] - staff_line_rows[index]
+        for index in range(len(staff_line_rows) - 1)
+    )
+    lookback = max(round(page_gray.width * 0.12), round(spacing * 6))
+    search_left = max(0, left - lookback)
+    pixels = page_gray.load()
+    line_radius = max(1, round(spacing * 0.08))
+    support = []
+    for x in range(search_left, left + 1):
+        supported_lines = sum(
+            any(
+                pixels[x, y] < ink_threshold
+                for y in range(
+                    max(0, row - line_radius),
+                    min(page_gray.height, row + line_radius + 1),
+                )
+            )
+            for row in staff_line_rows
+        )
+        support.append(supported_lines / len(staff_line_rows))
+
+    smooth = _moving_average(support, _odd(max(5, round(spacing * 0.4))))
+    max_gap = max(8, round(spacing * 0.9))
+    cursor = len(smooth) - 1
+    while cursor >= 0 and smooth[cursor] < _MIN_STAFF_EXTENT_LINE_FRACTION:
+        cursor -= 1
+    if cursor < 0 or len(smooth) - 1 - cursor > max_gap:
+        return system_bbox
+
+    run_start = cursor
+    gap = 0
+    for index in range(cursor - 1, -1, -1):
+        if smooth[index] >= _MIN_STAFF_EXTENT_LINE_FRACTION:
+            run_start = index
+            gap = 0
+            continue
+        gap += 1
+        if gap > max_gap:
+            break
+
+    expanded_left = max(0, search_left + run_start - round(spacing * 0.5))
+    return (min(left, expanded_left), top, right, bottom)
+
+
+def _staff_residual_ink_density(
+    page_gray: Image.Image,
+    system_bbox: BBox,
+    staff_line_rows: tuple[int, ...],
+    ink_threshold: int,
+) -> float:
+    left, _, right, _ = system_bbox
+    spacing = fmean(
+        staff_line_rows[index + 1] - staff_line_rows[index]
+        for index in range(len(staff_line_rows) - 1)
+    )
+    x_start = round(left + (right - left) * 0.10)
+    x_end = round(left + (right - left) * 0.95)
+    y_start = max(0, round(staff_line_rows[0] - spacing))
+    y_end = min(page_gray.height, round(staff_line_rows[-1] + spacing))
+    line_radius = max(1, round(spacing * 0.08))
+    pixels = page_gray.load()
+    dark_pixels = 0
+    measured_pixels = 0
+
+    for x in range(x_start, x_end):
+        column = [
+            pixels[x, y] < ink_threshold
+            for y in range(y_start, y_end)
+            if all(abs(y - row) > line_radius for row in staff_line_rows)
+        ]
+        if not column:
+            continue
+        # Page borders and barlines can span the entire staff without carrying
+        # note information. Exclude those columns from both numerator and area.
+        if sum(column) / len(column) >= 0.70:
+            continue
+        dark_pixels += sum(column)
+        measured_pixels += len(column)
+
+    return dark_pixels / max(1, measured_pixels)
+
+
+def _reject_trailing_blank_staff_candidates(
+    assessments: List[SystemCandidateAssessment],
+) -> List[SystemCandidateAssessment]:
+    accepted_indices = [index for index, item in enumerate(assessments) if item.accepted]
+    credible_indices = [
+        index
+        for index in accepted_indices
+        if (assessments[index].staff_residual_ink_density or 0.0)
+        >= _MIN_TRAILING_MUSICAL_INK_DENSITY
+    ]
+    if not credible_indices:
+        return assessments
+
+    last_credible = credible_indices[-1]
+    refined = list(assessments)
+    for index in accepted_indices:
+        if index <= last_credible:
+            continue
+        refined[index] = replace(
+            assessments[index],
+            accepted=False,
+            reason="insufficient_musical_ink",
+        )
+    return refined
+
+
 def _split_multi_staff_candidate(
     page_gray: Image.Image,
     *,
@@ -758,6 +920,77 @@ def _detect_horizontal_bounds(
     left = max(0, spans[0][0] - 24)
     right = min(page_gray.width, spans[-1][1] + 24)
     return left, right
+
+
+def _recover_staff_horizontal_bounds(
+    page_gray: Image.Image,
+    *,
+    ink_threshold: int,
+    top: int,
+    bottom: int,
+    reference_bounds: tuple[int, int],
+) -> tuple[int, int] | None:
+    page_width = page_gray.width
+    margin_left = int(page_width * 0.05)
+    margin_right = int(page_width * 0.95)
+    assessment = _assess_system_candidate(
+        page_gray,
+        page_number=0,
+        source_candidate_index=0,
+        system_bbox=(margin_left, top, margin_right, bottom),
+        ink_threshold=ink_threshold,
+    )
+    if not assessment.accepted or len(assessment.staff_line_rows) != _REQUIRED_STAFF_LINES:
+        return None
+
+    spacing = assessment.mean_staff_spacing
+    if spacing is None or spacing <= 0:
+        return None
+    pixels = page_gray.load()
+    line_radius = max(1, round(spacing * 0.08))
+    support = []
+    for x in range(margin_left, margin_right):
+        supported_lines = sum(
+            any(
+                pixels[x, y] < ink_threshold
+                for y in range(
+                    max(0, row - line_radius),
+                    min(page_gray.height, row + line_radius + 1),
+                )
+            )
+            for row in assessment.staff_line_rows
+        )
+        support.append(supported_lines / len(assessment.staff_line_rows))
+
+    smooth = _moving_average(support, _odd(max(7, round(spacing * 0.6))))
+    spans = _find_active_spans(
+        smooth,
+        threshold=_MIN_STAFF_EXTENT_LINE_FRACTION,
+        min_length=max(80, int(page_width * 0.08)),
+        gap=max(20, round(spacing * 1.5)),
+    )
+    if not spans:
+        return None
+
+    reference_left, reference_right = reference_bounds
+    page_spans = [(margin_left + left, margin_left + right) for left, right in spans]
+    overlapping = [
+        span for span in page_spans if min(span[1], reference_right) > max(span[0], reference_left)
+    ]
+    if not overlapping:
+        return None
+    recovered_left, recovered_right = max(
+        overlapping,
+        key=lambda span: (
+            min(span[1], reference_right) - max(span[0], reference_left),
+            span[1] - span[0],
+        ),
+    )
+    recovered_left = max(0, recovered_left - 24)
+    recovered_right = min(page_width, recovered_right + 24)
+    if recovered_right - recovered_left < int(page_width * 0.35):
+        return None
+    return recovered_left, recovered_right
 
 
 def _build_annotation_band_above(
@@ -1047,6 +1280,7 @@ def _candidate_assessment_to_dict(
         "candidate_crop": str(rejected_crop_path) if rejected_crop_path else None,
         "required_staff_line_count": _REQUIRED_STAFF_LINES,
         "minimum_line_support": _MIN_STAFF_LINE_SUPPORT,
+        "minimum_trailing_musical_ink_density": _MIN_TRAILING_MUSICAL_INK_DENSITY,
         "long_horizontal_line_rows": list(assessment.long_horizontal_line_rows),
         "long_horizontal_line_support": [
             round(value, 6) for value in assessment.long_horizontal_line_support
@@ -1061,6 +1295,11 @@ def _candidate_assessment_to_dict(
         "max_spacing_deviation_ratio": (
             round(assessment.max_spacing_deviation_ratio, 6)
             if assessment.max_spacing_deviation_ratio is not None
+            else None
+        ),
+        "staff_residual_ink_density": (
+            round(assessment.staff_residual_ink_density, 6)
+            if assessment.staff_residual_ink_density is not None
             else None
         ),
     }

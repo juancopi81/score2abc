@@ -25,14 +25,29 @@ Notes:
   paper white untouched. It then writes system crops plus annotation-band
   crops above and below each staff under each work's `systems/` directory.
   Broad horizontal proposals must contain five long, consistently spaced
-  staff lines before they receive a system number. Rejected proposals are
-  preserved as `rejected_candidate_page_*.png` with reasons in the per-page
-  segment manifest; accepted systems are renumbered while retaining their
-  original candidate index in metadata.
+  staff lines before they receive a system number. A bounded staff-extent
+  refinement preserves weak clef/meter preambles, while consecutive trailing
+  ruled staves without enough non-staff musical ink are rejected. Rejected
+  proposals are preserved as `rejected_candidate_page_*.png` with reasons in
+  the per-page segment manifest; accepted systems are renumbered while
+  retaining their original candidate index in metadata.
   Chord bands overlap the outer staff lines so chord symbols that sit
   against the staff aren't clipped. Per-page overlays and JSON bbox
   manifests (with the detected `page_rotation_degrees`) are written
   alongside for inspection.
+
+### Local research sources
+
+Keep supplied scores that are not cleared for redistribution under the
+gitignored `dataset/local_restricted/` directory. Use the normal filename and
+metadata conventions there, but write generated artifacts to a separate output
+root so the tracked golden dataset remains reproducible:
+
+```bash
+uv run python main.py ingest \
+  dataset/local_restricted dataset/local_restricted/metadata.csv out/local_restricted
+uv run python main.py run out/local_restricted --slug <slug>
+```
 
 ### Melody VLM input crops
 
@@ -46,6 +61,18 @@ uv run python scripts/build_vlm_melody_inputs.py out \
   --system 1 \
   --overwrite
 ```
+
+Metadata remains the default key context. The independently supported visual
+key slice is opt-in and accepts only strict initial/system-entry one-flat or
+two-sharp signatures; unknown detections fail closed and inherit only a prior
+accepted state:
+
+```bash
+uv run python scripts/build_vlm_melody_inputs.py out \
+  --slug <slug> --system <n> --overwrite --key-context strict-visual
+```
+
+This option does not detect internal double-bar key changes.
 
 Outputs are written under `out/<slug>/vlm_melody_inputs/`:
 
@@ -245,6 +272,34 @@ exact pitch groups, but it is not adoptable: on 19 consumed Aviador/Carrizal
 measures it changes candidate F1 from `0.791367` to `0.785714` by adding one
 false positive and no true positives.
 
+The later edge-safe rule has now completed its separately frozen unseen-score
+gate on No lo Creas system 8. Eleven automatic crops were sealed before
+transcription; the paired rule preserves every baseline candidate ID and
+coordinate and adds two companions, both in crop 1, without creating new
+x-groups. A later audit found that the first physical measure's eleven-crop
+mapping used a `9 + 3` note split where the frozen x-groups require `6 + 6`.
+The immutable `evaluation_v1` is therefore superseded by the create-once mapping
+erratum: note-count F1 still improves `0.584616 -> 0.626865`, but exact natural
+diatonic positions remain `6 -> 6` and exact chord-size matches remain `4 -> 4`.
+The preregistered promotion gate fails and the one-companion rule remains spike-only.
+The evaluated transcription is at:
+
+`out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/vlm_melody_independent_dyad_recovery_gate/v1/system_008/no_lo_creas_system_008.musicxml`
+
+The evaluator verified the paired seal before opening that file. The corrected
+mapping and authoritative interpretation are in `evaluation_v2_mapping_erratum/`.
+
+A bounded multi-head follow-up improves the corrected No lo Creas evidence over
+the dyad lane: note-count F1 `0.626865 -> 0.666667`, exact natural-diatonic
+positions `6 -> 8`, exact chord sizes `4 -> 6`, and exact structure crops
+`0 -> 1`. It preserves or improves consumed Alcira and La Chata results, while
+Aviador/Carrizal candidate F1 remains `0.791367` with zero recovered false
+positives. This is still model-selection evidence, not runtime integration. A
+genuinely unseen polyphonic score is required for the next frozen gate; the
+remaining untouched scores in the current corpus are monophonic. See
+`docs/VLM_MELODY_SPIKE.md` for the full result and scope. Key, meter, rhythm,
+duration, and rests are not scored by this gate.
+
 The visual key slice now handles consumed initial one-flat and two-sharp
 signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its
 seven-case report is `7/7`, including two repeat/double-bar controls and the
@@ -253,7 +308,10 @@ only on the three actual changes across 89 Aviador, Carrizal, and La Chata
 crops. Its work-scoped context feeds the frozen La Chata pitch replay directly:
 exact ordered pitches improve `17 -> 20`, exact pitch groups improve `11 -> 12`,
 and candidate selection is unchanged. This is still a consumed, bounded spike
-rather than independent general key recognition.
+rather than independent general key recognition. After the independent Alcira
+gate, strict initial/system-entry state is now available to the spike inference
+path through `--key-context strict-visual`. The default remains metadata-backed;
+internal changes and unsupported signature counts still fail closed.
 
 Automatic onset deletion remains rejected. The original work-disjoint group
 filter is a no-op at `TP=63 FP=7 FN=6`, F1 `0.906475`; a candidate-patch veto
