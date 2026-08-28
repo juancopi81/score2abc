@@ -47,6 +47,17 @@ EDGE_SAFE_STEM_DYAD_PARAMETERS = {
     "minimum_stem_score": 0.55,
     "minimum_group_x_staff_spaces": 1.0,
 }
+EDGE_SAFE_STEM_MULTIHEAD_CONFIG_ID = (
+    "edge_safe_stem_multihead__y_1_3__ratio_0.5__stem_0.55__leading_x_1__cap_2"
+)
+EDGE_SAFE_STEM_MULTIHEAD_PARAMETERS = {
+    "minimum_y_gap_staff_spaces": 1.0,
+    "maximum_y_gap_staff_spaces": 3.0,
+    "minimum_score_ratio": 0.5,
+    "minimum_stem_score": 0.55,
+    "minimum_group_x_staff_spaces": 1.0,
+    "maximum_recovered_heads_per_group": 2,
+}
 STEM_SEARCH_SIDE_PIXELS = 5
 STEM_SEARCH_EXTRA_SPACES = 4.0
 STEM_MAX_GAP_PIXELS = 3

@@ -28,8 +28,15 @@ from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer  # n
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_independent_dyad_recovery_gate as dyad_freezer  # noqa: E402
 from scripts.experiments import freeze_independent_key_state_gates as key_freezer  # noqa: E402
+from scripts.experiments import (  # noqa: E402
+    freeze_independent_multihead_recovery_gate as multihead_freezer,
+)
+from scripts.experiments import (  # noqa: E402
+    freeze_independent_sparse_dyad_repair_gate as sparse_dyad_freezer,
+)
 from scripts.experiments import freeze_third_score_heldout as freezer  # noqa: E402
 from scripts.experiments import spike_composed_melody_chain as composed  # noqa: E402
+from scripts.experiments import spike_consumed_polyphonic_pitch_repair as recovery  # noqa: E402
 from scripts.experiments import spike_meter_gap_resolver as gap  # noqa: E402
 from scripts.experiments import spike_notehead_patch_templates as patches  # noqa: E402
 from scripts.experiments import spike_review_augmented_selector as dense  # noqa: E402
@@ -40,6 +47,10 @@ FOURTH_SCORE_INFERENCE_VERSION = "fourth-score-inference-v1"
 FIFTH_SCORE_INFERENCE_VERSION = "fifth-score-inference-v1"
 INDEPENDENT_KEY_INFERENCE_VERSION = "independent-key-inference-v1"
 INDEPENDENT_DYAD_INFERENCE_VERSION = "independent-dyad-baseline-inference-v1"
+INDEPENDENT_MULTIHEAD_INFERENCE_VERSION = "independent-multihead-baseline-inference-v1"
+INDEPENDENT_SPARSE_DYAD_INFERENCE_VERSION = "independent-sparse-dyad-baseline-inference-v1"
+MULTIHEAD_RECOVERY_SIDECAR_VERSION = "edge-safe-stem-multihead-sidecar-v1"
+MULTIHEAD_RECOVERY_DIRNAME = "edge_safe_stem_multihead_recovery_v1"
 DEFAULT_INFERENCE_DIRNAME = "inference_v2"
 DEFAULT_MODEL_DIR = REPO_ROOT / "out/vlm_melody_consumed_training/cross_score_notehead_v1"
 LA_CHATA_SLUG = "jaime-llanos_64_la-chata_pasillo_luis-a-calvo"
@@ -74,6 +85,18 @@ GATE_CONFIGS = {
         "manifest_kind": "independent_dyad_truth_blind_baseline_inference_manifest",
         "binding_kind": "independent_dyad_baseline_inference_provenance_binding",
     },
+    multihead_freezer.INDEPENDENT_MULTIHEAD_RECOVERY_GATE.prepare_kind: {
+        "gate": multihead_freezer.INDEPENDENT_MULTIHEAD_RECOVERY_GATE,
+        "inference_version": INDEPENDENT_MULTIHEAD_INFERENCE_VERSION,
+        "manifest_kind": "independent_multihead_truth_blind_baseline_inference_manifest",
+        "binding_kind": "independent_multihead_baseline_inference_provenance_binding",
+    },
+    sparse_dyad_freezer.INDEPENDENT_SPARSE_DYAD_REPAIR_GATE.prepare_kind: {
+        "gate": sparse_dyad_freezer.INDEPENDENT_SPARSE_DYAD_REPAIR_GATE,
+        "inference_version": INDEPENDENT_SPARSE_DYAD_INFERENCE_VERSION,
+        "manifest_kind": "independent_sparse_dyad_truth_blind_baseline_inference_manifest",
+        "binding_kind": "independent_sparse_dyad_baseline_inference_provenance_binding",
+    },
     **{
         gate.prepare_kind: {
             "gate": gate,
@@ -96,13 +119,29 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Materialize inference only; intended for focused replay tests.",
     )
+    parser.add_argument(
+        "--multihead-recovery",
+        action="store_true",
+        help=(
+            "Materialize the spike-only edge-safe stem-aware multi-head recovery sidecar; "
+            "requires --no-freeze."
+        ),
+    )
     args = parser.parse_args(argv)
+    if args.multihead_recovery and not args.no_freeze:
+        print(
+            "error: --multihead-recovery is spike-only and requires --no-freeze; "
+            "the canonical baseline freeze does not include optional recovery artifacts",
+            file=sys.stderr,
+        )
+        return 1
     started = time.perf_counter()
     try:
         result = materialize_third_score_inference(
             args.prepared_manifest,
             model_dir=args.model_dir,
             inference_dirname=args.inference_dirname,
+            multihead_recovery=args.multihead_recovery,
         )
         if not args.no_freeze:
             result["freeze"] = freeze_inference(
@@ -123,6 +162,7 @@ def materialize_third_score_inference(
     *,
     model_dir: Path = DEFAULT_MODEL_DIR,
     inference_dirname: str = DEFAULT_INFERENCE_DIRNAME,
+    multihead_recovery: bool = False,
 ) -> dict[str, Any]:
     """Create deterministic truth-blind inference artifacts exactly once."""
     _validate_output_name(inference_dirname)
@@ -199,6 +239,20 @@ def materialize_third_score_inference(
         _write_contact_sheet(overlay_paths, temp_dir / "contact_sheet.png")
 
         artifacts = _artifact_records(temp_dir)
+        optional_lanes = {}
+        multihead_result = None
+        if multihead_recovery:
+            multihead_result = _materialize_multihead_recovery_sidecar(
+                inference_rows,
+                model_payload=model_payload,
+                model_and_training=validated["pins"],
+                inference_root=temp_dir,
+                expected_target=prepared["target"],
+            )
+            optional_lanes["edge_safe_stem_multihead_recovery"] = {
+                "path": f"{MULTIHEAD_RECOVERY_DIRNAME}/manifest.json",
+                "sha256": _sha256(temp_dir / MULTIHEAD_RECOVERY_DIRNAME / "manifest.json"),
+            }
         manifest = {
             "schema_version": SCHEMA_VERSION,
             "kind": gate_config["manifest_kind"],
@@ -240,13 +294,16 @@ def materialize_third_score_inference(
             "artifacts": artifacts,
             "warnings": assumptions["warnings"],
         }
+        if optional_lanes:
+            manifest["status"] = "inferred_spike_only_no_freeze"
+            manifest["optional_lanes"] = optional_lanes
         _write_json(temp_dir / "manifest.json", manifest)
         temp_dir.rename(output_dir)
     except Exception:
         shutil.rmtree(temp_dir, ignore_errors=True)
         raise
 
-    return {
+    result = {
         "inference_dir": str(output_dir),
         "manifest": str(output_dir / "manifest.json"),
         "manifest_sha256": _sha256(output_dir / "manifest.json"),
@@ -256,6 +313,13 @@ def materialize_third_score_inference(
         "output_count": expected_count,
         "warnings": assumptions["warnings"],
     }
+    if multihead_result is not None:
+        result["multihead_recovery"] = {
+            **multihead_result,
+            "sidecar_dir": str(output_dir / MULTIHEAD_RECOVERY_DIRNAME),
+            "manifest": str(output_dir / MULTIHEAD_RECOVERY_DIRNAME / "manifest.json"),
+        }
+    return result
 
 
 def freeze_inference(
@@ -271,6 +335,11 @@ def freeze_inference(
     for path in (prepared_manifest_path, inference_dir, model_dir):
         _reject_truth_path(path)
     manifest = _read_json(inference_dir / "manifest.json")
+    if manifest.get("optional_lanes"):
+        raise ValueError(
+            "Inference contains spike-only optional recovery artifacts and cannot use the "
+            "canonical freeze; materialize the baseline without --multihead-recovery"
+        )
     validated = _verify_inference_binding(
         prepared_manifest_path,
         model_dir=model_dir,
@@ -795,6 +864,371 @@ def _inference_record(item: composed.ComposedMeasure) -> dict[str, Any]:
         "decoder_status": item.prediction["decoder_status"],
         "canonical_prediction": item.prediction,
     }
+
+
+def _materialize_multihead_recovery_sidecar(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    model_payload: Mapping[str, Any],
+    model_and_training: Mapping[str, Any],
+    inference_root: Path,
+    expected_target: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Materialize an additive candidate lane without changing canonical predictions."""
+    output_dir = inference_root / MULTIHEAD_RECOVERY_DIRNAME
+    if output_dir.exists():
+        raise FileExistsError(f"Refusing to overwrite multi-head recovery sidecar: {output_dir}")
+    selector = recovery.selector_config_from_model(model_payload)
+    output_dir.mkdir()
+    overlay_dir = output_dir / "overlays"
+    overlay_dir.mkdir()
+    lane_rows: list[dict[str, Any]] = []
+    diagnostics_rows: list[dict[str, Any]] = []
+    overlay_paths: list[Path] = []
+    recovered_head_count = 0
+
+    config = {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "edge_safe_stem_multihead_recovery_configuration",
+        "version": MULTIHEAD_RECOVERY_SIDECAR_VERSION,
+        "config_id": recovery.EDGE_SAFE_STEM_MULTIHEAD_CONFIG_ID,
+        "parameters": dict(recovery.EDGE_SAFE_STEM_MULTIHEAD_PARAMETERS),
+        "selector": selector,
+        "truth_accessed": False,
+        "truth_used": False,
+    }
+    _write_json(output_dir / "config.json", config)
+
+    for row in rows:
+        lane, diagnostics, baseline, recovered_candidates = _multihead_recovery_row(
+            row,
+            selector=selector,
+            expected_target=expected_target,
+        )
+        lane_rows.append(lane)
+        diagnostics_rows.append(diagnostics)
+        recovered_head_count += len(recovered_candidates)
+        measure_index = int(row["identity"]["automatic_measure_index"])
+        overlay_path = overlay_dir / f"measure_{measure_index:03d}.png"
+        _write_multihead_recovery_overlay(
+            row,
+            baseline=baseline,
+            recovered_candidates=recovered_candidates,
+            output_path=overlay_path,
+        )
+        overlay_paths.append(overlay_path)
+
+    _write_jsonl(output_dir / "recovery_lane.jsonl", lane_rows)
+    _write_jsonl(output_dir / "diagnostics.jsonl", diagnostics_rows)
+    _write_contact_sheet(overlay_paths, output_dir / "contact_sheet.png")
+    artifacts = _recursive_artifact_records(output_dir)
+    manifest = {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "edge_safe_stem_multihead_recovery_sidecar_manifest",
+        "version": MULTIHEAD_RECOVERY_SIDECAR_VERSION,
+        "status": "spike_only_not_canonical",
+        "truth_accessed": False,
+        "truth_used": False,
+        "create_once": True,
+        "target": dict(expected_target),
+        "measure_count": len(lane_rows),
+        "recovered_head_count": recovered_head_count,
+        "contract": {
+            "baseline_predictions_unchanged": True,
+            "baseline_canonical_predictions_unchanged": True,
+            "additive_candidate_selection_only": True,
+            "recovered_candidates_reuse_existing_onset_groups": True,
+            "canonical_pitch_and_rhythm_recomposition_applied": False,
+            "freeze_supported": False,
+        },
+        "baseline": {
+            "predictions": {
+                "path": "../predictions.jsonl",
+                "sha256": _sha256(inference_root / "predictions.jsonl"),
+            },
+            "detailed_inference": {
+                "path": "../inference.jsonl",
+                "sha256": _sha256(inference_root / "inference.jsonl"),
+            },
+        },
+        "model_and_training": dict(model_and_training),
+        "implementation": _file_record(Path(__file__)),
+        "recovery_implementation": _file_record(Path(recovery.__file__)),
+        "artifacts": artifacts,
+    }
+    _write_json(output_dir / "manifest.json", manifest)
+    _verify_multihead_recovery_sidecar(output_dir)
+    return {
+        "manifest_sha256": _sha256(output_dir / "manifest.json"),
+        "recovery_lane_sha256": _sha256(output_dir / "recovery_lane.jsonl"),
+        "diagnostics_sha256": _sha256(output_dir / "diagnostics.jsonl"),
+        "recovered_head_count": recovered_head_count,
+        "measure_count": len(lane_rows),
+    }
+
+
+def _multihead_recovery_row(
+    row: Mapping[str, Any],
+    *,
+    selector: Mapping[str, Any],
+    expected_target: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    if row.get("truth_used") is not False:
+        raise ValueError("Multi-head recovery input is not truth-blind")
+    identity = row.get("identity")
+    if not isinstance(identity, Mapping):
+        raise ValueError("Multi-head recovery input has no identity")
+    if str(identity.get("slug")) != str(expected_target["slug"]) or int(
+        identity.get("system_index", -1)
+    ) != int(expected_target["system_index"]):
+        raise ValueError("Multi-head recovery target substitution")
+
+    canonical = row.get("canonical_prediction")
+    if not isinstance(canonical, Mapping):
+        raise ValueError("Multi-head recovery input has no canonical prediction")
+    baseline = recovery.select_candidates(row, selector)
+    _verify_multihead_baseline(row, baseline, canonical)
+    stem_features, stem_metadata = recovery.candidate_local_stem_features(row)
+    recovered_candidates = recovery.recover_edge_safe_stem_aware_multihead_candidates(
+        row,
+        selector,
+        baseline,
+        stem_features=stem_features,
+        **recovery.EDGE_SAFE_STEM_MULTIHEAD_PARAMETERS,
+    )
+    group_by_id = _multihead_group_indices(row, selector=selector, baseline=baseline)
+    maximum_per_group = int(
+        recovery.EDGE_SAFE_STEM_MULTIHEAD_PARAMETERS["maximum_recovered_heads_per_group"]
+    )
+    recovered_group_counts: dict[int, int] = {}
+    baseline_ids = {str(candidate["candidate_id"]) for candidate in baseline}
+    recovered_ids: set[str] = set()
+    for candidate in recovered_candidates:
+        candidate_id = str(candidate["candidate_id"])
+        if candidate_id in baseline_ids or candidate_id in recovered_ids:
+            raise ValueError("Multi-head recovery duplicated a candidate")
+        recovered_ids.add(candidate_id)
+        group_index = int(candidate["recovery_group_index"])
+        if group_index not in set(group_by_id.values()):
+            raise ValueError("Multi-head recovery referenced a nonexistent baseline group")
+        recovered_group_counts[group_index] = recovered_group_counts.get(group_index, 0) + 1
+    if any(count > maximum_per_group for count in recovered_group_counts.values()):
+        raise ValueError("Multi-head recovery exceeded the per-group companion cap")
+
+    baseline_lane = [
+        _multihead_candidate_record(
+            candidate,
+            recovered=False,
+            onset_group_index=group_by_id[str(candidate["candidate_id"])],
+        )
+        for candidate in baseline
+    ]
+    additive_lane = [
+        *baseline_lane,
+        *[
+            _multihead_candidate_record(
+                candidate,
+                recovered=True,
+                onset_group_index=int(candidate["recovery_group_index"]),
+            )
+            for candidate in recovered_candidates
+        ],
+    ]
+    additive_lane.sort(key=_multihead_candidate_sort_key)
+    baseline_lane.sort(key=_multihead_candidate_sort_key)
+    lane = {
+        "schema_version": SCHEMA_VERSION,
+        "identity": dict(identity),
+        "truth_accessed": False,
+        "truth_used": False,
+        "source": dict(row["source"]),
+        "lanes": {
+            "baseline_generic": {
+                "canonical_prediction": dict(canonical),
+                "canonical_prediction_sha256": _hash_json(canonical),
+                "candidate_lane": baseline_lane,
+            },
+            "edge_safe_stem_multihead_recovery": {
+                "config_id": recovery.EDGE_SAFE_STEM_MULTIHEAD_CONFIG_ID,
+                "candidate_lane": additive_lane,
+                "recovered_candidate_ids": sorted(recovered_ids),
+                "recovered_head_count": len(recovered_candidates),
+                "canonical_prediction_materialized": False,
+            },
+        },
+    }
+    diagnostics = {
+        "schema_version": SCHEMA_VERSION,
+        "identity": dict(identity),
+        "truth_accessed": False,
+        "truth_used": False,
+        "baseline_candidate_ids": sorted(baseline_ids),
+        "recovered_candidate_ids": sorted(recovered_ids),
+        "baseline_onset_group_count": len(set(group_by_id.values())),
+        "recovered_onset_group_count": len(set(group_by_id.values())),
+        "recovery": [
+            {
+                "candidate_id": str(candidate["candidate_id"]),
+                "center": dict(candidate["center"]),
+                "score": float(candidate["score"]),
+                "onset_group_index": int(candidate["recovery_group_index"]),
+                "y_gap_staff_spaces": float(candidate["recovery_y_gap_staff_spaces"]),
+                "score_ratio": candidate["recovery_score_ratio"],
+                "stem_attachment_score": float(candidate["stem_attachment_score"]),
+                "leading_edge_distance_staff_spaces": float(
+                    candidate["leading_edge_distance_staff_spaces"]
+                ),
+            }
+            for candidate in recovered_candidates
+        ],
+        "candidate_stem_features": {
+            candidate_id: dict(stem_features[candidate_id])
+            for candidate_id in sorted(stem_features)
+        },
+        "stem_feature_metadata": stem_metadata,
+    }
+    return lane, diagnostics, baseline, recovered_candidates
+
+
+def _verify_multihead_baseline(
+    row: Mapping[str, Any],
+    baseline: Sequence[Mapping[str, Any]],
+    canonical: Mapping[str, Any],
+) -> None:
+    notes = canonical.get("notes")
+    if not isinstance(notes, list):
+        raise ValueError("Canonical baseline has no notes")
+    expected = {
+        str(candidate["candidate_id"]): (
+            round(float(candidate["center"]["x"]), 3),
+            round(float(candidate["center"]["y"]), 3),
+        )
+        for candidate in baseline
+    }
+    actual = {
+        str(note["candidate_id"]): (
+            round(float(note["center"]["x"]), 3),
+            round(float(note["center"]["y"]), 3),
+        )
+        for note in notes
+    }
+    if actual != expected:
+        raise ValueError("Recovery selector does not reproduce the canonical baseline")
+    if row.get("truth_used") is not False:
+        raise ValueError("Canonical baseline is not truth-blind")
+
+
+def _multihead_group_indices(
+    row: Mapping[str, Any],
+    *,
+    selector: Mapping[str, Any],
+    baseline: Sequence[Mapping[str, Any]],
+) -> dict[str, int]:
+    x_radius = recovery._staff_spacing(row) * float(selector["nms_x_spaces"])
+    groups = recovery._horizontal_candidate_groups(baseline, x_radius)
+    result = {
+        str(candidate["candidate_id"]): group_index
+        for group_index, group in enumerate(groups, start=1)
+        for candidate in group
+    }
+    if len(result) != len(baseline):
+        raise ValueError("Multi-head baseline grouping lost candidate identity")
+    return result
+
+
+def _multihead_candidate_record(
+    candidate: Mapping[str, Any],
+    *,
+    recovered: bool,
+    onset_group_index: int,
+) -> dict[str, Any]:
+    source = candidate.get("source")
+    bbox = source.get("bbox") if isinstance(source, Mapping) else None
+    return {
+        "candidate_id": str(candidate["candidate_id"]),
+        "center": {
+            "x": round(float(candidate["center"]["x"]), 3),
+            "y": round(float(candidate["center"]["y"]), 3),
+        },
+        "score": float(candidate["score"]),
+        "recovered": recovered,
+        "onset_group_index": int(onset_group_index),
+        **({"bbox": dict(bbox)} if isinstance(bbox, Mapping) else {}),
+    }
+
+
+def _multihead_candidate_sort_key(
+    candidate: Mapping[str, Any],
+) -> tuple[float, float, str]:
+    return (
+        float(candidate["center"]["x"]),
+        float(candidate["center"]["y"]),
+        str(candidate["candidate_id"]),
+    )
+
+
+def _write_multihead_recovery_overlay(
+    row: Mapping[str, Any],
+    *,
+    baseline: Sequence[Mapping[str, Any]],
+    recovered_candidates: Sequence[Mapping[str, Any]],
+    output_path: Path,
+) -> None:
+    image_path = Path(str(row["source"]["image"]))
+    if not image_path.is_absolute():
+        image_path = REPO_ROOT / image_path
+    if _sha256(image_path) != str(row["source"]["sha256"]):
+        raise ValueError(f"Multi-head overlay source hash drift: {image_path}")
+    with Image.open(image_path) as opened:
+        image = opened.convert("RGB")
+    draw = ImageDraw.Draw(image)
+    draw.text((4, 4), "blue: baseline | green: recovered", fill=(0, 0, 0))
+    for color, candidates in (
+        ((20, 90, 220), baseline),
+        ((0, 160, 70), recovered_candidates),
+    ):
+        for candidate in candidates:
+            source = candidate.get("source")
+            bbox = source.get("bbox") if isinstance(source, Mapping) else None
+            if not isinstance(bbox, Mapping):
+                continue
+            bounds = tuple(int(bbox[key]) for key in ("left", "top", "right", "bottom"))
+            draw.rectangle(bounds, outline=color, width=2)
+            draw.text(
+                (bounds[0], max(0, bounds[1] - 11)),
+                str(candidate["candidate_id"]),
+                fill=color,
+            )
+    image.save(output_path)
+
+
+def _recursive_artifact_records(root: Path) -> dict[str, dict[str, str]]:
+    return {
+        path.relative_to(root).as_posix(): {
+            "path": path.relative_to(root).as_posix(),
+            "sha256": _sha256(path),
+        }
+        for path in sorted(root.rglob("*"))
+        if path.is_file() and path.name != "manifest.json"
+    }
+
+
+def _verify_multihead_recovery_sidecar(output_dir: Path) -> None:
+    manifest = _read_json(output_dir / "manifest.json")
+    if (
+        manifest.get("kind") != "edge_safe_stem_multihead_recovery_sidecar_manifest"
+        or manifest.get("version") != MULTIHEAD_RECOVERY_SIDECAR_VERSION
+        or manifest.get("truth_used") is not False
+    ):
+        raise ValueError("Multi-head recovery sidecar manifest contract mismatch")
+    for record in manifest["artifacts"].values():
+        path = output_dir / str(record["path"])
+        if _sha256(path) != str(record["sha256"]):
+            raise ValueError(f"Multi-head recovery sidecar artifact hash drift: {path}")
+    for record in manifest["baseline"].values():
+        path = output_dir / str(record["path"])
+        if _sha256(path) != str(record["sha256"]):
+            raise ValueError(f"Multi-head recovery baseline artifact hash drift: {path}")
 
 
 def _verify_inference_binding(

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from itertools import combinations
 from pathlib import Path
-from statistics import median
+from statistics import fmean, median
 from typing import Sequence
 
 from PIL import Image
@@ -179,25 +180,24 @@ def _detect_barlines_in_image(
     staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
 
     tol = max(0, oblique_tolerance_px)
-    column_runs = [0] * width
-    for x in range(width):
-        cur = 0
-        best = 0
-        x_lo = max(0, x - tol)
-        x_hi = min(width - 1, x + tol)
-        for y in range(staff_top, staff_bot + 1):
-            is_dark = False
-            for xx in range(x_lo, x_hi + 1):
-                if pixels[xx, y] < threshold:
-                    is_dark = True
-                    break
-            if is_dark:
-                cur += 1
-                if cur > best:
-                    best = cur
-            else:
-                cur = 0
-        column_runs[x] = best
+    column_runs = _vertical_column_runs(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        tolerance=tol,
+    )
+    legacy_top, legacy_bot = _legacy_staff_band(pixels, width, height, threshold, staff_pad_px)
+    legacy_height = legacy_bot - legacy_top + 1
+    legacy_column_runs = _vertical_column_runs(
+        pixels,
+        width=width,
+        staff_top=legacy_top,
+        staff_bot=legacy_bot,
+        threshold=threshold,
+        tolerance=tol,
+    )
 
     run_threshold = min_run_fraction * staff_height
     leading_margin = int(width * leading_margin_fraction)
@@ -210,17 +210,34 @@ def _detect_barlines_in_image(
     peak_scores: list[float] = []
     last_peak = -min_gap - 1
     for x in range(scan_left, scan_right):
-        if column_runs[x] < run_threshold and (
-            column_runs[x] < max(0.0, min_run_fraction - 0.005) * staff_height
-            or not _spans_staff_edges(
-                pixels,
-                width=width,
-                staff_top=staff_top,
-                staff_bot=staff_bot,
-                threshold=threshold,
-                x=x,
-            )
-        ):
+        spans_staff_edges = _spans_staff_edges(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            x=x,
+        )
+        normal_candidate = column_runs[x] >= run_threshold and (
+            column_runs[x] >= 0.77 * staff_height or spans_staff_edges
+        )
+        borderline_candidate = (
+            column_runs[x] >= max(0.0, min_run_fraction - 0.005) * staff_height
+            and spans_staff_edges
+        )
+        weak_clean_candidate = _is_weak_clean_barline_candidate(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            staff_height=staff_height,
+            threshold=threshold,
+            staff_line_rows=staff_line_rows,
+            x=x,
+            run=column_runs[x],
+            legacy_run_fraction=legacy_column_runs[x] / legacy_height,
+        )
+        if not (normal_candidate or borderline_candidate or weak_clean_candidate):
             continue
         score = _barline_candidate_score(
             pixels,
@@ -241,7 +258,7 @@ def _detect_barlines_in_image(
             continue
         window_start = max(0, x - 2)
         window_end = min(width, x + 3)
-        if column_runs[x] < max(column_runs[window_start:window_end]):
+        if not weak_clean_candidate and column_runs[x] < max(column_runs[window_start:window_end]):
             continue
         peaks.append(x)
         peak_scores.append(score)
@@ -286,6 +303,93 @@ def _barline_candidate_score(
         x=x,
     )
     return (run / staff_height) - (0.45 * side_ink)
+
+
+def _vertical_column_runs(
+    pixels,
+    *,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    threshold: int,
+    tolerance: int,
+) -> list[int]:
+    runs = [0] * width
+    for x in range(width):
+        current = 0
+        best = 0
+        x_lo = max(0, x - tolerance)
+        x_hi = min(width - 1, x + tolerance)
+        for y in range(staff_top, staff_bot + 1):
+            is_dark = any(pixels[xx, y] < threshold for xx in range(x_lo, x_hi + 1))
+            if is_dark:
+                current += 1
+                best = max(best, current)
+            else:
+                current = 0
+        runs[x] = best
+    return runs
+
+
+def _is_weak_clean_barline_candidate(
+    pixels,
+    *,
+    width: int,
+    staff_top: int,
+    staff_bot: int,
+    staff_height: int,
+    threshold: int,
+    staff_line_rows: Sequence[int],
+    x: int,
+    run: int,
+    legacy_run_fraction: float,
+) -> bool:
+    if run < 0.60 * staff_height or legacy_run_fraction < 0.75:
+        return False
+    if (
+        _vertical_cluster_width(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            x=x,
+        )
+        >= 12
+    ):
+        return False
+    if (
+        _side_ink_density_between_staff_lines(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            staff_line_rows=staff_line_rows,
+            x=x,
+        )
+        > 0.15
+    ):
+        return False
+
+    edge_height = max(5, round(0.12 * staff_height))
+    top_fraction = _dark_fraction_in_rows(
+        pixels,
+        width=width,
+        threshold=threshold,
+        x=x,
+        y0=staff_top,
+        y1=min(staff_bot, staff_top + edge_height - 1),
+    )
+    bottom_fraction = _dark_fraction_in_rows(
+        pixels,
+        width=width,
+        threshold=threshold,
+        x=x,
+        y0=max(staff_top, staff_bot - edge_height + 1),
+        y1=staff_bot,
+    )
+    return max(top_fraction, bottom_fraction) >= 0.75
 
 
 def _recover_edge_barlines(
@@ -1086,15 +1190,21 @@ def _staff_band(
     ~0.5 * width. Falls back to the top-5 densest rows when the staff is
     faint enough that none clear the threshold.
     """
-    row_density = [0] * height
+    row_density = [0.0] * height
+    x0 = max(0, round(0.05 * width))
+    x1 = min(width, max(x0 + 1, round(0.95 * width)))
     for y in range(height):
         dark = 0
-        for x in range(width):
+        for x in range(x0, x1):
             if pixels[x, y] < threshold:
                 dark += 1
-        row_density[y] = dark
+        row_density[y] = dark / (x1 - x0)
 
-    high = [y for y, d in enumerate(row_density) if d >= 0.7 * width]
+    staff_lines = _consistent_staff_line_rows(row_density)
+    if staff_lines:
+        return max(0, staff_lines[0] - pad), min(height - 1, staff_lines[-1] + pad)
+
+    high = [y for y, density in enumerate(row_density) if density >= 0.7]
     if len(high) < 5:
         ranked = sorted(range(height), key=lambda y: row_density[y], reverse=True)
         high = sorted(ranked[:5])
@@ -1104,6 +1214,24 @@ def _staff_band(
     return top, bot
 
 
+def _legacy_staff_band(
+    pixels,
+    width: int,
+    height: int,
+    threshold: int,
+    pad: int,
+) -> tuple[int, int]:
+    row_density = [0] * height
+    for y in range(height):
+        row_density[y] = sum(pixels[x, y] < threshold for x in range(width))
+
+    high = [y for y, density in enumerate(row_density) if density >= 0.7 * width]
+    if len(high) < 5:
+        ranked = sorted(range(height), key=lambda y: row_density[y], reverse=True)
+        high = sorted(ranked[:5])
+    return max(0, min(high) - pad), min(height - 1, max(high) + pad)
+
+
 def _staff_line_rows(
     pixels,
     width: int,
@@ -1111,14 +1239,21 @@ def _staff_line_rows(
     staff_bot: int,
     threshold: int,
 ) -> list[int]:
-    rows = []
+    row_density = [0.0] * (staff_bot - staff_top + 1)
+    x0 = max(0, round(0.05 * width))
+    x1 = min(width, max(x0 + 1, round(0.95 * width)))
     for y in range(staff_top, staff_bot + 1):
         dark = 0
-        for x in range(width):
+        for x in range(x0, x1):
             if pixels[x, y] < threshold:
                 dark += 1
-        rows.append((dark, y))
+        row_density[y - staff_top] = dark / (x1 - x0)
 
+    consistent = _consistent_staff_line_rows(row_density)
+    if consistent:
+        return [staff_top + row for row in consistent]
+
+    rows = [(density, staff_top + offset) for offset, density in enumerate(row_density)]
     lines: list[int] = []
     for _, y in sorted(rows, reverse=True):
         if all(abs(y - line_y) > 8 for line_y in lines):
@@ -1126,3 +1261,55 @@ def _staff_line_rows(
         if len(lines) == 5:
             break
     return sorted(lines)
+
+
+def _consistent_staff_line_rows(row_density: Sequence[float]) -> list[int]:
+    if not row_density:
+        return []
+    maximum = max(row_density)
+    if maximum <= 0.0:
+        return []
+
+    cutoff = max(0.08, 0.45 * maximum)
+    spans: list[tuple[float, int]] = []
+    start: int | None = None
+    for row, density in enumerate(row_density):
+        if density >= cutoff and start is None:
+            start = row
+        elif density < cutoff and start is not None:
+            spans.append(_staff_row_span(row_density, start, row - 1))
+            start = None
+    if start is not None:
+        spans.append(_staff_row_span(row_density, start, len(row_density) - 1))
+    if len(spans) < 5:
+        return []
+
+    best: tuple[float, float, tuple[int, ...]] | None = None
+    for selected in combinations(spans, 5):
+        rows = tuple(sorted(center for _, center in selected))
+        spacings = [right - left for left, right in zip(rows, rows[1:], strict=False)]
+        mean_spacing = fmean(spacings)
+        if mean_spacing < 6 or mean_spacing > 80:
+            continue
+        deviation = max(abs(spacing - mean_spacing) for spacing in spacings) / mean_spacing
+        if deviation > 0.30:
+            continue
+        mean_support = fmean(support for support, _ in selected)
+        rank = (deviation, -mean_support, rows)
+        if best is None or rank < best:
+            best = rank
+    return list(best[2]) if best is not None else []
+
+
+def _staff_row_span(
+    row_density: Sequence[float],
+    start: int,
+    end: int,
+) -> tuple[float, int]:
+    values = row_density[start : end + 1]
+    total = sum(values)
+    if total <= 0.0:
+        center = (start + end) // 2
+    else:
+        center = round(sum((start + index) * value for index, value in enumerate(values)) / total)
+    return max(values), center

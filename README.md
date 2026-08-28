@@ -294,11 +294,66 @@ the dyad lane: note-count F1 `0.626865 -> 0.666667`, exact natural-diatonic
 positions `6 -> 8`, exact chord sizes `4 -> 6`, and exact structure crops
 `0 -> 1`. It preserves or improves consumed Alcira and La Chata results, while
 Aviador/Carrizal candidate F1 remains `0.791367` with zero recovered false
-positives. This is still model-selection evidence, not runtime integration. A
-genuinely unseen polyphonic score is required for the next frozen gate; the
-remaining untouched scores in the current corpus are monophonic. See
-`docs/VLM_MELODY_SPIKE.md` for the full result and scope. Key, meter, rhythm,
-duration, and rests are not scored by this gate.
+positives. This is still model-selection evidence, not runtime integration. At
+model-selection time, a genuinely unseen polyphonic score was still required for a
+valid frozen gate because the remaining untouched corpus scores were monophonic. See
+`docs/VLM_MELODY_SPIKE.md` for the full result and scope. Key, meter, rhythm, duration,
+and rests are not scored by this gate.
+
+That independent gate is now evaluated on local-restricted A medio palo system 7. A
+full-staff barline fix yields seven physical crops and improves the Aviador A1 barline
+benchmark from `F1=0.945` to `F1=0.952`. After the paired predictions were sealed, the
+seven-measure transcription confirmed that all 13 additions were needed: note-count F1
+improves `0.763636 -> 1.0`, exact natural-diatonic positions `13 -> 24`, exact chord-size
+matches `0 -> 13`, and exact structure crops `0 -> 3`. The report is at:
+
+`out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/evaluation_v1/report.json`
+
+The recovery rule passes this independent gate and may enter an explicit opt-in spike
+path, but not the default pipeline. Onset grouping remains wrong (`21` predicted groups
+versus `17` truth groups), particularly in measures 3, 5, and 7. Do not rerun or overwrite
+the frozen gate or `evaluation_v1`.
+
+The opt-in is now available without changing canonical predictions:
+
+```bash
+uv run python scripts/experiments/run_third_score_heldout_inference.py \
+  <prepared-manifest> \
+  --model-dir <model-dir> \
+  --inference-dirname <new-name> \
+  --multihead-recovery \
+  --no-freeze
+```
+
+It writes `edge_safe_stem_multihead_recovery_v1/` beside the baseline inference. The
+sidecar is candidate-only, hash-pinned, and intentionally cannot enter the canonical
+freezer.
+
+A subsequent consumed visual audit corrected the interpretation of measures 3, 5, and 7:
+the second selected point in measures 3 and 5 is an augmentation dot, and both selected
+points in measure 7 are chord text below the staff. The selected v3 dotted-hollow repair
+replaces those weak anchors only when it sees one shared-stem head pair plus matching weak
+dots to the right and no additional leading-edge dyad. Exact staff-position matches improve
+`24 -> 30`, onset groups `21 -> 18`, exact chord-size matches `13 -> 16`, and exact-structure
+crops `3 -> 6`; Alcira, La Chata, and No lo Creas remain unchanged. The report is:
+
+`out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/report.json`
+
+This is consumed model-selection evidence, not runtime promotion. The exact rule is now
+frozen on previously unseen Desde Lejos system 7. Ten automatic crops were sealed before
+truth; the rule accepts one replacement in automatic measure 2 and rejects the other nine.
+The accepted overlay places the proposed pair on two vertically aligned hollow heads and
+displaces two anchors below the staff, but that remains a prediction until independent
+review. The sealed manifest is:
+
+`out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/frozen/sealed_manifest.json`
+
+Place the finalized ten-measure transcription at:
+
+`out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/desde_lejos_system_007.musicxml`
+
+Do not rerun the gate. The evaluator must verify the seal before opening MusicXML and must
+score raw-image head/dot identity in addition to note, pitch, and onset-group structure.
 
 The visual key slice now handles consumed initial one-flat and two-sharp
 signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its

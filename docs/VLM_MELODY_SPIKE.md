@@ -1355,7 +1355,157 @@ uv run python scripts/experiments/spike_consumed_multihead_chord_recovery.py \
   out --output-dir <new-dir>
 ```
 
-This does not make the rule runtime-eligible. The remaining untouched scores in the
-current corpus are monophonic, so they cannot provide a positive score-disjoint chord
-recovery gate. The next valid step is to freeze this exact selected configuration on
-a genuinely unseen polyphonic score or system before its transcription is opened.
+This consumed result did not make the rule runtime-eligible. At selection time, the
+remaining untouched scores in the current corpus were monophonic and could not provide
+a positive score-disjoint chord-recovery gate. The independent A medio palo gate below
+is the subsequent pre-truth test of this exact parameter set.
+
+### A medio palo independent multi-head gate (frozen before truth)
+
+A medio palo system 7 was selected from a new local-restricted PDF because its seven
+physical measures contain repeated same-stem dyads and larger vertical note groups.
+Before inference, barline detection was corrected to derive vertical span from all five
+staff lines instead of an upper-staff subset. This removes one Aviador false positive
+without changing true-positive or false-negative counts (`F1 0.945 -> 0.952`) and yields
+seven A medio palo crops.
+
+The create-once paired gate then ran the score-disjoint configuration-C selector once.
+Its baseline candidate IDs and coordinates are immutable. The exact selected multi-head
+parameter set adds at most two stem-supported companions to an existing horizontal group;
+it cannot delete or reposition a baseline candidate or create an onset group. Before
+truth, it added 13 companions over the seven crops. The visible additions include the
+opening A-C dyad, but this visual observation is not an accuracy result.
+
+Authoritative pre-truth artifacts:
+
+- `out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/frozen/sealed_manifest.json`
+- `out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/baseline_inference_v1/contact_sheet.png`
+- `out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/baseline_inference_v1/multihead_recovery_v1/contact_sheet.png`
+
+The sealed status is `frozen_awaiting_truth`, with `truth_accessed=false` and
+`truth_used=false`. Do not rerun or overwrite it. The independent transcription belongs
+at:
+
+`out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/a_medio_palo_system_007.musicxml`
+
+The completed create-once evaluator verified every frozen hash before opening that
+MusicXML. The one-to-one seven-measure comparison reports:
+
+- predicted notes `21 -> 34` against `34` truth notes;
+- note-count F1 `0.763636 -> 1.0`;
+- exact natural-diatonic staff-position matches `13 -> 24`;
+- ordered diatonic alignment accuracy `0.382353 -> 0.705882`;
+- exact chord-size matches `0 -> 13`;
+- exact structure crops `0 -> 3`.
+
+Measures 1, 2, and 6 recover their complete visible dyad structure. The first
+interpretation of measures 3, 5, and 7 was incomplete: MusicXML showed two pitches and one
+onset, but it could not prove that the selected pixels were noteheads. A later raw-image
+audit found that measures 3 and 5 selected an augmentation dot as the second head, while
+measure 7 selected two points from the handwritten `G` chord label below the staff. A
+generic onset merge would therefore have produced the right count from the wrong pixels.
+The multi-head rule still passes its independent additive-recovery gate and can enter an
+explicit opt-in spike path, but it must not become default pipeline behavior yet.
+
+Authoritative evaluated artifacts:
+
+- `out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/evaluation_v1/report.json`
+- `out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/evaluation_v1/manifest.json`
+
+The evaluator command is intentionally create-once and must not be rerun over the
+existing `evaluation_v1`:
+
+```bash
+uv run python scripts/experiments/evaluate_independent_multihead_recovery_gate.py \
+  <sealed-manifest> --musicxml <a-medio-palo-system-7.musicxml>
+```
+
+Key, meter, rhythm, duration, and rests remain unsupported by this localization-focused
+gate, even though the source MusicXML records treble clef, two sharps, and `3/4`.
+
+### Sparse dotted-hollow dyad repair (consumed postmortem)
+
+The opt-in multi-head sidecar is available through:
+
+```bash
+uv run python scripts/experiments/run_third_score_heldout_inference.py \
+  <prepared-manifest> --model-dir <model-dir> --inference-dirname <new-name> \
+  --multihead-recovery --no-freeze
+```
+
+It preserves the baseline prediction and detailed-inference bytes, writes candidate-only
+diagnostics/overlays under `edge_safe_stem_multihead_recovery_v1/`, and is rejected by the
+canonical freezer.
+
+The dotted-half postmortem then tested a replacement rule against consumed A medio palo,
+Alcira, La Chata, and No lo Creas evidence. Two earlier arms were rejected: v1 merged sparse
+shared-stem pairs without requiring augmentation-dot evidence and regressed No lo Creas;
+v2 required matching weak dots but still accepted a later dyad when a partial onset existed
+at the crop edge. The selected v3 rule additionally counts leading-edge pair evidence before
+deciding whether the measure contains exactly one visual dyad.
+
+On A medio palo, v3 makes exactly three replacements:
+
+- measure 3: `d005,d018 -> d002,d005`, with dot pair `d021,d018`;
+- measure 5: `d005,d014 -> d003,d005`, with dot pair `d033,d014`;
+- measure 7: `d011,d012 -> d003,d007`, with dot pair `d013,d009`.
+
+The resulting consumed metrics improve exact staff positions `24 -> 30`, ordered alignment
+accuracy `0.705882 -> 0.882353`, predicted onset groups `21 -> 18` (truth `17`), exact chord
+sizes `13 -> 16`, and exact structure crops `3 -> 6`. Note count stays `34/34`. Alcira, La
+Chata, and No lo Creas receive zero replacements. Authoritative postmortem artifacts:
+
+- `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/report.json`
+- `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/report.md`
+- `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/a_medio_palo/measure_003.png`
+- `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/a_medio_palo/measure_005.png`
+- `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/a_medio_palo/measure_007.png`
+
+Reproduce into a new create-once directory with:
+
+```bash
+uv run python scripts/experiments/spike_consumed_sparse_stem_dyad_repair.py out \
+  --output-dir <new-dir>
+```
+
+This result selects the rule for a future frozen unseen dotted-hollow gate only. A medio
+palo and all other truth-opened cases above are consumed and cannot support runtime
+promotion.
+
+### Desde Lejos independent dotted-hollow gate (frozen before truth)
+
+Desde Lejos system 7 was supplied as a new local-restricted PDF and selected before any
+transcription because the source visibly contains dotted hollow dyads. The normal pipeline
+keeps ten musical systems, rejects two blank trailing staves, and segments target system 7
+into ten automatic crops. The source metadata preserves the printed composer credit `B.B.`;
+the possible expansion to Bonifacio Bautista is not used by inference.
+
+The create-once gate withholds key and meter, replays the score-disjoint selector, builds the
+fixed edge-safe multi-head comparison lane, then applies the exact consumed-selected v3
+replacement rule. Both lanes, all candidate pixels, paired augmentation-dot evidence,
+source/model/training hashes, and implementation hashes were sealed before MusicXML access.
+The frozen rule accepts one replacement in automatic measure 2 and rejects the other nine:
+
+- current anchors: `d031,d049`, both outside the staff band;
+- proposed shared-stem pair: `d006,d012`, one staff space apart;
+- paired weak-dot evidence includes `d029,d023` and `d035,d038`;
+- the proposed pair is assigned one onset group.
+
+This is a prediction, not an accuracy result. The pre-truth overlay looks plausible, with the
+proposed boxes on the two hollow heads and displaced boxes in handwritten text below the
+staff, but runtime promotion is forbidden until independent review.
+
+Authoritative local artifacts:
+
+- `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/frozen/sealed_manifest.json`
+- `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/baseline_inference_v1/sparse_dyad_repair_v1/contact_sheet.png`
+- `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/baseline_inference_v1/sparse_dyad_repair_v1/overlays/measure_002.png`
+
+The expected independent transcription path is:
+
+`out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/desde_lejos_system_007.musicxml`
+
+Do not rerun or overwrite the preparation, inference, paired lanes, or freeze. The next
+evaluator must verify every seal before reading that MusicXML and must require a raw-image-only
+review of head centers and augmentation dots. MusicXML count/pitch agreement alone is not a
+sufficient promotion gate.

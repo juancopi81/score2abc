@@ -67,6 +67,25 @@ def test_detect_barlines_returns_empty_when_no_vertical_ink(tmp_path: Path) -> N
     assert detect_barlines(path) == []
 
 
+def test_detect_barlines_uses_all_five_staff_lines_for_vertical_span(tmp_path: Path) -> None:
+    path = tmp_path / "system.png"
+    image = Image.new("L", (800, 180), color=255)
+    draw = ImageDraw.Draw(image)
+    for y in (50, 70):
+        draw.line([(0, y), (799, y)], fill=0, width=3)
+    for y in (90, 110, 130):
+        draw.line([(160, y), (640, y)], fill=0, width=3)
+
+    draw.line([(250, 45), (250, 78)], fill=0, width=2)
+    draw.line([(600, 50), (600, 130)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.75) < 0.01
+
+
 def test_detect_barlines_recovers_weak_edge_barline(tmp_path: Path) -> None:
     path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
     image = Image.open(path)
