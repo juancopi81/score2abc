@@ -127,6 +127,29 @@ def test_sidecar_hash_drift_and_canonical_freeze_are_rejected(
         spike._verify_multihead_recovery_sidecar(sidecar_dir)
 
 
+def test_sidecar_rejects_absolute_path_substitution_with_matching_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prepared, model_dir = _stub_inference_environment(tmp_path, monkeypatch)
+    result = spike.materialize_third_score_inference(
+        prepared,
+        model_dir=model_dir,
+        multihead_recovery=True,
+    )
+    inference_dir = Path(result["inference_dir"])
+    sidecar_dir = inference_dir / spike.MULTIHEAD_RECOVERY_DIRNAME
+    manifest_path = sidecar_dir / "manifest.json"
+    manifest = spike._read_json(manifest_path)
+    manifest["baseline"]["predictions"]["path"] = str(
+        (inference_dir / "predictions.jsonl").resolve()
+    )
+    spike._write_json(manifest_path, manifest)
+
+    with pytest.raises(ValueError, match="path substitution"):
+        spike._verify_multihead_recovery_sidecar(sidecar_dir)
+
+
 def test_cli_requires_no_freeze_for_multihead_recovery(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
@@ -135,6 +158,35 @@ def test_cli_requires_no_freeze_for_multihead_recovery(
 
     assert result == 1
     assert "requires --no-freeze" in capsys.readouterr().err
+
+
+def test_multihead_baseline_uses_detailed_anchors_when_meter_prediction_has_no_pixel_ids() -> None:
+    row = {
+        "truth_used": False,
+        "automatic_anchors": [
+            {
+                "center": {"x": 60.0, "y": 50.0},
+                "source": {"candidate_id": "c001"},
+            }
+        ],
+    }
+    baseline = [
+        {
+            "candidate_id": "c001",
+            "center": {"x": 60.0, "y": 50.0},
+        }
+    ]
+    canonical = {
+        "notes": [
+            {
+                "pitch_midi": 71,
+                "onset_beats": 0,
+                "duration_beats": 3,
+            }
+        ]
+    }
+
+    spike._verify_multihead_baseline(row, baseline, canonical)
 
 
 def test_sparse_dyad_repair_chains_multihead_without_changing_canonical_artifacts(
@@ -355,7 +407,19 @@ def _stub_inference_environment(
         image=image,
         staff_spacing=10.0,
         candidate_predictions=candidate_predictions,
-        anchors=[],
+        anchors=[
+            {
+                "order": 1,
+                "pitch": "B4",
+                "center": {"x": 60.0, "y": 50.0},
+                "source": {
+                    "kind": "automatic_candidate",
+                    "candidate_id": "c001",
+                    "selector_method": "synthetic",
+                    "selection_mode": "threshold_selector",
+                },
+            }
+        ],
         groups=[],
         anchor_features=[],
         rest_features=[],

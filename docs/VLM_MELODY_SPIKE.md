@@ -1577,3 +1577,48 @@ The historical Desde Lejos verifier still checks every frozen artifact by exact 
 the evolved inference runner it additionally compares the evaluation-time AST surface with
 the frozen source, excluding only materialization and optional-sidecar functions that the
 evaluator never executes.
+
+### Repaired full-event composition
+
+The two opt-in candidate lanes can now feed a standalone full-event sidecar without changing
+the baseline run:
+
+```bash
+uv run python scripts/experiments/materialize_repaired_full_event_sidecar.py \
+  <inference-dir> --model-dir <model-dir>
+```
+
+The materializer verifies the no-freeze baseline, multi-head lane, sparse-repair lane, model,
+training fixtures, request identities, candidate IDs, centers, and onset-group assignments.
+It then maps the exact repaired lane through bounded visual-key pitch inference and the existing
+rhythm/rest/meter decoder. The create-once `repaired_full_event_v1/` directory pins every input,
+implementation, prediction, diagnostic, and overlay. Canonical `predictions.jsonl` and
+`inference.jsonl` remain byte-for-byte unchanged. Missing expected measure beats are a hard
+boundary: no partial event sidecar is published. Request-only meter completion is also only a
+diagnostic; synthetic rests cannot turn missing visual evidence into a materialized transcription.
+
+The consumed-only evaluator verifies that seal and the canonical baseline pin before opening
+truth:
+
+```bash
+uv run python scripts/experiments/evaluate_consumed_repaired_full_event_sidecar.py \
+  <sidecar-dir> --truth-snapshot <truth.jsonl> --mapping <crop-mapping.json> \
+  --output-dir <new-dir>
+```
+
+The evaluator requires and snapshots the explicit mapping from automatic crops to physical
+measures. It never assumes those indices are interchangeable.
+
+The first consumed replay uses Coqueteos system 2. Neither recovery rule fires, so repaired and
+baseline recognition metrics are identical: note F1 `0.363636`, ordered pitch `0.375`, onset
+`0.28125`, duration `0.59375`, rest F1 `0`, and `0/6` exact crops. Meter extent matches consumed
+truth in `5/6` crops; the last automatic crop spans two physical truth measures, so composing a
+three-beat prediction cannot fix that segmentation mismatch. This is regression evidence, not
+an accuracy gain.
+
+Alcira system 6 exercises the complementary boundary. Its repaired lane contains seven recovered
+heads and the accepted two-sharp key state, but the historical frozen request intentionally
+withholds expected meter. The materializer therefore exits without creating either a final or
+temporary full-event directory. The next accuracy claim must freeze this complete composition on
+a genuinely fresh score with truth-blind meter context and at least one candidate recovery, then
+score pitch, onset, duration, rests, and meter after the seal is fixed.

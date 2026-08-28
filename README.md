@@ -384,6 +384,21 @@ and overlays. Canonical predictions remain byte-for-byte unchanged, and the cano
 freezer rejects the optional run. Omit `--sparse-dyad-repair` to retain the earlier
 multi-head-only behavior. Do not rerun the gate or overwrite `evaluation_v1`.
 
+To compose that exact repaired candidate lane into full spike events, use a separate
+create-once sidecar:
+
+```bash
+uv run python scripts/experiments/materialize_repaired_full_event_sidecar.py \
+  <inference-dir> --model-dir <model-dir>
+```
+
+This applies bounded pitch/key plus rhythm/rest/meter inference while preserving canonical
+outputs byte-for-byte. It fails closed when the prepared request does not contain expected
+meter context or when reaching the requested meter would require synthetic request-only rests.
+Consumed comparisons require an explicit crop-to-physical-measure mapping and can be recorded with
+`evaluate_consumed_repaired_full_event_sidecar.py`; they are postmortem evidence only. The
+full-event composition still requires a newly frozen score before default pipeline integration.
+
 The visual key slice now handles consumed initial one-flat and two-sharp
 signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its
 seven-case report is `7/7`, including two repeat/double-bar controls and the

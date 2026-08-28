@@ -1138,6 +1138,9 @@ def _verify_multihead_baseline(
     notes = canonical.get("notes")
     if not isinstance(notes, list):
         raise ValueError("Canonical baseline has no notes")
+    anchors = row.get("automatic_anchors")
+    if not isinstance(anchors, list):
+        raise ValueError("Detailed inference has no automatic anchors")
     expected = {
         str(candidate["candidate_id"]): (
             round(float(candidate["center"]["x"]), 3),
@@ -1146,14 +1149,16 @@ def _verify_multihead_baseline(
         for candidate in baseline
     }
     actual = {
-        str(note["candidate_id"]): (
-            round(float(note["center"]["x"]), 3),
-            round(float(note["center"]["y"]), 3),
+        str(anchor["source"]["candidate_id"]): (
+            round(float(anchor["center"]["x"]), 3),
+            round(float(anchor["center"]["y"]), 3),
         )
-        for note in notes
+        for anchor in anchors
     }
-    if actual != expected:
+    if len(actual) != len(anchors) or actual != expected:
         raise ValueError("Recovery selector does not reproduce the canonical baseline")
+    if len(notes) != len(anchors):
+        raise ValueError("Canonical note count does not match the automatic baseline anchors")
     if row.get("truth_used") is not False:
         raise ValueError("Canonical baseline is not truth-blind")
 
@@ -1261,14 +1266,20 @@ def _verify_multihead_recovery_sidecar(output_dir: Path) -> None:
         or manifest.get("truth_used") is not False
     ):
         raise ValueError("Multi-head recovery sidecar manifest contract mismatch")
-    for record in manifest["artifacts"].values():
-        path = output_dir / str(record["path"])
-        if _sha256(path) != str(record["sha256"]):
-            raise ValueError(f"Multi-head recovery sidecar artifact hash drift: {path}")
-    for record in manifest["baseline"].values():
-        path = output_dir / str(record["path"])
-        if _sha256(path) != str(record["sha256"]):
-            raise ValueError(f"Multi-head recovery baseline artifact hash drift: {path}")
+    _verify_sidecar_artifact_inventory(
+        output_dir,
+        manifest.get("artifacts"),
+        label="Multi-head recovery sidecar",
+    )
+    _verify_named_relative_records(
+        manifest.get("baseline"),
+        output_dir,
+        {
+            "predictions": "../predictions.jsonl",
+            "detailed_inference": "../inference.jsonl",
+        },
+        label="Multi-head recovery baseline",
+    )
 
 
 def _materialize_sparse_dyad_repair_sidecar(
@@ -1586,15 +1597,29 @@ def _verify_sparse_dyad_repair_sidecar(output_dir: Path) -> None:
         or manifest.get("truth_used") is not False
     ):
         raise ValueError("Sparse-dyad repair sidecar manifest contract mismatch")
-    for record in manifest["artifacts"].values():
-        path = output_dir / str(record["path"])
-        if _sha256(path) != str(record["sha256"]):
-            raise ValueError(f"Sparse-dyad repair sidecar artifact hash drift: {path}")
-    for section in ("baseline", "upstream_multihead"):
-        for record in manifest[section].values():
-            path = output_dir / str(record["path"])
-            if _sha256(path) != str(record["sha256"]):
-                raise ValueError(f"Sparse-dyad repair {section} artifact hash drift: {path}")
+    _verify_sidecar_artifact_inventory(
+        output_dir,
+        manifest.get("artifacts"),
+        label="Sparse-dyad repair sidecar",
+    )
+    _verify_named_relative_records(
+        manifest.get("baseline"),
+        output_dir,
+        {
+            "predictions": "../predictions.jsonl",
+            "detailed_inference": "../inference.jsonl",
+        },
+        label="Sparse-dyad repair baseline",
+    )
+    _verify_named_relative_records(
+        manifest.get("upstream_multihead"),
+        output_dir,
+        {
+            "manifest": f"../{MULTIHEAD_RECOVERY_DIRNAME}/manifest.json",
+            "recovery_lane": f"../{MULTIHEAD_RECOVERY_DIRNAME}/recovery_lane.jsonl",
+        },
+        label="Sparse-dyad repair upstream_multihead",
+    )
 
     inference_root = output_dir.parent
     upstream_dir = inference_root / MULTIHEAD_RECOVERY_DIRNAME
@@ -2153,6 +2178,49 @@ def _verify_relative_record(
     path = root / expected_name
     if str(record.get("sha256")) != _sha256(path):
         raise ValueError(f"{label} hash drift: {path}")
+
+
+def _verify_named_relative_records(
+    records: Any,
+    root: Path,
+    expected: Mapping[str, str],
+    *,
+    label: str,
+) -> None:
+    if not isinstance(records, Mapping) or set(records) != set(expected):
+        raise ValueError(f"{label} record inventory drift")
+    for name, relative_path in expected.items():
+        record = records[name]
+        if not isinstance(record, Mapping):
+            raise ValueError(f"{label} record is invalid: {name}")
+        _verify_relative_record(record, root, relative_path, label=f"{label} artifact")
+
+
+def _verify_sidecar_artifact_inventory(
+    output_dir: Path,
+    records: Any,
+    *,
+    label: str,
+) -> None:
+    if not isinstance(records, Mapping):
+        raise ValueError(f"{label} artifact inventory is missing")
+    actual = {
+        path.relative_to(output_dir).as_posix()
+        for path in output_dir.rglob("*")
+        if path.is_file() and path.name != "manifest.json"
+    }
+    if set(records) != actual:
+        raise ValueError(f"{label} artifact inventory drift")
+    for relative_path in sorted(actual):
+        record = records[relative_path]
+        if not isinstance(record, Mapping):
+            raise ValueError(f"{label} artifact record is invalid: {relative_path}")
+        _verify_relative_record(
+            record,
+            output_dir,
+            relative_path,
+            label=f"{label} artifact",
+        )
 
 
 def _source_record(pin: Mapping[str, Any]) -> dict[str, str]:
