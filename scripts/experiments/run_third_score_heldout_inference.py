@@ -51,6 +51,8 @@ INDEPENDENT_MULTIHEAD_INFERENCE_VERSION = "independent-multihead-baseline-infere
 INDEPENDENT_SPARSE_DYAD_INFERENCE_VERSION = "independent-sparse-dyad-baseline-inference-v1"
 MULTIHEAD_RECOVERY_SIDECAR_VERSION = "edge-safe-stem-multihead-sidecar-v1"
 MULTIHEAD_RECOVERY_DIRNAME = "edge_safe_stem_multihead_recovery_v1"
+SPARSE_DYAD_REPAIR_SIDECAR_VERSION = "sparse-stem-dyad-repair-sidecar-v1"
+SPARSE_DYAD_REPAIR_DIRNAME = "sparse_stem_dyad_repair_v1"
 DEFAULT_INFERENCE_DIRNAME = "inference_v2"
 DEFAULT_MODEL_DIR = REPO_ROOT / "out/vlm_melody_consumed_training/cross_score_notehead_v1"
 LA_CHATA_SLUG = "jaime-llanos_64_la-chata_pasillo_luis-a-calvo"
@@ -127,7 +129,22 @@ def main(argv: list[str] | None = None) -> int:
             "requires --no-freeze."
         ),
     )
+    parser.add_argument(
+        "--sparse-dyad-repair",
+        action="store_true",
+        help=(
+            "Chain the passed sparse dotted-hollow dyad repair after the spike-only "
+            "multi-head sidecar; requires --multihead-recovery and --no-freeze."
+        ),
+    )
     args = parser.parse_args(argv)
+    if args.sparse_dyad_repair and (not args.multihead_recovery or not args.no_freeze):
+        print(
+            "error: --sparse-dyad-repair is spike-only and requires "
+            "--multihead-recovery and --no-freeze",
+            file=sys.stderr,
+        )
+        return 1
     if args.multihead_recovery and not args.no_freeze:
         print(
             "error: --multihead-recovery is spike-only and requires --no-freeze; "
@@ -142,6 +159,7 @@ def main(argv: list[str] | None = None) -> int:
             model_dir=args.model_dir,
             inference_dirname=args.inference_dirname,
             multihead_recovery=args.multihead_recovery,
+            sparse_dyad_repair=args.sparse_dyad_repair,
         )
         if not args.no_freeze:
             result["freeze"] = freeze_inference(
@@ -163,8 +181,11 @@ def materialize_third_score_inference(
     model_dir: Path = DEFAULT_MODEL_DIR,
     inference_dirname: str = DEFAULT_INFERENCE_DIRNAME,
     multihead_recovery: bool = False,
+    sparse_dyad_repair: bool = False,
 ) -> dict[str, Any]:
     """Create deterministic truth-blind inference artifacts exactly once."""
+    if sparse_dyad_repair and not multihead_recovery:
+        raise ValueError("Sparse-dyad repair requires the multi-head recovery sidecar")
     _validate_output_name(inference_dirname)
     prepared_manifest_path = prepared_manifest_path.resolve()
     model_dir = model_dir.resolve()
@@ -241,6 +262,7 @@ def materialize_third_score_inference(
         artifacts = _artifact_records(temp_dir)
         optional_lanes = {}
         multihead_result = None
+        sparse_dyad_result = None
         if multihead_recovery:
             multihead_result = _materialize_multihead_recovery_sidecar(
                 inference_rows,
@@ -252,6 +274,18 @@ def materialize_third_score_inference(
             optional_lanes["edge_safe_stem_multihead_recovery"] = {
                 "path": f"{MULTIHEAD_RECOVERY_DIRNAME}/manifest.json",
                 "sha256": _sha256(temp_dir / MULTIHEAD_RECOVERY_DIRNAME / "manifest.json"),
+            }
+        if sparse_dyad_repair:
+            sparse_dyad_result = _materialize_sparse_dyad_repair_sidecar(
+                inference_rows,
+                model_payload=model_payload,
+                model_and_training=validated["pins"],
+                inference_root=temp_dir,
+                expected_target=prepared["target"],
+            )
+            optional_lanes["sparse_stem_dyad_repair"] = {
+                "path": f"{SPARSE_DYAD_REPAIR_DIRNAME}/manifest.json",
+                "sha256": _sha256(temp_dir / SPARSE_DYAD_REPAIR_DIRNAME / "manifest.json"),
             }
         manifest = {
             "schema_version": SCHEMA_VERSION,
@@ -319,6 +353,12 @@ def materialize_third_score_inference(
             "sidecar_dir": str(output_dir / MULTIHEAD_RECOVERY_DIRNAME),
             "manifest": str(output_dir / MULTIHEAD_RECOVERY_DIRNAME / "manifest.json"),
         }
+    if sparse_dyad_result is not None:
+        result["sparse_dyad_repair"] = {
+            **sparse_dyad_result,
+            "sidecar_dir": str(output_dir / SPARSE_DYAD_REPAIR_DIRNAME),
+            "manifest": str(output_dir / SPARSE_DYAD_REPAIR_DIRNAME / "manifest.json"),
+        }
     return result
 
 
@@ -338,7 +378,7 @@ def freeze_inference(
     if manifest.get("optional_lanes"):
         raise ValueError(
             "Inference contains spike-only optional recovery artifacts and cannot use the "
-            "canonical freeze; materialize the baseline without --multihead-recovery"
+            "canonical freeze; materialize the baseline without optional recovery flags"
         )
     validated = _verify_inference_binding(
         prepared_manifest_path,
@@ -1229,6 +1269,378 @@ def _verify_multihead_recovery_sidecar(output_dir: Path) -> None:
         path = output_dir / str(record["path"])
         if _sha256(path) != str(record["sha256"]):
             raise ValueError(f"Multi-head recovery baseline artifact hash drift: {path}")
+
+
+def _materialize_sparse_dyad_repair_sidecar(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    model_payload: Mapping[str, Any],
+    model_and_training: Mapping[str, Any],
+    inference_root: Path,
+    expected_target: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Chain the fixed sparse-dyad replacement rule after the multi-head lane."""
+    sparse_repair = _sparse_repair_module()
+    upstream_dir = inference_root / MULTIHEAD_RECOVERY_DIRNAME
+    _verify_multihead_recovery_sidecar(upstream_dir)
+    upstream_rows = _read_jsonl(upstream_dir / "recovery_lane.jsonl")
+    if len(upstream_rows) != len(rows):
+        raise ValueError("Sparse-dyad input/multi-head row count mismatch")
+
+    output_dir = inference_root / SPARSE_DYAD_REPAIR_DIRNAME
+    if output_dir.exists():
+        raise FileExistsError(f"Refusing to overwrite sparse-dyad repair sidecar: {output_dir}")
+    selector = recovery.selector_config_from_model(model_payload)
+    output_dir.mkdir()
+    overlay_dir = output_dir / "overlays"
+    overlay_dir.mkdir()
+    lane_rows: list[dict[str, Any]] = []
+    diagnostics_rows: list[dict[str, Any]] = []
+    overlay_paths: list[Path] = []
+    accepted_repair_count = 0
+
+    config = {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "sparse_stem_dyad_repair_configuration",
+        "version": SPARSE_DYAD_REPAIR_SIDECAR_VERSION,
+        "config_id": sparse_repair.CONFIG_ID,
+        "parameters": dict(sparse_repair.PARAMETERS),
+        "selector": selector,
+        "truth_accessed": False,
+        "truth_used": False,
+    }
+    _write_json(output_dir / "config.json", config)
+
+    for row, upstream_row in zip(rows, upstream_rows, strict=True):
+        lane, diagnostics, current, repaired = _sparse_dyad_repair_row(
+            row,
+            upstream_row=upstream_row,
+            selector=selector,
+            expected_target=expected_target,
+        )
+        lane_rows.append(lane)
+        diagnostics_rows.append(diagnostics)
+        accepted_repair_count += int(lane["lanes"]["sparse_dyad_repair"]["accepted"])
+        measure_index = int(row["identity"]["automatic_measure_index"])
+        overlay_path = overlay_dir / f"measure_{measure_index:03d}.png"
+        _write_sparse_dyad_repair_overlay(
+            row,
+            current=current,
+            repaired=repaired,
+            output_path=overlay_path,
+        )
+        overlay_paths.append(overlay_path)
+
+    _write_jsonl(output_dir / "repair_lane.jsonl", lane_rows)
+    _write_jsonl(output_dir / "diagnostics.jsonl", diagnostics_rows)
+    _write_contact_sheet(overlay_paths, output_dir / "contact_sheet.png")
+    artifacts = _recursive_artifact_records(output_dir)
+    manifest = {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "sparse_stem_dyad_repair_sidecar_manifest",
+        "version": SPARSE_DYAD_REPAIR_SIDECAR_VERSION,
+        "status": "spike_only_not_canonical",
+        "truth_accessed": False,
+        "truth_used": False,
+        "create_once": True,
+        "target": dict(expected_target),
+        "measure_count": len(lane_rows),
+        "accepted_repair_count": accepted_repair_count,
+        "contract": {
+            "baseline_predictions_unchanged": True,
+            "baseline_canonical_predictions_unchanged": True,
+            "chains_exact_multihead_candidate_lane": True,
+            "replacement_candidate_selection_only": True,
+            "accepted_repairs_require_paired_augmentation_dot_evidence": True,
+            "accepted_repairs_form_one_onset_group": True,
+            "canonical_pitch_and_rhythm_recomposition_applied": False,
+            "freeze_supported": False,
+        },
+        "baseline": {
+            "predictions": {
+                "path": "../predictions.jsonl",
+                "sha256": _sha256(inference_root / "predictions.jsonl"),
+            },
+            "detailed_inference": {
+                "path": "../inference.jsonl",
+                "sha256": _sha256(inference_root / "inference.jsonl"),
+            },
+        },
+        "upstream_multihead": {
+            "manifest": {
+                "path": f"../{MULTIHEAD_RECOVERY_DIRNAME}/manifest.json",
+                "sha256": _sha256(upstream_dir / "manifest.json"),
+            },
+            "recovery_lane": {
+                "path": f"../{MULTIHEAD_RECOVERY_DIRNAME}/recovery_lane.jsonl",
+                "sha256": _sha256(upstream_dir / "recovery_lane.jsonl"),
+            },
+        },
+        "model_and_training": dict(model_and_training),
+        "implementation": _file_record(Path(__file__)),
+        "repair_implementation": _file_record(Path(sparse_repair.__file__)),
+        "artifacts": artifacts,
+    }
+    _write_json(output_dir / "manifest.json", manifest)
+    _verify_sparse_dyad_repair_sidecar(output_dir)
+    return {
+        "manifest_sha256": _sha256(output_dir / "manifest.json"),
+        "repair_lane_sha256": _sha256(output_dir / "repair_lane.jsonl"),
+        "diagnostics_sha256": _sha256(output_dir / "diagnostics.jsonl"),
+        "accepted_repair_count": accepted_repair_count,
+        "measure_count": len(lane_rows),
+    }
+
+
+def _sparse_dyad_repair_row(
+    row: Mapping[str, Any],
+    *,
+    upstream_row: Mapping[str, Any],
+    selector: Mapping[str, Any],
+    expected_target: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    sparse_repair = _sparse_repair_module()
+    if row.get("truth_used") is not False or upstream_row.get("truth_used") is not False:
+        raise ValueError("Sparse-dyad repair input is not truth-blind")
+    identity = row.get("identity")
+    if not isinstance(identity, Mapping) or upstream_row.get("identity") != identity:
+        raise ValueError("Sparse-dyad repair identity mismatch")
+    if str(identity.get("slug")) != str(expected_target["slug"]) or int(
+        identity.get("system_index", -1)
+    ) != int(expected_target["system_index"]):
+        raise ValueError("Sparse-dyad repair target substitution")
+
+    upstream_lane = upstream_row.get("lanes", {}).get("edge_safe_stem_multihead_recovery")
+    if not isinstance(upstream_lane, Mapping):
+        raise ValueError("Sparse-dyad repair has no upstream multi-head lane")
+    upstream_candidates = upstream_lane.get("candidate_lane")
+    if not isinstance(upstream_candidates, list):
+        raise ValueError("Sparse-dyad repair upstream candidate lane is invalid")
+    candidate_by_id = {
+        str(candidate["candidate_id"]): candidate
+        for candidate in sparse_repair._normalized_candidates(row)
+    }
+    current = []
+    for recorded in upstream_candidates:
+        candidate_id = str(recorded["candidate_id"])
+        candidate = candidate_by_id.get(candidate_id)
+        if candidate is None:
+            raise ValueError("Sparse-dyad upstream lane introduced an unknown candidate")
+        expected_center = (
+            round(float(candidate["center"]["x"]), 3),
+            round(float(candidate["center"]["y"]), 3),
+        )
+        actual_center = (
+            round(float(recorded["center"]["x"]), 3),
+            round(float(recorded["center"]["y"]), 3),
+        )
+        if actual_center != expected_center or float(recorded["score"]) != float(
+            candidate["score"]
+        ):
+            raise ValueError("Sparse-dyad upstream candidate identity drift")
+        current.append(candidate)
+
+    stem_features, stem_metadata = recovery.candidate_local_stem_features(row)
+    decision = sparse_repair.propose_sparse_shared_stem_dyad(
+        row,
+        selector,
+        current,
+        stem_features,
+    )
+    repaired = current
+    if decision["accepted"]:
+        repaired = [candidate_by_id[candidate_id] for candidate_id in decision["proposed_ids"]]
+        chosen = decision.get("chosen_pair")
+        if not isinstance(chosen, Mapping) or not chosen.get("augmentation_dot_pairs"):
+            raise ValueError("Accepted sparse-dyad repair lacks augmentation-dot evidence")
+
+    current_ids = {str(candidate["candidate_id"]) for candidate in current}
+    repaired_ids = {str(candidate["candidate_id"]) for candidate in repaired}
+    group_by_id = _sparse_group_indices(row, selector=selector, candidates=repaired)
+    if decision["accepted"] and len(set(group_by_id.values())) != 1:
+        raise ValueError("Accepted sparse-dyad repair did not form one onset group")
+    repaired_lane = [
+        _sparse_candidate_record(
+            candidate,
+            onset_group_index=group_by_id[str(candidate["candidate_id"])],
+            sparse_repair_added=str(candidate["candidate_id"]) not in current_ids,
+        )
+        for candidate in repaired
+    ]
+    repaired_lane.sort(key=_multihead_candidate_sort_key)
+    lane = {
+        "schema_version": SCHEMA_VERSION,
+        "identity": dict(identity),
+        "truth_accessed": False,
+        "truth_used": False,
+        "source": dict(row["source"]),
+        "lanes": {
+            "edge_safe_stem_multihead_recovery": dict(upstream_lane),
+            "sparse_dyad_repair": {
+                "config_id": sparse_repair.CONFIG_ID,
+                "candidate_lane": repaired_lane,
+                "accepted": bool(decision["accepted"]),
+                "added_candidate_ids": sorted(repaired_ids - current_ids),
+                "displaced_candidate_ids": sorted(current_ids - repaired_ids),
+                "canonical_prediction_materialized": False,
+            },
+        },
+    }
+    diagnostics = {
+        "schema_version": SCHEMA_VERSION,
+        "identity": dict(identity),
+        "truth_accessed": False,
+        "truth_used": False,
+        "upstream_candidate_ids": sorted(current_ids),
+        "repaired_candidate_ids": sorted(repaired_ids),
+        "sparse_repair": decision,
+        "candidate_stem_features": {
+            candidate_id: dict(stem_features[candidate_id])
+            for candidate_id in sorted(stem_features)
+        },
+        "stem_feature_metadata": stem_metadata,
+    }
+    return lane, diagnostics, current, repaired
+
+
+def _sparse_group_indices(
+    row: Mapping[str, Any],
+    *,
+    selector: Mapping[str, Any],
+    candidates: Sequence[Mapping[str, Any]],
+) -> dict[str, int]:
+    x_radius = recovery._staff_spacing(row) * float(selector["nms_x_spaces"])
+    groups = recovery._horizontal_candidate_groups(candidates, x_radius)
+    result = {
+        str(candidate["candidate_id"]): group_index
+        for group_index, group in enumerate(groups, start=1)
+        for candidate in group
+    }
+    if len(result) != len(candidates):
+        raise ValueError("Sparse-dyad onset grouping lost candidate identity")
+    return result
+
+
+def _sparse_candidate_record(
+    candidate: Mapping[str, Any],
+    *,
+    onset_group_index: int,
+    sparse_repair_added: bool,
+) -> dict[str, Any]:
+    source = candidate.get("source")
+    bbox = source.get("bbox") if isinstance(source, Mapping) else candidate.get("bbox")
+    return {
+        "candidate_id": str(candidate["candidate_id"]),
+        "center": {
+            "x": round(float(candidate["center"]["x"]), 3),
+            "y": round(float(candidate["center"]["y"]), 3),
+        },
+        "score": float(candidate["score"]),
+        "onset_group_index": int(onset_group_index),
+        "sparse_repair_added": sparse_repair_added,
+        **({"bbox": dict(bbox)} if isinstance(bbox, Mapping) else {}),
+    }
+
+
+def _write_sparse_dyad_repair_overlay(
+    row: Mapping[str, Any],
+    *,
+    current: Sequence[Mapping[str, Any]],
+    repaired: Sequence[Mapping[str, Any]],
+    output_path: Path,
+) -> None:
+    image_path = Path(str(row["source"]["image"]))
+    if not image_path.is_absolute():
+        image_path = REPO_ROOT / image_path
+    if _sha256(image_path) != str(row["source"]["sha256"]):
+        raise ValueError(f"Sparse-dyad overlay source hash drift: {image_path}")
+    with Image.open(image_path) as opened:
+        image = opened.convert("RGB")
+    draw = ImageDraw.Draw(image)
+    draw.text((4, 4), "blue: retained | green: added | red: displaced", fill=(0, 0, 0))
+    current_by_id = {str(candidate["candidate_id"]): candidate for candidate in current}
+    repaired_by_id = {str(candidate["candidate_id"]): candidate for candidate in repaired}
+    categories = (
+        ((20, 90, 220), set(current_by_id) & set(repaired_by_id), current_by_id),
+        ((0, 160, 70), set(repaired_by_id) - set(current_by_id), repaired_by_id),
+        ((210, 35, 35), set(current_by_id) - set(repaired_by_id), current_by_id),
+    )
+    for color, candidate_ids, candidates in categories:
+        for candidate_id in sorted(candidate_ids):
+            source = candidates[candidate_id].get("source")
+            bbox = source.get("bbox") if isinstance(source, Mapping) else None
+            if not isinstance(bbox, Mapping):
+                continue
+            bounds = tuple(int(bbox[key]) for key in ("left", "top", "right", "bottom"))
+            draw.rectangle(bounds, outline=color, width=2)
+            draw.text((bounds[0], max(0, bounds[1] - 11)), candidate_id, fill=color)
+    image.save(output_path)
+
+
+def _verify_sparse_dyad_repair_sidecar(output_dir: Path) -> None:
+    sparse_repair = _sparse_repair_module()
+    manifest = _read_json(output_dir / "manifest.json")
+    if (
+        manifest.get("kind") != "sparse_stem_dyad_repair_sidecar_manifest"
+        or manifest.get("version") != SPARSE_DYAD_REPAIR_SIDECAR_VERSION
+        or manifest.get("truth_used") is not False
+    ):
+        raise ValueError("Sparse-dyad repair sidecar manifest contract mismatch")
+    for record in manifest["artifacts"].values():
+        path = output_dir / str(record["path"])
+        if _sha256(path) != str(record["sha256"]):
+            raise ValueError(f"Sparse-dyad repair sidecar artifact hash drift: {path}")
+    for section in ("baseline", "upstream_multihead"):
+        for record in manifest[section].values():
+            path = output_dir / str(record["path"])
+            if _sha256(path) != str(record["sha256"]):
+                raise ValueError(f"Sparse-dyad repair {section} artifact hash drift: {path}")
+
+    inference_root = output_dir.parent
+    upstream_dir = inference_root / MULTIHEAD_RECOVERY_DIRNAME
+    _verify_multihead_recovery_sidecar(upstream_dir)
+    config = _read_json(output_dir / "config.json")
+    if (
+        config.get("config_id") != sparse_repair.CONFIG_ID
+        or config.get("parameters") != sparse_repair.PARAMETERS
+        or config.get("truth_used") is not False
+    ):
+        raise ValueError("Sparse-dyad repair configuration drift")
+    rows = _read_jsonl(inference_root / "inference.jsonl")
+    upstream_rows = _read_jsonl(upstream_dir / "recovery_lane.jsonl")
+    lane_rows = _read_jsonl(output_dir / "repair_lane.jsonl")
+    diagnostics_rows = _read_jsonl(output_dir / "diagnostics.jsonl")
+    if not (len(rows) == len(upstream_rows) == len(lane_rows) == len(diagnostics_rows)):
+        raise ValueError("Sparse-dyad repair sidecar row count mismatch")
+    accepted_repair_count = 0
+    for row, upstream_row, lane, diagnostics in zip(
+        rows,
+        upstream_rows,
+        lane_rows,
+        diagnostics_rows,
+        strict=True,
+    ):
+        expected_lane, expected_diagnostics, _, _ = _sparse_dyad_repair_row(
+            row,
+            upstream_row=upstream_row,
+            selector=config["selector"],
+            expected_target=manifest["target"],
+        )
+        if lane != expected_lane or diagnostics != expected_diagnostics:
+            raise ValueError("Sparse-dyad repair sidecar drifted from the fixed rule")
+        accepted_repair_count += int(lane["lanes"]["sparse_dyad_repair"]["accepted"])
+    if int(manifest.get("measure_count", -1)) != len(lane_rows):
+        raise ValueError("Sparse-dyad repair manifest measure count mismatch")
+    if int(manifest.get("accepted_repair_count", -1)) != accepted_repair_count:
+        raise ValueError("Sparse-dyad repair manifest accepted count mismatch")
+
+
+def _sparse_repair_module() -> Any:
+    # The consumed experiment imports held-out evaluators, so load it only after this
+    # reusable runner is fully initialized to avoid a module-import cycle.
+    from scripts.experiments import spike_consumed_sparse_stem_dyad_repair
+
+    return spike_consumed_sparse_stem_dyad_repair
 
 
 def _verify_inference_binding(

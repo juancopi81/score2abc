@@ -4,6 +4,7 @@ import pytest
 from PIL import Image, ImageDraw
 
 from scripts.experiments import run_third_score_heldout_inference as spike
+from scripts.experiments import spike_consumed_sparse_stem_dyad_repair as sparse_repair
 
 
 def test_default_artifacts_stay_unchanged_and_opt_in_writes_additive_sidecar(
@@ -136,9 +137,127 @@ def test_cli_requires_no_freeze_for_multihead_recovery(
     assert "requires --no-freeze" in capsys.readouterr().err
 
 
+def test_sparse_dyad_repair_chains_multihead_without_changing_canonical_artifacts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prepared, model_dir = _stub_inference_environment(
+        tmp_path,
+        monkeypatch,
+        include_sparse_candidates=True,
+    )
+    monkeypatch.setattr(
+        sparse_repair,
+        "propose_sparse_shared_stem_dyad",
+        lambda *_args, **_kwargs: {
+            "status": "accepted",
+            "accepted": True,
+            "current_ids": ["c001", "c002"],
+            "proposed_ids": ["c003", "c004"],
+            "displaced": [
+                {"candidate_id": "c001", "visually_weak": True},
+                {"candidate_id": "c002", "visually_weak": True},
+            ],
+            "chosen_pair": {
+                "candidate_ids": ["c003", "c004"],
+                "augmentation_dot_pairs": [["c005", "c006"]],
+            },
+        },
+    )
+
+    baseline = spike.materialize_third_score_inference(
+        prepared,
+        model_dir=model_dir,
+        inference_dirname="sparse_baseline",
+    )
+    opt_in = spike.materialize_third_score_inference(
+        prepared,
+        model_dir=model_dir,
+        inference_dirname="with_sparse_repair",
+        multihead_recovery=True,
+        sparse_dyad_repair=True,
+    )
+
+    baseline_dir = Path(baseline["inference_dir"])
+    opt_in_dir = Path(opt_in["inference_dir"])
+    assert (baseline_dir / "predictions.jsonl").read_bytes() == (
+        opt_in_dir / "predictions.jsonl"
+    ).read_bytes()
+    assert (baseline_dir / "inference.jsonl").read_bytes() == (
+        opt_in_dir / "inference.jsonl"
+    ).read_bytes()
+
+    sidecar_dir = opt_in_dir / spike.SPARSE_DYAD_REPAIR_DIRNAME
+    manifest = spike._read_json(sidecar_dir / "manifest.json")
+    lanes = spike._read_jsonl(sidecar_dir / "repair_lane.jsonl")
+    diagnostics = spike._read_jsonl(sidecar_dir / "diagnostics.jsonl")
+    lane = lanes[0]["lanes"]["sparse_dyad_repair"]
+    assert manifest["accepted_repair_count"] == 1
+    assert manifest["contract"]["chains_exact_multihead_candidate_lane"] is True
+    assert manifest["contract"]["replacement_candidate_selection_only"] is True
+    assert manifest["upstream_multihead"]["recovery_lane"]["sha256"] == spike._sha256(
+        opt_in_dir / spike.MULTIHEAD_RECOVERY_DIRNAME / "recovery_lane.jsonl"
+    )
+    assert lane["accepted"] is True
+    assert lane["added_candidate_ids"] == ["c003", "c004"]
+    assert lane["displaced_candidate_ids"] == ["c001", "c002"]
+    assert [candidate["candidate_id"] for candidate in lane["candidate_lane"]] == [
+        "c003",
+        "c004",
+    ]
+    assert {candidate["onset_group_index"] for candidate in lane["candidate_lane"]} == {1}
+    assert diagnostics[0]["sparse_repair"]["chosen_pair"]["augmentation_dot_pairs"]
+    assert (sidecar_dir / "overlays/measure_001.png").is_file()
+    assert opt_in["sparse_dyad_repair"]["accepted_repair_count"] == 1
+    spike._verify_sparse_dyad_repair_sidecar(sidecar_dir)
+
+    optional = spike._read_json(opt_in_dir / "manifest.json")["optional_lanes"]
+    assert set(optional) == {
+        "edge_safe_stem_multihead_recovery",
+        "sparse_stem_dyad_repair",
+    }
+
+
+def test_sparse_dyad_repair_requires_multihead_and_no_freeze(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    result = spike.main([str(tmp_path / "missing.json"), "--sparse-dyad-repair"])
+
+    assert result == 1
+    assert "requires --multihead-recovery and --no-freeze" in capsys.readouterr().err
+
+    with pytest.raises(ValueError, match="requires the multi-head recovery sidecar"):
+        spike.materialize_third_score_inference(
+            tmp_path / "missing.json",
+            sparse_dyad_repair=True,
+        )
+
+
+def test_sparse_dyad_repair_rejects_upstream_hash_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prepared, model_dir = _stub_inference_environment(tmp_path, monkeypatch)
+    result = spike.materialize_third_score_inference(
+        prepared,
+        model_dir=model_dir,
+        multihead_recovery=True,
+        sparse_dyad_repair=True,
+    )
+    inference_dir = Path(result["inference_dir"])
+    upstream_path = inference_dir / spike.MULTIHEAD_RECOVERY_DIRNAME / "recovery_lane.jsonl"
+    upstream_path.write_text(upstream_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="upstream_multihead artifact hash drift"):
+        spike._verify_sparse_dyad_repair_sidecar(inference_dir / spike.SPARSE_DYAD_REPAIR_DIRNAME)
+
+
 def _stub_inference_environment(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    *,
+    include_sparse_candidates: bool = False,
 ) -> tuple[Path, Path]:
     namespace = tmp_path / "namespace"
     namespace.mkdir()
@@ -155,6 +274,11 @@ def _stub_inference_environment(
         draw.line((0, y, 119, y), fill="black", width=1)
     draw.ellipse((55, 45, 65, 55), fill="black")
     draw.ellipse((57, 65, 67, 75), fill="black")
+    if include_sparse_candidates:
+        draw.ellipse((75, 40, 85, 50), fill="black")
+        draw.ellipse((77, 50, 87, 60), fill="black")
+        draw.ellipse((94, 42, 96, 44), fill="black")
+        draw.ellipse((95, 52, 97, 54), fill="black")
     image.save(image_path)
 
     identity = {
@@ -190,6 +314,24 @@ def _stub_inference_environment(
             "bbox": {"left": 57, "top": 65, "right": 67, "bottom": 75},
         },
     ]
+    if include_sparse_candidates:
+        candidate_predictions.extend(
+            [
+                {
+                    "candidate_id": candidate_id,
+                    "detector_rank": detector_rank,
+                    "score": -0.2,
+                    "center": {"x": center_x, "y": center_y},
+                    "bbox": bbox,
+                }
+                for candidate_id, detector_rank, center_x, center_y, bbox in (
+                    ("c003", 3, 80.0, 45.0, {"left": 75, "top": 40, "right": 85, "bottom": 50}),
+                    ("c004", 4, 82.0, 55.0, {"left": 77, "top": 50, "right": 87, "bottom": 60}),
+                    ("c005", 5, 95.0, 43.0, {"left": 94, "top": 42, "right": 96, "bottom": 44}),
+                    ("c006", 6, 96.0, 53.0, {"left": 95, "top": 52, "right": 97, "bottom": 54}),
+                )
+            ]
+        )
     prediction = {
         "identity": identity,
         "notes": [
@@ -284,6 +426,13 @@ def _stub_inference_environment(
             ("c002", 0.9, candidate_predictions[1]),
         )
     }
+    for candidate in candidate_predictions[2:]:
+        stem_features[str(candidate["candidate_id"])] = {
+            "score": 0.1,
+            "direction": "none",
+            "x": None,
+            "candidate_bbox": candidate["bbox"],
+        }
     monkeypatch.setattr(
         spike.recovery,
         "candidate_local_stem_features",

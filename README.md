@@ -339,21 +339,50 @@ crops `3 -> 6`; Alcira, La Chata, and No lo Creas remain unchanged. The report i
 
 `out/vlm_melody_consumed_training/sparse_stem_dyad_repair_v3/report.json`
 
-This is consumed model-selection evidence, not runtime promotion. The exact rule is now
+This is consumed model-selection evidence, not runtime promotion. The exact rule was then
 frozen on previously unseen Desde Lejos system 7. Ten automatic crops were sealed before
 truth; the rule accepts one replacement in automatic measure 2 and rejects the other nine.
-The accepted overlay places the proposed pair on two vertically aligned hollow heads and
-displaces two anchors below the staff, but that remains a prediction until independent
-review. The sealed manifest is:
+The sealed manifest is:
 
 `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/frozen/sealed_manifest.json`
 
-Place the finalized ten-measure transcription at:
+The finalized ten-measure transcription and raw-only coordinate review are stored at:
 
 `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/desde_lejos_system_007.musicxml`
 
-Do not rerun the gate. The evaluator must verify the seal before opening MusicXML and must
-score raw-image head/dot identity in addition to note, pitch, and onset-group structure.
+The create-once evaluator verifies the complete seal before opening either input:
+
+```bash
+uv run python scripts/experiments/evaluate_independent_sparse_dyad_repair_gate.py \
+  <sealed-manifest> \
+  --musicxml <desde-lejos-system-7.musicxml> \
+  --raw-review <raw-image-review.json>
+```
+
+`evaluation_v1` confirms the proposed two hollow heads and one frozen augmentation-dot
+pair. In automatic measure 2, the comparison lane predicts staff positions `[-5,-5]` as
+two singleton groups; the repair lane predicts the exact `[2,4]` (`G4,B4`) dyad in one
+onset group. Across all ten crops, exact staff positions improve `9 -> 11`, exact chord-size
+matches `8 -> 9`, and exact-structure crops `2 -> 3`; note-count F1 remains `0.941177`
+because the replacement preserves two notes. The rule passes its independent bounded gate
+and is now available as a chained opt-in spike sidecar, but it is not enabled in the default
+pipeline:
+
+```bash
+uv run python scripts/experiments/run_third_score_heldout_inference.py \
+  <prepared-manifest> \
+  --model-dir <model-dir> \
+  --inference-dirname <new-name> \
+  --multihead-recovery \
+  --sparse-dyad-repair \
+  --no-freeze
+```
+
+This writes `sparse_stem_dyad_repair_v1/` beside the multi-head sidecar. It pins the exact
+upstream lane, replays the v3 rule during verification, and records replacement diagnostics
+and overlays. Canonical predictions remain byte-for-byte unchanged, and the canonical
+freezer rejects the optional run. Omit `--sparse-dyad-repair` to retain the earlier
+multi-head-only behavior. Do not rerun the gate or overwrite `evaluation_v1`.
 
 The visual key slice now handles consumed initial one-flat and two-sharp
 signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its

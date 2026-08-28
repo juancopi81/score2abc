@@ -1491,9 +1491,9 @@ The frozen rule accepts one replacement in automatic measure 2 and rejects the o
 - paired weak-dot evidence includes `d029,d023` and `d035,d038`;
 - the proposed pair is assigned one onset group.
 
-This is a prediction, not an accuracy result. The pre-truth overlay looks plausible, with the
-proposed boxes on the two hollow heads and displaced boxes in handwritten text below the
-staff, but runtime promotion is forbidden until independent review.
+At freeze time this was a prediction, not an accuracy result. The pre-truth overlay looked
+plausible, with proposed boxes on two hollow heads and displaced boxes in handwritten text
+below the staff, but no promotion decision was made before independent review.
 
 Authoritative local artifacts:
 
@@ -1505,7 +1505,75 @@ The expected independent transcription path is:
 
 `out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/desde_lejos_system_007.musicxml`
 
-Do not rerun or overwrite the preparation, inference, paired lanes, or freeze. The next
-evaluator must verify every seal before reading that MusicXML and must require a raw-image-only
-review of head centers and augmentation dots. MusicXML count/pitch agreement alone is not a
-sufficient promotion gate.
+Do not rerun or overwrite the preparation, inference, paired lanes, or freeze.
+
+### Desde Lejos independent dotted-hollow evaluation
+
+The finalized MusicXML contains ten physical measures, matching the ten frozen crops, so the
+evaluator uses a deterministic one-to-one mapping. A fresh review received only automatic
+crop 2's raw `173x203` image, with no overlay, candidate IDs, or MusicXML. It marked two
+hollow noteheads sharing one stem near `(68,90)` and `(64,112)`, plus two augmentation dots
+near `(94,85)` and `(95,110)`. After the review was fixed, the create-once evaluator:
+
+1. verified every frozen hash and current fixed-rule implementation;
+2. replayed the exact multi-head comparison and v3 sparse-repair contract;
+3. matched raw-only centers to frozen candidates;
+4. opened MusicXML and scored note count, natural-diatonic staff position, and frozen
+   onset-group chord sizes.
+
+Raw-image results:
+
+- proposed heads `d006,d012`: both confirmed;
+- displaced anchors `d031,d049`: neither appears in the reviewed notehead set;
+- augmentation-dot pair `d029,d023`: confirmed;
+- alternate weak pair `d035,d038`: not confirmed, but it is not required once one aligned
+  pair supplies the fixed rule's two dot candidates.
+
+MusicXML results:
+
+| Metric | Multi-head comparison | Sparse repair | Delta |
+|---|---:|---:|---:|
+| Predicted notes | 25 | 25 | 0 |
+| Note-count F1 | 0.941177 | 0.941177 | 0 |
+| Exact staff positions | 9 | 11 | +2 |
+| Ordered staff-position accuracy | 0.333333 | 0.407407 | +0.074074 |
+| Exact chord-size matches | 8 | 9 | +1 |
+| Exact-structure crops | 2 | 3 | +1 |
+
+The accepted automatic measure 2 is decisive: the comparison lane's two below-staff anchors
+produce `[-5,-5]` in two singleton onset groups, while the replacement produces exact
+`[2,4]` (`G4,B4`) in one two-note group. The rule therefore passes this bounded independent
+gate and is eligible for opt-in spike integration. It is not enabled in the default pipeline;
+meter, duration, rests, and chromatic key accuracy remain outside this gate.
+
+Authoritative evaluation:
+
+`out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/evaluation_v1/report.json`
+
+### Dotted-hollow opt-in integration
+
+The passed rule is available as a second spike-only sidecar chained after the multi-head
+lane:
+
+```bash
+uv run python scripts/experiments/run_third_score_heldout_inference.py \
+  <prepared-manifest> --model-dir <model-dir> --inference-dirname <new-name> \
+  --multihead-recovery --sparse-dyad-repair --no-freeze
+```
+
+The run writes `edge_safe_stem_multihead_recovery_v1/` first and then
+`sparse_stem_dyad_repair_v1/`. The sparse manifest pins both the upstream multi-head
+manifest and `recovery_lane.jsonl`; verification replays the exact v3 decision for every
+measure. An accepted replacement must retain paired augmentation-dot evidence and collapse
+to one onset group. The sidecar records retained, added, and displaced candidate IDs plus
+per-measure overlays.
+
+This is deliberately not a second canonical inference path. Baseline `predictions.jsonl`
+and `inference.jsonl` are unchanged, no pitch/rhythm prediction is recomposed, and the
+canonical freezer rejects any manifest with optional lanes. The next controlled slice is
+to compose this repaired candidate lane with bounded pitch/key and rhythm/rest inference,
+then freeze that full-event lane on a fresh score before considering default integration.
+The historical Desde Lejos verifier still checks every frozen artifact by exact hash; for
+the evolved inference runner it additionally compares the evaluation-time AST surface with
+the frozen source, excluding only materialization and optional-sidecar functions that the
+evaluator never executes.
