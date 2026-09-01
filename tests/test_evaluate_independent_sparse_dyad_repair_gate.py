@@ -102,11 +102,21 @@ def _read_json():
         """\
 BASELINE = 1
 SPARSE_DYAD_REPAIR_DIRNAME = 'sidecar'
+INDEPENDENT_FULL_EVENT_INFERENCE_VERSION = 'new-gate'
+GATE_CONFIGS = {'new': 'gate'}
+
+from scripts.experiments import freeze_independent_full_event_gate
 
 def materialize_third_score_inference():
     return 'new optional lane'
 
 def _sparse_dyad_repair_row():
+    return 'new'
+
+def _multihead_recovery_row():
+    return 'new'
+
+def _verify_multihead_baseline():
     return 'new'
 
 def _read_json():

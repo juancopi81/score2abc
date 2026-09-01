@@ -60,17 +60,25 @@ RUNNER_EVALUATION_EXCLUDED_FUNCTIONS = {
     "materialize_third_score_inference",
     "freeze_inference",
     "_materialize_sparse_dyad_repair_sidecar",
+    "_multihead_recovery_row",
+    "_verify_multihead_baseline",
+    "_verify_multihead_recovery_sidecar",
     "_sparse_dyad_repair_row",
     "_sparse_group_indices",
     "_sparse_candidate_record",
     "_write_sparse_dyad_repair_overlay",
     "_verify_sparse_dyad_repair_sidecar",
     "_sparse_repair_module",
+    "_verify_named_relative_records",
+    "_verify_sidecar_artifact_inventory",
 }
 RUNNER_EVALUATION_EXCLUDED_CONSTANTS = {
+    "GATE_CONFIGS",
+    "INDEPENDENT_FULL_EVENT_INFERENCE_VERSION",
     "SPARSE_DYAD_REPAIR_SIDECAR_VERSION",
     "SPARSE_DYAD_REPAIR_DIRNAME",
 }
+RUNNER_EVALUATION_EXCLUDED_IMPORTS = {"freeze_independent_full_event_gate"}
 RAW_REVIEW_KIND = "independent_sparse_dyad_repair_raw_image_review"
 RAW_REVIEW_STATUS = "completed_after_frozen_predictions"
 DEFAULT_HEAD_TOLERANCE_PX = 7.0
@@ -792,6 +800,10 @@ def _runner_evaluation_surface(path: Path) -> str:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     retained = []
     for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and any(
+            alias.name in RUNNER_EVALUATION_EXCLUDED_IMPORTS for alias in node.names
+        ):
+            continue
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and (
             node.name in RUNNER_EVALUATION_EXCLUDED_FUNCTIONS
         ):

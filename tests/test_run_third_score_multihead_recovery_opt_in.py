@@ -189,6 +189,44 @@ def test_multihead_baseline_uses_detailed_anchors_when_meter_prediction_has_no_p
     spike._verify_multihead_baseline(row, baseline, canonical)
 
 
+def test_multihead_baseline_allows_meter_decoder_to_drop_a_selected_anchor() -> None:
+    row = {
+        "truth_used": False,
+        "automatic_anchors": [
+            {"center": {"x": 30.0, "y": 50.0}, "source": {"candidate_id": "c001"}},
+            {"center": {"x": 90.0, "y": 50.0}, "source": {"candidate_id": "c002"}},
+        ],
+    }
+    baseline = [
+        {"candidate_id": "c001", "center": {"x": 30.0, "y": 50.0}},
+        {"candidate_id": "c002", "center": {"x": 90.0, "y": 50.0}},
+    ]
+    canonical = {
+        "notes": [{"pitch_midi": 71, "onset_beats": 0, "duration_beats": 3}],
+    }
+
+    spike._verify_multihead_baseline(row, baseline, canonical)
+
+
+def test_multihead_baseline_rejects_canonical_notes_without_selected_anchors() -> None:
+    row = {
+        "truth_used": False,
+        "automatic_anchors": [
+            {"center": {"x": 30.0, "y": 50.0}, "source": {"candidate_id": "c001"}},
+        ],
+    }
+    baseline = [{"candidate_id": "c001", "center": {"x": 30.0, "y": 50.0}}]
+    canonical = {
+        "notes": [
+            {"pitch_midi": 71, "onset_beats": 0, "duration_beats": 1},
+            {"pitch_midi": 72, "onset_beats": 1, "duration_beats": 1},
+        ],
+    }
+
+    with pytest.raises(ValueError, match="exceeds"):
+        spike._verify_multihead_baseline(row, baseline, canonical)
+
+
 def test_sparse_dyad_repair_chains_multihead_without_changing_canonical_artifacts(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

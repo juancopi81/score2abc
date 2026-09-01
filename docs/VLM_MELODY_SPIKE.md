@@ -1622,3 +1622,137 @@ withholds expected meter. The materializer therefore exits without creating eith
 temporary full-event directory. The next accuracy claim must freeze this complete composition on
 a genuinely fresh score with truth-blind meter context and at least one candidate recovery, then
 score pitch, onset, duration, rests, and meter after the seal is fixed.
+
+### Tío Clímaco fresh full-event gate (failed before truth)
+
+Collection item 94, Tío Clímaco by Bonifacio Bautista, was selected from a new
+local-restricted PDF before transcription. System 7 is a single-staff continuation system.
+Its first detected barline followed a short empty ruled prefix, so a conservative alignment
+rule now trims that prefix only when the barline is strong, lies 4-12% into the crop, and the
+preceding staff area has almost no non-staff ink. The real system then yields eight physical
+measure crops.
+
+Preparation pins treble clef plus the pre-transcription metadata `3/4` and
+`1 flat(s): Bb`. The automatic initial-key reader found a one-flat candidate but failed its
+strict acceptance gate because of nearby clef fragments; that result remains an explicit
+`unknown` diagnostic and is not used as context. No target MusicXML or ground truth was opened.
+
+The complete candidate replay is create-once and truth-blind:
+
+```bash
+uv run python scripts/experiments/freeze_independent_full_event_gate.py \
+  out/local_restricted
+uv run python scripts/experiments/run_third_score_heldout_inference.py \
+  <prepared-manifest> \
+  --model-dir out/vlm_melody_consumed_training/cross_score_notehead_v1_replay_20260722 \
+  --inference-dirname full_event_inference_v1 \
+  --multihead-recovery --sparse-dyad-repair --no-freeze
+```
+
+The score-disjoint selector emits eight rows. Multi-head recovery adds zero companions. The
+sparse dotted-hollow rule accepts one replacement in automatic crop 3, moving the candidate
+lane from below-staff handwritten text onto the visible hollow-head area. This is a prediction,
+not an accuracy result.
+
+Full-event composition then fails closed, as intended:
+
+| Automatic crop | Status | Observed beats | Requested beats |
+|---|---|---:|---:|
+| 1 | request-only meter fallback rejected | 4.5 | 3 |
+| 2 | materialized | 3 | 3 |
+| 3 | request-only meter fallback rejected | 0.5 | 3 |
+| 4 | materialized | 1 | 3 |
+| 5 | materialized | 1 | 3 |
+| 6 | materialized | 3 | 3 |
+| 7 | materialized | 1.5 | 3 |
+| 8 | materialized | 3 | 3 |
+
+Crops 4, 5, and 7 are completed by the existing visually grounded meter-gap resolver; crops
+1 and 3 would require request-only fabricated completion and therefore block publication.
+No `repaired_full_event_v1/` directory and no final full-event seal were created. Do not add a
+transcription to this v1 namespace: it is a pre-truth robustness failure, not a heldout scoring
+gate.
+
+The Tío-specific final sealer exists to complete this preregistered gate only if every check had
+passed:
+
+```bash
+uv run python scripts/experiments/seal_independent_full_event_gate.py \
+  <repaired-full-event-sidecar> --model-dir <model-dir>
+```
+
+It re-verifies and snapshots the prepared manifest, baseline inference, multi-head lane,
+sparse lane, repaired full-event manifest, model manifest, and implementation before MusicXML
+is allowed. Tío failed before this step, and the sealer's target contract must not be reused for a
+different score. The next engineering target is visual duration/rest decoding on consumed evidence,
+especially dotted hollow notes and overfull trailing-anchor cases; this Tío Clímaco attempt must
+not be tuned into a fresh heldout success.
+
+### Consumed dotted-half duration evidence
+
+The sparse-dyad detector already requires a shared stem, two vertically aligned hollow-head
+candidates, and weak augmentation-dot candidates to their right. A new truth-blind classifier
+now interprets an accepted pattern as one written dotted-half dyad only when the candidate lane
+contains exactly those two heads in one onset group and the allowed meter is three beats. It
+fails closed in every other meter and on malformed or truth-bearing evidence.
+
+The create-once consumed evaluator is:
+
+```bash
+uv run python scripts/experiments/spike_consumed_sparse_dyad_duration_evidence.py \
+  out --output-dir <new-dir>
+```
+
+It verifies the pinned sparse-repair report and scores written MusicXML durations separately
+from sounding durations. That distinction matters for Desde Lejos measure 2: the visible dotted
+half is three beats, while tie merging correctly gives the sounding event a four-beat duration.
+
+Results:
+
+| Evidence set | Applied | Exact written dotted-half dyads | False applications |
+|---|---:|---:|---:|
+| A medio palo measures 3, 5, 7 | 3 | 3 | 0 |
+| Desde Lejos measure 2 | 1 | 1 | 0 |
+| All non-accepted sparse decisions | 0 / 37 | n/a | 0 |
+
+The consumed gate passes and selects this evidence for an opt-in full-event v2. The classifier
+also permits residual-rest suppression only inside this full-measure visual pattern: a three-beat
+dotted half cannot coexist with an extra rest in the same three-beat measure. The historical
+full-event v1 compositor and its sealed artifacts remain unchanged and byte-replayable.
+
+This does not solve Tío Clímaco crop 1. That overfull case would require rejecting or
+reclassifying a visual symbol; no independent feature currently justifies doing so. It remains
+fail-closed, and Tío Clímaco cannot become a fresh heldout claim after motivating this work.
+
+### Duration-aware full-event v2
+
+The consumed-proven duration evidence is now integrated as a separate create-once sidecar:
+
+```bash
+uv run python scripts/experiments/materialize_repaired_full_event_sidecar_v2.py \
+  <inference-dir> --model-dir <model-dir>
+```
+
+The v2 compositor delegates every ordinary measure to the unchanged v1 compositor. It applies an
+override only when the sparse-repair diagnostic, exact candidate lane, one-onset grouping, paired
+augmentation-dot evidence, and three-beat context all agree. That override emits the two inferred
+pitches at onset zero with written duration three beats and no rests. Any malformed, truth-bearing,
+non-accepted, or non-3/4 decision is a no-op or hard failure; no meter-based note deletion exists.
+
+The materializer independently pins `diagnostics.jsonl`, both compositors, the duration classifier,
+and the v1/v2 materializers. It verifies canonical inference and any existing
+`repaired_full_event_v1/` files remain byte-for-byte unchanged. Like v1, publication is atomic and
+requires every row to materialize with valid meter.
+
+Two real truth-blind checks define the current boundary:
+
+- Coqueteos system 2 has no accepted sparse decision. Its six v2 prediction rows are byte-identical
+  to v1, with SHA256 `73c9a94e50f1ad5cdc7deb879fa496cfb6d51a2e1c88eed9dcbbbe29900c7764`.
+- Tío Clímaco crop 3 applies the duration evidence and emits one `C5,E5` onset with two three-beat
+  notes and no rest. The v1 base result was a rejected request-only meter fallback from `0.5` to
+  three beats. Tío crop 1 remains overfull, so v2 correctly publishes neither a final nor temporary
+  sidecar for that system.
+
+This proves bounded integration and regression safety, not accuracy on a new heldout score. The
+next gate must freeze v2 unchanged on another genuinely fresh single-staff system before any
+transcription is opened, then evaluate pitch, onset, duration, rests, meter, and exact measures.

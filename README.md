@@ -399,6 +399,18 @@ Consumed comparisons require an explicit crop-to-physical-measure mapping and ca
 `evaluate_consumed_repaired_full_event_sidecar.py`; they are postmortem evidence only. The
 full-event composition still requires a newly frozen score before default pipeline integration.
 
+The additive duration-aware variant keeps v1 replayable and overrides only an accepted,
+single-onset sparse dotted-half dyad in a three-beat measure:
+
+```bash
+uv run python scripts/experiments/materialize_repaired_full_event_sidecar_v2.py \
+  <inference-dir> --model-dir <model-dir>
+```
+
+It pins the sparse-repair diagnostics used by that decision, suppresses residual rests only for
+the exact full-measure pattern, and otherwise reproduces v1 predictions. Publication remains
+all-or-nothing: every measure must be materialized with valid meter.
+
 The visual key slice now handles consumed initial one-flat and two-sharp
 signatures plus changed one-sharp, two-sharp, and two-flat signatures. Its
 seven-case report is `7/7`, including two repeat/double-bar controls and the

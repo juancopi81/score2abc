@@ -134,6 +134,7 @@ def measure_boundaries_for_system(
         cleaned_barlines = _reject_leading_note_stem(gray, cleaned_barlines)
         cleaned_barlines = _reject_note_stem_before_terminal_barline(gray, cleaned_barlines)
         boundaries = measure_boundaries(cleaned_barlines)
+        boundaries = _trim_blank_head(gray, boundaries)
         boundaries = _trim_blank_tail(gray, boundaries)
         boundaries = _merge_accidental_slices(gray, boundaries)
         boundaries = _merge_note_stem_slices(gray, boundaries)
@@ -745,6 +746,50 @@ def _trim_blank_tail(gray: Image.Image, boundaries: Sequence[float]) -> list[flo
     )
     if density <= 0.02:
         return list(boundaries[:-1])
+    return list(boundaries)
+
+
+def _trim_blank_head(gray: Image.Image, boundaries: Sequence[float]) -> list[float]:
+    """Drop ruled staff margin before a strong continuation-system barline."""
+    if len(boundaries) < 3 or abs(boundaries[0]) > 1e-6:
+        return list(boundaries)
+
+    first_candidate = boundaries[1]
+    if not 0.04 <= first_candidate <= 0.12:
+        return list(boundaries)
+
+    width, height = gray.size
+    threshold = estimate_ink_threshold(gray)
+    pixels = gray.load()
+    staff_top, staff_bot = _staff_band(pixels, width, height, threshold, pad=4)
+    staff_line_rows = _staff_line_rows(pixels, width, staff_top, staff_bot, threshold)
+    candidate_x = round(first_candidate * width)
+    if (
+        _vertical_cluster_width(
+            pixels,
+            width=width,
+            staff_top=staff_top,
+            staff_bot=staff_bot,
+            threshold=threshold,
+            x=candidate_x,
+        )
+        < 5
+    ):
+        return list(boundaries)
+
+    x1 = max(0, candidate_x - 12)
+    density = _nonstaff_ink_density(
+        pixels,
+        width=width,
+        staff_top=staff_top,
+        staff_bot=staff_bot,
+        threshold=threshold,
+        staff_line_rows=staff_line_rows,
+        x0=0,
+        x1=x1,
+    )
+    if density <= 0.01:
+        return list(boundaries[1:])
     return list(boundaries)
 
 

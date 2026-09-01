@@ -208,6 +208,40 @@ def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:
     assert boundaries == [0.0, 0.225, 0.45]
 
 
+def test_measure_boundaries_for_system_trims_blank_staff_prefix(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (90, 350, 650, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=7)
+    draw.ellipse([(170, 88), (194, 106)], fill=0)
+    draw.ellipse([(450, 88), (474, 106)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.09, 0.35, 0.65, 0.95])
+
+    assert boundaries == [0.09, 0.35, 0.65, 0.95]
+
+
+def test_measure_boundaries_for_system_keeps_inked_short_first_measure(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (90, 350, 650, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=7)
+    draw.ellipse([(24, 88), (52, 106)], fill=0)
+    draw.line([(50, 50), (50, 104)], fill=0, width=3)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.09, 0.35, 0.65, 0.95])
+
+    assert boundaries == [0.0, 0.09, 0.35, 0.65, 0.95]
+
+
 def test_measure_boundaries_for_system_keeps_single_barline_blank_tail(tmp_path: Path) -> None:
     path = _draw_system(tmp_path / "system.png", barline_fractions=[0.5], width=800)
 

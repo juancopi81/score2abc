@@ -27,6 +27,9 @@ from scripts import build_vlm_melody_inputs as melody_inputs  # noqa: E402
 from scripts.experiments import freeze_fifth_score_heldout as fifth_freezer  # noqa: E402
 from scripts.experiments import freeze_fourth_score_heldout as fourth_freezer  # noqa: E402
 from scripts.experiments import freeze_independent_dyad_recovery_gate as dyad_freezer  # noqa: E402
+from scripts.experiments import (  # noqa: E402
+    freeze_independent_full_event_gate as full_event_freezer,
+)
 from scripts.experiments import freeze_independent_key_state_gates as key_freezer  # noqa: E402
 from scripts.experiments import (  # noqa: E402
     freeze_independent_multihead_recovery_gate as multihead_freezer,
@@ -49,6 +52,7 @@ INDEPENDENT_KEY_INFERENCE_VERSION = "independent-key-inference-v1"
 INDEPENDENT_DYAD_INFERENCE_VERSION = "independent-dyad-baseline-inference-v1"
 INDEPENDENT_MULTIHEAD_INFERENCE_VERSION = "independent-multihead-baseline-inference-v1"
 INDEPENDENT_SPARSE_DYAD_INFERENCE_VERSION = "independent-sparse-dyad-baseline-inference-v1"
+INDEPENDENT_FULL_EVENT_INFERENCE_VERSION = "independent-full-event-baseline-inference-v1"
 MULTIHEAD_RECOVERY_SIDECAR_VERSION = "edge-safe-stem-multihead-sidecar-v1"
 MULTIHEAD_RECOVERY_DIRNAME = "edge_safe_stem_multihead_recovery_v1"
 SPARSE_DYAD_REPAIR_SIDECAR_VERSION = "sparse-stem-dyad-repair-sidecar-v1"
@@ -98,6 +102,12 @@ GATE_CONFIGS = {
         "inference_version": INDEPENDENT_SPARSE_DYAD_INFERENCE_VERSION,
         "manifest_kind": "independent_sparse_dyad_truth_blind_baseline_inference_manifest",
         "binding_kind": "independent_sparse_dyad_baseline_inference_provenance_binding",
+    },
+    full_event_freezer.INDEPENDENT_FULL_EVENT_GATE.prepare_kind: {
+        "gate": full_event_freezer.INDEPENDENT_FULL_EVENT_GATE,
+        "inference_version": INDEPENDENT_FULL_EVENT_INFERENCE_VERSION,
+        "manifest_kind": "independent_full_event_truth_blind_baseline_inference_manifest",
+        "binding_kind": "independent_full_event_baseline_inference_provenance_binding",
     },
     **{
         gate.prepare_kind: {
@@ -1106,6 +1116,9 @@ def _multihead_recovery_row(
         "recovered_candidate_ids": sorted(recovered_ids),
         "baseline_onset_group_count": len(set(group_by_id.values())),
         "recovered_onset_group_count": len(set(group_by_id.values())),
+        "baseline_anchor_count": len(baseline),
+        "canonical_note_count": len(canonical["notes"]),
+        "meter_decoder_dropped_anchor_count": len(baseline) - len(canonical["notes"]),
         "recovery": [
             {
                 "candidate_id": str(candidate["candidate_id"]),
@@ -1157,8 +1170,11 @@ def _verify_multihead_baseline(
     }
     if len(actual) != len(anchors) or actual != expected:
         raise ValueError("Recovery selector does not reproduce the canonical baseline")
-    if len(notes) != len(anchors):
-        raise ValueError("Canonical note count does not match the automatic baseline anchors")
+    # Meter decoding may drop selected trailing anchors that cannot fit the
+    # request meter. Recovery remains anchored to the exact pre-decoder IDs and
+    # coordinates, while the canonical event lane stays byte-for-byte unchanged.
+    if len(notes) > len(anchors):
+        raise ValueError("Canonical note count exceeds the automatic baseline anchors")
     if row.get("truth_used") is not False:
         raise ValueError("Canonical baseline is not truth-blind")
 
