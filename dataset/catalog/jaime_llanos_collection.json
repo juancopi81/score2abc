@@ -1,0 +1,2791 @@
+{
+  "schema_version": 1,
+  "collection_id": "jaime-llanos-all-melodies",
+  "source": {
+    "filename": "all_melodies.pdf",
+    "sha256": "026abe3814e2e3680e007dd8b6b912dea3a3abb1cd490f378cc2cf2f39c5a789",
+    "size_bytes": 20372342,
+    "pdf_page_count": 111,
+    "location_policy": "Source retained outside repository; provide local path explicitly. No distribution permission inferred."
+  },
+  "inspection": {
+    "date": "2026-09-07",
+    "table_method": "Embedded text/table extraction on physical10-12; continuation first rows31 and66 restored from visual and text inspection. Literal cell line breaks retained. No OCR used.",
+    "mapping_method": "Visual header/footer review of every physical page16-111, with full-page inspection of initial and discontinuity samples. Titles and manuscript labels jointly reconciled; faint labels are not independently asserted from OCR.",
+    "scope": "Source identity and page-to-work mapping only; no musical transcription, truth content review, or completeness/accuracy assertion about linked MusicXML."
+  },
+  "summary": {
+    "table_rows": 100,
+    "named_works": 98,
+    "verified_present_works": 95,
+    "missing_named_works": 3,
+    "unresolved_placeholder_rows": 2,
+    "mapped_score_pages": 96,
+    "front_matter_pages": 15,
+    "missing_manuscript_pages": [
+      38,
+      39,
+      45
+    ]
+  },
+  "front_matter": [
+    {
+      "pdf_page": 1,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 2,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 3,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 4,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 5,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 6,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 7,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 8,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 9,
+      "kind": "research_proposal"
+    },
+    {
+      "pdf_page": 10,
+      "kind": "typed_contents_table"
+    },
+    {
+      "pdf_page": 11,
+      "kind": "typed_contents_table"
+    },
+    {
+      "pdf_page": 12,
+      "kind": "typed_contents_table"
+    },
+    {
+      "pdf_page": 13,
+      "kind": "manuscript_divider"
+    },
+    {
+      "pdf_page": 14,
+      "kind": "manuscript_cover"
+    },
+    {
+      "pdf_page": 15,
+      "kind": "scanned_original_index"
+    }
+  ],
+  "entries": [
+    {
+      "song_number": 1,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "1",
+        "title": "Acuata",
+        "genre": "Pasillo",
+        "author": "F. García",
+        "manuscript_page": "1"
+      },
+      "normalized_title": "Acuata",
+      "slug": "jaime-llanos_1_acuata_pasillo_f-garcia",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        1
+      ],
+      "pdf_pages": [
+        16
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 2,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "2",
+        "title": "Adentro veteranos",
+        "genre": "Bambuco",
+        "author": "M. Garavito W.",
+        "manuscript_page": "2"
+      },
+      "normalized_title": "Adentro veteranos",
+      "slug": "jaime-llanos_2_adentro-veteranos_bambuco_m-garavito-w",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        2
+      ],
+      "pdf_pages": [
+        17
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 3,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "3",
+        "title": "Ají pique",
+        "genre": "Pasillo",
+        "author": "Carlos Vieco",
+        "manuscript_page": "3"
+      },
+      "normalized_title": "Ají pique",
+      "slug": "jaime-llanos_3_aji-pique_pasillo_carlos-vieco",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        3
+      ],
+      "pdf_pages": [
+        18
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 4,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "4",
+        "title": "Albores de junio",
+        "genre": "Pasillo",
+        "author": "Victor Guerrero",
+        "manuscript_page": "4"
+      },
+      "normalized_title": "Albores de junio",
+      "slug": "jaime-llanos_4_albores-de-junio_pasillo_victor-guerrero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        4
+      ],
+      "pdf_pages": [
+        19
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 5,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "5",
+        "title": "Alcira",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "5"
+      },
+      "normalized_title": "Alcira",
+      "slug": "jaime-llanos_5_alcira_bambuco_oriol-rangel",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        5
+      ],
+      "pdf_pages": [
+        20
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_5_alcira_bambuco_oriol-rangel.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/local_restricted/jaime-llanos_5_alcira_bambuco_oriol-rangel/vlm_melody_independent_key_gate/v1_alcira_system_entry_change_s6/system_006/alcira_system_006.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 6,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "6",
+        "title": "Amalia",
+        "genre": "Pasillo",
+        "author": "Joaquín Ariza*",
+        "manuscript_page": "6"
+      },
+      "normalized_title": "Amalia",
+      "slug": "jaime-llanos_6_amalia_pasillo_joaquin-ariza",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        6
+      ],
+      "pdf_pages": [
+        21
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 7,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "7",
+        "title": "A medio palo",
+        "genre": "Pasillo",
+        "author": "M. Garavito W.",
+        "manuscript_page": "7"
+      },
+      "normalized_title": "A medio palo",
+      "slug": "jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        7
+      ],
+      "pdf_pages": [
+        22
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/local_restricted/jaime-llanos_7_a-medio-palo_pasillo_m-garavito-w/vlm_melody_independent_multihead_recovery_gate/v1/system_007/a_medio_palo_system_007.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 8,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "8",
+        "title": "Ante el micrófono",
+        "genre": "Bambuco",
+        "author": "Melciades Garavito",
+        "manuscript_page": "8"
+      },
+      "normalized_title": "Ante el micrófono",
+      "slug": "jaime-llanos_8_ante-el-microfono_bambuco_melciades-garavito",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        8
+      ],
+      "pdf_pages": [
+        23
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 9,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "9",
+        "title": "Anticompás",
+        "genre": "Pasillo",
+        "author": "E. López",
+        "manuscript_page": "9"
+      },
+      "normalized_title": "Anticompás",
+      "slug": "jaime-llanos_9_anticompas_pasillo_e-lopez",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        9
+      ],
+      "pdf_pages": [
+        24
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 10,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "10",
+        "title": "Atardecer",
+        "genre": "Pasillo",
+        "author": "Carlos Vieco",
+        "manuscript_page": "10"
+      },
+      "normalized_title": "Atardecer",
+      "slug": "jaime-llanos_10_atardecer_pasillo_carlos-vieco",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        10
+      ],
+      "pdf_pages": [
+        25
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 11,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "11",
+        "title": "Aunque mal pagues",
+        "genre": "Pasillo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "11"
+      },
+      "normalized_title": "Aunque mal pagues",
+      "slug": "jaime-llanos_11_aunque-mal-pagues_pasillo_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        11
+      ],
+      "pdf_pages": [
+        26
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 12,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "12",
+        "title": "Aviador",
+        "genre": "Pasillo",
+        "author": "F. García",
+        "manuscript_page": "12"
+      },
+      "normalized_title": "Aviador",
+      "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        12
+      ],
+      "pdf_pages": [
+        27
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "ground_truth_reference",
+          "path": "dataset/ground_truth/jaime-llanos_12_aviador_pasillo_fulgencio-garcia.json",
+          "scope": "path inventory only; content not opened"
+        },
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_12_aviador_pasillo_fulgencio-garcia.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "dataset/musicxml/jaime-llanos_12_aviador_pasillo_fulgencio-garcia.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 13,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "13",
+        "title": "Baby",
+        "genre": "Pasillo",
+        "author": "H. Sinisterra",
+        "manuscript_page": "13"
+      },
+      "normalized_title": "Baby",
+      "slug": "jaime-llanos_13_baby_pasillo_h-sinisterra",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        13
+      ],
+      "pdf_pages": [
+        28
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 14,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "14",
+        "title": "Barbatuscas",
+        "genre": "Bambuco",
+        "author": "Rafael Contreras",
+        "manuscript_page": "14"
+      },
+      "normalized_title": "Barbatuscas",
+      "slug": "jaime-llanos_14_barbatuscas_bambuco_rafael-contreras",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        14
+      ],
+      "pdf_pages": [
+        29
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 15,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "15",
+        "title": "Beatriz Eugenia",
+        "genre": "Pasillo",
+        "author": "José Raquel Mercado",
+        "manuscript_page": "15"
+      },
+      "normalized_title": "Beatriz Eugenia",
+      "slug": "jaime-llanos_15_beatriz-eugenia_pasillo_jose-raquel-mercado",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        15
+      ],
+      "pdf_pages": [
+        30
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 16,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "16",
+        "title": "Blanca Inés",
+        "genre": "Pasillo",
+        "author": "A. Martinez T.",
+        "manuscript_page": "16"
+      },
+      "normalized_title": "Blanca Inés",
+      "slug": "jaime-llanos_16_blanca-ines_pasillo_a-martinez-t",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        16
+      ],
+      "pdf_pages": [
+        31
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 17,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "17",
+        "title": "Bola roja",
+        "genre": "Pasillo",
+        "author": "C. Guerrero",
+        "manuscript_page": "17"
+      },
+      "normalized_title": "Bola roja",
+      "slug": "jaime-llanos_17_bola-roja_pasillo_c-guerrero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        17
+      ],
+      "pdf_pages": [
+        32
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 18,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "18",
+        "title": "Cali Bello",
+        "genre": "Bambuco",
+        "author": "Efraín Orozco",
+        "manuscript_page": "18"
+      },
+      "normalized_title": "Cali Bello",
+      "slug": "jaime-llanos_18_cali-bello_bambuco_efrain-orozco",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        18
+      ],
+      "pdf_pages": [
+        33
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 19,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "19",
+        "title": "Carrizal",
+        "genre": "Pasillo",
+        "author": "Emilio Murillo",
+        "manuscript_page": "19"
+      },
+      "normalized_title": "Carrizal",
+      "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        19
+      ],
+      "pdf_pages": [
+        34
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_19_carrizal_pasillo_emilio-murillo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/carrizal_system_4.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 20,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "20",
+        "title": "Celina",
+        "genre": "Pasillo",
+        "author": "Rodrigo Mantilla",
+        "manuscript_page": "20"
+      },
+      "normalized_title": "Celina",
+      "slug": "jaime-llanos_20_celina_pasillo_rodrigo-mantilla",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        20
+      ],
+      "pdf_pages": [
+        35
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 21,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "21",
+        "title": "Como pa desenguayabar",
+        "genre": "Bambuco",
+        "author": "Jorge Olaya",
+        "manuscript_page": "21"
+      },
+      "normalized_title": "Como pa desenguayabar",
+      "slug": "jaime-llanos_21_como-pa-desenguayabar_bambuco_jorge-olaya",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        21
+      ],
+      "pdf_pages": [
+        36
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 22,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "22",
+        "title": "Coqueteos",
+        "genre": "Pasillo",
+        "author": "Fulgencio García",
+        "manuscript_page": "22"
+      },
+      "normalized_title": "Coqueteos",
+      "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        22
+      ],
+      "pdf_pages": [
+        37
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/coqueteos_system_002.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 23,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "23",
+        "title": "Cúcuta 75",
+        "genre": "Pasillo",
+        "author": "?",
+        "manuscript_page": "23"
+      },
+      "normalized_title": "Cúcuta 75",
+      "slug": "jaime-llanos_23_cucuta-75_pasillo_",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "unknown_author_in_table"
+      ],
+      "manuscript_pages": [
+        23
+      ],
+      "pdf_pages": [
+        38
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 24,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "24",
+        "title": "Chispas",
+        "genre": "Pasillo",
+        "author": "Garavito",
+        "manuscript_page": "24"
+      },
+      "normalized_title": "Chispas",
+      "slug": "jaime-llanos_24_chispas_pasillo_garavito",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        24
+      ],
+      "pdf_pages": [
+        39
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 25,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "25",
+        "title": "Chispazo",
+        "genre": "Pasillo",
+        "author": "P. Morales Pino",
+        "manuscript_page": "25"
+      },
+      "normalized_title": "Chispazo",
+      "slug": "jaime-llanos_25_chispazo_pasillo_pedro-morales-pino",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        25
+      ],
+      "pdf_pages": [
+        40
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/vlm_melody_independent_key_gate/v1_chispazo_internal_change_s3/system_003/chispazo_system_003.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 26,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "26",
+        "title": "Desde lejos",
+        "genre": "Pasillo",
+        "author": "B.B",
+        "manuscript_page": "26"
+      },
+      "normalized_title": "Desde Lejos",
+      "slug": "jaime-llanos_26_desde-lejos_pasillo_b-b",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        26
+      ],
+      "pdf_pages": [
+        41
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/local_restricted/jaime-llanos_26_desde-lejos_pasillo_b-b/vlm_melody_independent_sparse_dyad_repair_gate/v1/system_007/desde_lejos_system_007.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 27,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "27",
+        "title": "Dolores",
+        "genre": "Pasillo*",
+        "author": "Jorge Añez/Pedro*",
+        "manuscript_page": "27"
+      },
+      "normalized_title": "Dolores",
+      "slug": "jaime-llanos_27_dolores_pasillo_jorge-anez-pedro",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        27
+      ],
+      "pdf_pages": [
+        42
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 28,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "28",
+        "title": "Ecos de Colombia",
+        "genre": "Pasillo",
+        "author": "Plinio Herrera",
+        "manuscript_page": "28"
+      },
+      "normalized_title": "Ecos de Colombia",
+      "slug": "jaime-llanos_28_ecos-de-colombia_pasillo_plinio-herrera",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        28
+      ],
+      "pdf_pages": [
+        43
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 29,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "29",
+        "title": "Ecos de Santander",
+        "genre": "Bambuco",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "29"
+      },
+      "normalized_title": "Ecos de Santander",
+      "slug": "jaime-llanos_29_ecos-de-santander_bambuco_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        29
+      ],
+      "pdf_pages": [
+        44
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 30,
+      "source_table_pdf_page": 10,
+      "literal_source": {
+        "song_number": "30",
+        "title": "El aristócrata",
+        "genre": "Pasillo",
+        "author": "Pastor Arroyave",
+        "manuscript_page": "30"
+      },
+      "normalized_title": "El aristócrata",
+      "slug": "jaime-llanos_30_el-aristocrata_pasillo_pastor-arroyave",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        30
+      ],
+      "pdf_pages": [
+        45
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 31,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "31",
+        "title": "El chisgo",
+        "genre": "Pasillo",
+        "author": "Fulgencio García",
+        "manuscript_page": "31"
+      },
+      "normalized_title": "El chisgo",
+      "slug": "jaime-llanos_31_el-chisgo_pasillo_fulgencio-garcia",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        31
+      ],
+      "pdf_pages": [
+        46
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 32,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "32",
+        "title": "El maestro Nicanor",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "32"
+      },
+      "normalized_title": "El maestro Nicanor",
+      "slug": "jaime-llanos_32_el-maestro-nicanor_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        32
+      ],
+      "pdf_pages": [
+        47
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 33,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "33",
+        "title": "El parrandista",
+        "genre": "Bambuco",
+        "author": "Peregrino *",
+        "manuscript_page": "33"
+      },
+      "normalized_title": "El parrandista",
+      "slug": "jaime-llanos_33_el-parrandista_bambuco_peregrino",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        33
+      ],
+      "pdf_pages": [
+        48
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 34,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "34",
+        "title": "El pereirano",
+        "genre": "Pasillo",
+        "author": "Camilo Bedoya",
+        "manuscript_page": "34"
+      },
+      "normalized_title": "El pereirano",
+      "slug": "jaime-llanos_34_el-pereirano_pasillo_camilo-bedoya",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        34
+      ],
+      "pdf_pages": [
+        49
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 35,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "35",
+        "title": "El Tato",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "35 y 36"
+      },
+      "normalized_title": "El Tato",
+      "slug": "jaime-llanos_35_el-tato_bambuco_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        35,
+        36
+      ],
+      "pdf_pages": [
+        50,
+        51
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Physical page50 has El Tato heading; page51 is its untitled continuation marked36; table specifies35 y36.",
+      "references": []
+    },
+    {
+      "song_number": 36,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "36",
+        "title": "El tigre",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "37"
+      },
+      "normalized_title": "El tigre",
+      "slug": "jaime-llanos_36_el-tigre_bambuco_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        37
+      ],
+      "pdf_pages": [
+        52
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 37,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "37",
+        "title": "El vallenato",
+        "genre": "Bambuco",
+        "author": "M. Garavito",
+        "manuscript_page": "38"
+      },
+      "normalized_title": "El vallenato",
+      "slug": "jaime-llanos_37_el-vallenato_bambuco_m-garavito",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        38
+      ],
+      "pdf_pages": [],
+      "mapping_status": "missing",
+      "mapping_evidence": "Physical page52 is El tigre (manuscript37); page53 is Entusiasmo (manuscript40). No matching heading occurs elsewhere in the audited score sequence.",
+      "references": []
+    },
+    {
+      "song_number": 38,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "38",
+        "title": "Entre amigos",
+        "genre": "Pasillo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "39"
+      },
+      "normalized_title": "Entre amigos",
+      "slug": "jaime-llanos_38_entre-amigos_pasillo_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        39
+      ],
+      "pdf_pages": [],
+      "mapping_status": "missing",
+      "mapping_evidence": "Physical page52 is El tigre (manuscript37); page53 is Entusiasmo (manuscript40). No matching heading occurs elsewhere in the audited score sequence.",
+      "references": []
+    },
+    {
+      "song_number": 39,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "39",
+        "title": "Entusiasmo",
+        "genre": "Pasillo",
+        "author": "Luis A. Calvo",
+        "manuscript_page": "40"
+      },
+      "normalized_title": "Entusiasmo",
+      "slug": "jaime-llanos_39_entusiasmo_pasillo_luis-a-calvo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        40
+      ],
+      "pdf_pages": [
+        53
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_39_entusiasmo_pasillo_luis-a-calvo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        }
+      ]
+    },
+    {
+      "song_number": 40,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "40",
+        "title": "Eso es amor",
+        "genre": "Pasillo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "41"
+      },
+      "normalized_title": "Eso es amor",
+      "slug": "jaime-llanos_40_eso-es-amor_pasillo_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        41
+      ],
+      "pdf_pages": [
+        54
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 41,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "41",
+        "title": "Estrella del Caribe",
+        "genre": "Danza",
+        "author": "Luis A. Calvo",
+        "manuscript_page": "42"
+      },
+      "normalized_title": "Estrella del Caribe",
+      "slug": "jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        42
+      ],
+      "pdf_pages": [
+        55
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo/vlm_melody_independent_key_gate/v1_estrella_initial_s3/system_003/estrella_system_003.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 42,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "42",
+        "title": "Fiesta de la montaña",
+        "genre": "Bambuco",
+        "author": "Felipe*",
+        "manuscript_page": "43"
+      },
+      "normalized_title": "Fiesta de la montaña",
+      "slug": "jaime-llanos_42_fiesta-de-la-montana_bambuco_felipe",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        43
+      ],
+      "pdf_pages": [
+        56
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 43,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "43",
+        "title": "Fiesta en sutatenza\nbambuco",
+        "genre": "Bambuco",
+        "author": "Jorge Mendoza",
+        "manuscript_page": "44"
+      },
+      "normalized_title": "Fiesta en sutatenza bambuco",
+      "slug": "jaime-llanos_43_fiesta-en-sutatenza-bambuco_bambuco_jorge-mendoza",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "genre_word_in_literal_title"
+      ],
+      "manuscript_pages": [
+        44
+      ],
+      "pdf_pages": [
+        57
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 44,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "44",
+        "title": "Fita chiquita pasillo",
+        "genre": "Pasillo",
+        "author": "(página desaparecida)",
+        "manuscript_page": "45"
+      },
+      "normalized_title": "Fita chiquita pasillo",
+      "slug": "jaime-llanos_44_fita-chiquita-pasillo_pasillo_pagina-desaparecida",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "genre_word_in_literal_title",
+        "table_explicitly_reports_missing_page"
+      ],
+      "manuscript_pages": [
+        45
+      ],
+      "pdf_pages": [],
+      "mapping_status": "missing",
+      "mapping_evidence": "Table reports missing manuscript45; physical57 is manuscript44 and physical58 is manuscript46. No matching heading occurs elsewhere in the audited score sequence.",
+      "references": []
+    },
+    {
+      "song_number": 45,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "45",
+        "title": "Flor de café bambuco",
+        "genre": "Bambuco",
+        "author": "Jorge Camargo",
+        "manuscript_page": "46"
+      },
+      "normalized_title": "Flor de café bambuco",
+      "slug": "jaime-llanos_45_flor-de-cafe-bambuco_bambuco_jorge-camargo",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "genre_word_in_literal_title"
+      ],
+      "manuscript_pages": [
+        46
+      ],
+      "pdf_pages": [
+        58
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 46,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "46",
+        "title": "Florito",
+        "genre": "Pasillo",
+        "author": "R. Castellanos*",
+        "manuscript_page": "47"
+      },
+      "normalized_title": "Florito",
+      "slug": "jaime-llanos_46_florito_pasillo_r-castellanos",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        47
+      ],
+      "pdf_pages": [
+        59
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 47,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "47",
+        "title": "Fredonia",
+        "genre": "Pasillo",
+        "author": "Fausto Pérez",
+        "manuscript_page": "48"
+      },
+      "normalized_title": "Fredonia",
+      "slug": "jaime-llanos_47_fredonia_pasillo_fausto-perez",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        48
+      ],
+      "pdf_pages": [
+        60
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 48,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "48",
+        "title": "Fuera de concurso",
+        "genre": "Pasillo",
+        "author": "Victor Guerrero",
+        "manuscript_page": "49"
+      },
+      "normalized_title": "Fuera de concurso",
+      "slug": "jaime-llanos_48_fuera-de-concurso_pasillo_victor-guerrero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        49
+      ],
+      "pdf_pages": [
+        61
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 49,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "49",
+        "title": "Gato’e fique",
+        "genre": "Pasillo",
+        "author": "Emilio Murillo",
+        "manuscript_page": "50"
+      },
+      "normalized_title": "Gato'e fique",
+      "slug": "jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        50
+      ],
+      "pdf_pages": [
+        62
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/gatoe_fique_system_003.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 50,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "50",
+        "title": "Geñita",
+        "genre": "Bambuco",
+        "author": "R. Mantilla",
+        "manuscript_page": "51"
+      },
+      "normalized_title": "Geñita",
+      "slug": "jaime-llanos_50_genita_bambuco_r-mantilla",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        51
+      ],
+      "pdf_pages": [
+        63
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 51,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "51",
+        "title": "Gladys",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "52"
+      },
+      "normalized_title": "Gladys",
+      "slug": "jaime-llanos_51_gladys_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        52
+      ],
+      "pdf_pages": [
+        64
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 52,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "52",
+        "title": "Gloria Eugenia",
+        "genre": "Pasillo",
+        "author": "M S Bernal",
+        "manuscript_page": "53"
+      },
+      "normalized_title": "Gloria Eugenia",
+      "slug": "jaime-llanos_52_gloria-eugenia_pasillo_m-s-bernal",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        53
+      ],
+      "pdf_pages": [
+        65
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 53,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "53",
+        "title": "Guatavita",
+        "genre": "Bambuco",
+        "author": "F. Cristancho",
+        "manuscript_page": "54"
+      },
+      "normalized_title": "Guatavita",
+      "slug": "jaime-llanos_53_guatavita_bambuco_f-cristancho",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        54
+      ],
+      "pdf_pages": [
+        66
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 54,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "54",
+        "title": "Hágame el favor cleofas",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "55"
+      },
+      "normalized_title": "Hágame el favor cleofas",
+      "slug": "jaime-llanos_54_hagame-el-favor-cleofas_bambuco_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        55
+      ],
+      "pdf_pages": [
+        67
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 55,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "55",
+        "title": "Hidroplano",
+        "genre": "Pasillo",
+        "author": "Nicolás Molina",
+        "manuscript_page": "56"
+      },
+      "normalized_title": "Hidroplano",
+      "slug": "jaime-llanos_55_hidroplano_pasillo_nicolas-molina",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        56
+      ],
+      "pdf_pages": [
+        68
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 56,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "56",
+        "title": "Ilusión",
+        "genre": "Pasillo",
+        "author": "C. Vieco O.",
+        "manuscript_page": "57"
+      },
+      "normalized_title": "Ilusión",
+      "slug": "jaime-llanos_56_ilusion_pasillo_c-vieco-o",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        57
+      ],
+      "pdf_pages": [
+        69
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 57,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "57",
+        "title": "Insigne",
+        "genre": "Bambuco",
+        "author": "Jorge Daza",
+        "manuscript_page": "58"
+      },
+      "normalized_title": "Insigne",
+      "slug": "jaime-llanos_57_insigne_bambuco_jorge-daza",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        58
+      ],
+      "pdf_pages": [
+        70
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 58,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "58",
+        "title": "Jaime y Mario",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "59"
+      },
+      "normalized_title": "Jaime y Mario",
+      "slug": "jaime-llanos_58_jaime-y-mario_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        59
+      ],
+      "pdf_pages": [
+        71
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 59,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "59",
+        "title": "Janett",
+        "genre": "Bambuco",
+        "author": "Lisandro Varela",
+        "manuscript_page": "60"
+      },
+      "normalized_title": "Janett",
+      "slug": "jaime-llanos_59_janett_bambuco_lisandro-varela",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        60
+      ],
+      "pdf_pages": [
+        72
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 60,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "60",
+        "title": "Jerovel",
+        "genre": "Bambuco",
+        "author": "Alvaro Romero",
+        "manuscript_page": "61"
+      },
+      "normalized_title": "Jerovel",
+      "slug": "jaime-llanos_60_jerovel_bambuco_alvaro-romero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        61
+      ],
+      "pdf_pages": [
+        73
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 61,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "61",
+        "title": "Jorge Humberto",
+        "genre": "Pasillo",
+        "author": "Manuel J. Bernal",
+        "manuscript_page": "62"
+      },
+      "normalized_title": "Jorge Humberto",
+      "slug": "jaime-llanos_61_jorge-humberto_pasillo_manuel-j-bernal",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        62
+      ],
+      "pdf_pages": [
+        74
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 62,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "62",
+        "title": "Joyel",
+        "genre": "Pasillo",
+        "author": "Jeremías Quintero",
+        "manuscript_page": "63"
+      },
+      "normalized_title": "Joyel",
+      "slug": "jaime-llanos_62_joyel_pasillo_jeremias-quintero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        63
+      ],
+      "pdf_pages": [
+        75
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 63,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "63",
+        "title": "La Cantaleta",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "64"
+      },
+      "normalized_title": "La Cantaleta",
+      "slug": "jaime-llanos_63_la-cantaleta_bambuco_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        64
+      ],
+      "pdf_pages": [
+        76
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 64,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "64",
+        "title": "La Chata",
+        "genre": "Pasillo",
+        "author": "Luis A. Calvo",
+        "manuscript_page": "65"
+      },
+      "normalized_title": "La Chata",
+      "slug": "jaime-llanos_64_la-chata_pasillo_luis-a-calvo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        65
+      ],
+      "pdf_pages": [
+        77
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_64_la-chata_pasillo_luis-a-calvo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/la_chata_system_007.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 65,
+      "source_table_pdf_page": 11,
+      "literal_source": {
+        "song_number": "65",
+        "title": "Los Mochuelos",
+        "genre": "Pasillo",
+        "author": "Gerónimo Velasco",
+        "manuscript_page": "66"
+      },
+      "normalized_title": "Los Mochuelos",
+      "slug": "jaime-llanos_65_los-mochuelos_pasillo_geronimo-velasco",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        66
+      ],
+      "pdf_pages": [
+        78
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 66,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "66",
+        "title": "Mano Chepe",
+        "genre": "Bambuco",
+        "author": "José I. Tovar (papi)",
+        "manuscript_page": "67"
+      },
+      "normalized_title": "Mano Chepe",
+      "slug": "jaime-llanos_66_mano-chepe_bambuco_jose-i-tovar-papi",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        67
+      ],
+      "pdf_pages": [
+        79
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 67,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "67",
+        "title": "Mauricio Turriago",
+        "genre": "Bambuco",
+        "author": "Oriol Rangel",
+        "manuscript_page": "68"
+      },
+      "normalized_title": "Mauricio Turriago",
+      "slug": "jaime-llanos_67_mauricio-turriago_bambuco_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        68
+      ],
+      "pdf_pages": [
+        80
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 68,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "68",
+        "title": "Merceditas",
+        "genre": "Pasillo",
+        "author": "Fausto Pérez",
+        "manuscript_page": "69"
+      },
+      "normalized_title": "Merceditas",
+      "slug": "jaime-llanos_68_merceditas_pasillo_fausto-perez",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        69
+      ],
+      "pdf_pages": [
+        81
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 69,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "69",
+        "title": "Michin",
+        "genre": "Pasillo",
+        "author": "José A. Morales",
+        "manuscript_page": "70"
+      },
+      "normalized_title": "Michin",
+      "slug": "jaime-llanos_69_michin_pasillo_jose-a-morales",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        70
+      ],
+      "pdf_pages": [
+        82
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 70,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "70",
+        "title": "Minino",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "71"
+      },
+      "normalized_title": "Minino",
+      "slug": "jaime-llanos_70_minino_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        71
+      ],
+      "pdf_pages": [
+        83
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 71,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "71",
+        "title": "Mi Tolima",
+        "genre": "Bambuco",
+        "author": "I.E. Rincón Lozano",
+        "manuscript_page": "72"
+      },
+      "normalized_title": "Mi Tolima",
+      "slug": "jaime-llanos_71_mi-tolima_bambuco_i-e-rincon-lozano",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        72
+      ],
+      "pdf_pages": [
+        84
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 72,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "72",
+        "title": "Mónica",
+        "genre": "Pasillo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "73"
+      },
+      "normalized_title": "Mónica",
+      "slug": "jaime-llanos_72_monica_pasillo_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        73
+      ],
+      "pdf_pages": [
+        85
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 73,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "73",
+        "title": "No lo Creas",
+        "genre": "Pasillo",
+        "author": "A. Vásquez Pedrero",
+        "manuscript_page": "74"
+      },
+      "normalized_title": "No lo Creas",
+      "slug": "jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        74
+      ],
+      "pdf_pages": [
+        86
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/local_restricted/jaime-llanos_73_no-lo-creas_pasillo_a-vasquez-pedrero/vlm_melody_independent_dyad_recovery_gate/v1/system_008/no_lo_creas_system_008.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 74,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "74",
+        "title": "Oscar y Gabriel",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "75"
+      },
+      "normalized_title": "Oscar y Gabriel",
+      "slug": "jaime-llanos_74_oscar-y-gabriel_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        75
+      ],
+      "pdf_pages": [
+        87
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 75,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "75",
+        "title": "Otro Buchipluma",
+        "genre": "Joropo",
+        "author": "A. Alvarado",
+        "manuscript_page": "76"
+      },
+      "normalized_title": "Otro Buchipluma",
+      "slug": "jaime-llanos_75_otro-buchipluma_joropo_a-alvarado",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        76
+      ],
+      "pdf_pages": [
+        88
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 76,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "76",
+        "title": "Pamplonilla la Loca",
+        "genre": "Bambuco",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "77"
+      },
+      "normalized_title": "Pamplonilla la Loca",
+      "slug": "jaime-llanos_76_pamplonilla-la-loca_bambuco_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        77
+      ],
+      "pdf_pages": [
+        89
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 77,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "77",
+        "title": "Que Chusquito",
+        "genre": "Joropo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "78"
+      },
+      "normalized_title": "Que Chusquito",
+      "slug": "jaime-llanos_77_que-chusquito_joropo_bonifacio-bautista",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        78
+      ],
+      "pdf_pages": [
+        90
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 78,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "78",
+        "title": "Radio Santa Fe",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "79"
+      },
+      "normalized_title": "Radio Santa Fe",
+      "slug": "jaime-llanos_78_radio-santa-fe_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        79
+      ],
+      "pdf_pages": [
+        91
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 79,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "79",
+        "title": "Regional",
+        "genre": "Pasillo",
+        "author": "A. Alvarado",
+        "manuscript_page": "80"
+      },
+      "normalized_title": "Regional",
+      "slug": "jaime-llanos_79_regional_pasillo_a-alvarado",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        80
+      ],
+      "pdf_pages": [
+        92
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 80,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "80",
+        "title": "Ricitos de Oro",
+        "genre": "Pasillo",
+        "author": "E. Sierra",
+        "manuscript_page": "81"
+      },
+      "normalized_title": "Ricitos de Oro",
+      "slug": "jaime-llanos_80_ricitos-de-oro_pasillo_e-sierra",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        81
+      ],
+      "pdf_pages": [
+        93
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 81,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "81",
+        "title": "Riete Gabriel",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "82"
+      },
+      "normalized_title": "Riete Gabriel",
+      "slug": "jaime-llanos_81_riete-gabriel_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        82
+      ],
+      "pdf_pages": [
+        94
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 82,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "82",
+        "title": "Rocas Lindas",
+        "genre": "Pasillo*",
+        "author": "José A. Morales",
+        "manuscript_page": "83"
+      },
+      "normalized_title": "Rocas Lindas",
+      "slug": "jaime-llanos_82_rocas-lindas_pasillo_jose-a-morales",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        83
+      ],
+      "pdf_pages": [
+        95
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 83,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "83",
+        "title": "Rocío",
+        "genre": "Pasillo",
+        "author": "Nicolás Torres",
+        "manuscript_page": "84"
+      },
+      "normalized_title": "Rocío",
+      "slug": "jaime-llanos_83_rocio_pasillo_nicolas-torres",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        84
+      ],
+      "pdf_pages": [
+        96
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 84,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "84",
+        "title": "Rocío Cuadros",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "85"
+      },
+      "normalized_title": "Rocío Cuadros",
+      "slug": "jaime-llanos_84_rocio-cuadros_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        85
+      ],
+      "pdf_pages": [
+        97
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 85,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "85",
+        "title": "Rodrigo Mantilla",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "86"
+      },
+      "normalized_title": "Rodrigo Mantilla",
+      "slug": "jaime-llanos_85_rodrigo-mantilla_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        86
+      ],
+      "pdf_pages": [
+        98
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 86,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "86",
+        "title": "Rumichaca",
+        "genre": "Bambuco",
+        "author": "Emilio Murillo",
+        "manuscript_page": "87"
+      },
+      "normalized_title": "Rumichaca",
+      "slug": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        87
+      ],
+      "pdf_pages": [
+        99
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_86_rumichaca_bambuco_emilio-murillo.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        }
+      ]
+    },
+    {
+      "song_number": 87,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "87",
+        "title": "Sacrita",
+        "genre": "Pasillo",
+        "author": "Carlos J. Mancipe",
+        "manuscript_page": "88"
+      },
+      "normalized_title": "Sacrita",
+      "slug": "jaime-llanos_87_sacrita_pasillo_carlos-j-mancipe",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        88
+      ],
+      "pdf_pages": [
+        100
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 88,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "88",
+        "title": "Santandercito",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "89"
+      },
+      "normalized_title": "Santandercito",
+      "slug": "jaime-llanos_88_santandercito_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        89
+      ],
+      "pdf_pages": [
+        101
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 89,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "89",
+        "title": "Santanás",
+        "genre": "Pasillo",
+        "author": "Juan B Abarca",
+        "manuscript_page": "90"
+      },
+      "normalized_title": "Satanas",
+      "slug": "jaime-llanos_89_satanas_pasillo_juan-b-abarca",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "table_title_Santanas_differs_from_existing_Satanas"
+      ],
+      "manuscript_pages": [
+        90
+      ],
+      "pdf_pages": [
+        102
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_89_satanas_pasillo_juan-b-abarca.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        }
+      ]
+    },
+    {
+      "song_number": 90,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "90",
+        "title": "Sentimiento Campesino",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "91"
+      },
+      "normalized_title": "Sentimiento Campesino",
+      "slug": "jaime-llanos_90_sentimiento-campesino_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        91
+      ],
+      "pdf_pages": [
+        103
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 91,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "91",
+        "title": "Siluetas",
+        "genre": "Pasillo",
+        "author": "Alvaro Romero",
+        "manuscript_page": "92"
+      },
+      "normalized_title": "Siluetas",
+      "slug": "jaime-llanos_91_siluetas_pasillo_alvaro-romero",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        92
+      ],
+      "pdf_pages": [
+        104
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 92,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "92",
+        "title": "Sobre el Humo",
+        "genre": "Bambuco",
+        "author": "F. García",
+        "manuscript_page": "93"
+      },
+      "normalized_title": "Sobre el Humo",
+      "slug": "jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        93
+      ],
+      "pdf_pages": [
+        105
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia.pdf",
+          "metadata_path": "dataset/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        },
+        {
+          "kind": "musicxml_reference",
+          "path": "out/jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia/vlm_melody_independent_key_gate/v1_sobre_change/system_007/sobre_el_humo_system_007.musicxml",
+          "scope": "path inventory only; content and completeness not assessed"
+        }
+      ]
+    },
+    {
+      "song_number": 93,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "93",
+        "title": "Tierra Colombiana",
+        "genre": "Pasillo",
+        "author": "Oriol Rangel",
+        "manuscript_page": "94"
+      },
+      "normalized_title": "Tierra Colombiana",
+      "slug": "jaime-llanos_93_tierra-colombiana_pasillo_oriol-rangel",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        94
+      ],
+      "pdf_pages": [
+        106
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 94,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "94",
+        "title": "Tío Climaco",
+        "genre": "Pasillo",
+        "author": "Bonifacio Bautista",
+        "manuscript_page": "95"
+      },
+      "normalized_title": "Tío Clímaco",
+      "slug": "jaime-llanos_94_tio-climaco_pasillo_bonifacio-bautista",
+      "normalization_basis": "existing_metadata",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        95
+      ],
+      "pdf_pages": [
+        107
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": [
+        {
+          "kind": "individual_pdf",
+          "path": "dataset/local_restricted/jaime-llanos_94_tio-climaco_pasillo_bonifacio-bautista.pdf",
+          "metadata_path": "dataset/local_restricted/metadata.csv",
+          "scope": "existing individual source; no new rights determination"
+        }
+      ]
+    },
+    {
+      "song_number": 95,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "95",
+        "title": "Titiribí",
+        "genre": "Pasillo",
+        "author": "José A. Morales",
+        "manuscript_page": "96"
+      },
+      "normalized_title": "Titiribí",
+      "slug": "jaime-llanos_95_titiribi_pasillo_jose-a-morales",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        96
+      ],
+      "pdf_pages": [
+        108
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 96,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "96",
+        "title": "Torrentes",
+        "genre": "Pasillo",
+        "author": "Carlos Vieco",
+        "manuscript_page": "97"
+      },
+      "normalized_title": "Torrentes",
+      "slug": "jaime-llanos_96_torrentes_pasillo_carlos-vieco",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [],
+      "manuscript_pages": [
+        97
+      ],
+      "pdf_pages": [
+        109
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 97,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "97",
+        "title": "Valle del Cauca",
+        "genre": "Pasillo*",
+        "author": "luis E. Nieto",
+        "manuscript_page": "98"
+      },
+      "normalized_title": "Valle del Cauca",
+      "slug": "jaime-llanos_97_valle-del-cauca_pasillo_luis-e-nieto",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "literal_asterisk_unresolved"
+      ],
+      "manuscript_pages": [
+        98
+      ],
+      "pdf_pages": [
+        110
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 98,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "98",
+        "title": "Fiesta en Villavo\nVillavicencio",
+        "genre": "Pasillo",
+        "author": "F. García",
+        "manuscript_page": "99"
+      },
+      "normalized_title": "Fiesta en Villavo Villavicencio",
+      "slug": "jaime-llanos_98_fiesta-en-villavo-villavicencio_pasillo_f-garcia",
+      "normalization_basis": "table_typographic_normalization_only",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "two_line_title_Fiesta_en_Villavo_Villavicencio"
+      ],
+      "manuscript_pages": [
+        99
+      ],
+      "pdf_pages": [
+        111
+      ],
+      "mapping_status": "verified",
+      "mapping_evidence": "Title/header and manuscript numbering reconciled visually against the complete physical score-page sequence.",
+      "references": []
+    },
+    {
+      "song_number": 99,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "99",
+        "title": "-",
+        "genre": "-",
+        "author": "-",
+        "manuscript_page": "-"
+      },
+      "normalized_title": null,
+      "slug": null,
+      "normalization_basis": "none",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "unnamed_table_placeholder"
+      ],
+      "manuscript_pages": [],
+      "pdf_pages": [],
+      "mapping_status": "unresolved",
+      "mapping_evidence": "All literal fields except song number are dashes; no title or manuscript page is supplied. Not counted as a named missing work.",
+      "references": []
+    },
+    {
+      "song_number": 100,
+      "source_table_pdf_page": 12,
+      "literal_source": {
+        "song_number": "100",
+        "title": "-",
+        "genre": "-",
+        "author": "-",
+        "manuscript_page": "-"
+      },
+      "normalized_title": null,
+      "slug": null,
+      "normalization_basis": "none",
+      "bibliography_status": "source_claim_unverified",
+      "uncertainty_flags": [
+        "unnamed_table_placeholder"
+      ],
+      "manuscript_pages": [],
+      "pdf_pages": [],
+      "mapping_status": "unresolved",
+      "mapping_evidence": "All literal fields except song number are dashes; no title or manuscript page is supplied. Not counted as a named missing work.",
+      "references": []
+    }
+  ]
+}
