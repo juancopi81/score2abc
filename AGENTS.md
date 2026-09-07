@@ -26,6 +26,7 @@
 - `uv run python main.py ingest dataset dataset/metadata.csv out` runs ingest.
 - `uv run python main.py run out` runs the pipeline stubs.
 - `uv run python main.py qa out` checks for previews.
+- `uv run python main.py review out --open-ui` opens the local ABC correction desk. It saves exact human drafts in `out/<slug>/overrides/review.json`; these are separate from canonical events and experimental truth. See `docs/COLLECTION_WORKFLOW.md`.
 - `uv run python main.py export out` writes `out/index.md`.
 - `uv run python main.py eval out --ground-truth dataset/ground_truth` runs the evaluation report.
 - `uv run python main.py run out --use-vlm` enables the live Gemini chord-OCR path (requires `GEMINI_API_KEY`; see VLM notes below).

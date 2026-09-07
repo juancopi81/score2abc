@@ -2,6 +2,11 @@
 
 Pipeline to convert handwritten Colombian scores into ABC notation plus metadata.
 
+The collection inventory and current delivery plan are in
+[`docs/COLLECTION_WORKFLOW.md`](docs/COLLECTION_WORKFLOW.md). The supplied book
+contains 95 identifiable works; automatic whole-score transcription remains
+experimental.
+
 ## Usage (uv)
 
 Run the CLI through uv:
@@ -48,6 +53,34 @@ uv run python main.py ingest \
   dataset/local_restricted dataset/local_restricted/metadata.csv out/local_restricted
 uv run python main.py run out/local_restricted --slug <slug>
 ```
+
+### Review and correct a transcription
+
+```bash
+uv run python main.py review out --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia --open-ui
+```
+
+The loopback-only editor shows manuscript pages/staves beside editable ABC and
+rendered notation. Click a rendered note, rest, or barline to select its ABC;
+use reference-tone playback to check a phrase. Save incomplete drafts, record
+questions, then mark the complete score reviewed after comparing it with the
+source. Unknown meter/key stay explicit until corrected. Supplied MusicXML is
+identified as such, and stub melody output is never offered as a transcription.
+
+Corrections are stored separately in `out/<slug>/overrides/review.json` with
+revision checks and an original-ABC snapshot. Reopening preserves the exact ABC;
+pipeline outputs and frozen research artifacts are unchanged. Download exports
+the last saved, validated ABC, with `draft` or `reviewed` in its filename. An
+unsaved edit disables download. Invalid notation can be saved as a draft but
+cannot be approved or exported. Rendering validates syntax, not musical accuracy.
+
+Preview, playback, approval and validated export require Node.js and the existing
+optional local `abc2svg` installation; saving drafts still works without them.
+The editor loads those assets locally and makes no recognition/API calls.
+Use another port/output root to review restricted sources, for example
+`uv run python main.py review out/local_restricted --port 8767`.
+This first editor supports ABC text correction, not graphical note entry or
+MusicXML export, and overrides do not yet feed back into canonical events/training.
 
 ### Melody VLM input crops
 
