@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/review_ui.css">
   <script defer src="/renderer/abc2svg-1.js"></script>
   <script defer src="/renderer/toaudio-1.js"></script>
+  <script defer src="/review_playback.js"></script>
   <script defer src="/review_ui.js"></script>
 </head>
 <body>
@@ -34,7 +35,7 @@
         <section class="panel notation-panel" aria-labelledby="notation-heading">
           <div class="panel-heading"><h2 id="notation-heading"><span class="step">02</span> Transcription</h2><div class="panel-tools"><button id="play" disabled>▶ Play</button><button id="stop" disabled>Stop</button><button id="download" disabled>Download ABC</button></div></div>
           <div id="notation" tabindex="0" aria-label="Rendered transcription"><p class="empty">Your transcription will appear here.</p></div>
-          <p class="panel-caption">Click a note or rest to find it in the editor. Playback uses a simple reference tone.</p>
+          <p class="panel-caption playback-caption"><span>Click a note or rest to find it in the editor. Playback uses a simple reference tone.</span><label><input id="follow-playback" type="checkbox" checked> Follow playback</label></p>
         </section>
       </div>
       <aside class="editing" aria-label="Transcription editor">

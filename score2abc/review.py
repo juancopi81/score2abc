@@ -16,7 +16,11 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+from xml.etree.ElementTree import ParseError
 
+from score2abc.abc import events_to_abc
+from score2abc.melody.musicxml import extract_canonical_melody_events
+from score2abc.review_chords import CHORD_SOURCES, strip_chords, transfer_accidentals
 from score2abc.schemas import WorkItem
 
 MAX_BODY = 256_000
@@ -101,13 +105,13 @@ class ReviewApp:
         except (subprocess.SubprocessError, ValueError, OSError):
             return {**failure, "errors": ["Notation validation failed or timed out."]}
 
-    def base(self, slug: str) -> tuple[str, str]:
+    def _raw_base(self, slug: str) -> tuple[str, str]:
         stage = _json(self.path(slug, "stages/extract_melody.json"))
         abc_path = self.path(slug, "final/melody_with_chords.abc")
         if stage.get("status") == "success" and abc_path.is_file():
             backend = _json(self.path(slug, "stages/extract_musicxml.json"))
             kind = backend.get("params", {}).get("backend")
-            status = "fixture_manual" if kind == "fixture" else "recognized"
+            status = "fixture_manual" if kind in ("fixture", "manual") else "recognized"
             return abc_path.read_text(encoding="utf-8"), status
         title = self.works[slug].metadata.title.replace("\n", " ").replace("\r", " ")
         metadata = self.works[slug].metadata
@@ -122,6 +126,140 @@ class ReviewApp:
             "% Confirm meter and key from manuscript before review\n",
             "no_recognition",
         )
+
+    def _generated_chord_source(self, slug: str) -> str:
+        events = _json(self.path(slug, "intermediate/events.json"))
+        source = events.get("chord_source")
+        if source in CHORD_SOURCES:
+            return source
+        chords = events.get("chords")
+        if chords == []:
+            return "none"
+        ocr = _json(self.path(slug, "intermediate/chords.json"))
+        fields = ("measure", "onset_beats", "symbol")
+        if chords and [tuple(c.get(k) for k in fields) for c in chords] == [
+            tuple(c.get(k) for k in fields) for c in ocr.get("chords", [])
+        ]:
+            return "automatic_ocr"
+        return "unknown"
+
+    def _supplied_base(self, slug: str) -> str:
+        raw, status = self._raw_base(slug)
+        backend = _json(self.path(slug, "stages/extract_musicxml.json"))
+        if status == "no_recognition" or backend.get("params", {}).get("backend") not in (
+            "fixture",
+            "manual",
+        ):
+            raise ValueError("Chord refresh requires supplied MusicXML")
+        events = _json(self.path(slug, "intermediate/events.json"))
+        if events_to_abc(events, self.works[slug].metadata) != raw:
+            raise ValueError("Existing events do not reproduce the generated ABC")
+        xml = next(
+            (
+                self.path(slug, name)
+                for name in ("intermediate/musicxml.xml", "intermediate/musicxml.musicxml")
+                if self.path(slug, name).is_file()
+            ),
+            None,
+        )
+        if xml is None:
+            raise ValueError("Supplied MusicXML is unavailable")
+        supplied = extract_canonical_melody_events(xml)
+        cached_notes = [
+            {key: value for key, value in note.items() if key != "tie"}
+            for note in events.get("notes", [])
+        ]
+        if supplied.get("notes") != cached_notes or supplied.get("time_signature") != events.get(
+            "time_signature"
+        ):
+            raise ValueError("Supplied MusicXML melody does not match cached events")
+        chords = supplied.get("chords")
+        if not chords:
+            raise ValueError("Supplied MusicXML contains no harmonies")
+        refreshed = events_to_abc({**events, "chords": chords}, self.works[slug].metadata)
+        if strip_chords(raw) != strip_chords(refreshed):
+            raise ValueError("Supplied harmonies change notation structure")
+        return refreshed
+
+    def _base_info(self, slug: str) -> tuple[str, str, str]:
+        raw, status = self._raw_base(slug)
+        if status == "no_recognition":
+            return raw, status, "none"
+        try:
+            return self._supplied_base(slug), status, "supplied_musicxml"
+        except (ValueError, OSError, ParseError):
+            return raw, status, self._generated_chord_source(slug)
+
+    def base(self, slug: str) -> tuple[str, str]:
+        abc, status, _ = self._base_info(slug)
+        return abc, status
+
+    def _saved_chord_source(self, slug: str, saved: dict) -> str:
+        if saved.get("chord_source") in CHORD_SOURCES:
+            return saved["chord_source"]
+        raw, _ = self._raw_base(slug)
+        if saved.get("base_abc") == raw:
+            return self._generated_chord_source(slug)
+        return "unknown"
+
+    def refresh_supplied_chords(self, slug: str, expected_revision: int) -> dict:
+        """Explicitly upgrade a saved draft; preserve an exact create-once backup first."""
+        with self.lock:
+            target = self.path(slug, "overrides/review.json")
+            previous_bytes = target.read_bytes() if target.exists() else b""
+            previous = json.loads(previous_bytes) if previous_bytes else {}
+            if (
+                type(expected_revision) is not int
+                or not previous
+                or previous.get("revision") != expected_revision
+            ):
+                raise ReviewError("Stale or missing review revision", 409)
+            old_base = previous.get("base_abc")
+            if not isinstance(old_base, str) or previous.get("base_abc_sha256") != _hash(old_base):
+                raise ReviewError("Saved base provenance is missing or inconsistent", 409)
+            try:
+                new_base = self._supplied_base(slug)
+                updated = transfer_accidentals(old_base, previous["abc"], new_base)
+            except (ValueError, OSError, ParseError) as exc:
+                raise ReviewError(str(exc), 409) from exc
+            validation = self.validate(updated)
+            if not validation["valid"] or not validation["note_count"]:
+                raise ReviewError("Refreshed notation did not validate", 422)
+            backup = self.path(slug, "overrides/review.before_supplied_chords.json")
+            if backup.exists():
+                raise ReviewError("Supplied-chord refresh backup already exists", 409)
+            payload = {
+                **previous,
+                "abc": updated,
+                "revision": expected_revision + 1,
+                "review_state": "draft",
+                "base_abc": new_base,
+                "base_abc_sha256": _hash(new_base),
+                "chord_source": "supplied_musicxml",
+            }
+            # An exclusive exact backup precedes replacement; a failed refresh never
+            # discards the old review, and cannot silently overwrite an earlier backup.
+            with backup.open("xb") as handle:
+                handle.write(previous_bytes)
+                handle.flush()
+                os.fsync(handle.fileno())
+            self._write_review(target, payload)
+            return self.work(slug)
+
+    @staticmethod
+    def _write_review(target: Path, payload: dict) -> None:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=target.parent, delete=False
+        ) as handle:
+            temp = Path(handle.name)
+            try:
+                json.dump(payload, handle, ensure_ascii=False, indent=2)
+                handle.flush()
+                os.fsync(handle.fileno())
+                os.replace(temp, target)
+            finally:
+                temp.unlink(missing_ok=True)
 
     def assets(self, slug: str) -> dict:
         result = {}
@@ -151,7 +289,7 @@ class ReviewApp:
 
     def work(self, slug: str) -> dict:
         with self.lock:
-            base, status = self.base(slug)
+            base, status, chord_source = self._base_info(slug)
             draft = _json(self.path(slug, "overrides/review.json"))
             abc = draft.get("abc", base)
             return {
@@ -163,6 +301,7 @@ class ReviewApp:
                 "unresolved": draft.get("unresolved", []),
                 "active_review_ms": draft.get("active_review_ms", 0),
                 "source_status": status,
+                "chord_source": self._saved_chord_source(slug, draft) if draft else chord_source,
                 "base_changed": bool(draft and draft.get("base_abc_sha256") != _hash(base)),
                 "sources": [
                     {"id": id_, "label": label, "kind": kind, "url": f"/assets/{slug}/{id_}"}
@@ -222,8 +361,11 @@ class ReviewApp:
                 raise ReviewError(
                     "Reviewed requires valid notation with notes and no unresolved items", 422
                 )
-            base, _ = self.base(slug)
+            base, _, chord_source = self._base_info(slug)
             payload = {
+                "chord_source": (
+                    self._saved_chord_source(slug, previous) if previous else chord_source
+                ),
                 "version": 1,
                 "abc": abc,
                 "revision": body["revision"] + 1,
@@ -233,18 +375,7 @@ class ReviewApp:
                 "base_abc_sha256": previous.get("base_abc_sha256", _hash(base)),
                 "base_abc": previous.get("base_abc", base),
             }
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with tempfile.NamedTemporaryFile(
-                mode="w", encoding="utf-8", dir=target.parent, delete=False
-            ) as handle:
-                temp = Path(handle.name)
-                try:
-                    json.dump(payload, handle, ensure_ascii=False, indent=2)
-                    handle.flush()
-                    os.fsync(handle.fileno())
-                    os.replace(temp, target)
-                finally:
-                    temp.unlink(missing_ok=True)
+            self._write_review(target, payload)
             return self.work(slug)
 
     def export(self, slug: str) -> bytes:
@@ -335,7 +466,7 @@ def create_server(app: ReviewApp, host: str = "127.0.0.1", port: int = 0):
                         asset[0].read_bytes(),
                         mimetypes.guess_type(asset[0])[0] or "application/octet-stream",
                     )
-                if path in ("/", "/review_ui.js", "/review_ui.css"):
+                if path in ("/", "/review_ui.js", "/review_ui.css", "/review_playback.js"):
                     file = PACKAGE / ("review_ui.html" if path == "/" else path[1:])
                 elif path in ("/renderer/abc2svg-1.js", "/renderer/toaudio-1.js"):
                     if not app.renderer_dir:

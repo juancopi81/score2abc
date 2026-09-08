@@ -3,7 +3,9 @@
 const $ = id => document.getElementById(id);
 const desk = {data: null, work: null, dirty: false, rendering: null, audio: null,
   oscillators: [], audioEvents: [], symbols: [], reviewMs: 0, lastTick: Date.now(),
-  lastAction: Date.now(), renderTimer: null, playbackTimer: null, loading: false};
+  lastAction: Date.now(), renderTimer: null, loading: false,
+  visualEvents: [], playbackFrame: null, playbackStart: 0, playbackEnd: 0, playbackRevision: 0,
+  highlighted: new Set(), followIndex: null, playing: false};
 
 function message(text, error = false) {
   $("status").textContent = text;
@@ -51,6 +53,8 @@ function renderLibrary() {
 
 function setDirty() {
   if (!desk.work) return;
+  stopPlayback();
+  $("play").disabled = true;
   desk.dirty = true;
   $("dirty").textContent = "Unsaved changes";
   $("review-state").textContent = "Draft";
@@ -105,7 +109,16 @@ async function loadWork(slug) {
     $("review-state").classList.toggle("reviewed", work.review_state === "reviewed");
     const notices = [];
     if (work.source_status === "no_recognition") notices.push("This melody has no recognized transcription yet. Confirm the meter (M:) and key (K:) from the manuscript, then begin a draft.");
-    else if (/fixture|manual|supplied/.test(work.source_status)) notices.push("This starting transcription comes from supplied MusicXML. Use it to try the review workflow; it is not a new automatic recognition result.");
+    else if (/fixture|manual|supplied/.test(work.source_status)) notices.push("Melody: supplied MusicXML, with your saved corrections when present.");
+    else notices.push("Melody: automatic recognition; check it against the manuscript.");
+    const chordNotices = {
+      supplied_musicxml: "Chord symbols: supplied MusicXML, with your saved corrections when present.",
+      recognized_musicxml: "Chord symbols: automatic MusicXML recognition; check them against the manuscript.",
+      automatic_ocr: "Chord symbols: automatic OCR proposals, with any saved corrections. They need review against the manuscript.",
+      none: "No source chord symbols are available; any symbols entered in the editor are part of your draft.",
+      unknown: "The source of this draft's chord symbols is not recorded; check them against the manuscript."
+    };
+    notices.push(chordNotices[work.chord_source] || chordNotices.unknown);
     if (work.base_changed) notices.push("Generated output has changed since this review began. Your saved corrections are preserved.");
     if (!canRender()) notices.push("The local ABC renderer is unavailable. Drafts can still be saved; preview, approval, and validated export need abc2svg and Node.js.");
     $("notice").textContent = notices.join(" "); $("notice").hidden = !notices.length;
@@ -119,7 +132,7 @@ async function loadWork(slug) {
 
 function renderNotation() {
   if (!desk.work || desk.loading) return;
-  stopPlayback(); desk.audioEvents = []; desk.symbols = [];
+  stopPlayback(); desk.audioEvents = []; desk.visualEvents = []; desk.symbols = [];
   $("notation").replaceChildren(); $("validation").replaceChildren();
   $("approve").disabled = true; $("download").disabled = true; $("play").disabled = true;
   if (!canRender()) {
@@ -143,7 +156,7 @@ function renderNotation() {
         if (!["note", "rest", "bar"].includes(type)) return;
         if (!Number.isInteger(start) || !Number.isInteger(end)) return;
         desk.symbols.push({start, end});
-        abc.out_svg(`<rect class="score-hit" data-start="${start}" data-end="${end}" x="`);
+        abc.out_svg(`<rect class="score-hit" data-type="${type}" data-start="${start}" data-end="${end}" x="`);
         abc.out_sxsy(x, '" y="', y);
         abc.out_svg(`" width="${width.toFixed(2)}" height="${abc.sh(height).toFixed(2)}"/>`);
       },
@@ -159,6 +172,9 @@ function renderNotation() {
     });
     abc.tosvg("layout", `%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
     abc.tosvg("review", text);
+    if (!errors.length && typeof ToAudio !== "undefined") {
+      desk.visualEvents = ReviewPlayback.writtenEvents(abc2svg.Abc, ToAudio, abc2svg.C, text);
+    }
     const safe = new DOMParser().parseFromString(`<div>${markup}</div>`, "text/html");
     // SVG output is locally generated; strip executable content as a second boundary.
     safe.querySelectorAll("script,iframe,object,embed,foreignObject").forEach(node => node.remove());
@@ -210,10 +226,12 @@ async function save(reviewState = "draft") {
 
 async function play() {
   stopPlayback();
+  const revision = desk.playbackRevision;
   const Context = window.AudioContext || window.webkitAudioContext;
   if (!Context) { message("Audio playback is unavailable in this browser.", true); return; }
   try {
     desk.audio ||= new Context(); await desk.audio.resume();
+    if (revision !== desk.playbackRevision) return;
     const base = desk.audio.currentTime + .1;
     let last = 0;
     for (const event of desk.audioEvents) {
@@ -230,16 +248,50 @@ async function play() {
       oscillator.connect(gain); gain.connect(desk.audio.destination);
       oscillator.start(start); oscillator.stop(finish + .01);
       oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-      desk.oscillators.push(oscillator); last = Math.max(last, time + duration);
+      desk.oscillators.push(oscillator); last = Math.max(last, time + Math.min(duration, 60));
     }
+    for (const event of desk.visualEvents) last = Math.max(last, event.end);
+    desk.playbackStart = base; desk.playbackEnd = base + last; desk.playing = true;
+    desk.playbackFrame = requestAnimationFrame(followPlayback);
     $("stop").disabled = false; $("play").disabled = true;
-    desk.playbackTimer = setTimeout(stopPlayback, (last + .2) * 1000);
     message("Playing the current editor contents.");
   } catch (error) { stopPlayback(); message(error.message, true); }
 }
 
+function followPlayback() {
+  if (!desk.playing) return;
+  if (desk.audio.currentTime >= desk.playbackEnd + .025) {
+    stopPlayback(); return;
+  }
+  const active = ReviewPlayback.activeAt(desk.visualEvents, desk.audio.currentTime - desk.playbackStart);
+  const indices = new Set(active.map(event => event.index));
+  if (indices.size !== desk.highlighted.size || [...indices].some(index => !desk.highlighted.has(index))) {
+    for (const hit of $("notation").querySelectorAll(".score-hit")) {
+      hit.classList.toggle("playing", indices.has(Number(hit.dataset.start)));
+    }
+    desk.highlighted = indices;
+  }
+  const newest = active[active.length - 1]?.index;
+  if ($("follow-playback").checked && newest !== undefined && newest !== desk.followIndex) {
+    const hit = $("notation").querySelector(`.score-hit[data-start="${newest}"]`);
+    if (hit) {
+      const viewport = $("notation"), bounds = viewport.getBoundingClientRect();
+      const rect = hit.getBoundingClientRect();
+      if (rect.top < Math.max(0, bounds.top) + 20 ||
+          rect.bottom > Math.min(window.innerHeight, bounds.bottom) - 20) {
+        hit.scrollIntoView({block: "nearest", inline: "nearest", behavior: "smooth"});
+      }
+    }
+    desk.followIndex = newest;
+  }
+  desk.playbackFrame = requestAnimationFrame(followPlayback);
+}
+
 function stopPlayback() {
-  clearTimeout(desk.playbackTimer);
+  desk.playbackRevision++; desk.playing = false;
+  cancelAnimationFrame(desk.playbackFrame);
+  desk.highlighted.clear(); desk.followIndex = null;
+  $("notation").querySelectorAll(".playing").forEach(node => node.classList.remove("playing"));
   for (const oscillator of desk.oscillators) { try { oscillator.stop(); } catch (_) {} }
   desk.oscillators = []; $("stop").disabled = true;
   $("play").disabled = !desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);

@@ -32,7 +32,7 @@ where = ["."]
 include = ["score2abc*"]
 
 [tool.setuptools.package-data]
-score2abc = ["review_ui.html", "review_ui.css", "review_ui.js", "review_render.js"]
+score2abc = ["review_ui.html", "review_ui.css", "review_ui.js", "review_playback.js", "review_render.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -112,9 +112,10 @@ Done when: evaluation shows clear improvement over M1 baseline and meter validit
 Goal: easy correction for remaining errors with patches fed back into the dataset.
 
 - [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
-- [x] Optional playback of the rendered ABC using local timing conversion and reference tones.
+- [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with synchronized note/rest/tied-continuation highlighting and optional automatic scrolling.
 - [x] ABC/chord editing with rendered note/rest/bar selection into the text editor; source-system selection is manual.
 - [x] Save exact ABC overrides with revision checks, draft/reviewed states, validation, questions, and active review time. Export saved valid ABC without modifying canonical output.
+- [x] Prefer supplied MusicXML harmonies over OCR, show melody/chord origins separately, and restore legacy chord labels through an explicit revision-checked operation that preserves accidental edits and backs up the original draft.
 - [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
 - [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.
 

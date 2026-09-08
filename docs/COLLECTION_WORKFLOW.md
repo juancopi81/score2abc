@@ -46,6 +46,12 @@ after checking its complete music. The first UI has text editing and selectable
 rendered symbols; it is not a graphical engraving editor. Reference tones do not
 provide chord-symbol accompaniment.
 
+Playback highlights each written note/group and rest, including tied
+continuations, and follows it in the notation when “Follow playback” is checked.
+The audio clock controls both highlighting and completion. Melody and chord
+origins are displayed separately: XML harmony markings take precedence over OCR
+proposals when supplied, and later saved corrections retain that origin.
+
 The save contract is `out/<slug>/overrides/review.json`: exact ABC, original-ABC
 snapshot/hash, revision, draft/reviewed status, unresolved questions and active
 review time. Atomic saves reject stale revisions; invalid drafts remain savable.
@@ -55,8 +61,9 @@ event-level training label, a MusicXML export, or part of `score2abc export`.
 
 ## Next milestone and acceptance
 
-1. Juan tries Aviador for 5–10 minutes. Resolve editing friction before asking
-   for substantial transcription time.
+1. The first Aviador edit/play/save/reopen trial is complete. Recheck playback
+   following and restored supplied chords before asking for substantial
+   transcription time.
 2. Prepare three complete scores spanning clear, intermediate and poor scans.
    Check physical measure mapping and key/meter context before inference.
    Keep prior consumed examples separate from any fresh evaluation set.
@@ -86,3 +93,10 @@ text includes a tuplet, dyad, tie, rest and chord symbol. Real source PDF and AB
 bytes remain unchanged. An independent review found and verified fixes for
 editing during work loading and saving after more than an hour of active review.
 Human musical accuracy and usability acceptance are still pending.
+
+The first feedback follow-up passed 751 tests plus Ruff, Black, JavaScript checks,
+and packaged-asset verification. Browser checks covered live highlights, scrolling,
+stop cleanup and editing during playback. Aviador's draft was explicitly upgraded
+to revision 2 with 26 supplied chord markings, an exact revision-1 backup, and
+every non-chord character preserved, including the user's C-sharp correction.
+Source PDF, XML, generated ABC and canonical events remain unchanged on disk.
