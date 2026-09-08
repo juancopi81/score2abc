@@ -17,7 +17,12 @@ def test_playback_timeline():
     if renderer:
         env["SCORE2ABC_TEST_RENDERER"] = str(Path(renderer).resolve().parent)
     result = subprocess.run(
-        [node, "--test", str(Path(__file__).with_name("review_playback.test.js"))],
+        [
+            node,
+            "--test",
+            str(Path(__file__).with_name("review_playback.test.js")),
+            str(Path(__file__).with_name("review_audio.test.js")),
+        ],
         env=env,
         text=True,
         capture_output=True,

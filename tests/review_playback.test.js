@@ -64,3 +64,67 @@ test('repeats revisit source symbols and tempo changes keep their timing', {skip
   assert.equal(events[3].index, events[7].index);
   assert.equal(events.at(-1).end, 6);
 });
+
+function backing(text) {
+  const context = engine();
+  return playback.accompaniment(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text);
+}
+const header = 'X:1\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\n';
+
+test('accompaniment uses edited harmonies at note/rest/tied onsets, without pickup chords', {skip: !renderer}, () => {
+  const abc = header + 'C "Gm6"D "D7"z E- | "Cm6"E "N.C."z "^instruction"z2 |';
+  const {events, warnings} = backing(abc);
+  assert.deepEqual(events.map(e => [e.start, e.duration, e.symbol]), [
+    [1, 1, 'Gm6'], [2, 2, 'D7'], [4, 1, 'Cm6']
+  ]);
+  assert.deepEqual(events[0].pitches, [55, 58, 62, 64]);
+  assert.deepEqual(warnings, []);
+  assert.equal(backing(abc.replace('Gm6', 'Dm')).events[0].symbol, 'Dm');
+  assert.deepEqual(backing(abc.replace('Gm6', 'Dm')).events[0].pitches, [50, 53, 57]);
+});
+
+test('unsupported harmony silences previous chord, while annotations do not change it', {skip: !renderer}, () => {
+  const {events, warnings} = backing(header + '"G"C "^louder"D "Gwhatever"E "A7"F|');
+  assert.deepEqual(events.map(e => [e.start, e.duration, e.symbol]), [[0, 2, 'G'], [3, 1, 'A7']]);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /Gwhatever/);
+});
+
+test('repeats restore inherited harmony and tempo inside sustained harmony remains aligned', {skip: !renderer}, () => {
+  const abc = header + '"G"C |: D E | "D7"F G :|\nQ:1/4=120\nA B |';
+  const {events, warnings} = backing(abc);
+  assert.deepEqual(events.map(e => [e.start, e.duration, e.symbol]), [
+    [0, 3, 'G'], [3, 2, 'D7'], [5, 2, 'G'], [7, 3, 'D7']
+  ]);
+  assert.deepEqual(warnings, []);
+  const sustained = backing(header + '"Dm"C2\nQ:1/4=120\nD2 | E4 |');
+  const context = engine();
+  const markers = playback.writtenEvents(context.abc2svg.Abc, context.ToAudio,
+    context.abc2svg.C, header + '\"Dm\"C2\nQ:1/4=120\nD2 | E4 |');
+  // Follow the installed ToAudio clock even across its mid-system tempo boundary.
+  assert.deepEqual(sustained.events.map(e => [e.start, e.duration]),
+    [[0, Math.max(...markers.map(event => event.end))]]);
+});
+
+test('repeat into an unharmonized pickup clears the final harmony', {skip: !renderer}, () => {
+  const {events} = backing(header + '|: C "Dm"D E F :|');
+  assert.deepEqual(events.map(e => [e.start, e.duration, e.symbol]), [[1, 3, 'Dm'], [5, 3, 'Dm']]);
+});
+
+test('known chord families and slash bass use bounded lower-register voicing', {skip: !renderer}, () => {
+  const symbols = ['Gm6', 'Dm', 'Cm6', 'D7', 'Gm', 'A7', 'D', 'Em', 'G',
+    'Cmaj7', 'Cm7', 'Cdim', 'Cdim7', 'Caug', 'Csus2', 'Csus4', 'D/F#'];
+  const {events, warnings} = backing(header + symbols.map(symbol => `"${symbol}"C`).join(' ') + '|');
+  assert.equal(events.length, symbols.length);
+  assert.deepEqual(events.map(e => e.symbol), symbols);
+  assert.deepEqual(events.at(-1).pitches, [42, 50, 54, 57]);
+  assert.deepEqual(events[9].pitches, [48, 52, 55, 59]);
+  assert.deepEqual(events[11].pitches, [48, 51, 54]);
+  assert.deepEqual(warnings, []);
+});
+
+test('simultaneous conflicting harmonies silence instead of guessing', {skip: !renderer}, () => {
+  const {events, warnings} = backing(header + '[V:1] "C"C4|\n[V:2] "Dm"E4|');
+  assert.deepEqual(events, []);
+  assert.equal(warnings.length, 1);
+});

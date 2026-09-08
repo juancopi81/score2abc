@@ -2,7 +2,7 @@
 
 const $ = id => document.getElementById(id);
 const desk = {data: null, work: null, dirty: false, rendering: null, audio: null,
-  oscillators: [], audioEvents: [], symbols: [], reviewMs: 0, lastTick: Date.now(),
+  oscillators: [], audioEvents: [], chordEvents: [], symbols: [], reviewMs: 0, lastTick: Date.now(),
   lastAction: Date.now(), renderTimer: null, loading: false,
   visualEvents: [], playbackFrame: null, playbackStart: 0, playbackEnd: 0, playbackRevision: 0,
   highlighted: new Set(), followIndex: null, playing: false};
@@ -132,7 +132,7 @@ async function loadWork(slug) {
 
 function renderNotation() {
   if (!desk.work || desk.loading) return;
-  stopPlayback(); desk.audioEvents = []; desk.visualEvents = []; desk.symbols = [];
+  stopPlayback(); desk.audioEvents = []; desk.chordEvents = []; desk.visualEvents = []; desk.symbols = [];
   $("notation").replaceChildren(); $("validation").replaceChildren();
   $("approve").disabled = true; $("download").disabled = true; $("play").disabled = true;
   if (!canRender()) {
@@ -174,6 +174,9 @@ function renderNotation() {
     abc.tosvg("review", text);
     if (!errors.length && typeof ToAudio !== "undefined") {
       desk.visualEvents = ReviewPlayback.writtenEvents(abc2svg.Abc, ToAudio, abc2svg.C, text);
+      const accompaniment = ReviewPlayback.accompaniment(abc2svg.Abc, ToAudio, abc2svg.C, text);
+      desk.chordEvents = accompaniment.events;
+      warnings.push(...accompaniment.warnings);
     }
     const safe = new DOMParser().parseFromString(`<div>${markup}</div>`, "text/html");
     // SVG output is locally generated; strip executable content as a second boundary.
@@ -238,24 +241,44 @@ async function play() {
       const [, time, instrument, pitch, duration, volume] = event;
       if (instrument < 0 || pitch <= 0 || volume <= 0 || duration <= 0) continue;
       if (![time, pitch, duration].every(Number.isFinite) || time > 1800) continue;
-      const oscillator = desk.audio.createOscillator(), gain = desk.audio.createGain();
-      oscillator.type = "triangle";
-      oscillator.frequency.value = 440 * 2 ** ((pitch - 69) / 12);
-      const start = base + time, finish = start + Math.min(duration, 60);
-      gain.gain.setValueAtTime(0, start); gain.gain.linearRampToValueAtTime(.075, start + .008);
-      gain.gain.setValueAtTime(.075, Math.max(start + .008, finish - .04));
-      gain.gain.linearRampToValueAtTime(0, finish);
-      oscillator.connect(gain); gain.connect(desk.audio.destination);
-      oscillator.start(start); oscillator.stop(finish + .01);
-      oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-      desk.oscillators.push(oscillator); last = Math.max(last, time + Math.min(duration, 60));
+      scheduleTone(pitch, base + time, Math.min(duration, 60), .075, "triangle");
+      last = Math.max(last, time + Math.min(duration, 60));
+    }
+    for (const chord of desk.chordEvents) {
+      if (![chord.start, chord.duration].every(Number.isFinite) || chord.start < 0 ||
+          chord.start > 1800 || chord.duration <= 0) continue;
+      const pitches = [...new Set(chord.pitches)].filter(pitch => Number.isFinite(pitch) && pitch > 0 && pitch < 128);
+      if (!pitches.length) continue;
+      const duration = Math.min(chord.duration, 1800 - chord.start);
+      for (const pitch of pitches) {
+        scheduleTone(pitch, base + chord.start, duration, .045 / pitches.length, "sine");
+      }
+      last = Math.max(last, chord.start + duration);
     }
     for (const event of desk.visualEvents) last = Math.max(last, event.end);
     desk.playbackStart = base; desk.playbackEnd = base + last; desk.playing = true;
     desk.playbackFrame = requestAnimationFrame(followPlayback);
     $("stop").disabled = false; $("play").disabled = true;
-    message("Playing the current editor contents.");
+    message(desk.chordEvents.length ? "Playing melody with quiet chord accompaniment." : "Playing the current editor contents.");
   } catch (error) { stopPlayback(); message(error.message, true); }
+}
+
+function scheduleTone(pitch, start, duration, level, waveform) {
+  if (duration <= 0) return;
+  const oscillator = desk.audio.createOscillator(), gain = desk.audio.createGain();
+  const finish = start + duration;
+  const attack = Math.min(waveform === "sine" ? .025 : .008, duration / 4);
+  const release = Math.min(waveform === "sine" ? .08 : .04, duration / 3);
+  oscillator.type = waveform;
+  oscillator.frequency.value = 440 * 2 ** ((pitch - 69) / 12);
+  gain.gain.setValueAtTime(0, start);
+  gain.gain.linearRampToValueAtTime(level, start + attack);
+  gain.gain.setValueAtTime(level, finish - release);
+  gain.gain.linearRampToValueAtTime(0, finish);
+  oscillator.connect(gain); gain.connect(desk.audio.destination);
+  oscillator.start(start); oscillator.stop(finish + .01);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+  desk.oscillators.push(oscillator);
 }
 
 function followPlayback() {

@@ -68,6 +68,10 @@ rendered notation. Click a rendered note, rest, or barline to select its ABC;
 use reference-tone playback to check a phrase. Sounding notes, simultaneous
 note groups, tied continuations and rests are highlighted; “Follow playback”
 controls automatic scrolling. Editing or stopping clears the playback cursor.
+Written chord symbols add quiet, sustained accompaniment from the current ABC,
+starting at each symbol and lasting until the next change or the end. Pickups
+before the first chord remain melody-only; `N.C.` silences accompaniment.
+Unsupported or conflicting chord symbols show a warning and silence that passage.
 Melody and chord origins are shown separately, including unreviewed OCR proposals.
 Save incomplete drafts, record
 questions, then mark the complete score reviewed after comparing it with the

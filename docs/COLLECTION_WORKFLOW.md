@@ -43,12 +43,16 @@ Use `out/local_restricted` as a separate output root for the six restricted PDFs
 Compare page/system images with notation, edit ABC and chord symbols, listen,
 record unresolved questions, save, reopen, and export. Only mark a score reviewed
 after checking its complete music. The first UI has text editing and selectable
-rendered symbols; it is not a graphical engraving editor. Reference tones do not
-provide chord-symbol accompaniment.
+rendered symbols; it is not a graphical engraving editor.
 
 Playback highlights each written note/group and rest, including tied
 continuations, and follows it in the notation when “Follow playback” is checked.
-The audio clock controls both highlighting and completion. Melody and chord
+Quiet, sustained chords follow the current ABC symbols without adding visible
+notation. Each chord begins at its written position and lasts until the next
+change or the end; a pickup before the first symbol has no accompaniment.
+`N.C.` silences accompaniment. Unsupported or conflicting symbols produce a
+warning and silence that passage. Editing or stopping cancels both voices.
+The audio clock controls melody, accompaniment, highlighting and completion. Melody and chord
 origins are displayed separately: XML harmony markings take precedence over OCR
 proposals when supplied, and later saved corrections retain that origin.
 
@@ -61,9 +65,10 @@ event-level training label, a MusicXML export, or part of `score2abc export`.
 
 ## Next milestone and acceptance
 
-1. The first Aviador edit/play/save/reopen trial is complete. Recheck playback
-   following and restored supplied chords before asking for substantial
-   transcription time.
+1. The first Aviador edit/play/save/reopen and playback-following trials are
+   complete. Listen to the new chord accompaniment for timing and balance,
+   checking the supplied chord labels against the source before asking for
+   substantial transcription time.
 2. Prepare three complete scores spanning clear, intermediate and poor scans.
    Check physical measure mapping and key/meter context before inference.
    Keep prior consumed examples separate from any fresh evaluation set.
@@ -100,3 +105,11 @@ stop cleanup and editing during playback. Aviador's draft was explicitly upgrade
 to revision 2 with 26 supplied chord markings, an exact revision-1 backup, and
 every non-chord character preserved, including the user's C-sharp correction.
 Source PDF, XML, generated ABC and canonical events remain unchanged on disk.
+
+The accompaniment follow-up also passed 751 tests, including 15 JavaScript
+timing and audio-lifecycle checks, plus Ruff, Black and JavaScript syntax checks.
+Source distribution and wheel build successfully with matching review assets.
+Disposable browser checks covered chord edits, unsupported-symbol warnings,
+playback highlighting and stop cleanup. All six pinned Aviador draft, backup,
+source and generated artifacts remained byte-for-byte unchanged. Chord balance
+and musical timing await the user's listening review.
