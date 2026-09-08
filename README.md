@@ -72,6 +72,11 @@ Written chord symbols add quiet, sustained accompaniment from the current ABC,
 starting at each symbol and lasting until the next change or the end. Pickups
 before the first chord remain melody-only; `N.C.` silences accompaniment.
 Unsupported or conflicting chord symbols show a warning and silence that passage.
+Set **Tempo** in quarter-note BPM to speed up or slow down melody, chords and
+highlighting together, then press Play to restart. The browser remembers your
+choice for each melody; **Score tempo** restores the ABC's starting tempo
+(120 BPM when unspecified). This listening preference leaves saved/exported ABC
+unchanged and preserves the relative changes of any later written tempos.
 Melody and chord origins are shown separately, including unreviewed OCR proposals.
 Save incomplete drafts, record
 questions, then mark the complete score reviewed after comparing it with the

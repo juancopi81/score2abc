@@ -34,6 +34,7 @@
         </section>
         <section class="panel notation-panel" aria-labelledby="notation-heading">
           <div class="panel-heading"><h2 id="notation-heading"><span class="step">02</span> Transcription</h2><div class="panel-tools"><button id="play" disabled>▶ Play</button><button id="stop" disabled>Stop</button><button id="download" disabled>Download ABC</button></div></div>
+          <div class="tempo-controls"><label for="bpm">Tempo ♩ =</label><input id="bpm" type="number" min="20" max="400" step="1" value="120" aria-label="Playback BPM" aria-describedby="tempo-help" disabled><span>BPM</span><button id="reset-tempo" disabled>Score tempo</button><span id="tempo-help">Listening speed only · change, then Play.</span></div>
           <div id="notation" tabindex="0" aria-label="Rendered transcription"><p class="empty">Your transcription will appear here.</p></div>
           <p class="panel-caption playback-caption"><span>Click a note or rest to find it in the editor. Playback uses a simple reference tone.</span><label><input id="follow-playback" type="checkbox" checked> Follow playback</label></p>
         </section>

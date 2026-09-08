@@ -128,3 +128,34 @@ test('simultaneous conflicting harmonies silence instead of guessing', {skip: !r
   assert.deepEqual(events, []);
   assert.equal(warnings.length, 1);
 });
+
+test('initial BPM uses positive time-zero beat units and ignores later tempo changes', () => {
+  const constants = {TEMPO: 14, BLEN: 1536};
+  const chain = symbols => symbols.reduceRight((next, symbol) => ({...symbol, ts_next: next}), null);
+  assert.equal(playback.initialBpm(null, constants), 120);
+  assert.equal(playback.initialBpm(chain([
+    {type:14,time:0,tempo:60,tempo_notes:[384,192]},
+    {type:8,time:0}, {type:14,time:384,tempo:240,tempo_notes:[384]}
+  ]), constants), 90);
+  assert.equal(playback.initialBpm(chain([
+    {type:14,time:0,tempo:NaN,tempo_notes:[384]},
+    {type:14,time:0,tempo:-20,tempo_notes:[384]},
+    {type:14,time:0,tempo:20,tempo_notes:[]},
+    {type:14,time:10,tempo:80,tempo_notes:[384]}
+  ]), constants), 120);
+});
+
+test('initial BPM matches installed renderer no-Q, beat-unit, text, and later-Q semantics', {skip: !renderer}, () => {
+  const cases = [
+    ['', 120], ['Q:90\n', 120], ['Q:"Allegro"\n', 120],
+    ['Q:1/8=120\n', 60], ['Q:3/8=60\n', 90], ['Q:1/4 1/8=60\n', 90],
+    ['Q:1/4=ca. 72\n', 72], ['Q:1/4=1/8\n', 120], ['Q:1/4=60\n', 60]
+  ];
+  for (const [q, expected] of cases) {
+    const context = engine(); let bpm;
+    new context.abc2svg.Abc({img_out(){}, errbld(){}, get_abcmodel(first) {
+      bpm = playback.initialBpm(first, context.abc2svg.C);
+    }}).tosvg('bpm', 'X:1\nM:4/4\nL:1/4\n' + q + 'K:C\nC D |\nQ:1/4=200\nE F|');
+    assert.equal(bpm, expected, `initial quarter BPM for ${JSON.stringify(q)}`);
+  }
+});

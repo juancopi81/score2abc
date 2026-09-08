@@ -56,6 +56,12 @@ The audio clock controls melody, accompaniment, highlighting and completion. Mel
 origins are displayed separately: XML harmony markings take precedence over OCR
 proposals when supplied, and later saved corrections retain that origin.
 
+The Tempo control uses quarter-note BPM and scales melody, chords and highlighting
+together, retaining relative tempo changes within the score. Changing it stops
+playback; press Play to restart at the new speed. The browser remembers the
+preference per melody. Score tempo resets to the ABC's initial numeric tempo,
+or 120 BPM if unspecified. Neither action edits ABC or marks the draft dirty.
+
 The save contract is `out/<slug>/overrides/review.json`: exact ABC, original-ABC
 snapshot/hash, revision, draft/reviewed status, unresolved questions and active
 review time. Atomic saves reject stale revisions; invalid drafts remain savable.
@@ -65,10 +71,10 @@ event-level training label, a MusicXML export, or part of `score2abc export`.
 
 ## Next milestone and acceptance
 
-1. The first Aviador edit/play/save/reopen and playback-following trials are
-   complete. Listen to the new chord accompaniment for timing and balance,
-   checking the supplied chord labels against the source before asking for
-   substantial transcription time.
+1. The first Aviador edit/play/save/reopen, playback-following and chord
+   accompaniment trials are complete. Chord timing, balance and harmony passed
+   the user's listening review. Confirm the BPM control makes it comfortable to
+   review at a chosen speed before asking for substantial transcription time.
 2. Prepare three complete scores spanning clear, intermediate and poor scans.
    Check physical measure mapping and key/meter context before inference.
    Keep prior consumed examples separate from any fresh evaluation set.
@@ -111,5 +117,11 @@ timing and audio-lifecycle checks, plus Ruff, Black and JavaScript syntax checks
 Source distribution and wheel build successfully with matching review assets.
 Disposable browser checks covered chord edits, unsupported-symbol warnings,
 playback highlighting and stop cleanup. All six pinned Aviador draft, backup,
-source and generated artifacts remained byte-for-byte unchanged. Chord balance
-and musical timing await the user's listening review.
+source and generated artifacts remained byte-for-byte unchanged. The user's
+subsequent listening review accepted chord timing, balance and harmony.
+
+The BPM follow-up passed 751 tests, including 20 JavaScript timing/audio checks,
+plus Ruff, Black, syntax checks and matching packaged assets. Browser checks
+verified 160/80 BPM playback, cancellation, persisted tempo after reopening,
+score-tempo reset and unchanged ABC. All six real Aviador artifacts remained
+byte-for-byte unchanged.

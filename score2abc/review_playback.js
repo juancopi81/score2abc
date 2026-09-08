@@ -2,6 +2,17 @@
 
 // Keep score following on the same clock and source offsets as audio playback.
 const ReviewPlayback = (() => {
+  function initialBpm(first, constants) {
+    let bpm = 120; // ToAudio's default is quarter note = 120.
+    for (let symbol = first; symbol && symbol.time === 0; symbol = symbol.ts_next) {
+      if (symbol.type !== constants.TEMPO || !symbol.tempo) continue;
+      const candidate = symbol.tempo * (symbol.tempo_notes || []).reduce((sum, value) => sum + value, 0) /
+        (constants.BLEN / 4);
+      if (Number.isFinite(candidate) && candidate > 0) bpm = candidate;
+    }
+    return bpm;
+  }
+
   function timeline(events) {
     const seen = new Set(), result = [];
     for (const [index, start, instrument, pitch, duration, volume] of events) {
@@ -139,7 +150,7 @@ const ReviewPlayback = (() => {
     return {events: result, warnings: [...warnings]};
   }
 
-  return {timeline, activeAt, writtenEvents, accompaniment};
+  return {initialBpm, timeline, activeAt, writtenEvents, accompaniment};
 })();
 
 if (typeof module === "object") module.exports = ReviewPlayback;

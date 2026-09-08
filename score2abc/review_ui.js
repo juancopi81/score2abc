@@ -5,7 +5,8 @@ const desk = {data: null, work: null, dirty: false, rendering: null, audio: null
   oscillators: [], audioEvents: [], chordEvents: [], symbols: [], reviewMs: 0, lastTick: Date.now(),
   lastAction: Date.now(), renderTimer: null, loading: false,
   visualEvents: [], playbackFrame: null, playbackStart: 0, playbackEnd: 0, playbackRevision: 0,
-  highlighted: new Set(), followIndex: null, playing: false};
+  highlighted: new Set(), followIndex: null, playing: false, playbackValid: false,
+  scoreBpm: 120, tempoOverride: null, playbackRate: 1};
 
 function message(text, error = false) {
   $("status").textContent = text;
@@ -24,7 +25,7 @@ function canRender() { return typeof abc2svg !== "undefined" && desk.data?.rende
 
 function setBusy(busy) {
   desk.loading = busy;
-  for (const id of ["abc", "unresolved", "save"]) $(id).disabled = busy || !desk.work;
+  for (const id of ["abc", "unresolved", "save", "bpm", "reset-tempo"]) $(id).disabled = busy || !desk.work;
   if (busy) {
     clearTimeout(desk.renderTimer);
     stopPlayback();
@@ -53,6 +54,7 @@ function renderLibrary() {
 
 function setDirty() {
   if (!desk.work) return;
+  desk.playbackValid = false;
   stopPlayback();
   $("play").disabled = true;
   desk.dirty = true;
@@ -99,6 +101,11 @@ async function loadWork(slug) {
     message("Opening melody…");
     const work = await api(`/api/work/${encodeURIComponent(slug)}`);
     desk.work = work; desk.dirty = false; desk.reviewMs = 0; desk.lastTick = Date.now();
+    desk.scoreBpm = 120; desk.tempoOverride = null;
+    try {
+      const stored = Number(localStorage.getItem(tempoKey()));
+      if (Number.isFinite(stored) && stored >= 20 && stored <= 400) desk.tempoOverride = stored;
+    } catch (_) {} // Playback still works when browser storage is unavailable.
     $("abc").value = work.abc;
     $("unresolved").value = work.unresolved.join("\n");
     $("title").textContent = work.metadata.title;
@@ -132,6 +139,7 @@ async function loadWork(slug) {
 
 function renderNotation() {
   if (!desk.work || desk.loading) return;
+  desk.playbackValid = false;
   stopPlayback(); desk.audioEvents = []; desk.chordEvents = []; desk.visualEvents = []; desk.symbols = [];
   $("notation").replaceChildren(); $("validation").replaceChildren();
   $("approve").disabled = true; $("download").disabled = true; $("play").disabled = true;
@@ -161,6 +169,7 @@ function renderNotation() {
         abc.out_svg(`" width="${width.toFixed(2)}" height="${abc.sh(height).toFixed(2)}"/>`);
       },
       get_abcmodel: (first, voices) => {
+        desk.scoreBpm = ReviewPlayback.initialBpm(first, abc2svg.C);
         for (let symbol = first; symbol; symbol = symbol.ts_next) {
           if (symbol.type === abc2svg.C.NOTE) notes += symbol.notes.length;
         }
@@ -200,7 +209,9 @@ function renderNotation() {
     const line = document.createElement("p"); line.textContent = item; $("validation").append(line);
   }
   $("approve").disabled = errors.length > 0 || !notes || $("unresolved").value.trim().length > 0;
-  $("play").disabled = errors.length > 0 || !desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
+  desk.playbackValid = errors.length === 0 && desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
+  $("play").disabled = !desk.playbackValid;
+  showTempo();
   $("download").disabled = desk.dirty || desk.work.revision < 1 || !desk.work.validation?.valid;
 }
 
@@ -227,7 +238,36 @@ async function save(reviewState = "draft") {
   finally { setBusy(false); }
 }
 
+function tempoKey() { return `score2abc.review.bpm.v1:${desk.work.slug}`; }
+
+function showTempo() {
+  $("bpm").min = Math.min(20, desk.scoreBpm);
+  $("bpm").max = Math.max(400, desk.scoreBpm);
+  $("bpm").value = desk.tempoOverride ?? desk.scoreBpm;
+  $("bpm").removeAttribute("aria-invalid");
+  $("reset-tempo").title = `Restore ${desk.scoreBpm} quarter-note BPM from the score (120 if unspecified).`;
+}
+
+function changeTempo(reset = false) {
+  if (!desk.work || desk.loading) return;
+  stopPlayback();
+  const bpm = reset ? desk.scoreBpm : Number($("bpm").value);
+  if (!Number.isFinite(bpm) || bpm < Number($("bpm").min) || bpm > Number($("bpm").max)) {
+    $("bpm").setAttribute("aria-invalid", "true"); $("play").disabled = true;
+    message(`Choose a BPM from ${$("bpm").min} to ${$("bpm").max}.`, true); return;
+  }
+  desk.tempoOverride = reset ? null : bpm;
+  try {
+    if (reset) localStorage.removeItem(tempoKey());
+    else localStorage.setItem(tempoKey(), String(bpm));
+  } catch (_) {}
+  showTempo();
+  $("play").disabled = !desk.playbackValid;
+  message(`Playback tempo: ${bpm} BPM. Press Play to restart.`);
+}
+
 async function play() {
+  if (!desk.playbackValid || desk.loading || $("bpm").getAttribute("aria-invalid") === "true") return;
   stopPlayback();
   const revision = desk.playbackRevision;
   const Context = window.AudioContext || window.webkitAudioContext;
@@ -235,13 +275,15 @@ async function play() {
   try {
     desk.audio ||= new Context(); await desk.audio.resume();
     if (revision !== desk.playbackRevision) return;
+    const rate = (desk.tempoOverride ?? desk.scoreBpm) / desk.scoreBpm;
+    desk.playbackRate = rate;
     const base = desk.audio.currentTime + .1;
     let last = 0;
     for (const event of desk.audioEvents) {
       const [, time, instrument, pitch, duration, volume] = event;
       if (instrument < 0 || pitch <= 0 || volume <= 0 || duration <= 0) continue;
       if (![time, pitch, duration].every(Number.isFinite) || time > 1800) continue;
-      scheduleTone(pitch, base + time, Math.min(duration, 60), .075, "triangle");
+      scheduleTone(pitch, base + time / rate, Math.min(duration, 60) / rate, .075, "triangle");
       last = Math.max(last, time + Math.min(duration, 60));
     }
     for (const chord of desk.chordEvents) {
@@ -251,15 +293,15 @@ async function play() {
       if (!pitches.length) continue;
       const duration = Math.min(chord.duration, 1800 - chord.start);
       for (const pitch of pitches) {
-        scheduleTone(pitch, base + chord.start, duration, .045 / pitches.length, "sine");
+        scheduleTone(pitch, base + chord.start / rate, duration / rate, .045 / pitches.length, "sine");
       }
       last = Math.max(last, chord.start + duration);
     }
     for (const event of desk.visualEvents) last = Math.max(last, event.end);
-    desk.playbackStart = base; desk.playbackEnd = base + last; desk.playing = true;
+    desk.playbackStart = base; desk.playbackEnd = base + last / rate; desk.playing = true;
     desk.playbackFrame = requestAnimationFrame(followPlayback);
     $("stop").disabled = false; $("play").disabled = true;
-    message(desk.chordEvents.length ? "Playing melody with quiet chord accompaniment." : "Playing the current editor contents.");
+    message(`Playing at ${desk.tempoOverride ?? desk.scoreBpm} BPM${desk.chordEvents.length ? " with quiet chord accompaniment" : ""}.`);
   } catch (error) { stopPlayback(); message(error.message, true); }
 }
 
@@ -286,7 +328,7 @@ function followPlayback() {
   if (desk.audio.currentTime >= desk.playbackEnd + .025) {
     stopPlayback(); return;
   }
-  const active = ReviewPlayback.activeAt(desk.visualEvents, desk.audio.currentTime - desk.playbackStart);
+  const active = ReviewPlayback.activeAt(desk.visualEvents, (desk.audio.currentTime - desk.playbackStart) * desk.playbackRate);
   const indices = new Set(active.map(event => event.index));
   if (indices.size !== desk.highlighted.size || [...indices].some(index => !desk.highlighted.has(index))) {
     for (const hit of $("notation").querySelectorAll(".score-hit")) {
@@ -317,7 +359,7 @@ function stopPlayback() {
   $("notation").querySelectorAll(".playing").forEach(node => node.classList.remove("playing"));
   for (const oscillator of desk.oscillators) { try { oscillator.stop(); } catch (_) {} }
   desk.oscillators = []; $("stop").disabled = true;
-  $("play").disabled = !desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
+  $("play").disabled = !desk.playbackValid || desk.loading || $("bpm").getAttribute("aria-invalid") === "true";
 }
 
 function updateTime() {
@@ -350,6 +392,8 @@ $("zoom").addEventListener("input", () => { $("source-image").style.width = `${$
 $("save").onclick = () => save("draft");
 $("approve").onclick = () => save("reviewed");
 $("play").onclick = play; $("stop").onclick = stopPlayback;
+$("bpm").addEventListener("input", () => changeTempo());
+$("reset-tempo").onclick = () => changeTempo(true);
 $("download").onclick = () => { if (!desk.dirty) location.href = `${workPath()}/export.abc`; };
 $("notation").onclick = event => {
   const hit = event.target.closest(".score-hit"); if (!hit) return;
