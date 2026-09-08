@@ -401,6 +401,12 @@ def run(
                     item,
                     melody=normalize_melody_payload,
                     chords=chords_payload["chords"],
+                    musicxml_chord_source=(
+                        "supplied_musicxml"
+                        if musicxml_backend.name == "fixture"
+                        or "manual_override" in musicxml_inputs
+                        else "recognized_musicxml"
+                    ),
                 )
                 normalize_inputs = {
                     "chords_json": str(chords_path),
@@ -408,6 +414,7 @@ def run(
                 }
             else:
                 events = _build_stub_events(item, chords=chords_payload["chords"])
+                events["chord_source"] = "automatic_ocr" if events["chords"] else "none"
                 normalize_inputs = {"chords_json": str(chords_path)}
             events_path = intermediate_dir / "events.json"
             events_path.write_text(json.dumps(events, indent=2) + "\n", encoding="utf-8")
@@ -421,7 +428,7 @@ def run(
                 ended_at=events_ended,
                 inputs=normalize_inputs,
                 outputs={"events_json": str(events_path)},
-                params={},
+                params={"chord_source": events["chord_source"]},
             )
 
             abc_started = _utcnow()
@@ -608,21 +615,26 @@ def _build_events_from_melody(
     *,
     melody: Dict[str, Any],
     chords: List[Dict[str, Any]],
+    musicxml_chord_source: str = "supplied_musicxml",
 ) -> dict:
-    """Combine extracted melody notes with chord-OCR chords into events.json."""
+    """Prefer MusicXML harmonies; use OCR only when MusicXML supplies none."""
+    xml_chords = melody.get("chords") or []
+    selected_chords = xml_chords or chords
+    chord_source = musicxml_chord_source if xml_chords else "automatic_ocr" if chords else "none"
     chord_events = [
         {
             "measure": entry["measure"],
             "onset_beats": entry.get("onset_beats", 0.0),
             "symbol": entry["symbol"],
         }
-        for entry in chords
+        for entry in selected_chords
     ]
     time_signature = melody.get("time_signature") or item.metadata.time_signature or "4/4"
     return {
         "time_signature": time_signature,
         "notes": list(melody.get("notes") or []),
         "chords": chord_events,
+        "chord_source": chord_source,
     }
 
 

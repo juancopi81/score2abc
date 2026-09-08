@@ -94,13 +94,15 @@ def test_extract_melody_events_drops_chords_and_extra_fields(tmp_path: Path) -> 
         assert set(note.keys()) == set(MELODY_NOTE_FIELDS)
 
 
-def test_extract_canonical_melody_events_preserves_accidentals(tmp_path: Path) -> None:
+def test_extract_canonical_melody_events_preserves_accidentals_and_harmonies(
+    tmp_path: Path,
+) -> None:
     xml_path = tmp_path / "tiny.musicxml"
     _write_musicxml(xml_path, _TINY_MUSICXML)
 
     payload = extract_canonical_melody_events(xml_path)
 
-    assert "chords" not in payload
+    assert payload["chords"] == [{"measure": 1, "onset_beats": 0.0, "symbol": "D"}]
     assert payload["notes"][0] == {
         "measure": 1,
         "onset_beats": 0.0,
@@ -268,3 +270,113 @@ def test_extract_melody_events_raises_on_missing_time_signature(tmp_path: Path) 
 
     with pytest.raises(ValueError, match="time signature"):
         extract_melody_events(xml_path)
+
+
+@pytest.mark.parametrize("xml_source", ["supplied_musicxml", "recognized_musicxml"])
+def test_musicxml_harmonies_win_over_conflicting_ocr_without_changing_notes(tmp_path, xml_source):
+    path = tmp_path / "tiny.musicxml"
+    _write_musicxml(path, _TINY_MUSICXML)
+    melody = extract_canonical_melody_events(path)
+    original = json.loads(json.dumps(melody))
+    events = _build_events_from_melody(
+        SimpleNamespace(metadata=_metadata()),
+        melody=melody,
+        chords=[{"measure": 1, "onset_beats": 1.0, "symbol": "G7"}],
+        musicxml_chord_source=xml_source,
+    )
+    assert events["chords"] == [{"measure": 1, "onset_beats": 0.0, "symbol": "D"}]
+    assert events["chord_source"] == xml_source
+    assert events["notes"] == original["notes"]
+    assert melody == original
+
+
+@pytest.mark.parametrize(
+    "ocr,source",
+    [
+        ([{"measure": 2, "onset_beats": 0.5, "symbol": "Am"}], "automatic_ocr"),
+        ([], "none"),
+    ],
+)
+def test_no_musicxml_harmonies_fall_back_to_ocr_or_none(ocr, source):
+    events = _build_events_from_melody(
+        SimpleNamespace(metadata=_metadata()),
+        melody={"time_signature": "3/4", "notes": [], "chords": []},
+        chords=ocr,
+    )
+    assert events["chords"] == ocr
+    assert events["chord_source"] == source
+
+
+@pytest.mark.parametrize(
+    "backend_name,manual,xml_harmony,ocr_symbols,source",
+    [
+        ("fixture", False, True, True, "supplied_musicxml"),
+        ("fixture", True, True, True, "supplied_musicxml"),
+        ("homr", False, True, True, "recognized_musicxml"),
+        ("fixture", False, False, True, "automatic_ocr"),
+        ("fixture", False, False, False, "none"),
+    ],
+)
+def test_pipeline_persists_selected_harmony_and_provenance(
+    tmp_path, monkeypatch, backend_name, manual, xml_harmony, ocr_symbols, source
+):
+    import score2abc.pipeline as pipeline
+    from score2abc.render import SegmentationResult
+
+    item = {"slug": "demo", "pdf_path": "demo.pdf", "metadata": _metadata().model_dump()}
+    (tmp_path / "manifest.jsonl").write_text(json.dumps(item) + "\n")
+    intermediate = tmp_path / "demo/intermediate"
+    intermediate.mkdir(parents=True)
+    xml = _TINY_MUSICXML
+    if not xml_harmony:
+        start, end = xml.index("      <harmony>"), xml.index("      </harmony>")
+        xml = xml[:start] + xml[end + len("      </harmony>") :]
+    xml_path = intermediate / "musicxml.xml"
+    _write_musicxml(xml_path, xml)
+    parsed = extract_canonical_melody_events(xml_path)
+    page = tmp_path / "page.png"
+    monkeypatch.setattr(pipeline, "render_pdf_to_images", lambda *_: [page])
+    monkeypatch.setattr(
+        pipeline,
+        "create_system_crops",
+        lambda *_: SegmentationResult([page], [], [], [], [], [], [], []),
+    )
+    monkeypatch.setattr(pipeline, "build_chord_ocr", lambda *_args, **_kwargs: None)
+    ocr = [{"measure": 1, "onset_beats": 0.0, "symbol": "Am"}] if ocr_symbols else []
+    monkeypatch.setattr(
+        pipeline,
+        "extract_chords_for_systems",
+        lambda **_: {
+            "chords": ocr,
+            "provider": "fixture",
+            "model_id": "test",
+            "prompt_version": "test",
+        },
+    )
+    produced = (
+        None
+        if manual
+        else SimpleNamespace(
+            source_path=xml_path,
+            output_path=xml_path,
+            raw_output_path=None,
+        )
+    )
+    backend = SimpleNamespace(name=backend_name, produce_musicxml=lambda **_: produced)
+    monkeypatch.setattr(pipeline, "build_musicxml_backend", lambda **_: backend)
+    monkeypatch.setattr(
+        pipeline, "render_abc_preview", lambda _abc, path, _logger: path.write_text("<svg/>")
+    )
+
+    assert pipeline.run(tmp_path, musicxml_backend_name=backend_name) == 0
+    events = json.loads((intermediate / "events.json").read_text())
+    stage = json.loads((tmp_path / "demo/stages/normalize_events.json").read_text())
+    assert events["chord_source"] == source
+    assert stage["params"]["chord_source"] == source
+    assert events["notes"] == parsed["notes"]
+    assert events["chords"] == (parsed["chords"] or ocr)
+    abc = (tmp_path / "demo/final/melody_with_chords.abc").read_text()
+    if xml_harmony:
+        assert '"D"' in abc and '"Am"' not in abc
+    elif ocr_symbols:
+        assert '"Am"' in abc

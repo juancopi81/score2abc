@@ -42,7 +42,8 @@ def extract_canonical_melody_events(musicxml_path: Path) -> Dict[str, Any]:
     """Parse MusicXML into canonical events-ready melody notes.
 
     `melody.json` intentionally stays at the four-field extraction contract, but
-    `events.json` can retain MusicXML spelling metadata needed by ABC rendering.
+    `events.json` retains MusicXML spelling metadata and supplied harmony symbols
+    needed by ABC rendering.
     """
     payload = parse_musicxml_events(musicxml_path)
     notes = _project_notes(
@@ -52,6 +53,7 @@ def extract_canonical_melody_events(musicxml_path: Path) -> Dict[str, Any]:
     return {
         "time_signature": payload["time_signature"],
         "notes": notes,
+        "chords": list(payload.get("chords") or []),
     }
 
 
