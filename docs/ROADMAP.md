@@ -112,7 +112,7 @@ Done when: evaluation shows clear improvement over M1 baseline and meter validit
 Goal: easy correction for remaining errors with patches fed back into the dataset.
 
 - [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
-- [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.
+- [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Chords stop at each barline; unmarked bars remain melody-only. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.
 - [x] Adjustable quarter-note BPM for synchronized melody/chord/cursor playback, with per-melody browser preferences and a score-tempo reset. Listening tempo does not alter saved or exported ABC.
 - [x] ABC/chord editing with rendered note/rest/bar selection into the text editor; source-system selection is manual.
 - [x] Save exact ABC overrides with revision checks, draft/reviewed states, validation, questions, and active review time. Export saved valid ABC without modifying canonical output.

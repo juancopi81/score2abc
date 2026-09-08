@@ -48,8 +48,10 @@ rendered symbols; it is not a graphical engraving editor.
 Playback highlights each written note/group and rest, including tied
 continuations, and follows it in the notation when “Follow playback” is checked.
 Quiet, sustained chords follow the current ABC symbols without adding visible
-notation. Each chord begins at its written position and lasts until the next
-change or the end; a pickup before the first symbol has no accompaniment.
+notation. Each chord begins at its written position and ends at the next chord
+change, barline or the end. Unmarked bars have no accompaniment and never inherit
+the previous bar's chord, including on repeats. A pickup before the first symbol
+has no accompaniment.
 `N.C.` silences accompaniment. Unsupported or conflicting symbols produce a
 warning and silence that passage. Editing or stopping cancels both voices.
 The audio clock controls melody, accompaniment, highlighting and completion. Melody and chord

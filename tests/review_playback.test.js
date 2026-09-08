@@ -90,11 +90,11 @@ test('unsupported harmony silences previous chord, while annotations do not chan
   assert.match(warnings[0], /Gwhatever/);
 });
 
-test('repeats restore inherited harmony and tempo inside sustained harmony remains aligned', {skip: !renderer}, () => {
+test('repeats leave unlabeled bars silent and tempo before the bar stays aligned', {skip: !renderer}, () => {
   const abc = header + '"G"C |: D E | "D7"F G :|\nQ:1/4=120\nA B |';
   const {events, warnings} = backing(abc);
   assert.deepEqual(events.map(e => [e.start, e.duration, e.symbol]), [
-    [0, 3, 'G'], [3, 2, 'D7'], [5, 2, 'G'], [7, 3, 'D7']
+    [0, 1, 'G'], [3, 2, 'D7'], [7, 2, 'D7']
   ]);
   assert.deepEqual(warnings, []);
   const sustained = backing(header + '"Dm"C2\nQ:1/4=120\nD2 | E4 |');
@@ -103,7 +103,7 @@ test('repeats restore inherited harmony and tempo inside sustained harmony remai
     context.abc2svg.C, header + '\"Dm\"C2\nQ:1/4=120\nD2 | E4 |');
   // Follow the installed ToAudio clock even across its mid-system tempo boundary.
   assert.deepEqual(sustained.events.map(e => [e.start, e.duration]),
-    [[0, Math.max(...markers.map(event => event.end))]]);
+    [[0, markers.find(event => event.index === (header + '"Dm"C2\nQ:1/4=120\nD2 | E4 |').indexOf('E4')).start]]);
 });
 
 test('repeat into an unharmonized pickup clears the final harmony', {skip: !renderer}, () => {
@@ -157,5 +157,55 @@ test('initial BPM matches installed renderer no-Q, beat-unit, text, and later-Q 
       bpm = playback.initialBpm(first, context.abc2svg.C);
     }}).tosvg('bpm', 'X:1\nM:4/4\nL:1/4\n' + q + 'K:C\nC D |\nQ:1/4=200\nE F|');
     assert.equal(bpm, expected, `initial quarter BPM for ${JSON.stringify(q)}`);
+  }
+});
+
+test('written bars stop accompaniment at pickups, tied continuations, rests, and mid-bar changes', {skip: !renderer}, () => {
+  const start = 'X:1\nM:2/4\nL:1/4\nQ:1/4=60\nK:C\n';
+  const cases = [
+    ['"C"C | D2 |', [[0, 1, 'C']]],
+    ['"C"C2- | C2 |', [[0, 2, 'C']]],
+    ['"C"z2 | z2 |', [[0, 2, 'C']]],
+    ['"C"C "Dm"D | E2 |', [[0, 1, 'C'], [1, 1, 'Dm']]],
+    ['|: "C"C2 |1 "G"D2 :|2 E2 |', [[0, 2, 'C'], [2, 2, 'G'], [4, 2, 'C']]],
+    ['"C"C |: D2 | E2 :|', [[0, 1, 'C']]],
+  ];
+  for (const [body, expected] of cases) {
+    const result = backing(start + body);
+    assert.deepEqual(result.events.map(event => [event.start, event.duration, event.symbol]), expected, body);
+    assert.deepEqual(result.warnings, []);
+  }
+});
+
+test('a barline stops harmony even with no new onset and a different voice still sounding', {skip: !renderer}, () => {
+  const abc = 'X:1\nM:2/4\nL:1/4\nQ:1/4=60\nK:C\n[V:1] "C"C2|\n[V:2] E4|';
+  const context = engine();
+  const visual = playback.writtenEvents(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, abc);
+  assert.deepEqual(visual.map(event => event.start), [0, 0]);
+  assert.equal(Math.max(...visual.map(event => event.end)), 4);
+  assert.deepEqual(backing(abc).events.map(event => [event.start, event.duration, event.symbol]), [[0, 2, 'C']]);
+});
+
+test('private bar markers preserve genuine untied event timing across tempo, grace, ties, and repeats', {skip: !renderer}, () => {
+  const cases = [
+    '"C"C2- | C2 "Dm"D2|',
+    '"C"C2\nQ:1/4=120\nD2 | E4 |',
+    '|: "C"C2 |1 "G"D2 :|2 E2 |',
+    '"C"{d}C D | "G"E {fg}F |',
+    '[V:1] "C"C2|\n[V:2] E4|',
+  ];
+  for (const body of cases) {
+    const abc = header + body, context = engine(); let captured = [];
+    function CapturedAudio() {
+      const audio = new context.ToAudio();
+      return {add: (...args) => audio.add(...args), clear() {
+        const events = audio.clear() || [];
+        captured.push(...Array.from(events, event => Array.from(event)).filter(event => event[0] <= abc.length));
+        return events;
+      }};
+    }
+    playback.accompaniment(context.abc2svg.Abc, CapturedAudio, context.abc2svg.C, abc);
+    const expected = playback.writtenEvents(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, abc);
+    assert.deepEqual(playback.timeline(captured), expected, body);
   }
 });

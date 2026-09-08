@@ -69,8 +69,10 @@ use reference-tone playback to check a phrase. Sounding notes, simultaneous
 note groups, tied continuations and rests are highlighted; “Follow playback”
 controls automatic scrolling. Editing or stopping clears the playback cursor.
 Written chord symbols add quiet, sustained accompaniment from the current ABC,
-starting at each symbol and lasting until the next change or the end. Pickups
-before the first chord remain melody-only; `N.C.` silences accompaniment.
+starting at each symbol and ending at the next chord change, barline or the end.
+Bars without chord symbols remain melody-only, including on repeats; they do not
+inherit the previous bar's chord. Pickups before the first chord remain melody-only;
+`N.C.` silences accompaniment.
 Unsupported or conflicting chord symbols show a warning and silence that passage.
 Set **Tempo** in quarter-note BPM to speed up or slow down melody, chords and
 highlighting together, then press Play to restart. The browser remembers your

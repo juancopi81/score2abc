@@ -99,27 +99,47 @@ const ReviewPlayback = (() => {
       img_out: () => {},
       read_file: () => { throw new Error("External includes are not supported."); },
       get_abcmodel: (first, voices) => {
-        const symbols = new Map(), harmonies = new Map();
+        const symbols = new Map(), barMarkers = new Set(), markers = [];
         for (let s = first; s; s = s.ts_next) {
+          if (s.type === constants.BAR) {
+            // Zero-length rests expose barline times on this private audio model.
+            // Insert before the bar so repeat jumps cannot skip the closing marker.
+            const index = text.length + barMarkers.size + 1;
+            const marker = {type: constants.REST, dur: 0, time: s.time, v: s.v,
+              istart: index, ts_prev: s.ts_prev, ts_next: s};
+            if (s.ts_prev) s.ts_prev.ts_next = marker;
+            else first = marker;
+            s.ts_prev = marker; barMarkers.add(index); markers.push(marker);
+          }
           if (![constants.NOTE, constants.REST].includes(s.type)) continue;
           const labels = (s.a_gch || []).filter(g => g.type === "g").map(g => g.text);
           symbols.set(s.istart, {time: s.time, labels});
-          if (labels.length) harmonies.set(s.time, [...(harmonies.get(s.time) || []), ...labels]);
           // Reveal tied continuations as timing markers without changing sounding melody.
           if (s.type === constants.NOTE) for (const note of s.notes) {
             delete note.tie_ty; delete note.ti2;
           }
         }
-        const harmonicState = [...harmonies].sort((a, b) => a[0] - b[0])
-          .map(([time, labels]) => ({time, ...resolve(labels)}));
-        const audio = new Audio(); audio.add(first, voices);
-        const played = timeline(Array.from(audio.clear() || [], event => Array.from(event)));
+        const audio = new Audio(); let raw;
+        try {
+          audio.add(first, voices);
+          raw = Array.from(audio.clear() || [], event => Array.from(event));
+        } finally {
+          // The parser continues engraving after this callback; remove timing-only symbols.
+          for (const marker of markers) {
+            if (marker.ts_prev) marker.ts_prev.ts_next = marker.ts_next;
+            marker.ts_next.ts_prev = marker.ts_prev;
+          }
+        }
+        const played = timeline(raw);
         const groups = new Map();
         for (const event of played) {
           if (!symbols.has(event.index)) continue;
           if (!groups.has(event.start)) groups.set(event.start, []);
           groups.get(event.start).push(event);
         }
+        const boundaries = new Set(raw.filter(event => barMarkers.has(event[0]))
+          .map(event => event[1]).filter(start => Number.isFinite(start) && start >= 0 && start <= 1800));
+        for (const start of boundaries) if (!groups.has(start)) groups.set(start, []);
         let active = null, previousTime = -Infinity, previousSignature = "";
         function change(next, start, index) {
           if (active && start > active.start && active.pitches.length) {
@@ -127,15 +147,13 @@ const ReviewPlayback = (() => {
           }
           active = next ? {symbol: next.symbol, pitches: next.pitches, start, index} : null;
         }
-        for (const [start, group] of groups) {
+        for (const [start, group] of [...groups].sort((a, b) => a[0] - b[0])) {
+          if (boundaries.has(start)) change(null, start);
+          if (!group.length) continue;
           const time = Math.min(...group.map(event => symbols.get(event.index).time));
           const signature = group.map(event => event.index).join(":");
           const jump = time < previousTime || (time === previousTime && signature === previousSignature);
-          if (jump) {
-            // Restore the harmony at the repeat destination, not the last ending's chord.
-            const inherited = harmonicState.filter(state => state.time <= time).at(-1);
-            change(inherited || null, start, group[0].index);
-          }
+          if (jump) change(null, start);
           const labels = group.flatMap(event => symbols.get(event.index).labels);
           if (labels.length) change(resolve(labels), start, group[0].index);
           previousTime = time; previousSignature = signature;
