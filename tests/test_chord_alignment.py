@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -10,6 +11,7 @@ from score2abc.chord_ocr.alignment import (
     measure_boundaries_for_system,
     measures_in_system,
 )
+from scripts.experiments.eval_a1_all_systems import _match, _parse_via
 
 
 def _draw_system(
@@ -65,6 +67,25 @@ def test_detect_barlines_returns_empty_when_no_vertical_ink(tmp_path: Path) -> N
     assert detect_barlines(path) == []
 
 
+def test_detect_barlines_uses_all_five_staff_lines_for_vertical_span(tmp_path: Path) -> None:
+    path = tmp_path / "system.png"
+    image = Image.new("L", (800, 180), color=255)
+    draw = ImageDraw.Draw(image)
+    for y in (50, 70):
+        draw.line([(0, y), (799, y)], fill=0, width=3)
+    for y in (90, 110, 130):
+        draw.line([(160, y), (640, y)], fill=0, width=3)
+
+    draw.line([(250, 45), (250, 78)], fill=0, width=2)
+    draw.line([(600, 50), (600, 130)], fill=0, width=2)
+    image.save(path)
+
+    detected = detect_barlines(path)
+
+    assert len(detected) == 1
+    assert abs(detected[0] - 0.75) < 0.01
+
+
 def test_detect_barlines_recovers_weak_edge_barline(tmp_path: Path) -> None:
     path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
     image = Image.open(path)
@@ -97,6 +118,80 @@ def test_detect_barlines_prefers_clean_barline_over_nearby_note_stem(
     assert abs(detected[0] - 0.225) < 0.01
 
 
+def test_detect_barlines_recovers_consumed_carrizal_boundary() -> None:
+    fixture_dir = (
+        Path(__file__).parent
+        / "fixtures"
+        / "barlines"
+        / "jaime-llanos_19_carrizal_pasillo_emilio-murillo"
+    )
+    image_path = fixture_dir / "system_004.png"
+    gt_boxes = _parse_via(
+        json.loads((fixture_dir / "system_004_ground_truth.json").read_text(encoding="utf-8"))
+    )
+
+    with Image.open(image_path) as image:
+        detected = detect_barlines(image_path)
+        detected_px = [round(fraction * image.width) for fraction in detected]
+
+    tolerance_px = 9.0
+    matches = _match(gt_boxes, detected_px, tolerance_px)
+    tp = sum(match is not None for match in matches)
+    fp = len(detected_px) - tp
+    fn = len(gt_boxes) - tp
+    assert (tp, fp, fn) == (9, 0, 0)
+
+    boundaries = measure_boundaries_for_system(image_path, detected)
+    assert len(boundaries) == 9
+    assert [round(boundary * image.width) for boundary in boundaries] == detected_px
+
+
+def test_measure_boundaries_for_system_keeps_clean_short_final_measure(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    draw.line([(688, 50), (688, 130)], fill=0, width=2)
+    draw.line([(760, 50), (760, 130)], fill=0, width=9)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [688 / 800, 760 / 800])
+
+    assert boundaries == [0.0, 0.86, 0.95]
+
+
+def test_measure_boundaries_for_system_rejects_leading_upstem_after_music(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    draw.ellipse([(20, 88), (48, 106)], fill=0)
+    draw.line([(60, 20), (60, 130)], fill=0, width=2)
+    draw.line([(400, 50), (400, 130)], fill=0, width=2)
+    draw.line([(760, 50), (760, 130)], fill=0, width=9)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.075, 0.5, 0.95])
+
+    assert boundaries == [0.0, 0.5, 0.95]
+
+
+def test_measure_boundaries_for_system_rejects_upstem_before_terminal_barline(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    draw.line([(688, 20), (688, 130)], fill=0, width=2)
+    draw.ellipse([(664, 88), (692, 106)], fill=0)
+    draw.line([(760, 50), (760, 130)], fill=0, width=9)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.86, 0.95])
+
+    assert boundaries == [0.0, 0.95]
+
+
 def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:
     path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=800)
     image = Image.open(path)
@@ -111,6 +206,40 @@ def test_measure_boundaries_for_system_trims_blank_tail(tmp_path: Path) -> None:
     boundaries = measure_boundaries_for_system(path, [180 / 800, 360 / 800])
 
     assert boundaries == [0.0, 0.225, 0.45]
+
+
+def test_measure_boundaries_for_system_trims_blank_staff_prefix(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (90, 350, 650, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=7)
+    draw.ellipse([(170, 88), (194, 106)], fill=0)
+    draw.ellipse([(450, 88), (474, 106)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.09, 0.35, 0.65, 0.95])
+
+    assert boundaries == [0.09, 0.35, 0.65, 0.95]
+
+
+def test_measure_boundaries_for_system_keeps_inked_short_first_measure(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (90, 350, 650, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=7)
+    draw.ellipse([(24, 88), (52, 106)], fill=0)
+    draw.line([(50, 50), (50, 104)], fill=0, width=3)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.09, 0.35, 0.65, 0.95])
+
+    assert boundaries == [0.0, 0.09, 0.35, 0.65, 0.95]
 
 
 def test_measure_boundaries_for_system_keeps_single_barline_blank_tail(tmp_path: Path) -> None:
@@ -136,6 +265,81 @@ def test_measure_boundaries_for_system_merges_accidental_only_slices(tmp_path: P
     boundaries = measure_boundaries_for_system(path, [0.05, 0.25, 0.55, 0.68, 0.95])
 
     assert boundaries == [0.05, 0.25, 0.55, 0.95]
+
+
+def test_measure_boundaries_for_system_merges_narrow_note_stem_slice(tmp_path: Path) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 300, 600, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(700, 70), (700, 112)], fill=0, width=2)
+    draw.ellipse([(682, 94), (706, 112)], fill=0)
+    for x in (780, 840, 900):
+        draw.line([(x, 68), (x, 112)], fill=0, width=2)
+        draw.ellipse([(x - 18, 94), (x + 6, 112)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.3, 0.6, 0.7, 0.95])
+
+    assert boundaries == [0.05, 0.3, 0.6, 0.95]
+
+
+def test_measure_boundaries_for_system_merges_wide_blank_trailing_slice(
+    tmp_path: Path,
+) -> None:
+    path = _draw_system(tmp_path / "system.png", barline_fractions=[], width=1000)
+    image = Image.open(path)
+    draw = ImageDraw.Draw(image)
+    staff_top, staff_bottom = 50, 130
+    for x in (50, 250, 500, 950):
+        draw.line([(x, staff_top), (x, staff_bottom)], fill=0, width=3)
+    draw.line([(750, 50), (750, 112)], fill=0, width=2)
+    draw.ellipse([(728, 94), (754, 112)], fill=0)
+    image.save(path)
+
+    boundaries = measure_boundaries_for_system(path, [0.05, 0.25, 0.5, 0.75, 0.95])
+
+    assert boundaries == [0.05, 0.25, 0.5, 0.95]
+
+
+def test_measure_boundaries_for_system_recovers_all_coqueteos_measures() -> None:
+    path = (
+        Path(__file__).parent
+        / "fixtures"
+        / "barlines"
+        / "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia"
+        / "system_002.png"
+    )
+    with Image.open(path) as image:
+        width = image.width
+
+    detected = detect_barlines(path)
+    boundaries = measure_boundaries_for_system(path, detected)
+
+    assert [round(boundary * width) for boundary in detected] == [
+        150,
+        541,
+        902,
+        1091,
+        1390,
+        1735,
+        1854,
+        1951,
+        2041,
+        2126,
+    ]
+    assert [round(boundary * width) for boundary in boundaries] == [
+        0,
+        541,
+        902,
+        1091,
+        1390,
+        1735,
+        2041,
+        2126,
+    ]
 
 
 def test_assign_measures_maps_x_fraction_to_measure_index() -> None:

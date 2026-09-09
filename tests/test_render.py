@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from PIL.ImageStat import Stat
 
-from score2abc.render import _darken_ink, create_system_crops
+from score2abc.render import _assess_system_candidate, _darken_ink, create_system_crops
 
 
 def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) -> None:
@@ -84,6 +84,32 @@ def test_create_system_crops_detects_staffs_and_candidate_bands(tmp_path: Path) 
     assert below_darkness[1] > above_darkness[1]
 
 
+def test_create_system_crops_splits_connected_staff_systems(tmp_path: Path) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_synthetic_page(page_path)
+
+    page = Image.open(page_path)
+    draw = ImageDraw.Draw(page)
+    draw.rectangle((850, 440, 930, 1320), fill="black")
+    page.save(page_path)
+
+    result = create_system_crops(
+        [page_path],
+        systems_dir,
+        logging.getLogger("test.render.connected-systems"),
+    )
+
+    assert len(result.system_crops) == 2
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert len(manifest["systems"]) == 2
+    assert all(
+        len(item["staff_line_rows"]) == 5 and len(item["long_horizontal_line_rows"]) == 5
+        for item in manifest["candidates"]
+    )
+
+
 def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     page_path = tmp_path / "page_001.png"
     systems_dir = tmp_path / "systems"
@@ -115,6 +141,101 @@ def test_create_system_crops_deskews_full_page(tmp_path: Path) -> None:
     assert deskewed_score > reskewed_score
 
 
+def test_create_system_crops_rejects_non_staff_band_and_preserves_source_index(
+    tmp_path: Path,
+) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_synthetic_page(page_path, with_title_band=True)
+    stale_rejected = systems_dir / "rejected_candidate_page_001_999.png"
+    stale_rejected.write_bytes(b"stale")
+
+    result = create_system_crops(
+        [page_path], systems_dir, logging.getLogger("test.render.eligibility")
+    )
+
+    assert len(result.system_crops) == 2
+    assert len(result.rejected_candidate_crops) == 1
+    assert not stale_rejected.exists()
+    assert result.rejected_candidate_crops[0].exists()
+
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert len(manifest["candidates"]) == 3
+    assert [item["source_candidate_index"] for item in manifest["systems"]] == [2, 3]
+    assert [item["output_system_index"] for item in manifest["systems"]] == [1, 2]
+
+    rejected = manifest["rejected_candidates"]
+    assert len(rejected) == 1
+    assert rejected[0]["source_candidate_index"] == 1
+    assert rejected[0]["output_system_index"] is None
+    assert rejected[0]["reason"] == "insufficient_long_horizontal_lines"
+    assert rejected[0]["candidate_crop"] == str(result.rejected_candidate_crops[0])
+    assert manifest["systems"][0]["chord_bbox_above"]["top"] > rejected[0]["system_bbox"]["bottom"]
+    assert result.candidate_diagnostics == manifest["candidates"]
+
+
+def test_create_system_crops_preserves_weak_left_preamble(tmp_path: Path) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_weak_left_preamble_page(page_path)
+
+    result = create_system_crops(
+        [page_path], systems_dir, logging.getLogger("test.render.left-preamble")
+    )
+
+    assert len(result.system_crops) == 1
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    system_bbox = manifest["systems"][0]["system_bbox"]
+    assert system_bbox["left"] <= 350
+
+    saved = Image.open(result.system_crops[0]).convert("L")
+    left_band = saved.crop((0, 0, min(180, saved.width), saved.height))
+    assert Stat(left_band).extrema[0][0] < 80
+
+
+def test_create_system_crops_recovers_sparse_staff_after_dense_preamble(
+    tmp_path: Path,
+) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_sparse_staff_after_dense_preamble_page(page_path)
+
+    result = create_system_crops(
+        [page_path], systems_dir, logging.getLogger("test.render.sparse-staff")
+    )
+
+    assert len(result.system_crops) == 1
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    system_bbox = manifest["systems"][0]["system_bbox"]
+    assert system_bbox["left"] <= 260
+    assert system_bbox["right"] >= 1600
+
+
+def test_create_system_crops_rejects_trailing_blank_staffs(tmp_path: Path) -> None:
+    page_path = tmp_path / "page_001.png"
+    systems_dir = tmp_path / "systems"
+    systems_dir.mkdir()
+    _write_page_with_blank_staff_tail(page_path)
+
+    result = create_system_crops(
+        [page_path], systems_dir, logging.getLogger("test.render.blank-tail")
+    )
+
+    assert len(result.system_crops) == 1
+    assert len(result.rejected_candidate_crops) == 2
+    manifest = json.loads(result.debug_manifests[0].read_text(encoding="utf-8"))
+    assert [item["reason"] for item in manifest["rejected_candidates"]] == [
+        "insufficient_musical_ink",
+        "insufficient_musical_ink",
+    ]
+    assert all(
+        item["staff_residual_ink_density"] < 0.09 for item in manifest["rejected_candidates"]
+    )
+
+
 def test_darken_ink_crushes_mid_tones_and_preserves_extremes() -> None:
     probe = Image.new("RGB", (3, 1), (255, 255, 255))
     probe.putpixel((0, 0), (0, 0, 0))
@@ -127,6 +248,26 @@ def test_darken_ink_crushes_mid_tones_and_preserves_extremes() -> None:
     assert darkened.getpixel((2, 0)) == (255, 255, 255)
     mid_after = darkened.getpixel((1, 0))[0]
     assert mid_after < 40, mid_after
+
+
+def test_system_candidate_rejects_five_inconsistently_spaced_lines() -> None:
+    image = Image.new("L", (1000, 180), "white")
+    draw = ImageDraw.Draw(image)
+    for y in (18, 33, 58, 93, 138):
+        draw.line((40, y, 940, y), fill="black", width=3)
+
+    assessment = _assess_system_candidate(
+        image,
+        page_number=1,
+        source_candidate_index=1,
+        system_bbox=(0, 0, 1000, 180),
+        ink_threshold=220,
+    )
+
+    assert not assessment.accepted
+    assert assessment.reason == "inconsistent_horizontal_line_spacing"
+    assert len(assessment.long_horizontal_line_rows) == 5
+    assert not assessment.staff_line_rows
 
 
 def test_darken_ink_preserves_off_white_background() -> None:
@@ -145,11 +286,22 @@ def test_darken_ink_preserves_off_white_background() -> None:
     assert ink < 30, ink
 
 
-def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:
+def _write_synthetic_page(
+    page_path: Path,
+    skew_degrees: float = 0.0,
+    *,
+    with_title_band: bool = False,
+) -> None:
     image = Image.new("RGB", (1800, 2400), "white")
     draw = ImageDraw.Draw(image)
     left = 160
     right = 1640
+
+    if with_title_band:
+        # Separated title/author blocks span enough width and height to become
+        # a broad proposal, but do not contain five long horizontal lines.
+        draw.rectangle((420, 140, 650, 185), fill="black")
+        draw.rectangle((1160, 175, 1390, 220), fill="black")
 
     for system_index, top in enumerate((360, 1320), start=1):
         if system_index == 1:
@@ -185,6 +337,96 @@ def _write_synthetic_page(page_path: Path, skew_degrees: float = 0.0) -> None:
 def _draw_annotation_blocks(draw: ImageDraw.ImageDraw, x: int, y: int) -> None:
     for offset in (0, 180, 420):
         draw.rectangle((x + offset, y, x + offset + 110, y + 28), fill="black")
+
+
+def _write_weak_left_preamble_page(page_path: Path) -> None:
+    image = Image.new("RGB", (1800, 1000), "white")
+    draw = ImageDraw.Draw(image)
+    top = 380
+    weak_left = 330
+    main_left = 500
+    right = 1640
+
+    # The scan preserves only three faint/fragmented staff lines behind the
+    # clef and meter. They are insufficient for the broad horizontal-bounds
+    # threshold but still establish that the preamble belongs to this staff.
+    for row in range(5):
+        y = top + row * 18
+        if row in {0, 2, 4}:
+            draw.line((weak_left, y, main_left, y), fill="black", width=2)
+        draw.line((main_left, y, right, y), fill="black", width=3)
+
+    draw.ellipse((350, top - 16, 390, top + 86), outline="black", width=5)
+    draw.line((405, top - 5, 405, top + 80), fill="black", width=5)
+    draw.line((430, top + 8, 470, top + 8), fill="black", width=4)
+    draw.line((430, top + 45, 470, top + 45), fill="black", width=4)
+    for note_index, note_x in enumerate(range(main_left + 80, right - 100, 150)):
+        head_top = top + 24 + (note_index % 3) * 6
+        draw.ellipse((note_x, head_top, note_x + 24, head_top + 18), fill="black")
+        draw.line((note_x + 24, head_top - 36, note_x + 24, head_top + 10), fill="black", width=4)
+    draw.line((right, top - 10, right, top + 96), fill="black", width=4)
+    image.save(page_path)
+
+
+def _write_sparse_staff_after_dense_preamble_page(page_path: Path) -> None:
+    image = Image.new("RGB", (1800, 1000), "white")
+    draw = ImageDraw.Draw(image)
+    top = 380
+    left = 180
+    right = 1650
+
+    for row in range(5):
+        y = top + row * 18
+        draw.line((left, y, right, y), fill="black", width=2)
+
+    # A dense clef/meter opening raises the generic column threshold enough
+    # that the lightly drawn continuation no longer forms a broad span.
+    for x in range(210, 391, 2):
+        draw.line((x, top - 35, x, top + 110), fill="black", width=1)
+    for note_index, note_x in enumerate(range(470, right - 80, 145)):
+        head_top = top + 24 + (note_index % 3) * 6
+        draw.ellipse((note_x, head_top, note_x + 22, head_top + 16), fill="black")
+        draw.line((note_x + 22, head_top - 35, note_x + 22, head_top + 8), fill="black", width=3)
+    image.save(page_path)
+
+
+def _write_page_with_blank_staff_tail(page_path: Path) -> None:
+    image = Image.new("RGB", (1800, 2200), "white")
+    draw = ImageDraw.Draw(image)
+    left = 160
+    right = 1640
+    for system_index, top in enumerate((300, 950, 1600)):
+        for row in range(5):
+            y = top + row * 18
+            draw.line((left, y, right, y), fill="black", width=3)
+        draw.line((left, top - 10, left, top + 96), fill="black", width=4)
+        draw.line((right, top - 10, right, top + 96), fill="black", width=4)
+        if system_index:
+            # Decorative writing crossing an otherwise blank ruled staff is
+            # the real failure pattern: it creates a broad proposal but is
+            # not musical content.
+            draw.line(
+                (
+                    (left + 180, top + 62),
+                    (left + 330, top - 12),
+                    (left + 470, top + 70),
+                    (left + 640, top - 8),
+                    (left + 820, top + 48),
+                ),
+                fill="black",
+                width=5,
+            )
+            draw.rectangle((left + 900, top - 10, left + 970, top + 96), fill="black")
+            continue
+        for note_index, note_x in enumerate(range(left + 80, right - 80, 90)):
+            head_top = top + 22 + (note_index % 3) * 7
+            draw.ellipse((note_x, head_top, note_x + 25, head_top + 18), fill="black")
+            draw.line(
+                (note_x + 24, head_top - 38, note_x + 24, head_top + 10),
+                fill="black",
+                width=4,
+            )
+    image.save(page_path)
 
 
 def _crop_darkness(path: Path) -> float:

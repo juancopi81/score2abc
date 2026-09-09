@@ -1,0 +1,151 @@
+{
+  "eligible_for_heldout_claim": false,
+  "evidence_tier": "consumed_postmortem",
+  "key_events": [
+    {
+      "fallback_fifths": -1,
+      "image": {
+        "bytes": 137982,
+        "path": "images/carrizal_key_initial.png",
+        "sha256": "81a02bc98d51d1072594875a2c2ce0caf4e2aa20b0673f75b348fd6d40759246"
+      },
+      "mode": "initial",
+      "score_id": "carrizal",
+      "start_measure": 1
+    },
+    {
+      "fallback_fifths": null,
+      "image": {
+        "bytes": 26004,
+        "path": "images/la_chata_measure_002.png",
+        "sha256": "291957cbbb36b19d5bacb8fb5bd13a1be4210999437f6137367b3587fa8853f5"
+      },
+      "mode": "change",
+      "score_id": "la_chata",
+      "start_measure": 2
+    },
+    {
+      "fallback_fifths": -1,
+      "image": {
+        "bytes": 158628,
+        "path": "images/gatoe_fique_key_initial.png",
+        "sha256": "fa6d26d5b3b75c50e14996b017e04b4c37f4e802a3e8c3d0fe46c3c26cb04efd"
+      },
+      "mode": "initial",
+      "score_id": "gatoe_fique",
+      "start_measure": 1
+    },
+    {
+      "fallback_fifths": null,
+      "image": {
+        "bytes": 221049,
+        "path": "images/coqueteos_key_initial.png",
+        "sha256": "78185ee7b2cbe4bed673b1ccca8985a2b9cb30ebb455b811d6c0cbedf350fbf9"
+      },
+      "mode": "initial",
+      "score_id": "coqueteos",
+      "start_measure": 1
+    }
+  ],
+  "kind": "consumed_cross_score_pitch_mapping_fixture",
+  "requests": {
+    "bytes": 13618,
+    "path": "requests.jsonl",
+    "sha256": "8d23cabaddfbb3507b184250a0e8bf076d0b1e8fd1ac5c25505cb5bf76cc9ce2"
+  },
+  "schema_version": 1,
+  "scores": [
+    {
+      "clean_measure_count": 6,
+      "excluded_segmentation_confounded_crops": [
+        2
+      ],
+      "score_id": "carrizal",
+      "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+      "system_index": 4
+    },
+    {
+      "clean_measure_count": 7,
+      "excluded_segmentation_confounded_crops": [],
+      "score_id": "la_chata",
+      "slug": "jaime-llanos_64_la-chata_pasillo_luis-a-calvo",
+      "system_index": 7
+    },
+    {
+      "clean_measure_count": 6,
+      "excluded_segmentation_confounded_crops": [],
+      "score_id": "gatoe_fique",
+      "slug": "jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo",
+      "system_index": 3
+    },
+    {
+      "clean_measure_count": 5,
+      "excluded_segmentation_confounded_crops": [
+        6
+      ],
+      "score_id": "coqueteos",
+      "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+      "system_index": 2
+    }
+  ],
+  "selection_frozen": {
+    "candidate_ids": true,
+    "coordinates": true,
+    "note_counts": true
+  },
+  "source_provenance": {
+    "carrizal": {
+      "inference": {
+        "bytes": 304353,
+        "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/inference.jsonl",
+        "sha256": "bb6bbb65ecaf4df173b8edc474c81859fc4f589d2e1937b5ff8f2312e267f924"
+      },
+      "truth": {
+        "bytes": 3215,
+        "path": "out/jaime-llanos_19_carrizal_pasillo_emilio-murillo/vlm_melody_fresh_heldout/system_004/fresh_heldout/truth.jsonl",
+        "sha256": "4e3ede2e3e3980bfaa606d504b2383eea737032209bc9b54a101124b17b84d95"
+      }
+    },
+    "coqueteos": {
+      "inference": {
+        "bytes": 280007,
+        "path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/inference_v2/inference.jsonl",
+        "sha256": "8879f4d0bc970483fe3fa02a9cf17820ca6d1847d7b69fab57a0a67c41172c4d"
+      },
+      "truth": {
+        "bytes": 3508,
+        "path": "out/jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia/vlm_melody_fifth_score_heldout/v1/system_002/evaluation_v1/truth.jsonl",
+        "sha256": "42dd5b1ab5a1d4849dfe49174d879165804d7e806be9e788a4e5d78506f5c6f4"
+      }
+    },
+    "gatoe_fique": {
+      "inference": {
+        "bytes": 307271,
+        "path": "out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/inference_v2/inference.jsonl",
+        "sha256": "7363cbf220d6b6339b9b14506a246e137c02003b023c2cda2f162c1fddf3d7d7"
+      },
+      "truth": {
+        "bytes": 7594,
+        "path": "out/jaime-llanos_49_gatoe-fique_pasillo_emilio-murillo/vlm_melody_fourth_score_heldout/v1/system_003/evaluation_v1/truth.jsonl",
+        "sha256": "2024b2038c228edfdaa6179472803d145aa550606ffff5d62c6ee581223f5002"
+      }
+    },
+    "la_chata": {
+      "inference": {
+        "bytes": 308960,
+        "path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/inference_v2/inference.jsonl",
+        "sha256": "282de9d083d0d2e7df8a7fae547a3fd80a28b80dc190114777760bbc321749e6"
+      },
+      "truth": {
+        "bytes": 10266,
+        "path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/evaluation_v1/truth.jsonl",
+        "sha256": "41047ace23ea2f5724be93a1b195cf6b8890c0e8e40b192793692840f8755779"
+      }
+    }
+  },
+  "truth": {
+    "bytes": 1691,
+    "path": "truth.jsonl",
+    "sha256": "14847fa0ea191719f1a3e4a206d1eff027c04665072f605b46ed6cbea9748872"
+  }
+}

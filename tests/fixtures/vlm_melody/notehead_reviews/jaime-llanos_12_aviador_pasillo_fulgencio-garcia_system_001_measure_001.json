@@ -1,0 +1,872 @@
+{
+  "candidates": [
+    {
+      "auto_pitch": "B3",
+      "bbox": {
+        "bottom": 213,
+        "left": 249,
+        "right": 269,
+        "top": 195
+      },
+      "center": {
+        "x": 258.5,
+        "y": 203.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.796949,
+        "horizontal_support": 0.9,
+        "ink_count": 199.0,
+        "ink_density": 0.552778,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.7,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c001",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.59838,
+        "y": 0.773764
+      },
+      "rank": 1,
+      "score": 0.87493
+    },
+    {
+      "auto_pitch": "E4",
+      "bbox": {
+        "bottom": 177,
+        "left": 407,
+        "right": 427,
+        "top": 159
+      },
+      "center": {
+        "x": 416.5,
+        "y": 167.5
+      },
+      "features": {
+        "column_peak_density": 0.888889,
+        "core_density": 0.729838,
+        "horizontal_support": 1.0,
+        "ink_count": 169.0,
+        "ink_density": 0.469444,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.722222,
+        "vertical_support": 1.0
+      },
+      "id": "c002",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.96412,
+        "y": 0.636882
+      },
+      "rank": 2,
+      "score": 0.840948
+    },
+    {
+      "auto_pitch": "D4",
+      "bbox": {
+        "bottom": 189,
+        "left": 250,
+        "right": 270,
+        "top": 171
+      },
+      "center": {
+        "x": 259.5,
+        "y": 179.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.763393,
+        "horizontal_support": 0.7,
+        "ink_count": 173.0,
+        "ink_density": 0.480556,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.6,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c003",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.600694,
+        "y": 0.68251
+      },
+      "rank": 3,
+      "score": 0.814828
+    },
+    {
+      "auto_pitch": "A3",
+      "bbox": {
+        "bottom": 225,
+        "left": 156,
+        "right": 176,
+        "top": 207
+      },
+      "center": {
+        "x": 165.5,
+        "y": 215.5
+      },
+      "features": {
+        "column_peak_density": 0.777778,
+        "core_density": 0.696282,
+        "horizontal_support": 0.9,
+        "ink_count": 166.0,
+        "ink_density": 0.461111,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.65,
+        "stem_evidence": 0.833333,
+        "vertical_support": 1.0
+      },
+      "id": "c004",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.383102,
+        "y": 0.819392
+      },
+      "rank": 4,
+      "score": 0.810956
+    },
+    {
+      "auto_pitch": "D4",
+      "bbox": {
+        "bottom": 189,
+        "left": 72,
+        "right": 92,
+        "top": 171
+      },
+      "center": {
+        "x": 81.5,
+        "y": 179.5
+      },
+      "features": {
+        "column_peak_density": 0.833333,
+        "core_density": 0.620781,
+        "horizontal_support": 1.0,
+        "ink_count": 184.0,
+        "ink_density": 0.511111,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.65,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c005",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.188657,
+        "y": 0.68251
+      },
+      "rank": 5,
+      "score": 0.806893
+    },
+    {
+      "auto_pitch": "B4",
+      "bbox": {
+        "bottom": 129,
+        "left": 406,
+        "right": 426,
+        "top": 111
+      },
+      "center": {
+        "x": 415.5,
+        "y": 119.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.805338,
+        "horizontal_support": 0.55,
+        "ink_count": 167.0,
+        "ink_density": 0.463889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.55,
+        "stem_evidence": 0.962963,
+        "vertical_support": 1.0
+      },
+      "id": "c006",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.961806,
+        "y": 0.454373
+      },
+      "rank": 6,
+      "score": 0.803641
+    },
+    {
+      "auto_pitch": "C4",
+      "bbox": {
+        "bottom": 201,
+        "left": 282,
+        "right": 302,
+        "top": 183
+      },
+      "center": {
+        "x": 291.5,
+        "y": 191.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.721449,
+        "horizontal_support": 0.75,
+        "ink_count": 164.0,
+        "ink_density": 0.455556,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.6,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c007",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.674769,
+        "y": 0.728137
+      },
+      "rank": 7,
+      "score": 0.801533
+    },
+    {
+      "auto_pitch": "E5",
+      "bbox": {
+        "bottom": 93,
+        "left": 405,
+        "right": 425,
+        "top": 75
+      },
+      "center": {
+        "x": 414.5,
+        "y": 83.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.755004,
+        "horizontal_support": 0.6,
+        "ink_count": 185.0,
+        "ink_density": 0.513889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.8,
+        "stem_evidence": 0.777778,
+        "vertical_support": 1.0
+      },
+      "id": "c008",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.959491,
+        "y": 0.31749
+      },
+      "rank": 8,
+      "score": 0.78808
+    },
+    {
+      "auto_pitch": "C5",
+      "bbox": {
+        "bottom": 117,
+        "left": 22,
+        "right": 42,
+        "top": 99
+      },
+      "center": {
+        "x": 31.5,
+        "y": 107.5
+      },
+      "features": {
+        "column_peak_density": 0.888889,
+        "core_density": 0.620781,
+        "horizontal_support": 0.95,
+        "ink_count": 142.0,
+        "ink_density": 0.394444,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c009",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.072917,
+        "y": 0.408745
+      },
+      "rank": 9,
+      "score": 0.783893
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 253,
+        "right": 273,
+        "top": 135
+      },
+      "center": {
+        "x": 262.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.687893,
+        "horizontal_support": 0.75,
+        "ink_count": 149.0,
+        "ink_density": 0.413889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.8,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c010",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.607639,
+        "y": 0.545627
+      },
+      "rank": 10,
+      "score": 0.781097
+    },
+    {
+      "auto_pitch": "E5",
+      "bbox": {
+        "bottom": 93,
+        "left": 75,
+        "right": 95,
+        "top": 75
+      },
+      "center": {
+        "x": 84.5,
+        "y": 83.5
+      },
+      "features": {
+        "column_peak_density": 0.833333,
+        "core_density": 0.637559,
+        "horizontal_support": 1.0,
+        "ink_count": 185.0,
+        "ink_density": 0.513889,
+        "line_dominance": 0.055556,
+        "row_peak_density": 1.0,
+        "stem_evidence": 0.685185,
+        "vertical_support": 0.944444
+      },
+      "id": "c011",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.195602,
+        "y": 0.31749
+      },
+      "rank": 11,
+      "score": 0.780129
+    },
+    {
+      "auto_pitch": "A4",
+      "bbox": {
+        "bottom": 141,
+        "left": 156,
+        "right": 176,
+        "top": 123
+      },
+      "center": {
+        "x": 165.5,
+        "y": 131.5
+      },
+      "features": {
+        "column_peak_density": 0.888889,
+        "core_density": 0.578837,
+        "horizontal_support": 1.0,
+        "ink_count": 161.0,
+        "ink_density": 0.447222,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c012",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.383102,
+        "y": 0.5
+      },
+      "rank": 12,
+      "score": 0.779932
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 5,
+        "right": 25,
+        "top": 135
+      },
+      "center": {
+        "x": 14.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.662726,
+        "horizontal_support": 0.85,
+        "ink_count": 166.0,
+        "ink_density": 0.461111,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.648148,
+        "vertical_support": 1.0
+      },
+      "id": "c013",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.033565,
+        "y": 0.545627
+      },
+      "rank": 13,
+      "score": 0.779113
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 407,
+        "right": 427,
+        "top": 135
+      },
+      "center": {
+        "x": 416.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.738227,
+        "horizontal_support": 0.6,
+        "ink_count": 167.0,
+        "ink_density": 0.463889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.7,
+        "stem_evidence": 0.833333,
+        "vertical_support": 1.0
+      },
+      "id": "c014",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.96412,
+        "y": 0.545627
+      },
+      "rank": 14,
+      "score": 0.776584
+    },
+    {
+      "auto_pitch": "D4",
+      "bbox": {
+        "bottom": 189,
+        "left": 219,
+        "right": 239,
+        "top": 171
+      },
+      "center": {
+        "x": 228.5,
+        "y": 179.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.620781,
+        "horizontal_support": 0.9,
+        "ink_count": 176.0,
+        "ink_density": 0.488889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.75,
+        "stem_evidence": 0.685185,
+        "vertical_support": 1.0
+      },
+      "id": "c015",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.528935,
+        "y": 0.68251
+      },
+      "rank": 15,
+      "score": 0.773634
+    },
+    {
+      "auto_pitch": "E4",
+      "bbox": {
+        "bottom": 177,
+        "left": 40,
+        "right": 60,
+        "top": 159
+      },
+      "center": {
+        "x": 49.5,
+        "y": 167.5
+      },
+      "features": {
+        "column_peak_density": 0.666667,
+        "core_density": 0.545281,
+        "horizontal_support": 1.0,
+        "ink_count": 172.0,
+        "ink_density": 0.477778,
+        "line_dominance": 0.0,
+        "row_peak_density": 1.0,
+        "stem_evidence": 0.833333,
+        "vertical_support": 1.0
+      },
+      "id": "c016",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.114583,
+        "y": 0.636882
+      },
+      "rank": 16,
+      "score": 0.761496
+    },
+    {
+      "auto_pitch": "F4",
+      "bbox": {
+        "bottom": 165,
+        "left": 103,
+        "right": 123,
+        "top": 147
+      },
+      "center": {
+        "x": 112.5,
+        "y": 155.5
+      },
+      "features": {
+        "column_peak_density": 0.666667,
+        "core_density": 0.55367,
+        "horizontal_support": 1.0,
+        "ink_count": 157.0,
+        "ink_density": 0.436111,
+        "line_dominance": 0.0,
+        "row_peak_density": 1.0,
+        "stem_evidence": 0.777778,
+        "vertical_support": 1.0
+      },
+      "id": "c017",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.260417,
+        "y": 0.591255
+      },
+      "rank": 17,
+      "score": 0.758133
+    },
+    {
+      "auto_pitch": "A4",
+      "bbox": {
+        "bottom": 141,
+        "left": 89,
+        "right": 109,
+        "top": 123
+      },
+      "center": {
+        "x": 98.5,
+        "y": 131.5
+      },
+      "features": {
+        "column_peak_density": 0.611111,
+        "core_density": 0.570448,
+        "horizontal_support": 0.9,
+        "ink_count": 149.0,
+        "ink_density": 0.413889,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.85,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c018",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.228009,
+        "y": 0.5
+      },
+      "rank": 18,
+      "score": 0.754073
+    },
+    {
+      "auto_pitch": "C5",
+      "bbox": {
+        "bottom": 117,
+        "left": 120,
+        "right": 140,
+        "top": 99
+      },
+      "center": {
+        "x": 129.5,
+        "y": 107.5
+      },
+      "features": {
+        "column_peak_density": 0.777778,
+        "core_density": 0.562059,
+        "horizontal_support": 0.85,
+        "ink_count": 166.0,
+        "ink_density": 0.461111,
+        "line_dominance": 0.0,
+        "row_peak_density": 1.0,
+        "stem_evidence": 0.944444,
+        "vertical_support": 1.0
+      },
+      "id": "c019",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.299769,
+        "y": 0.408745
+      },
+      "rank": 19,
+      "score": 0.744658
+    },
+    {
+      "auto_pitch": "D4",
+      "bbox": {
+        "bottom": 189,
+        "left": 155,
+        "right": 175,
+        "top": 171
+      },
+      "center": {
+        "x": 164.5,
+        "y": 179.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.486558,
+        "horizontal_support": 1.0,
+        "ink_count": 170.0,
+        "ink_density": 0.472222,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.9,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c020",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.380787,
+        "y": 0.68251
+      },
+      "rank": 20,
+      "score": 0.740484
+    },
+    {
+      "auto_pitch": "A3",
+      "bbox": {
+        "bottom": 225,
+        "left": 213,
+        "right": 233,
+        "top": 207
+      },
+      "center": {
+        "x": 222.5,
+        "y": 215.5
+      },
+      "features": {
+        "column_peak_density": 0.777778,
+        "core_density": 0.662726,
+        "horizontal_support": 0.65,
+        "ink_count": 130.0,
+        "ink_density": 0.361111,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.45,
+        "stem_evidence": 0.796296,
+        "vertical_support": 1.0
+      },
+      "id": "c021",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.515046,
+        "y": 0.819392
+      },
+      "rank": 21,
+      "score": 0.737039
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 366,
+        "right": 386,
+        "top": 135
+      },
+      "center": {
+        "x": 375.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.62917,
+        "horizontal_support": 0.75,
+        "ink_count": 140.0,
+        "ink_density": 0.388889,
+        "line_dominance": 0.033333,
+        "row_peak_density": 0.6,
+        "stem_evidence": 1.0,
+        "vertical_support": 0.944444
+      },
+      "id": "c022",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.869213,
+        "y": 0.545627
+      },
+      "rank": 22,
+      "score": 0.732418
+    },
+    {
+      "auto_pitch": "D4",
+      "bbox": {
+        "bottom": 189,
+        "left": 322,
+        "right": 342,
+        "top": 171
+      },
+      "center": {
+        "x": 331.5,
+        "y": 179.5
+      },
+      "features": {
+        "column_peak_density": 0.944444,
+        "core_density": 0.637559,
+        "horizontal_support": 0.6,
+        "ink_count": 133.0,
+        "ink_density": 0.369444,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.6,
+        "stem_evidence": 0.981481,
+        "vertical_support": 1.0
+      },
+      "id": "c023",
+      "label": "accepted",
+      "normalized_center": {
+        "x": 0.767361,
+        "y": 0.68251
+      },
+      "rank": 23,
+      "score": 0.72487
+    },
+    {
+      "auto_pitch": "G4",
+      "bbox": {
+        "bottom": 153,
+        "left": 281,
+        "right": 301,
+        "top": 135
+      },
+      "center": {
+        "x": 290.5,
+        "y": 143.5
+      },
+      "features": {
+        "column_peak_density": 1.0,
+        "core_density": 0.595615,
+        "horizontal_support": 0.7,
+        "ink_count": 130.0,
+        "ink_density": 0.361111,
+        "line_dominance": 0.0,
+        "row_peak_density": 0.85,
+        "stem_evidence": 1.0,
+        "vertical_support": 1.0
+      },
+      "id": "c024",
+      "label": "rejected",
+      "normalized_center": {
+        "x": 0.672454,
+        "y": 0.545627
+      },
+      "rank": 24,
+      "score": 0.723316
+    }
+  ],
+  "final_noteheads": [
+    {
+      "auto_pitch": "A3",
+      "center": {
+        "x": 165.5,
+        "y": 215.5
+      },
+      "order": 1,
+      "pitch": "A3",
+      "pitch_corrected": false,
+      "source": {
+        "candidate_id": "c004",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "A3",
+      "center": {
+        "x": 222.5,
+        "y": 215.5
+      },
+      "order": 2,
+      "pitch": "Bb3",
+      "pitch_corrected": true,
+      "source": {
+        "candidate_id": "c021",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "C4",
+      "center": {
+        "x": 291.5,
+        "y": 191.5
+      },
+      "order": 3,
+      "pitch": "C#4",
+      "pitch_corrected": true,
+      "source": {
+        "candidate_id": "c007",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "D4",
+      "center": {
+        "x": 331.5,
+        "y": 179.5
+      },
+      "order": 4,
+      "pitch": "E4",
+      "pitch_corrected": true,
+      "source": {
+        "candidate_id": "c023",
+        "kind": "candidate"
+      }
+    },
+    {
+      "auto_pitch": "G4",
+      "center": {
+        "x": 375.5,
+        "y": 143.5
+      },
+      "order": 5,
+      "pitch": "G4",
+      "pitch_corrected": false,
+      "source": {
+        "candidate_id": "c022",
+        "kind": "candidate"
+      }
+    }
+  ],
+  "identity": {
+    "global_measure_index": 0,
+    "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+    "system_index": 1,
+    "system_measure_index": 1
+  },
+  "kind": "vlm_melody_notehead_candidate_review",
+  "manual_noteheads": [],
+  "provenance": {
+    "review_tool_path": "scripts/review_vlm_notehead_candidates.py",
+    "review_type": "human",
+    "scope": "spike_only",
+    "source_review_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_reviews/system_001/measure_001/review.json"
+  },
+  "schema_version": 1,
+  "source": {
+    "candidate_artifact_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_notehead_localization/system_001/measure_001/candidates.json",
+    "candidate_artifact_sha256": "f4c6c92b60e28d6cfb56bc0c18f80d2cc7aecc7dce366a0f17160252709e8956",
+    "candidate_cap": 24,
+    "coordinate_space": "source image pixels, origin at top-left",
+    "image_path": "out/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/vlm_melody_inputs/system_001/measure_001_raw.png",
+    "image_sha256": "696eb90f5fd97de75c3bfea6c15d62cfda8e0c8a8d78691ff3eb2834f5ef60a0"
+  },
+  "timing": {
+    "active_review_ms": 96907,
+    "inactivity_timeout_ms": 30000,
+    "saved_at": "2026-07-15T23:16:01.556572+00:00"
+  }
+}

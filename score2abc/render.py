@@ -4,8 +4,10 @@ import json
 import logging
 import shutil
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from itertools import combinations
 from pathlib import Path
+from statistics import fmean
 from typing import List
 
 from PIL import Image, ImageDraw, ImageOps
@@ -14,16 +16,50 @@ from score2abc.utils.imaging import estimate_ink_threshold
 
 BBox = tuple[int, int, int, int]
 
+_REQUIRED_STAFF_LINES = 5
+_MIN_STAFF_LINE_SUPPORT = 0.18
+_MAX_STAFF_SPACING_DEVIATION_RATIO = 0.30
+_MIN_TRAILING_MUSICAL_INK_DENSITY = 0.09
+_MIN_STAFF_EXTENT_LINE_FRACTION = 0.35
+
+
+@dataclass(frozen=True)
+class _StaffLineSequence:
+    indices: tuple[int, ...]
+    rows: tuple[int, ...]
+    support: tuple[float, ...]
+    mean_spacing: float
+    spacing_deviation_ratio: float
+
 
 @dataclass(frozen=True)
 class DetectedSystem:
     page_number: int
+    source_candidate_index: int
     system_bbox: BBox
     system_crop_bbox: BBox
+    staff_line_rows: tuple[int, ...]
+    staff_line_support: tuple[float, ...]
     chord_bbox_above: BBox
     chord_crop_bbox_above: BBox
     chord_bbox_below: BBox
     chord_crop_bbox_below: BBox
+
+
+@dataclass(frozen=True)
+class SystemCandidateAssessment:
+    page_number: int
+    source_candidate_index: int
+    system_bbox: BBox
+    accepted: bool
+    reason: str
+    long_horizontal_line_rows: tuple[int, ...]
+    long_horizontal_line_support: tuple[float, ...]
+    staff_line_rows: tuple[int, ...]
+    staff_line_support: tuple[float, ...]
+    mean_staff_spacing: float | None
+    max_spacing_deviation_ratio: float | None
+    staff_residual_ink_density: float | None = None
 
 
 @dataclass(frozen=True)
@@ -34,6 +70,8 @@ class SegmentationResult:
     deskewed_pages: List[Path]
     debug_overlays: List[Path]
     debug_manifests: List[Path]
+    rejected_candidate_crops: List[Path]
+    candidate_diagnostics: List[dict[str, object]]
 
     @property
     def all_outputs(self) -> List[Path]:
@@ -44,6 +82,7 @@ class SegmentationResult:
             *self.deskewed_pages,
             *self.debug_overlays,
             *self.debug_manifests,
+            *self.rejected_candidate_crops,
         ]
 
 
@@ -85,7 +124,7 @@ def create_system_crops(
     systems_dir.mkdir(parents=True, exist_ok=True)
     if not page_paths:
         logger.warning("No pages available for system crops")
-        return SegmentationResult([], [], [], [], [], [])
+        return SegmentationResult([], [], [], [], [], [], [], [])
 
     _clear_segmentation_outputs(systems_dir)
 
@@ -95,6 +134,8 @@ def create_system_crops(
     deskewed_page_paths: List[Path] = []
     overlay_paths: List[Path] = []
     manifest_paths: List[Path] = []
+    rejected_candidate_paths: List[Path] = []
+    candidate_diagnostics: List[dict[str, object]] = []
     system_index = 1
 
     for page_number, page_path in enumerate(page_paths, start=1):
@@ -110,13 +151,16 @@ def create_system_crops(
             deskewed_page_paths.append(deskewed_page_path)
             logger.info("Wrote deskewed page: %s", deskewed_page_path)
 
-            detected_systems = _detect_systems(page_gray, page_number)
+            detected_systems, candidate_assessments = _detect_systems_with_assessments(
+                page_gray, page_number
+            )
 
             if not detected_systems:
                 logger.warning("No staff systems detected on page %s", page_path)
-                continue
 
+            output_index_by_source_candidate: dict[int, int] = {}
             for detected in detected_systems:
+                output_index_by_source_candidate[detected.source_candidate_index] = system_index
                 system_path = systems_dir / f"system_{system_index:03d}.png"
                 chord_path_above = systems_dir / f"chord_region_above_{system_index:03d}.png"
                 chord_path_below = systems_dir / f"chord_region_below_{system_index:03d}.png"
@@ -131,8 +175,45 @@ def create_system_crops(
                 logger.info("Created chord region crop below: %s", chord_path_below)
                 system_index += 1
 
+            page_candidate_diagnostics: List[dict[str, object]] = []
+            for assessment in candidate_assessments:
+                candidate_crop_bbox = _expand_system_crop_bbox(
+                    assessment.system_bbox, page_rgb.width, page_rgb.height
+                )
+                rejected_crop_path: Path | None = None
+                if not assessment.accepted:
+                    rejected_crop_path = systems_dir / (
+                        f"rejected_candidate_page_{page_number:03d}_"
+                        f"{assessment.source_candidate_index:03d}.png"
+                    )
+                    page_rgb.crop(candidate_crop_bbox).save(rejected_crop_path)
+                    rejected_candidate_paths.append(rejected_crop_path)
+                    logger.info(
+                        "Rejected system candidate page=%s candidate=%s reason=%s: %s",
+                        page_number,
+                        assessment.source_candidate_index,
+                        assessment.reason,
+                        rejected_crop_path,
+                    )
+
+                diagnostic = _candidate_assessment_to_dict(
+                    assessment,
+                    candidate_crop_bbox=candidate_crop_bbox,
+                    output_system_index=output_index_by_source_candidate.get(
+                        assessment.source_candidate_index
+                    ),
+                    rejected_crop_path=rejected_crop_path,
+                )
+                page_candidate_diagnostics.append(diagnostic)
+                candidate_diagnostics.append(diagnostic)
+
             overlay_path = systems_dir / f"page_{page_number:03d}_overlay.png"
-            _write_segmentation_overlay(page_rgb, detected_systems, overlay_path)
+            _write_segmentation_overlay(
+                page_rgb,
+                detected_systems,
+                candidate_assessments,
+                overlay_path,
+            )
             overlay_paths.append(overlay_path)
 
             manifest_path = systems_dir / f"page_{page_number:03d}_segments.json"
@@ -142,11 +223,23 @@ def create_system_crops(
                         "page": str(deskewed_page_path),
                         "source_page": str(page_path),
                         "page_rotation_degrees": round(page_rotation_degrees, 4),
+                        "candidates": page_candidate_diagnostics,
+                        "rejected_candidates": [
+                            item for item in page_candidate_diagnostics if not item["accepted"]
+                        ],
                         "systems": [
                             {
                                 "page_number": detected.page_number,
+                                "output_system_index": output_index_by_source_candidate[
+                                    detected.source_candidate_index
+                                ],
+                                "source_candidate_index": detected.source_candidate_index,
                                 "system_bbox": _bbox_to_dict(detected.system_bbox),
                                 "system_crop_bbox": _bbox_to_dict(detected.system_crop_bbox),
+                                "staff_line_rows": list(detected.staff_line_rows),
+                                "staff_line_support": [
+                                    round(value, 6) for value in detected.staff_line_support
+                                ],
                                 "chord_bbox_above": _bbox_to_dict(detected.chord_bbox_above),
                                 "chord_crop_bbox_above": _bbox_to_dict(
                                     detected.chord_crop_bbox_above
@@ -173,6 +266,8 @@ def create_system_crops(
         deskewed_page_paths,
         overlay_paths,
         manifest_paths,
+        rejected_candidate_paths,
+        candidate_diagnostics,
     )
 
 
@@ -253,9 +348,16 @@ def _find_abcm2ps_output(prefix: Path) -> Path | None:
 
 
 def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSystem]:
+    detected, _ = _detect_systems_with_assessments(page_gray, page_number)
+    return detected
+
+
+def _detect_systems_with_assessments(
+    page_gray: Image.Image, page_number: int
+) -> tuple[List[DetectedSystem], List[SystemCandidateAssessment]]:
     width, height = page_gray.size
     if width == 0 or height == 0:
-        return []
+        return [], []
 
     left_margin = int(width * 0.05)
     right_margin = int(width * 0.95)
@@ -264,7 +366,7 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
     row_smooth = _moving_average(row_profile, _odd(max(15, int(height * 0.007))))
     peak_density = max(row_smooth, default=0.0)
     if peak_density <= 0:
-        return []
+        return [], []
 
     activity_threshold = max(peak_density * 0.18, 0.015)
     broad_spans = _find_active_spans(
@@ -305,18 +407,70 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
             bottom=system_bottom,
         )
         if system_right - system_left < int(width * 0.35):
-            continue
+            recovered_bounds = _recover_staff_horizontal_bounds(
+                page_gray,
+                ink_threshold=ink_threshold,
+                top=system_top,
+                bottom=system_bottom,
+                reference_bounds=(system_left, system_right),
+            )
+            if recovered_bounds is None:
+                continue
+            system_left, system_right = recovered_bounds
 
         system_bboxes.append((system_left, system_top, system_right, system_bottom))
 
+    split_system_bboxes: List[BBox] = []
+    for system_bbox in system_bboxes:
+        split_system_bboxes.extend(
+            _split_multi_staff_candidate(
+                page_gray,
+                system_bbox=system_bbox,
+                ink_threshold=ink_threshold,
+            )
+        )
+
+    candidate_assessments = [
+        _assess_system_candidate(
+            page_gray,
+            page_number=page_number,
+            source_candidate_index=index,
+            system_bbox=system_bbox,
+            ink_threshold=ink_threshold,
+        )
+        for index, system_bbox in enumerate(split_system_bboxes, start=1)
+    ]
+    candidate_assessments = [
+        _refine_accepted_system_candidate(page_gray, assessment, ink_threshold)
+        for assessment in candidate_assessments
+    ]
+    candidate_assessments = _reject_trailing_blank_staff_candidates(candidate_assessments)
+    accepted_candidates = [
+        assessment for assessment in candidate_assessments if assessment.accepted
+    ]
+    candidate_position_by_source_index = {
+        assessment.source_candidate_index: index
+        for index, assessment in enumerate(candidate_assessments)
+    }
+
     detected: List[DetectedSystem] = []
-    for index, system_bbox in enumerate(system_bboxes):
+    for assessment in accepted_candidates:
+        system_bbox = assessment.system_bbox
         _, system_top, _, system_bottom = system_bbox
         system_height = system_bottom - system_top
         desired_chord_height = max(32, min(96, system_height // 2))
         staff_overlap = max(24, int(system_height * 0.40))
-        previous_system_bottom = 0 if index == 0 else system_bboxes[index - 1][3]
-        next_system_top = height if index + 1 == len(system_bboxes) else system_bboxes[index + 1][1]
+        candidate_position = candidate_position_by_source_index[assessment.source_candidate_index]
+        previous_system_bottom = (
+            0
+            if candidate_position == 0
+            else candidate_assessments[candidate_position - 1].system_bbox[3]
+        )
+        next_system_top = (
+            height
+            if candidate_position + 1 == len(candidate_assessments)
+            else candidate_assessments[candidate_position + 1].system_bbox[1]
+        )
         system_crop_bbox = _expand_system_crop_bbox(system_bbox, width, height)
 
         chord_bbox_above = _build_annotation_band_above(
@@ -349,8 +503,11 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
         detected.append(
             DetectedSystem(
                 page_number=page_number,
+                source_candidate_index=assessment.source_candidate_index,
                 system_bbox=system_bbox,
                 system_crop_bbox=system_crop_bbox,
+                staff_line_rows=assessment.staff_line_rows,
+                staff_line_support=assessment.staff_line_support,
                 chord_bbox_above=chord_bbox_above,
                 chord_crop_bbox_above=chord_crop_bbox_above,
                 chord_bbox_below=chord_bbox_below,
@@ -358,7 +515,361 @@ def _detect_systems(page_gray: Image.Image, page_number: int) -> List[DetectedSy
             )
         )
 
-    return detected
+    return detected, candidate_assessments
+
+
+def _assess_system_candidate(
+    page_gray: Image.Image,
+    *,
+    page_number: int,
+    source_candidate_index: int,
+    system_bbox: BBox,
+    ink_threshold: int,
+) -> SystemCandidateAssessment:
+    left, top, right, bottom = system_bbox
+    pixels = page_gray.load()
+    width = max(1, right - left)
+    row_support = [
+        sum(pixels[x, y] < ink_threshold for x in range(left, right)) / width
+        for y in range(top, bottom)
+    ]
+    support_spans = _find_active_spans(
+        row_support,
+        threshold=_MIN_STAFF_LINE_SUPPORT,
+        min_length=1,
+        gap=0,
+    )
+
+    long_line_rows: List[int] = []
+    long_line_support: List[float] = []
+    for span_top, span_bottom in support_spans:
+        strongest_offset = max(
+            range(span_top, span_bottom + 1),
+            key=lambda offset: row_support[offset],
+        )
+        long_line_rows.append(top + strongest_offset)
+        long_line_support.append(row_support[strongest_offset])
+
+    staff_sequences = _find_staff_line_sequences(long_line_rows, long_line_support)
+    if not staff_sequences:
+        reason = (
+            "insufficient_long_horizontal_lines"
+            if len(long_line_rows) < _REQUIRED_STAFF_LINES
+            else "inconsistent_horizontal_line_spacing"
+        )
+        return SystemCandidateAssessment(
+            page_number=page_number,
+            source_candidate_index=source_candidate_index,
+            system_bbox=system_bbox,
+            accepted=False,
+            reason=reason,
+            long_horizontal_line_rows=tuple(long_line_rows),
+            long_horizontal_line_support=tuple(long_line_support),
+            staff_line_rows=(),
+            staff_line_support=(),
+            mean_staff_spacing=None,
+            max_spacing_deviation_ratio=None,
+        )
+
+    best_sequence = min(
+        staff_sequences,
+        key=lambda sequence: (
+            sequence.spacing_deviation_ratio,
+            -fmean(sequence.support),
+            sequence.indices,
+        ),
+    )
+    return SystemCandidateAssessment(
+        page_number=page_number,
+        source_candidate_index=source_candidate_index,
+        system_bbox=system_bbox,
+        accepted=True,
+        reason="five_consistently_spaced_staff_lines",
+        long_horizontal_line_rows=tuple(long_line_rows),
+        long_horizontal_line_support=tuple(long_line_support),
+        staff_line_rows=best_sequence.rows,
+        staff_line_support=best_sequence.support,
+        mean_staff_spacing=best_sequence.mean_spacing,
+        max_spacing_deviation_ratio=best_sequence.spacing_deviation_ratio,
+    )
+
+
+def _find_staff_line_sequences(
+    long_line_rows: List[int],
+    long_line_support: List[float],
+) -> List[_StaffLineSequence]:
+    sequences: List[_StaffLineSequence] = []
+    for indices in combinations(range(len(long_line_rows)), _REQUIRED_STAFF_LINES):
+        rows = tuple(long_line_rows[index] for index in indices)
+        spacings = [rows[index + 1] - rows[index] for index in range(len(rows) - 1)]
+        mean_spacing = fmean(spacings)
+        if mean_spacing < 6 or mean_spacing > 80:
+            continue
+        spacing_deviation = max(abs(spacing - mean_spacing) for spacing in spacings)
+        spacing_deviation_ratio = spacing_deviation / mean_spacing
+        if spacing_deviation_ratio > _MAX_STAFF_SPACING_DEVIATION_RATIO:
+            continue
+        sequences.append(
+            _StaffLineSequence(
+                indices=indices,
+                rows=rows,
+                support=tuple(long_line_support[index] for index in indices),
+                mean_spacing=mean_spacing,
+                spacing_deviation_ratio=spacing_deviation_ratio,
+            )
+        )
+    return sequences
+
+
+def _refine_accepted_system_candidate(
+    page_gray: Image.Image,
+    assessment: SystemCandidateAssessment,
+    ink_threshold: int,
+) -> SystemCandidateAssessment:
+    if not assessment.accepted or not assessment.staff_line_rows:
+        return assessment
+    expanded_bbox = _expand_left_bound_to_staff_extent(
+        page_gray,
+        assessment.system_bbox,
+        assessment.staff_line_rows,
+        ink_threshold,
+    )
+    density = _staff_residual_ink_density(
+        page_gray,
+        expanded_bbox,
+        assessment.staff_line_rows,
+        ink_threshold,
+    )
+    return replace(
+        assessment,
+        system_bbox=expanded_bbox,
+        staff_residual_ink_density=density,
+    )
+
+
+def _expand_left_bound_to_staff_extent(
+    page_gray: Image.Image,
+    system_bbox: BBox,
+    staff_line_rows: tuple[int, ...],
+    ink_threshold: int,
+) -> BBox:
+    left, top, right, bottom = system_bbox
+    if len(staff_line_rows) != _REQUIRED_STAFF_LINES or left <= 0:
+        return system_bbox
+
+    spacing = fmean(
+        staff_line_rows[index + 1] - staff_line_rows[index]
+        for index in range(len(staff_line_rows) - 1)
+    )
+    lookback = max(round(page_gray.width * 0.12), round(spacing * 6))
+    search_left = max(0, left - lookback)
+    pixels = page_gray.load()
+    line_radius = max(1, round(spacing * 0.08))
+    support = []
+    for x in range(search_left, left + 1):
+        supported_lines = sum(
+            any(
+                pixels[x, y] < ink_threshold
+                for y in range(
+                    max(0, row - line_radius),
+                    min(page_gray.height, row + line_radius + 1),
+                )
+            )
+            for row in staff_line_rows
+        )
+        support.append(supported_lines / len(staff_line_rows))
+
+    smooth = _moving_average(support, _odd(max(5, round(spacing * 0.4))))
+    max_gap = max(8, round(spacing * 0.9))
+    cursor = len(smooth) - 1
+    while cursor >= 0 and smooth[cursor] < _MIN_STAFF_EXTENT_LINE_FRACTION:
+        cursor -= 1
+    if cursor < 0 or len(smooth) - 1 - cursor > max_gap:
+        return system_bbox
+
+    run_start = cursor
+    gap = 0
+    for index in range(cursor - 1, -1, -1):
+        if smooth[index] >= _MIN_STAFF_EXTENT_LINE_FRACTION:
+            run_start = index
+            gap = 0
+            continue
+        gap += 1
+        if gap > max_gap:
+            break
+
+    expanded_left = max(0, search_left + run_start - round(spacing * 0.5))
+    return (min(left, expanded_left), top, right, bottom)
+
+
+def _staff_residual_ink_density(
+    page_gray: Image.Image,
+    system_bbox: BBox,
+    staff_line_rows: tuple[int, ...],
+    ink_threshold: int,
+) -> float:
+    left, _, right, _ = system_bbox
+    spacing = fmean(
+        staff_line_rows[index + 1] - staff_line_rows[index]
+        for index in range(len(staff_line_rows) - 1)
+    )
+    x_start = round(left + (right - left) * 0.10)
+    x_end = round(left + (right - left) * 0.95)
+    y_start = max(0, round(staff_line_rows[0] - spacing))
+    y_end = min(page_gray.height, round(staff_line_rows[-1] + spacing))
+    line_radius = max(1, round(spacing * 0.08))
+    pixels = page_gray.load()
+    dark_pixels = 0
+    measured_pixels = 0
+
+    for x in range(x_start, x_end):
+        column = [
+            pixels[x, y] < ink_threshold
+            for y in range(y_start, y_end)
+            if all(abs(y - row) > line_radius for row in staff_line_rows)
+        ]
+        if not column:
+            continue
+        # Page borders and barlines can span the entire staff without carrying
+        # note information. Exclude those columns from both numerator and area.
+        if sum(column) / len(column) >= 0.70:
+            continue
+        dark_pixels += sum(column)
+        measured_pixels += len(column)
+
+    return dark_pixels / max(1, measured_pixels)
+
+
+def _reject_trailing_blank_staff_candidates(
+    assessments: List[SystemCandidateAssessment],
+) -> List[SystemCandidateAssessment]:
+    accepted_indices = [index for index, item in enumerate(assessments) if item.accepted]
+    credible_indices = [
+        index
+        for index in accepted_indices
+        if (assessments[index].staff_residual_ink_density or 0.0)
+        >= _MIN_TRAILING_MUSICAL_INK_DENSITY
+    ]
+    if not credible_indices:
+        return assessments
+
+    last_credible = credible_indices[-1]
+    refined = list(assessments)
+    for index in accepted_indices:
+        if index <= last_credible:
+            continue
+        refined[index] = replace(
+            assessments[index],
+            accepted=False,
+            reason="insufficient_musical_ink",
+        )
+    return refined
+
+
+def _split_multi_staff_candidate(
+    page_gray: Image.Image,
+    *,
+    system_bbox: BBox,
+    ink_threshold: int,
+) -> List[BBox]:
+    assessment = _assess_system_candidate(
+        page_gray,
+        page_number=0,
+        source_candidate_index=0,
+        system_bbox=system_bbox,
+        ink_threshold=ink_threshold,
+    )
+    staff_sequences = _find_staff_line_sequences(
+        list(assessment.long_horizontal_line_rows),
+        list(assessment.long_horizontal_line_support),
+    )
+    distinct_sequences = _select_distinct_staff_sequences(staff_sequences)
+    if len(distinct_sequences) <= 1:
+        return [system_bbox]
+
+    left, top, right, bottom = system_bbox
+    split_bboxes: List[BBox] = []
+    for index, sequence in enumerate(distinct_sequences):
+        previous_sequence = distinct_sequences[index - 1] if index else None
+        next_sequence = (
+            distinct_sequences[index + 1] if index + 1 < len(distinct_sequences) else None
+        )
+        upper_boundary = (
+            top
+            if previous_sequence is None
+            else (previous_sequence.rows[-1] + sequence.rows[0]) // 2
+        )
+        lower_boundary = (
+            bottom if next_sequence is None else (sequence.rows[-1] + next_sequence.rows[0]) // 2
+        )
+        vertical_margin = max(48, int(round(sequence.mean_spacing * 4)))
+        system_top = max(top, upper_boundary, sequence.rows[0] - vertical_margin)
+        system_bottom = min(
+            bottom,
+            lower_boundary,
+            sequence.rows[-1] + vertical_margin,
+        )
+        system_left, system_right = _detect_horizontal_bounds(
+            page_gray,
+            ink_threshold=ink_threshold,
+            top=system_top,
+            bottom=system_bottom,
+        )
+        if system_right - system_left < int(page_gray.width * 0.35):
+            system_left, system_right = left, right
+        split_bboxes.append((system_left, system_top, system_right, system_bottom))
+    return split_bboxes
+
+
+def _select_distinct_staff_sequences(
+    sequences: List[_StaffLineSequence],
+) -> List[_StaffLineSequence]:
+    ordered = sorted(
+        sequences,
+        key=lambda sequence: (
+            sequence.rows[-1],
+            sequence.spacing_deviation_ratio,
+            -fmean(sequence.support),
+            sequence.indices,
+        ),
+    )
+    best_through: List[List[_StaffLineSequence]] = []
+    for index, sequence in enumerate(ordered):
+        best_with_sequence = [sequence]
+        for previous_index in range(index):
+            previous_selection = best_through[previous_index]
+            previous = previous_selection[-1]
+            minimum_gap = max(
+                12,
+                int(round(min(previous.mean_spacing, sequence.mean_spacing) * 1.5)),
+            )
+            if sequence.rows[0] - previous.rows[-1] < minimum_gap:
+                continue
+            candidate = [*previous_selection, sequence]
+            if _staff_sequence_selection_key(candidate) > _staff_sequence_selection_key(
+                best_with_sequence
+            ):
+                best_with_sequence = candidate
+
+        best_without_sequence = best_through[index - 1] if index else []
+        best_through.append(
+            best_with_sequence
+            if _staff_sequence_selection_key(best_with_sequence)
+            > _staff_sequence_selection_key(best_without_sequence)
+            else best_without_sequence
+        )
+
+    return sorted(best_through[-1], key=lambda sequence: sequence.rows[0]) if ordered else []
+
+
+def _staff_sequence_selection_key(
+    sequences: List[_StaffLineSequence],
+) -> tuple[int, float, float]:
+    return (
+        len(sequences),
+        -sum(sequence.spacing_deviation_ratio for sequence in sequences),
+        sum(fmean(sequence.support) for sequence in sequences),
+    )
 
 
 def _ink_density_by_row(
@@ -409,6 +920,77 @@ def _detect_horizontal_bounds(
     left = max(0, spans[0][0] - 24)
     right = min(page_gray.width, spans[-1][1] + 24)
     return left, right
+
+
+def _recover_staff_horizontal_bounds(
+    page_gray: Image.Image,
+    *,
+    ink_threshold: int,
+    top: int,
+    bottom: int,
+    reference_bounds: tuple[int, int],
+) -> tuple[int, int] | None:
+    page_width = page_gray.width
+    margin_left = int(page_width * 0.05)
+    margin_right = int(page_width * 0.95)
+    assessment = _assess_system_candidate(
+        page_gray,
+        page_number=0,
+        source_candidate_index=0,
+        system_bbox=(margin_left, top, margin_right, bottom),
+        ink_threshold=ink_threshold,
+    )
+    if not assessment.accepted or len(assessment.staff_line_rows) != _REQUIRED_STAFF_LINES:
+        return None
+
+    spacing = assessment.mean_staff_spacing
+    if spacing is None or spacing <= 0:
+        return None
+    pixels = page_gray.load()
+    line_radius = max(1, round(spacing * 0.08))
+    support = []
+    for x in range(margin_left, margin_right):
+        supported_lines = sum(
+            any(
+                pixels[x, y] < ink_threshold
+                for y in range(
+                    max(0, row - line_radius),
+                    min(page_gray.height, row + line_radius + 1),
+                )
+            )
+            for row in assessment.staff_line_rows
+        )
+        support.append(supported_lines / len(assessment.staff_line_rows))
+
+    smooth = _moving_average(support, _odd(max(7, round(spacing * 0.6))))
+    spans = _find_active_spans(
+        smooth,
+        threshold=_MIN_STAFF_EXTENT_LINE_FRACTION,
+        min_length=max(80, int(page_width * 0.08)),
+        gap=max(20, round(spacing * 1.5)),
+    )
+    if not spans:
+        return None
+
+    reference_left, reference_right = reference_bounds
+    page_spans = [(margin_left + left, margin_left + right) for left, right in spans]
+    overlapping = [
+        span for span in page_spans if min(span[1], reference_right) > max(span[0], reference_left)
+    ]
+    if not overlapping:
+        return None
+    recovered_left, recovered_right = max(
+        overlapping,
+        key=lambda span: (
+            min(span[1], reference_right) - max(span[0], reference_left),
+            span[1] - span[0],
+        ),
+    )
+    recovered_left = max(0, recovered_left - 24)
+    recovered_right = min(page_width, recovered_right + 24)
+    if recovered_right - recovered_left < int(page_width * 0.35):
+        return None
+    return recovered_left, recovered_right
 
 
 def _build_annotation_band_above(
@@ -654,10 +1236,22 @@ def _odd(value: int) -> int:
 def _write_segmentation_overlay(
     page_rgb: Image.Image,
     detected_systems: List[DetectedSystem],
+    candidate_assessments: List[SystemCandidateAssessment],
     output_path: Path,
 ) -> None:
     overlay = page_rgb.copy()
     draw = ImageDraw.Draw(overlay)
+    for assessment in candidate_assessments:
+        if assessment.accepted:
+            continue
+        draw.rectangle(assessment.system_bbox, outline="orange", width=4)
+        label_x = assessment.system_bbox[0] + 8
+        label_y = max(0, assessment.system_bbox[1] - 18)
+        draw.text(
+            (label_x, label_y),
+            f"rejected candidate {assessment.source_candidate_index}",
+            fill="orange",
+        )
     for index, detected in enumerate(detected_systems, start=1):
         draw.rectangle(detected.chord_crop_bbox_above, outline="blue", width=4)
         draw.rectangle(detected.chord_crop_bbox_below, outline="green", width=4)
@@ -666,6 +1260,49 @@ def _write_segmentation_overlay(
         label_y = max(0, detected.chord_crop_bbox_above[1] - 18)
         draw.text((label_x, label_y), f"{index}", fill="red")
     overlay.save(output_path)
+
+
+def _candidate_assessment_to_dict(
+    assessment: SystemCandidateAssessment,
+    *,
+    candidate_crop_bbox: BBox,
+    output_system_index: int | None,
+    rejected_crop_path: Path | None,
+) -> dict[str, object]:
+    return {
+        "page_number": assessment.page_number,
+        "source_candidate_index": assessment.source_candidate_index,
+        "output_system_index": output_system_index,
+        "accepted": assessment.accepted,
+        "reason": assessment.reason,
+        "system_bbox": _bbox_to_dict(assessment.system_bbox),
+        "candidate_crop_bbox": _bbox_to_dict(candidate_crop_bbox),
+        "candidate_crop": str(rejected_crop_path) if rejected_crop_path else None,
+        "required_staff_line_count": _REQUIRED_STAFF_LINES,
+        "minimum_line_support": _MIN_STAFF_LINE_SUPPORT,
+        "minimum_trailing_musical_ink_density": _MIN_TRAILING_MUSICAL_INK_DENSITY,
+        "long_horizontal_line_rows": list(assessment.long_horizontal_line_rows),
+        "long_horizontal_line_support": [
+            round(value, 6) for value in assessment.long_horizontal_line_support
+        ],
+        "staff_line_rows": list(assessment.staff_line_rows),
+        "staff_line_support": [round(value, 6) for value in assessment.staff_line_support],
+        "mean_staff_spacing": (
+            round(assessment.mean_staff_spacing, 6)
+            if assessment.mean_staff_spacing is not None
+            else None
+        ),
+        "max_spacing_deviation_ratio": (
+            round(assessment.max_spacing_deviation_ratio, 6)
+            if assessment.max_spacing_deviation_ratio is not None
+            else None
+        ),
+        "staff_residual_ink_density": (
+            round(assessment.staff_residual_ink_density, 6)
+            if assessment.staff_residual_ink_density is not None
+            else None
+        ),
+    }
 
 
 def _bbox_to_dict(bbox: BBox) -> dict[str, int]:
@@ -685,6 +1322,7 @@ def _clear_segmentation_outputs(systems_dir: Path) -> None:
         "page_*_deskewed.png",
         "page_*_overlay.png",
         "page_*_segments.json",
+        "rejected_candidate_page_*.png",
     )
     for pattern in patterns:
         for path in systems_dir.glob(pattern):

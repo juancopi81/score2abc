@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "initial_one_flat",
+      "source_system_index": 1,
+      "prediction": {
+        "mode": "initial",
+        "fifths": -1,
+        "gate_passed": true,
+        "truth_used_for_prediction": false,
+        "selection_method": "standard_position_sequence",
+        "predicted_signature_family": "flat",
+        "accidental_count": 1,
+        "selected_glyph_ids": ["g001"],
+        "search_region": {"left_px": 40, "right_px": 140},
+        "input": {"path": "initial_one_flat.png", "sha256": "fixture-one-flat"}
+      },
+      "expected_status": "confirmed_explicit",
+      "expected_fifths": -1
+    },
+    {
+      "case_id": "system_entry_two_sharps",
+      "source_system_index": 6,
+      "prediction": {
+        "mode": "initial",
+        "fifths": 2,
+        "gate_passed": true,
+        "truth_used_for_prediction": false,
+        "selection_method": "standard_position_sequence",
+        "predicted_signature_family": "sharp",
+        "accidental_count": 2,
+        "selected_glyph_ids": ["g018", "g030"],
+        "search_region": {"left_px": 212, "right_px": 328},
+        "input": {"path": "system_entry_two_sharps.png", "sha256": "fixture-two-sharps"}
+      },
+      "expected_status": "confirmed_explicit",
+      "expected_fifths": 2
+    },
+    {
+      "case_id": "ordinary_accidental",
+      "source_system_index": 4,
+      "prediction": {
+        "mode": "initial",
+        "fifths": -1,
+        "gate_passed": false,
+        "truth_used_for_prediction": false,
+        "selection_method": "standard_position_sequence",
+        "predicted_signature_family": "flat",
+        "accidental_count": 1,
+        "selected_glyph_ids": ["n014"],
+        "search_region": {"left_px": 40, "right_px": 180},
+        "input": {"path": "ordinary_accidental.png", "sha256": "fixture-accidental"}
+      },
+      "expected_status": "unknown",
+      "expected_fifths": null
+    },
+    {
+      "case_id": "title_or_non_staff_crop",
+      "source_system_index": 1,
+      "detector_error": "No five-line staff found",
+      "expected_status": "unknown",
+      "expected_fifths": null
+    }
+  ]
+}

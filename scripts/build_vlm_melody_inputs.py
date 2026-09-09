@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
@@ -21,16 +22,27 @@ from typing import Any, Iterable
 
 from PIL import Image, ImageDraw, ImageOps
 
-from score2abc.chord_ocr.alignment import detect_barlines, measure_boundaries_for_system
-from score2abc.events import measure_length_beats
-from score2abc.manifest import load_manifest_jsonl
-from score2abc.schemas import WorkItem
-from score2abc.utils import get_logger
-from score2abc.utils.imaging import estimate_ink_threshold
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from score2abc.chord_ocr.alignment import (  # noqa: E402
+    detect_barlines,
+    measure_boundaries_for_system,
+)
+from score2abc.events import measure_length_beats  # noqa: E402
+from score2abc.manifest import load_manifest_jsonl  # noqa: E402
+from score2abc.schemas import WorkItem  # noqa: E402
+from score2abc.utils import get_logger  # noqa: E402
+from score2abc.utils.imaging import estimate_ink_threshold  # noqa: E402
+from scripts.experiments import strict_initial_key_context as visual_key_context  # noqa: E402
 
 SEPARATOR_PADDING_PX = 12
 MIN_MEASURE_WIDTH_PX = 16
 SYSTEM_CROP_RE = re.compile(r"^system_(?P<index>\d{3})$")
+KEY_CONTEXT_METADATA = "metadata"
+KEY_CONTEXT_STRICT_VISUAL = "strict-visual"
+KEY_CONTEXT_MODES = (KEY_CONTEXT_METADATA, KEY_CONTEXT_STRICT_VISUAL)
 
 
 @dataclass(frozen=True)
@@ -57,6 +69,7 @@ def main(argv: list[str] | None = None) -> int:
         selected_slugs=selected_slugs,
         selected_systems=system_filter,
         overwrite=args.overwrite,
+        key_context_mode=args.key_context,
     )
     logger.info("Wrote %d VLM melody input records", len(records))
     return 0
@@ -83,6 +96,15 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Overwrite existing crop/context files. The manifest is always rewritten.",
     )
+    parser.add_argument(
+        "--key-context",
+        choices=KEY_CONTEXT_MODES,
+        default=KEY_CONTEXT_METADATA,
+        help=(
+            "Pitch context source. 'metadata' preserves current behavior; 'strict-visual' "
+            "accepts only truth-blind initial/system-entry detections and otherwise uses no key."
+        ),
+    )
     return parser
 
 
@@ -92,8 +114,11 @@ def build_vlm_melody_inputs(
     selected_slugs: set[str] | None = None,
     selected_systems: set[int] | None = None,
     overwrite: bool = False,
+    key_context_mode: str = KEY_CONTEXT_METADATA,
 ) -> list[dict[str, Any]]:
     """Create measure-level melody VLM input crops for selected work items."""
+    if key_context_mode not in KEY_CONTEXT_MODES:
+        raise ValueError(f"Unsupported melody key context mode: {key_context_mode}")
     manifest_path = out_dir / "manifest.jsonl"
     work_items = load_manifest_jsonl(manifest_path)
     records: list[dict[str, Any]] = []
@@ -107,6 +132,7 @@ def build_vlm_melody_inputs(
                 out_dir=out_dir,
                 selected_systems=selected_systems,
                 overwrite=overwrite,
+                key_context_mode=key_context_mode,
             )
         )
 
@@ -120,6 +146,7 @@ def _build_for_work(
     out_dir: Path,
     selected_systems: set[int] | None,
     overwrite: bool,
+    key_context_mode: str,
 ) -> list[dict[str, Any]]:
     systems_dir = out_dir / item.slug / "systems"
     if not systems_dir.exists():
@@ -130,6 +157,7 @@ def _build_for_work(
 
     records: list[dict[str, Any]] = []
     global_measure_index = 0
+    inherited_fifths: int | None = None
     for system_path in _iter_system_crops(systems_dir):
         system_index = _parse_system_index(system_path.stem)
         if system_index <= 0:
@@ -138,11 +166,30 @@ def _build_for_work(
         barlines = sorted(detect_barlines(system_path))
         boundaries = measure_boundaries_for_system(system_path, barlines)
         measure_count = max(0, len(boundaries) - 1)
+        visual_state = None
+        visual_prediction = None
+        if key_context_mode == KEY_CONTEXT_STRICT_VISUAL:
+            visual_state, visual_prediction = _detect_strict_visual_key_state(
+                system_path,
+                system_index=system_index,
+                inherited_fifths=inherited_fifths,
+            )
+            detected_fifths = visual_state.get("fifths")
+            if (
+                visual_state.get("status")
+                in {
+                    visual_key_context.STATUS_CONFIRMED,
+                    visual_key_context.STATUS_INHERITED,
+                }
+                and detected_fifths in visual_key_context.SUPPORTED_FIFTHS
+            ):
+                inherited_fifths = int(detected_fifths)
+
         if selected_systems is not None and system_index not in selected_systems:
             global_measure_index += measure_count
             continue
 
-        records_for_system = _build_for_system(
+        records_for_system = build_measure_inputs_for_system(
             item,
             system_path=system_path,
             output_root=output_root,
@@ -151,6 +198,9 @@ def _build_for_work(
             barlines=barlines,
             boundaries=boundaries,
             overwrite=overwrite,
+            key_context_mode=key_context_mode,
+            visual_key_state=visual_state,
+            visual_key_prediction=visual_prediction,
         )
         records.extend(records_for_system)
         global_measure_index += measure_count
@@ -158,7 +208,7 @@ def _build_for_work(
     return records
 
 
-def _build_for_system(
+def build_measure_inputs_for_system(
     item: WorkItem,
     *,
     system_path: Path,
@@ -168,7 +218,11 @@ def _build_for_system(
     barlines: list[float],
     boundaries: list[float],
     overwrite: bool,
+    key_context_mode: str = KEY_CONTEXT_METADATA,
+    visual_key_state: dict[str, Any] | None = None,
+    visual_key_prediction: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
+    """Build measure inputs for one system under a caller-owned output root."""
     system_output_dir = output_root / f"system_{system_index:03d}"
     system_output_dir.mkdir(parents=True, exist_ok=True)
     if overwrite:
@@ -177,6 +231,12 @@ def _build_for_system(
     image = Image.open(system_path).convert("RGB")
     width, height = image.size
     staff = _estimate_staff(image)
+    key_artifacts = _write_visual_key_artifacts(
+        system_output_dir,
+        state=visual_key_state,
+        prediction=visual_key_prediction,
+        overwrite=overwrite,
+    )
 
     records: list[dict[str, Any]] = []
     for measure_offset, (left_fraction, right_fraction) in enumerate(_pairs(boundaries), start=0):
@@ -213,6 +273,9 @@ def _build_for_system(
             x_bounds=(x0, x1),
             x_fraction_bounds=(left_fraction, right_fraction),
             staff=staff,
+            key_context_mode=key_context_mode,
+            visual_key_state=visual_key_state,
+            visual_key_artifacts=key_artifacts,
         )
         if overwrite or not context_path.exists():
             _write_json(context_path, context)
@@ -328,16 +391,22 @@ def _context_payload(
     x_bounds: tuple[int, int],
     x_fraction_bounds: tuple[float, float],
     staff: StaffEstimate,
+    key_context_mode: str,
+    visual_key_state: dict[str, Any] | None,
+    visual_key_artifacts: dict[str, str],
 ) -> dict[str, Any]:
     time_signature = item.metadata.time_signature
     expected_beats = _expected_beats(time_signature)
-    return {
+    key_hint = item.metadata.key_hint
+    if key_context_mode == KEY_CONTEXT_STRICT_VISUAL:
+        key_hint = _measure_visual_key_hint(visual_key_state, x_bounds=x_bounds)
+    payload = {
         "slug": item.slug,
         "title": item.metadata.title,
         "composer": item.metadata.composer,
         "rhythm": item.metadata.rhythm,
         "time_signature_hint": time_signature,
-        "key_hint": item.metadata.key_hint,
+        "key_hint": key_hint,
         "tempo_hint": item.metadata.tempo_hint,
         "clef_hint": "treble",
         "system_index": system_index,
@@ -361,6 +430,100 @@ def _context_payload(
         "staff_lines_y_px_in_system": list(staff.line_ys),
         "staff_lines_y_px_in_staff_crop": [y - staff.y0 for y in staff.line_ys],
     }
+    if key_context_mode == KEY_CONTEXT_STRICT_VISUAL:
+        payload["key_context_mode"] = key_context_mode
+        payload["visual_key_state"] = visual_key_state
+        payload["paths"].update(visual_key_artifacts)
+    return payload
+
+
+def _detect_strict_visual_key_state(
+    system_path: Path,
+    *,
+    system_index: int,
+    inherited_fifths: int | None,
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    try:
+        prediction = _detect_initial_signature(system_path)
+    except (OSError, ValueError) as exc:
+        return (
+            visual_key_context.unknown_key_state(
+                source_system_index=system_index,
+                reasons=[f"detector_rejected_image:{exc}"],
+                inherited_fifths=inherited_fifths,
+            ),
+            None,
+        )
+    state = visual_key_context.strict_initial_key_state(
+        prediction,
+        source_system_index=system_index,
+        inherited_fifths=inherited_fifths,
+    )
+    return state, prediction
+
+
+def _detect_initial_signature(system_path: Path) -> dict[str, Any]:
+    from scripts.experiments import spike_consumed_key_signature_detector as detector
+
+    return detector.detect_signature(system_path, mode=detector.MODE_INITIAL)
+
+
+def _write_visual_key_artifacts(
+    system_output_dir: Path,
+    *,
+    state: dict[str, Any] | None,
+    prediction: dict[str, Any] | None,
+    overwrite: bool,
+) -> dict[str, str]:
+    if state is None:
+        return {}
+    state_path = system_output_dir / "visual_key_state.json"
+    if overwrite or not state_path.exists():
+        _write_json(state_path, state)
+    artifacts = {"visual_key_state": str(state_path)}
+    if prediction is None:
+        return artifacts
+
+    prediction_path = system_output_dir / "visual_key_prediction.json"
+    overlay_path = system_output_dir / "visual_key_overlay.png"
+    if overwrite or not prediction_path.exists():
+        _write_json(prediction_path, prediction)
+    if overwrite or not overlay_path.exists():
+        _write_visual_key_overlay(prediction, overlay_path)
+    artifacts.update(
+        {
+            "visual_key_prediction": str(prediction_path),
+            "visual_key_overlay": str(overlay_path),
+        }
+    )
+    return artifacts
+
+
+def _write_visual_key_overlay(prediction: dict[str, Any], path: Path) -> None:
+    from scripts.experiments import spike_consumed_key_signature_detector as detector
+
+    detector._draw_overlay(prediction, path)
+
+
+def _measure_visual_key_hint(
+    state: dict[str, Any] | None,
+    *,
+    x_bounds: tuple[int, int],
+) -> str | None:
+    if not state:
+        return None
+    status = state.get("status")
+    boundary = state.get("applies_after_system_x_px")
+    fifths = state.get("fifths")
+    if fifths not in visual_key_context.SUPPORTED_FIFTHS:
+        return None
+    if status == visual_key_context.STATUS_INHERITED:
+        return visual_key_context.key_hint_for_fifths(int(fifths))
+    if status != visual_key_context.STATUS_CONFIRMED:
+        return None
+    if not isinstance(boundary, int) or isinstance(boundary, bool) or x_bounds[1] <= boundary:
+        return None
+    return visual_key_context.key_hint_for_fifths(int(fifths))
 
 
 def _expected_beats(time_signature: str | None) -> str | None:

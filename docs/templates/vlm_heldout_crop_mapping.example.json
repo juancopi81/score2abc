@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "_instructions": [
+    "Omit --mapping when MusicXML contains exactly seven measures.",
+    "note_start/note_end are optional zero-based half-open visible-notehead slices.",
+    "Use multiple spans for one crop to join measures; reuse a measure with disjoint slices to split it across crops."
+  ],
+  "automatic_crops": [
+    {"automatic_crop_index": 1, "physical_measure_spans": [{"measure_number": 1}]},
+    {"automatic_crop_index": 2, "physical_measure_spans": [{"measure_number": 2}]},
+    {"automatic_crop_index": 3, "physical_measure_spans": [{"measure_number": 3}]},
+    {"automatic_crop_index": 4, "physical_measure_spans": [{"measure_number": 4}]},
+    {"automatic_crop_index": 5, "physical_measure_spans": [{"measure_number": 5}]},
+    {"automatic_crop_index": 6, "physical_measure_spans": [{"measure_number": 6}]},
+    {"automatic_crop_index": 7, "physical_measure_spans": [{"measure_number": 7}]}
+  ]
+}

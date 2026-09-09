@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "vlm_melody_hollow_notehead_unseen_gate_selection",
+  "selected_at": "2026-08-06T00:32:21Z",
+  "split_status": "unseen_morphology_gate",
+  "eligible_for_end_to_end_transcription_claim": false,
+  "identity": {
+    "slug": "jaime-llanos_25_chispazo_pasillo_pedro-morales-pino",
+    "system_index": 4
+  },
+  "source": {
+    "dataset_pdf": {
+      "path": "dataset/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino.pdf",
+      "sha256": "db1b827de75deb4ee0f596cc054902793ea7bd2fb60eff8542269a53b9583a9c"
+    },
+    "system_image": {
+      "path": "out/jaime-llanos_25_chispazo_pasillo_pedro-morales-pino/systems/system_004.png",
+      "sha256": "de4c1f4f1ae7dbe3a1534f917c8d6ad258bacfffc68e3286500172d4098b96f1",
+      "width_px": 2255,
+      "height_px": 273
+    }
+  },
+  "segmentation": {
+    "expected_measure_count": 8,
+    "measure_boundaries_x_fraction": [
+      0.021286031042128603,
+      0.1401330376940133,
+      0.26696230598669624,
+      0.5095343680709534,
+      0.5600886917960088,
+      0.6798226164079822,
+      0.7427937915742794,
+      0.8492239467849224,
+      0.9662971175166297
+    ],
+    "alignment_source": {
+      "path": "score2abc/chord_ocr/alignment.py",
+      "sha256": "99330a9713554a298d654beda39da6d373ac3d4a1b9f46f0d61ffee0ad575d8c"
+    },
+    "visual_review": "Eight boundaries were inspected on the raw system image before candidate or hollow-proposal generation."
+  },
+  "frozen_rule": {
+    "path": "scripts/experiments/spike_consumed_hollow_notehead_proposals.py",
+    "sha256": "e1003bdbb1abb379d02d1ff1015ec03faa08b1b405d75da9a4f7e3e4a0f53371"
+  },
+  "selection_policy": {
+    "candidate_scores_screened": [
+      "jaime-llanos_25_chispazo_pasillo_pedro-morales-pino",
+      "jaime-llanos_39_entusiasmo_pasillo_luis-a-calvo",
+      "jaime-llanos_41_estrella-del-caribe_danza_luis-a-calvo",
+      "jaime-llanos_86_rumichaca_bambuco_emilio-murillo",
+      "jaime-llanos_92_sobre-el-humo_bambuco_fulgencio-garcia"
+    ],
+    "basis": [
+      "The score has no notehead-review truth and has not been used for model training.",
+      "System 4 contains visually apparent hollow noteheads in a monophonic staff.",
+      "The eight automatic measure boundaries are structurally plausible on the raw image."
+    ],
+    "excluded_initial_target": {
+      "slug": "jaime-llanos_39_entusiasmo_pasillo_luis-a-calvo",
+      "system_index": 5,
+      "reason": "The barline detector split note stems as measure boundaries."
+    },
+    "automatic_candidate_outputs_inspected": false,
+    "automatic_hollow_proposals_inspected": false,
+    "review_truth_available_at_selection": false
+  }
+}

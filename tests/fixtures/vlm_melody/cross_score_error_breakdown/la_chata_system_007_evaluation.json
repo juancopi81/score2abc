@@ -1,0 +1,517 @@
+{
+  "kind": "third_score_pitch_only_one_shot_evaluation",
+  "mapping_mode": "deterministic_default_one_to_one",
+  "metric_support": {
+    "duration": "not_scored_missing_frozen_context",
+    "exact_automatic_crops": "scored",
+    "exact_pitch_matches": "scored",
+    "meter": "not_scored_missing_frozen_context",
+    "note_count_precision_recall_f1": "scored",
+    "onset": "not_scored_missing_frozen_context",
+    "ordered_pitch_alignment": "scored",
+    "rests": "not_scored_missing_frozen_context"
+  },
+  "metrics": {
+    "crops": [
+      {
+        "alignment": {
+          "deletions": 1,
+          "edit_distance": 4,
+          "exact_pitch_matches": 2,
+          "insertions": 0,
+          "operations": [
+            {
+              "operation": "substitution",
+              "predicted": 69,
+              "truth": 59
+            },
+            {
+              "operation": "substitution",
+              "predicted": 76,
+              "truth": 67
+            },
+            {
+              "operation": "substitution",
+              "predicted": 57,
+              "truth": 62
+            },
+            {
+              "operation": "exact",
+              "predicted": 69,
+              "truth": 69
+            },
+            {
+              "operation": "deletion",
+              "predicted": null,
+              "truth": 67
+            },
+            {
+              "operation": "exact",
+              "predicted": 71,
+              "truth": 71
+            }
+          ],
+          "substitutions": 3
+        },
+        "automatic_crop_index": 1,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          1
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          69,
+          76,
+          57,
+          69,
+          71
+        ],
+        "truth_note_count": 6,
+        "truth_ordered_pitches": [
+          59,
+          67,
+          62,
+          69,
+          67,
+          71
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 1,
+          "edit_distance": 4,
+          "exact_pitch_matches": 2,
+          "insertions": 0,
+          "operations": [
+            {
+              "operation": "deletion",
+              "predicted": null,
+              "truth": 67
+            },
+            {
+              "operation": "substitution",
+              "predicted": 60,
+              "truth": 71
+            },
+            {
+              "operation": "exact",
+              "predicted": 69,
+              "truth": 69
+            },
+            {
+              "operation": "substitution",
+              "predicted": 65,
+              "truth": 72
+            },
+            {
+              "operation": "substitution",
+              "predicted": 69,
+              "truth": 71
+            },
+            {
+              "operation": "exact",
+              "predicted": 74,
+              "truth": 74
+            }
+          ],
+          "substitutions": 3
+        },
+        "automatic_crop_index": 2,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          2
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          60,
+          69,
+          65,
+          69,
+          74
+        ],
+        "truth_note_count": 6,
+        "truth_ordered_pitches": [
+          67,
+          71,
+          69,
+          72,
+          71,
+          74
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 0,
+          "edit_distance": 2,
+          "exact_pitch_matches": 3,
+          "insertions": 1,
+          "operations": [
+            {
+              "operation": "insertion",
+              "predicted": 69,
+              "truth": null
+            },
+            {
+              "operation": "exact",
+              "predicted": 74,
+              "truth": 74
+            },
+            {
+              "operation": "exact",
+              "predicted": 76,
+              "truth": 76
+            },
+            {
+              "operation": "substitution",
+              "predicted": 77,
+              "truth": 78
+            },
+            {
+              "operation": "exact",
+              "predicted": 79,
+              "truth": 79
+            }
+          ],
+          "substitutions": 1
+        },
+        "automatic_crop_index": 3,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          3
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          69,
+          74,
+          76,
+          77,
+          79
+        ],
+        "truth_note_count": 4,
+        "truth_ordered_pitches": [
+          74,
+          76,
+          78,
+          79
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 0,
+          "edit_distance": 0,
+          "exact_pitch_matches": 5,
+          "insertions": 0,
+          "operations": [
+            {
+              "operation": "exact",
+              "predicted": 76,
+              "truth": 76
+            },
+            {
+              "operation": "exact",
+              "predicted": 79,
+              "truth": 79
+            },
+            {
+              "operation": "exact",
+              "predicted": 76,
+              "truth": 76
+            },
+            {
+              "operation": "exact",
+              "predicted": 72,
+              "truth": 72
+            },
+            {
+              "operation": "exact",
+              "predicted": 69,
+              "truth": 69
+            }
+          ],
+          "substitutions": 0
+        },
+        "automatic_crop_index": 4,
+        "exact_automatic_crop": true,
+        "physical_measure_numbers": [
+          4
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          76,
+          79,
+          76,
+          72,
+          69
+        ],
+        "truth_note_count": 5,
+        "truth_ordered_pitches": [
+          76,
+          79,
+          76,
+          72,
+          69
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 1,
+          "edit_distance": 5,
+          "exact_pitch_matches": 1,
+          "insertions": 0,
+          "operations": [
+            {
+              "operation": "substitution",
+              "predicted": 65,
+              "truth": 62
+            },
+            {
+              "operation": "substitution",
+              "predicted": 72,
+              "truth": 66
+            },
+            {
+              "operation": "substitution",
+              "predicted": 65,
+              "truth": 64
+            },
+            {
+              "operation": "exact",
+              "predicted": 67,
+              "truth": 67
+            },
+            {
+              "operation": "deletion",
+              "predicted": null,
+              "truth": 66
+            },
+            {
+              "operation": "substitution",
+              "predicted": 65,
+              "truth": 69
+            }
+          ],
+          "substitutions": 4
+        },
+        "automatic_crop_index": 5,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          5
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          65,
+          72,
+          65,
+          67,
+          65
+        ],
+        "truth_note_count": 6,
+        "truth_ordered_pitches": [
+          62,
+          66,
+          64,
+          67,
+          66,
+          69
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 2,
+          "edit_distance": 5,
+          "exact_pitch_matches": 1,
+          "insertions": 0,
+          "operations": [
+            {
+              "operation": "deletion",
+              "predicted": null,
+              "truth": 66
+            },
+            {
+              "operation": "deletion",
+              "predicted": null,
+              "truth": 69
+            },
+            {
+              "operation": "substitution",
+              "predicted": 65,
+              "truth": 67
+            },
+            {
+              "operation": "substitution",
+              "predicted": 72,
+              "truth": 71
+            },
+            {
+              "operation": "exact",
+              "predicted": 69,
+              "truth": 69
+            },
+            {
+              "operation": "substitution",
+              "predicted": 69,
+              "truth": 72
+            }
+          ],
+          "substitutions": 3
+        },
+        "automatic_crop_index": 6,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          6
+        ],
+        "predicted_note_count": 4,
+        "predicted_ordered_pitches": [
+          65,
+          72,
+          69,
+          69
+        ],
+        "truth_note_count": 6,
+        "truth_ordered_pitches": [
+          66,
+          69,
+          67,
+          71,
+          69,
+          72
+        ]
+      },
+      {
+        "alignment": {
+          "deletions": 0,
+          "edit_distance": 2,
+          "exact_pitch_matches": 3,
+          "insertions": 1,
+          "operations": [
+            {
+              "operation": "insertion",
+              "predicted": 72,
+              "truth": null
+            },
+            {
+              "operation": "exact",
+              "predicted": 72,
+              "truth": 72
+            },
+            {
+              "operation": "exact",
+              "predicted": 74,
+              "truth": 74
+            },
+            {
+              "operation": "exact",
+              "predicted": 76,
+              "truth": 76
+            },
+            {
+              "operation": "substitution",
+              "predicted": 76,
+              "truth": 78
+            }
+          ],
+          "substitutions": 1
+        },
+        "automatic_crop_index": 7,
+        "exact_automatic_crop": false,
+        "physical_measure_numbers": [
+          7
+        ],
+        "predicted_note_count": 5,
+        "predicted_ordered_pitches": [
+          72,
+          72,
+          74,
+          76,
+          76
+        ],
+        "truth_note_count": 4,
+        "truth_ordered_pitches": [
+          72,
+          74,
+          76,
+          78
+        ]
+      }
+    ],
+    "summary": {
+      "automatic_crop_count": 7,
+      "exact_automatic_crop_rate": 0.142857,
+      "exact_automatic_crops": 1,
+      "exact_pitch_matches": 17,
+      "note_count_f1": 0.901408,
+      "note_count_matched_capacity": 32,
+      "note_count_precision": 0.941176,
+      "note_count_recall": 0.864865,
+      "ordered_pitch_alignment_accuracy": 0.435897,
+      "ordered_pitch_deletions": 5,
+      "ordered_pitch_insertions": 2,
+      "ordered_pitch_substitutions": 15,
+      "predicted_note_count": 34,
+      "truth_note_count": 37
+    },
+    "unsupported": {
+      "duration": {
+        "status": "not_scored_missing_frozen_context"
+      },
+      "meter": {
+        "status": "not_scored_missing_frozen_context"
+      },
+      "onset": {
+        "status": "not_scored_missing_frozen_context"
+      },
+      "rests": {
+        "status": "not_scored_missing_frozen_context"
+      }
+    }
+  },
+  "pins": {
+    "evaluator": {
+      "snapshot_path": "evaluator.py",
+      "snapshot_sha256": "d37130529298d7f9c6f2ebe9d6b33e9a20b36bc361bf935355d5cf837c009d8f",
+      "source_path": "scripts/experiments/evaluate_frozen_third_score_heldout.py",
+      "source_sha256": "d37130529298d7f9c6f2ebe9d6b33e9a20b36bc361bf935355d5cf837c009d8f"
+    },
+    "freeze_manifest": {
+      "snapshot_path": "frozen_freeze.json",
+      "snapshot_sha256": "d140cf3735c6760c82b70cfba20588cdef6bc7d8edfbaa5ebd50cf71177e123f",
+      "source_path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/frozen/freeze.json",
+      "source_sha256": "d140cf3735c6760c82b70cfba20588cdef6bc7d8edfbaa5ebd50cf71177e123f"
+    },
+    "mapping": {
+      "snapshot_path": "mapping.json",
+      "snapshot_sha256": "833a9e27a180c8b628b8c9f3e057e8867680efe0d894f349dd86d2e853e25cb9",
+      "source_path": null,
+      "source_sha256": null
+    },
+    "sealed_manifest": {
+      "snapshot_path": "frozen_sealed_manifest.json",
+      "snapshot_sha256": "56e5105f398e6c7e7325d4367038b6d4e5c5fe65311b4ecdd1f298cfcd026b98",
+      "source_path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/frozen/sealed_manifest.json",
+      "source_sha256": "56e5105f398e6c7e7325d4367038b6d4e5c5fe65311b4ecdd1f298cfcd026b98"
+    },
+    "source_musicxml": {
+      "snapshot_path": "source.musicxml",
+      "snapshot_sha256": "4d5a04c2d179ed7a04324cfc19e809161edeca3cddc71eb66384037037a936bf",
+      "source_path": "out/jaime-llanos_64_la-chata_pasillo_luis-a-calvo/vlm_melody_third_score_heldout/v2/system_007/la_chata_system_007.musicxml",
+      "source_sha256": "4d5a04c2d179ed7a04324cfc19e809161edeca3cddc71eb66384037037a936bf"
+    },
+    "truth": {
+      "snapshot_path": "truth.jsonl",
+      "snapshot_sha256": "41047ace23ea2f5724be93a1b195cf6b8890c0e8e40b192793692840f8755779",
+      "source_path": null,
+      "source_sha256": null
+    }
+  },
+  "schema_version": 1,
+  "status": "evaluated_exactly_once_after_frozen_predictions",
+  "target": {
+    "slug": "jaime-llanos_64_la-chata_pasillo_luis-a-calvo",
+    "system_index": 7
+  },
+  "truth_materialization": {
+    "physical_mapping_explicit": true,
+    "pitch_uses_musicxml_sounding_alter": true,
+    "visible_noteheads_include_tied_continuations": true
+  }
+}
