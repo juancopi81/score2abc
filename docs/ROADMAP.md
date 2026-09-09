@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap is milestone-based with checkboxes so progress can be tracked directly in this file. It prioritizes accuracy and a reproducible CLI pipeline before UI polish.
+This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-09-07, the next delivery milestone is a three-score assisted-transcription pilot with measured human correction time; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
 ## M0 — Thin End-to-End Slice (baseline flow)
 
@@ -111,11 +111,14 @@ Done when: evaluation shows clear improvement over M1 baseline and meter validit
 
 Goal: easy correction for remaining errors with patches fed back into the dataset.
 
-- [ ] Streamlit (or equivalent) UI showing: PDF/crop, current ABC, rendered score, metadata.
-- [ ] Optional MIDI playback of the rendered ABC.
-- [ ] Editing panel for ABC + chord symbols with measure focus.
-- [ ] Save edits as patches/overrides and revalidate.
-- [ ] Define `review/` bundle outputs and `overrides/patches.json` ingestion path.
+- [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
+- [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Chords stop at each barline; unmarked bars remain melody-only. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.
+- [x] Adjustable quarter-note BPM for synchronized melody/chord/cursor playback, with per-melody browser preferences and a score-tempo reset. Listening tempo does not alter saved or exported ABC.
+- [x] ABC/chord editing with rendered note/rest/bar selection into the text editor; source-system selection is manual.
+- [x] Save exact ABC overrides with revision checks, draft/reviewed states, validation, questions, and active review time. Export saved valid ABC without modifying canonical output.
+- [x] Prefer supplied MusicXML harmonies over OCR, show melody/chord origins separately, and restore legacy chord labels through an explicit revision-checked operation that preserves accidental edits and backs up the original draft.
+- [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
+- [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.
 
 Done when: a user can correct a flagged work end-to-end in minutes and the corrections persist.
 
@@ -146,6 +149,6 @@ Done when: a full dataset run produces clean, versionable outputs without manual
 If you want to split efforts, these can happen alongside M2–M4:
 
 - [ ] CLI plumbing + logging (M0/M1) can progress while segmentation/OMR spikes are prototyped.
-- [ ] HITL UI skeleton can be built early using placeholder ABC/preview assets.
+- [x] HITL editor can be exercised early with supplied MusicXML and explicit empty drafts while recognition improves.
 - [ ] Evaluation harness can be built before perfect recognition, so improvements are measurable.
 - [ ] Add per-work parallelism once stage I/O contracts are stable.

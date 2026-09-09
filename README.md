@@ -2,6 +2,11 @@
 
 Pipeline to convert handwritten Colombian scores into ABC notation plus metadata.
 
+The collection inventory and current delivery plan are in
+[`docs/COLLECTION_WORKFLOW.md`](docs/COLLECTION_WORKFLOW.md). The supplied book
+contains 95 identifiable works; automatic whole-score transcription remains
+experimental.
+
 ## Usage (uv)
 
 Run the CLI through uv:
@@ -18,6 +23,9 @@ Notes:
 - ABC previews render via `abc2svg` or `abcm2ps` if available; otherwise a placeholder SVG is written.
 - MusicXML melody extraction defaults to committed fixtures under
   `dataset/musicxml/` so normal runs stay hermetic.
+- When MusicXML contains harmony markings, canonical export uses those chords
+  with their measure/onset positions. OCR is the fallback when harmonies are
+  absent; `chord_source` records supplied/recognized MusicXML, automatic OCR, or none.
 - ABC export now preserves canonical event timing, including implicit rests,
   simultaneous-note groups, and ties split across barlines/chord changes.
 - Segmentation deskews each page once, then applies a gamma=3.5 curve to
@@ -48,6 +56,57 @@ uv run python main.py ingest \
   dataset/local_restricted dataset/local_restricted/metadata.csv out/local_restricted
 uv run python main.py run out/local_restricted --slug <slug>
 ```
+
+### Review and correct a transcription
+
+```bash
+uv run python main.py review out --slug jaime-llanos_12_aviador_pasillo_fulgencio-garcia --open-ui
+```
+
+The loopback-only editor shows manuscript pages/staves beside editable ABC and
+rendered notation. Click a rendered note, rest, or barline to select its ABC;
+use reference-tone playback to check a phrase. Sounding notes, simultaneous
+note groups, tied continuations and rests are highlighted; “Follow playback”
+controls automatic scrolling. Editing or stopping clears the playback cursor.
+Written chord symbols add quiet, sustained accompaniment from the current ABC,
+starting at each symbol and ending at the next chord change, barline or the end.
+Bars without chord symbols remain melody-only, including on repeats; they do not
+inherit the previous bar's chord. Pickups before the first chord remain melody-only;
+`N.C.` silences accompaniment.
+Unsupported or conflicting chord symbols show a warning and silence that passage.
+Set **Tempo** in quarter-note BPM to speed up or slow down melody, chords and
+highlighting together, then press Play to restart. The browser remembers your
+choice for each melody; **Score tempo** restores the ABC's starting tempo
+(120 BPM when unspecified). This listening preference leaves saved/exported ABC
+unchanged and preserves the relative changes of any later written tempos.
+Melody and chord origins are shown separately, including unreviewed OCR proposals.
+Save incomplete drafts, record
+questions, then mark the complete score reviewed after comparing it with the
+source. Unknown meter/key stay explicit until corrected. Supplied MusicXML is
+identified as such, and stub melody output is never offered as a transcription.
+
+Corrections are stored separately in `out/<slug>/overrides/review.json` with
+revision checks and an original-ABC snapshot. Reopening preserves the exact ABC;
+pipeline outputs and frozen research artifacts are unchanged. Download exports
+the last saved, validated ABC, with `draft` or `reviewed` in its filename. An
+unsaved edit disables download. Invalid notation can be saved as a draft but
+cannot be approved or exported. Rendering validates syntax, not musical accuracy.
+
+Preview, playback, approval and validated export require Node.js and the existing
+optional local `abc2svg` installation; saving drafts still works without them.
+The editor loads those assets locally and makes no recognition/API calls.
+Use another port/output root to review restricted sources, for example
+`uv run python main.py review out/local_restricted --port 8767`.
+This first editor supports ABC text correction, not graphical note entry or
+MusicXML export, and overrides do not yet feed back into canonical events/training.
+
+Existing drafts are never silently replaced when source chords change. A bounded
+maintenance operation, `ReviewApp.refresh_supplied_chords(slug, expected_revision)`,
+can restore supplied harmonies while preserving accidental-only corrections.
+It verifies XML/events alignment, rejects other edits or structural changes,
+and backs up exact prior review bytes in `overrides/review.before_supplied_chords.json`
+before saving a new draft revision. Stop the review server before invoking this
+operation from another process. Ordinary saves retain the draft's chord origin.
 
 ### Melody VLM input crops
 

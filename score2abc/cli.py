@@ -112,6 +112,19 @@ def _cmd_eval(args: argparse.Namespace) -> int:
     return evaluate_pipeline(out_dir, ground_truth_dir)
 
 
+def _cmd_review(args: argparse.Namespace) -> int:
+    from score2abc.review import ReviewError, run_review
+
+    logger = get_logger("score2abc.review")
+    try:
+        return run_review(
+            Path(args.out_dir), slug=args.slug, port=args.port, open_browser=args.open_ui
+        )
+    except (ReviewError, OSError, ValueError) as exc:
+        logger.error("Cannot open review desk: %s", exc)
+        return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="score2abc",
@@ -176,6 +189,13 @@ def build_parser() -> argparse.ArgumentParser:
     qa.add_argument("out_dir", help="Output directory")
     qa.add_argument("--open-ui", action="store_true", help="Open review UI")
     qa.set_defaults(func=_cmd_qa)
+
+    review = subparsers.add_parser("review", help="Review and correct local transcriptions")
+    review.add_argument("out_dir", help="Output directory containing manifest.jsonl")
+    review.add_argument("--slug", help="Melody to open initially")
+    review.add_argument("--port", type=int, default=8766, help="Local port (default: 8766)")
+    review.add_argument("--open-ui", action="store_true", help="Open the review desk in a browser")
+    review.set_defaults(func=_cmd_review)
 
     export = subparsers.add_parser("export", help="Export catalog and artifacts")
     export.add_argument("out_dir", help="Output directory")
