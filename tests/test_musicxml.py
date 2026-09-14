@@ -124,6 +124,56 @@ def test_parse_musicxml_events_merges_ties_and_uses_kind_text(tmp_path: Path) ->
     ]
 
 
+def test_parse_musicxml_events_preserves_explicit_natural_without_alter(
+    tmp_path: Path,
+) -> None:
+    xml_path = tmp_path / "naturals.musicxml"
+    _write_musicxml(
+        xml_path,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <score-partwise version="4.0">
+          <part-list>
+            <score-part id="P1"><part-name>Music</part-name></score-part>
+          </part-list>
+          <part id="P1">
+            <measure number="1">
+              <attributes>
+                <divisions>2</divisions>
+                <time><beats>2</beats><beat-type>4</beat-type></time>
+              </attributes>
+              <note>
+                <pitch><step>B</step><alter>-1</alter><octave>4</octave></pitch>
+                <duration>1</duration><accidental>flat</accidental>
+              </note>
+              <note>
+                <pitch><step>B</step><octave>4</octave></pitch>
+                <duration>1</duration><accidental>natural</accidental>
+              </note>
+              <note>
+                <pitch><step>F</step><alter>1</alter><octave>4</octave></pitch>
+                <duration>1</duration><accidental>sharp</accidental>
+              </note>
+              <note>
+                <pitch><step>F</step><octave>4</octave></pitch>
+                <duration>1</duration><accidental>natural</accidental>
+              </note>
+            </measure>
+          </part>
+        </score-partwise>
+        """,
+    )
+
+    payload = parse_musicxml_events(xml_path)
+
+    assert [(note["pitch_midi"], note["accidental"]) for note in payload["notes"]] == [
+        (70, -1),
+        (71, 0),
+        (66, 1),
+        (65, 0),
+    ]
+
+
 def test_write_musicxml_ground_truth_writes_json(tmp_path: Path) -> None:
     xml_path = tmp_path / "demo.musicxml"
     output_path = tmp_path / "demo.json"

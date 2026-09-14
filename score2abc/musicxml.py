@@ -114,6 +114,8 @@ def parse_musicxml_events(path: Path) -> Dict[str, object]:
                 alter = _int_from_child(pitch, "alter")
                 if alter is not None:
                     note_event["accidental"] = alter
+                elif (child.findtext("accidental") or "").strip() == "natural":
+                    note_event["accidental"] = 0
                 if has_tie_start:
                     note_event["tie"] = True
                 notes.append(note_event)

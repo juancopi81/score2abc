@@ -55,6 +55,18 @@ test('written cursor follows tuplets, both tied heads, and the final rest', {ski
   assert.equal(visual.at(-1).end, 6);
 });
 
+test('explicit naturals cancel flat and sharp playback state', {skip: !renderer}, () => {
+  const context = engine();
+  const abc = 'X:1\nM:3/4\nL:1/4\nK:F\n_B/2 =B/2 ^F/2 =F/2 [=Bd] |\n';
+  let sounding = [];
+  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first, voices) => {
+    const audio = new context.ToAudio(); audio.add(first, voices);
+    sounding = Array.from(audio.clear(), event => Array.from(event));
+  }}).tosvg('natural-cancellations', abc);
+  assert.deepEqual(sounding.filter(event => event[2] >= 0 && event[3] > 0).map(event => event[3]),
+    [70, 71, 66, 65, 71, 74]);
+});
+
 test('repeats revisit source symbols and tempo changes keep their timing', {skip: !renderer}, () => {
   const context = engine();
   const abc = 'X:1\nM:2/4\nL:1/4\nQ:1/4=60\nK:C\n|: C D |\nQ:1/4=120\nE F :|\n';

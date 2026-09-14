@@ -32,7 +32,7 @@ _DEFAULT_PITCH_CLASS = {
 _ACCIDENTAL_PREFIX = {
     -2: "__",
     -1: "_",
-    0: "",
+    0: "=",
     1: "^",
     2: "^^",
 }
