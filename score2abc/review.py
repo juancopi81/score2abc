@@ -20,10 +20,18 @@ from xml.etree.ElementTree import ParseError
 
 from score2abc.abc import events_to_abc
 from score2abc.melody.musicxml import extract_canonical_melody_events
-from score2abc.review_chords import CHORD_SOURCES, strip_chords, transfer_accidentals
+from score2abc.review_chords import (
+    CHORD_SOURCES,
+    has_chord_labels,
+    strip_chords,
+    transfer_accidentals,
+)
 from score2abc.schemas import WorkItem
 
 MAX_BODY = 256_000
+MAX_MODEL_NAME = 100
+MAX_PROVENANCE = 64_000
+MAX_REVIEW_NOTES = 64_000
 # Cap accounting per save at 24 hours without preventing long-session notation saves.
 MAX_REVIEW_INTERVAL_MS = 24 * 60 * 60 * 1000
 PACKAGE = Path(__file__).resolve().parent
@@ -261,6 +269,25 @@ class ReviewApp:
             finally:
                 temp.unlink(missing_ok=True)
 
+    @staticmethod
+    def _write_new_review(target: Path, payload: dict) -> None:
+        """Publish a fully written review only when the destination is still absent."""
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=target.parent, delete=False
+        ) as handle:
+            temp = Path(handle.name)
+            try:
+                json.dump(payload, handle, ensure_ascii=False, indent=2)
+                handle.flush()
+                os.fsync(handle.fileno())
+                try:
+                    os.link(temp, target)
+                except FileExistsError as exc:
+                    raise ReviewError("Review already exists; refusing to overwrite", 409) from exc
+            finally:
+                temp.unlink(missing_ok=True)
+
     def assets(self, slug: str) -> dict:
         result = {}
         for folder, pattern, kind in (
@@ -299,9 +326,13 @@ class ReviewApp:
                 "revision": draft.get("revision", 0),
                 "review_state": draft.get("review_state", "unreviewed"),
                 "unresolved": draft.get("unresolved", []),
+                "review_notes": draft.get("review_notes", ""),
                 "active_review_ms": draft.get("active_review_ms", 0),
                 "source_status": status,
                 "chord_source": self._saved_chord_source(slug, draft) if draft else chord_source,
+                "draft_source": draft.get("draft_source"),
+                "model_name": draft.get("model_name"),
+                "provenance": draft.get("provenance"),
                 "base_changed": bool(draft and draft.get("base_abc_sha256") != _hash(base)),
                 "sources": [
                     {"id": id_, "label": label, "kind": kind, "url": f"/assets/{slug}/{id_}"}
@@ -309,6 +340,66 @@ class ReviewApp:
                 ],
                 "validation": self.validate(abc),
             }
+
+    def seed_model_draft(
+        self,
+        slug: str,
+        abc: str,
+        unresolved: list[str],
+        model_name: str = "Astra",
+        provenance: dict | None = None,
+    ) -> dict:
+        """Create one model-authored manuscript draft without touching generated artifacts."""
+        if not isinstance(abc, str) or len(abc.encode("utf-8")) > MAX_BODY:
+            raise ReviewError("ABC must be bounded text")
+        if (
+            not isinstance(unresolved, list)
+            or len(unresolved) > 100
+            or any(not isinstance(value, str) or len(value) > 2000 for value in unresolved)
+        ):
+            raise ReviewError("Invalid unresolved items")
+        if (
+            not isinstance(model_name, str)
+            or not model_name.strip()
+            or len(model_name) > MAX_MODEL_NAME
+        ):
+            raise ReviewError("Model name must be bounded text")
+        if provenance is None:
+            provenance = {}
+        if not isinstance(provenance, dict):
+            raise ReviewError("Provenance must be a JSON object")
+        try:
+            encoded_provenance = json.dumps(provenance, ensure_ascii=False, allow_nan=False)
+        except (TypeError, ValueError) as exc:
+            raise ReviewError("Provenance must be a JSON object") from exc
+        if len(encoded_provenance.encode("utf-8")) > MAX_PROVENANCE:
+            raise ReviewError("Provenance must be bounded JSON")
+        provenance = json.loads(encoded_provenance)
+
+        with self.lock:
+            target = self.path(slug, "overrides/review.json")
+            if target.exists() or target.is_symlink():
+                raise ReviewError("Review already exists; refusing to overwrite", 409)
+            validation = self.validate(abc)
+            if not validation["valid"] or not validation["note_count"]:
+                raise ReviewError("Model draft requires valid notation with notes", 422)
+            base, _, _ = self._base_info(slug)
+            payload = {
+                "chord_source": "model_from_manuscript" if has_chord_labels(abc) else "none",
+                "draft_source": "model_from_manuscript",
+                "model_name": model_name.strip(),
+                "provenance": provenance,
+                "version": 1,
+                "abc": abc,
+                "revision": 1,
+                "review_state": "draft",
+                "unresolved": unresolved,
+                "active_review_ms": 0,
+                "base_abc_sha256": _hash(base),
+                "base_abc": base,
+            }
+            self._write_new_review(target, payload)
+            return self.work(slug)
 
     def state(self) -> dict:
         works = []
@@ -354,6 +445,12 @@ class ReviewApp:
                 "revision", 0
             ):
                 raise ReviewError("Stale revision; reopen the saved work before saving", 409)
+            review_notes = body.get("review_notes", previous.get("review_notes", ""))
+            if (
+                not isinstance(review_notes, str)
+                or len(review_notes.encode("utf-8")) > MAX_REVIEW_NOTES
+            ):
+                raise ReviewError("Review notes must be bounded text")
             validation = self.validate(abc)
             if state == "reviewed" and (
                 not validation["valid"] or not validation["note_count"] or unresolved
@@ -371,10 +468,17 @@ class ReviewApp:
                 "revision": body["revision"] + 1,
                 "review_state": state,
                 "unresolved": unresolved,
+                "review_notes": review_notes,
                 "active_review_ms": previous.get("active_review_ms", 0) + elapsed,
                 "base_abc_sha256": previous.get("base_abc_sha256", _hash(base)),
                 "base_abc": previous.get("base_abc", base),
             }
+            if previous.get("draft_source") == "model_from_manuscript":
+                payload.update(
+                    draft_source="model_from_manuscript",
+                    model_name=previous.get("model_name"),
+                    provenance=previous.get("provenance", {}),
+                )
             self._write_review(target, payload)
             return self.work(slug)
 

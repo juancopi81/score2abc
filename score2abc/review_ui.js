@@ -25,7 +25,7 @@ function canRender() { return typeof abc2svg !== "undefined" && desk.data?.rende
 
 function setBusy(busy) {
   desk.loading = busy;
-  for (const id of ["abc", "unresolved", "save", "bpm", "reset-tempo"]) $(id).disabled = busy || !desk.work;
+  for (const id of ["abc", "unresolved", "review-notes", "save", "bpm", "reset-tempo"]) $(id).disabled = busy || !desk.work;
   if (busy) {
     clearTimeout(desk.renderTimer);
     stopPlayback();
@@ -108,6 +108,7 @@ async function loadWork(slug) {
     } catch (_) {} // Playback still works when browser storage is unavailable.
     $("abc").value = work.abc;
     $("unresolved").value = work.unresolved.join("\n");
+    $("review-notes").value = work.review_notes || "";
     $("title").textContent = work.metadata.title;
     $("metadata").textContent = [work.metadata.composer, work.metadata.rhythm].filter(Boolean).join(" · ");
     document.title = `${work.metadata.title} · A Puño y Letra`;
@@ -115,13 +116,18 @@ async function loadWork(slug) {
     $("review-state").textContent = work.review_state === "reviewed" ? "Reviewed" : "Draft";
     $("review-state").classList.toggle("reviewed", work.review_state === "reviewed");
     const notices = [];
-    if (work.source_status === "no_recognition") notices.push("This melody has no recognized transcription yet. Confirm the meter (M:) and key (K:) from the manuscript, then begin a draft.");
+    const modelReviewNotice = work.review_state === "reviewed" ? "with your saved review." : "human source review is required.";
+    if (work.draft_source === "model_from_manuscript") {
+      const model = work.model_name || "Model";
+      notices.push(`Draft: ${model}-assisted transcription from the manuscript; ${modelReviewNotice}`);
+    } else if (work.source_status === "no_recognition") notices.push("This melody has no recognized transcription yet. Confirm the meter (M:) and key (K:) from the manuscript, then begin a draft.");
     else if (/fixture|manual|supplied/.test(work.source_status)) notices.push("Melody: supplied MusicXML, with your saved corrections when present.");
     else notices.push("Melody: automatic recognition; check it against the manuscript.");
     const chordNotices = {
       supplied_musicxml: "Chord symbols: supplied MusicXML, with your saved corrections when present.",
       recognized_musicxml: "Chord symbols: automatic MusicXML recognition; check them against the manuscript.",
       automatic_ocr: "Chord symbols: automatic OCR proposals, with any saved corrections. They need review against the manuscript.",
+      model_from_manuscript: `Chord symbols: model-assisted draft from the manuscript; ${modelReviewNotice}`,
       none: "No source chord symbols are available; any symbols entered in the editor are part of your draft.",
       unknown: "The source of this draft's chord symbols is not recorded; check them against the manuscript."
     };
@@ -208,7 +214,13 @@ function renderNotation() {
   for (const item of [...errors, ...warnings]) {
     const line = document.createElement("p"); line.textContent = item; $("validation").append(line);
   }
-  $("approve").disabled = errors.length > 0 || !notes || $("unresolved").value.trim().length > 0;
+  const hasUnresolved = $("unresolved").value.trim().length > 0;
+  if (hasUnresolved) {
+    const blocker = document.createElement("p"); blocker.className = "approval-blocker";
+    blocker.textContent = "Open questions block Mark reviewed. Move resolved answers to Review notes.";
+    $("validation").append(blocker);
+  }
+  $("approve").disabled = errors.length > 0 || !notes || hasUnresolved;
   desk.playbackValid = errors.length === 0 && desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
   $("play").disabled = !desk.playbackValid;
   showTempo();
@@ -224,6 +236,7 @@ async function save(reviewState = "draft") {
       "Content-Type": "application/json", "X-Review-Token": desk.data.csrf_token
     }, body: JSON.stringify({revision: desk.work.revision, abc: $("abc").value,
       unresolved: $("unresolved").value.split("\n").map(line => line.trim()).filter(Boolean),
+      review_notes: $("review-notes").value,
       review_state: reviewState, review_ms: Math.round(desk.reviewMs)})});
     desk.work = work; desk.dirty = false; desk.reviewMs = 0;
     const listed = desk.data.works.find(item => item.slug === work.slug);
@@ -387,6 +400,7 @@ window.addEventListener("beforeunload", event => {
 $("search").addEventListener("input", renderLibrary);
 $("abc").addEventListener("input", setDirty);
 $("unresolved").addEventListener("input", setDirty);
+$("review-notes").addEventListener("input", setDirty);
 $("source-select").addEventListener("change", changeSource);
 $("zoom").addEventListener("input", () => { $("source-image").style.width = `${$("zoom").value}%`; });
 $("save").onclick = () => save("draft");
