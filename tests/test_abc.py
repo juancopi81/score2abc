@@ -96,6 +96,90 @@ def test_events_to_abc_merges_different_chords_at_same_onset() -> None:
     assert '"Am Gm"C z2 |' in abc
 
 
+def test_events_to_abc_emits_explicit_naturals_after_flat_and_sharp() -> None:
+    metadata = WorkMetadata(
+        title="Natural Cancellations",
+        composer="Composer",
+        rhythm="Pasillo",
+        time_signature="3/4",
+        key_hint="F",
+    )
+    events = {
+        "time_signature": "3/4",
+        "notes": [
+            {
+                "measure": 1,
+                "onset_beats": 0,
+                "duration_beats": 0.5,
+                "pitch_midi": 70,
+                "accidental": -1,
+            },
+            {
+                "measure": 1,
+                "onset_beats": 0.5,
+                "duration_beats": 0.5,
+                "pitch_midi": 71,
+                "accidental": 0,
+            },
+            {
+                "measure": 1,
+                "onset_beats": 1,
+                "duration_beats": 0.5,
+                "pitch_midi": 66,
+                "accidental": 1,
+            },
+            {
+                "measure": 1,
+                "onset_beats": 1.5,
+                "duration_beats": 0.5,
+                "pitch_midi": 65,
+                "accidental": 0,
+            },
+            {
+                "measure": 1,
+                "onset_beats": 2,
+                "duration_beats": 1,
+                "pitch_midi": 71,
+                "accidental": 0,
+            },
+            {"measure": 1, "onset_beats": 2, "duration_beats": 1, "pitch_midi": 74},
+        ],
+        "chords": [],
+    }
+
+    abc = events_to_abc(events, metadata)
+
+    assert "K:F" in abc
+    assert "_B/2 =B/2 ^F/2 =F/2 [=Bd] |" in abc
+
+
+def test_events_to_abc_repeats_explicit_natural_across_tied_barline() -> None:
+    metadata = WorkMetadata(
+        title="Tied Natural",
+        composer="Composer",
+        rhythm="Pasillo",
+        time_signature="3/4",
+        key_hint="F",
+    )
+    events = {
+        "time_signature": "3/4",
+        "notes": [
+            {
+                "measure": 1,
+                "onset_beats": 2,
+                "duration_beats": 2,
+                "pitch_midi": 71,
+                "accidental": 0,
+            }
+        ],
+        "chords": [],
+    }
+
+    abc = events_to_abc(events, metadata)
+
+    assert "z2 =B- | =B z2 |" in abc
+
+
 def test_events_to_abc_carries_out_of_range_onsets_forward() -> None:
     metadata = WorkMetadata(title="Malformed OMR", composer="Engine", rhythm="Pasillo")
     events = {
