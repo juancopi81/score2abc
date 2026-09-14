@@ -4,7 +4,14 @@ from __future__ import annotations
 
 import re
 
-CHORD_SOURCES = {"supplied_musicxml", "recognized_musicxml", "automatic_ocr", "none", "unknown"}
+CHORD_SOURCES = {
+    "supplied_musicxml",
+    "recognized_musicxml",
+    "automatic_ocr",
+    "model_from_manuscript",
+    "none",
+    "unknown",
+}
 _TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|[\^_=]*[A-Ga-g]|.', re.DOTALL)
 _NOTE = re.compile(r"(?:\^\^?|__?|=)?[A-Ga-g]")
 _CHORD = re.compile(r'"(?:[^"\\]|\\.)*"')
@@ -13,6 +20,12 @@ _CHORD = re.compile(r'"(?:[^"\\]|\\.)*"')
 def strip_chords(abc: str) -> str:
     header, body = _parts(abc)
     return header + _CHORD.sub("", body)
+
+
+def has_chord_labels(abc: str) -> bool:
+    """Return whether the ABC body contains at least one quoted chord label."""
+    _, body = _parts(abc)
+    return any(token[1:2] not in {"^", "_", "<", ">", "@"} for token in _CHORD.findall(body))
 
 
 def _parts(abc: str) -> tuple[str, str]:

@@ -127,3 +127,6 @@ plus Ruff, Black, syntax checks and matching packaged assets. Browser checks
 verified 160/80 BPM playback, cancellation, persisted tempo after reopening,
 score-tempo reset and unchanged ABC. All six real Aviador artifacts remained
 byte-for-byte unchanged.
+
+Model-assisted ABC seeding and persistent resolution notes are described in
+[REVIEW_DRAFTS.md](REVIEW_DRAFTS.md).

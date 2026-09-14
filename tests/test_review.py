@@ -7,7 +7,7 @@ import urllib.request
 
 import pytest
 
-from score2abc.review import ReviewApp, ReviewError, create_server
+from score2abc.review import MAX_REVIEW_NOTES, ReviewApp, ReviewError, create_server
 
 ABC = 'X:1\nT:Edited\nM:3/4\nL:1/8\nK:G\n"Am"(3ABC [df]2- [df]2 | z2 G4 |]\n'
 
@@ -88,6 +88,52 @@ def test_invalid_drafts_allowed_but_review_and_export_require_validation(app):
     assert exc.value.status == 422
     with pytest.raises(ReviewError):
         save(app, revision=1, state="reviewed", unresolved=["Check accidentals"])
+
+
+def test_review_notes_preserve_resolutions_without_blocking_review(app, monkeypatch):
+    notes = "System 2, measure 2\nResolution: A4, provisional.\n\nKeep the B-flat.\n"
+    original = app.path("sample", "final/melody_with_chords.abc").read_bytes()
+    seeded = app.seed_model_draft("sample", ABC, ["Confirm the pitch"], provenance={"id": 1})
+    resolved = save(
+        app, revision=seeded["revision"], unresolved=[], review_notes=notes, review_ms=1234
+    )
+    reopened = ReviewApp(app.out_dir)
+    monkeypatch.setattr(reopened, "validate", app.validate)
+    assert reopened.work("sample")["review_notes"] == notes
+    reviewed = save(reopened, revision=resolved["revision"], state="reviewed")
+    assert reviewed["review_notes"] == notes  # A legacy client may omit the field.
+    assert reviewed["review_state"] == "reviewed"
+    assert reviewed["draft_source"] == "model_from_manuscript"
+    assert reviewed["provenance"] == {"id": 1}
+    assert reviewed["active_review_ms"] == 1234
+    assert reopened.export("sample") == ABC.encode()
+    assert app.path("sample", "final/melody_with_chords.abc").read_bytes() == original
+    cleared = save(reopened, revision=reviewed["revision"], review_notes="")
+    assert cleared["review_notes"] == ""
+
+
+def test_review_notes_do_not_resolve_open_questions_or_invalid_notation(app):
+    assert app.work("sample")["review_notes"] == ""
+    with pytest.raises(ReviewError, match="no unresolved items"):
+        save(
+            app,
+            state="reviewed",
+            unresolved=["Confirm the pitch"],
+            review_notes="Resolution: confirmed.",
+        )
+    with pytest.raises(ReviewError, match="valid notation"):
+        save(app, abc="unfinished", state="reviewed", review_notes="Everything is confirmed.")
+    assert not app.path("sample", "overrides/review.json").exists()
+
+
+@pytest.mark.parametrize("notes", [None, [], 5, "é" * (MAX_REVIEW_NOTES // 2 + 1)])
+def test_invalid_review_notes_do_not_replace_a_saved_review(app, notes):
+    save(app, review_notes="Preserve this resolution.")
+    target = app.path("sample", "overrides/review.json")
+    before = target.read_bytes()
+    with pytest.raises(ReviewError, match="Review notes must be bounded text"):
+        save(app, revision=1, review_notes=notes)
+    assert target.read_bytes() == before
 
 
 def test_missing_renderer_fails_closed(app, monkeypatch):
@@ -209,6 +255,119 @@ def test_long_review_session_saves_and_caps_accounting(app):
     second = save(app, revision=1, review_ms=48 * 60 * 60 * 1000)
     assert second["active_review_ms"] == two_hours + 24 * 60 * 60 * 1000
     assert app.export("sample") == ABC.encode()
+
+
+def test_seed_model_draft_preserves_origin_through_save_reopen_and_export(app):
+    provenance = {
+        "model": "gpt-6-astra",
+        "source": "original manuscript plus derived system crops",
+        "assembly": "complete score draft",
+    }
+    review_path = app.path("sample", "overrides/review.json")
+    original_files = {
+        path: path.read_bytes()
+        for path in app.out_dir.rglob("*")
+        if path.is_file() and path != review_path
+    }
+
+    seeded = app.seed_model_draft(
+        "sample",
+        ABC,
+        ["Check repeat form"],
+        provenance=provenance,
+    )
+
+    assert seeded["abc"] == ABC
+    assert seeded["revision"] == 1
+    assert seeded["review_state"] == "draft"
+    assert seeded["active_review_ms"] == 0
+    assert seeded["draft_source"] == "model_from_manuscript"
+    assert seeded["model_name"] == "Astra"
+    assert seeded["provenance"] == provenance
+    assert seeded["chord_source"] == "model_from_manuscript"
+    assert app.export("sample") == ABC.encode()
+    assert {path: path.read_bytes() for path in original_files} == original_files
+
+    saved = app.save(
+        "sample",
+        {
+            "abc": ABC,
+            "revision": 1,
+            "review_state": "draft",
+            "unresolved": ["Check repeat form"],
+            "review_ms": 250,
+            "draft_source": "forged-client-origin",
+        },
+    )
+    assert saved["revision"] == 2 and saved["active_review_ms"] == 250
+    assert saved["draft_source"] == "model_from_manuscript"
+    assert saved["model_name"] == "Astra" and saved["provenance"] == provenance
+
+    reopened = ReviewApp(app.out_dir, renderer_dir=app.out_dir / "missing-renderer")
+    reopened.validate = app.validate
+    result = reopened.work("sample")
+    assert result["abc"] == ABC and reopened.export("sample") == ABC.encode()
+    assert result["draft_source"] == "model_from_manuscript"
+    assert result["model_name"] == "Astra" and result["provenance"] == provenance
+    assert {path: path.read_bytes() for path in original_files} == original_files
+
+
+def test_seed_model_draft_without_chords_records_none(app):
+    abc = ABC.replace('"Am"', '"^Fine"')
+    app.validate = lambda value: {
+        "valid": value == abc,
+        "errors": [],
+        "warnings": [],
+        "note_count": 8,
+    }
+
+    result = app.seed_model_draft("sample", abc, [], model_name="Astra")
+
+    assert result["chord_source"] == "none"
+
+
+def test_seed_model_draft_refuses_any_existing_review_path(app):
+    target = app.path("sample", "overrides/review.json")
+    target.parent.mkdir(parents=True)
+    target.write_text("not valid JSON", encoding="utf-8")
+
+    with pytest.raises(ReviewError, match="refusing to overwrite"):
+        app.seed_model_draft("sample", ABC, [])
+    assert target.read_text(encoding="utf-8") == "not valid JSON"
+
+
+def test_seed_model_draft_rejects_invalid_notation_without_writing(app):
+    target = app.path("sample", "overrides/review.json")
+    before = {path: path.read_bytes() for path in app.out_dir.rglob("*") if path.is_file()}
+
+    with pytest.raises(ReviewError, match="valid notation with notes"):
+        app.seed_model_draft("sample", "X:1\nK:C\n", [])
+
+    assert not target.exists()
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_seed_model_draft_tracks_generated_base_changes_without_touching_sources(app):
+    source_paths = [
+        app.path("sample", "final/melody_with_chords.abc"),
+        app.out_dir / "manifest.jsonl",
+    ]
+    source_bytes = {path: path.read_bytes() for path in source_paths}
+
+    result = app.seed_model_draft(
+        "sample",
+        ABC,
+        ["Confirm the ending"],
+        provenance={"request_id": "local-carrizal-draft"},
+    )
+
+    assert not result["base_changed"]
+    assert {path: path.read_bytes() for path in source_paths} == source_bytes
+    stage = app.path("sample", "stages/extract_melody.json")
+    stage.parent.mkdir(parents=True)
+    stage.write_text('{"status":"success"}', encoding="utf-8")
+    assert app.work("sample")["base_changed"]
+    assert {path: path.read_bytes() for path in source_paths} == source_bytes
 
 
 @pytest.mark.parametrize("interval", [-1, True, 1.5, "100"])

@@ -44,8 +44,12 @@
         <label for="abc">ABC notation</label>
         <textarea id="abc" spellcheck="false" autocomplete="off" disabled aria-describedby="abc-help"></textarea>
         <details id="abc-help"><summary>Notation guide &amp; shortcuts</summary><p><code>C D E</code> notes · <code>z</code> rest · <code>|</code> barline</p><p><code>C/2</code> half the default length · <code>C2</code> twice the default length</p><p><code>[CE]</code> simultaneous notes · <code>^F</code> F sharp · <code>_B</code> B flat</p><p><code>"Dm"</code> chord symbol · <code>C-C</code> tied notes</p><p>Lengths use the <code>L:</code> header. ⌘/Ctrl + S saves a draft.</p></details>
-        <label for="unresolved">Questions to resolve <span class="optional">one per line</span></label>
-        <textarea id="unresolved" rows="3" placeholder="For example: confirm the accidental in measure 4" disabled></textarea>
+        <label for="unresolved">Questions to resolve <span class="optional">open questions only</span></label>
+        <textarea id="unresolved" rows="3" placeholder="For example: confirm the accidental in measure 4" aria-describedby="unresolved-help" disabled></textarea>
+        <p id="unresolved-help" class="field-help">Keep only open questions here. Put answered questions and resolutions in Review notes.</p>
+        <label for="review-notes">Review notes and resolutions <span class="optional">optional</span></label>
+        <textarea id="review-notes" rows="5" placeholder="Record resolved questions and other review notes" aria-describedby="review-notes-help" disabled></textarea>
+        <p id="review-notes-help" class="field-help">These notes are saved with the review and do not block Mark reviewed.</p>
         <div id="validation" class="validation" role="status" aria-live="polite"></div>
         <p class="review-explanation">Mark reviewed after checking the complete score against the manuscript. A valid preview alone does not confirm musical accuracy.</p>
       </aside>
