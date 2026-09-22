@@ -116,6 +116,9 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Adjustable quarter-note BPM for synchronized melody/chord/cursor playback, with per-melody browser preferences and a score-tempo reset. Listening tempo does not alter saved or exported ABC.
 - [x] ABC/chord editing with rendered note/rest/bar selection into the text editor; source-system selection is manual.
 - [x] Save exact ABC overrides with revision checks, draft/reviewed states, validation, questions, and active review time. Export saved valid ABC without modifying canonical output.
+- [x] Guard the known unmatched-repeat audio expansion before playback while retaining notation and saving; verify matched-repeat recovery in the browser.
+- [x] Show pending saved drafts separately from reviewed works and prefer verified manuscript-numbered review images when supplied.
+- [x] Calibrate Sol High on two consumed reviewed manuscript passages; retain Astra for drafting after only 1/14 bars matched completely. See `docs/SOL_CALIBRATION.md`.
 - [x] Prefer supplied MusicXML harmonies over OCR, show melody/chord origins separately, and restore legacy chord labels through an explicit revision-checked operation that preserves accidental edits and backs up the original draft.
 - [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
 - [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.

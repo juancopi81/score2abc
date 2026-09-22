@@ -2,6 +2,28 @@
 
 // Keep score following on the same clock and source offsets as audio playback.
 const ReviewPlayback = (() => {
+  const unsafeRepeatMessage = "Playback is disabled: a backward repeat follows a closed repeat without a new left repeat. Check the repeat route against the manuscript; you can still edit and save this draft.";
+
+  function repeatWarning(first, constants) {
+    let open = false, closed = false;
+    for (let symbol = first; symbol; symbol = symbol.ts_next) {
+      if (symbol.type !== constants.BAR || !symbol.seqst) continue;
+      const bar = symbol.bar_type || "";
+      if (bar.startsWith(":")) {
+        if (closed && !open) return unsafeRepeatMessage;
+        if (open) { open = false; closed = true; }
+      }
+      // abc2svg represents :|: as ::, which also opens the next repeat.
+      if (bar.endsWith(":")) open = true;
+    }
+    return null;
+  }
+
+  function requireSafeRepeat(first, constants) {
+    const warning = repeatWarning(first, constants);
+    if (warning) throw new Error(warning);
+  }
+
   function initialBpm(first, constants) {
     let bpm = 120; // ToAudio's default is quarter note = 120.
     for (let symbol = first; symbol && symbol.time === 0; symbol = symbol.ts_next) {
@@ -42,6 +64,7 @@ const ReviewPlayback = (() => {
       img_out: () => {},
       read_file: () => { throw new Error("External includes are not supported."); },
       get_abcmodel: (first, voices) => {
+        requireSafeRepeat(first, constants);
         for (let symbol = first; symbol; symbol = symbol.ts_next) {
           if (symbol.type !== constants.NOTE) continue;
           for (const note of symbol.notes) {
@@ -99,6 +122,7 @@ const ReviewPlayback = (() => {
       img_out: () => {},
       read_file: () => { throw new Error("External includes are not supported."); },
       get_abcmodel: (first, voices) => {
+        requireSafeRepeat(first, constants);
         const symbols = new Map(), barMarkers = new Set(), markers = [];
         for (let s = first; s; s = s.ts_next) {
           if (s.type === constants.BAR) {
@@ -168,7 +192,7 @@ const ReviewPlayback = (() => {
     return {events: result, warnings: [...warnings]};
   }
 
-  return {initialBpm, timeline, activeAt, writtenEvents, accompaniment};
+  return {initialBpm, repeatWarning, timeline, activeAt, writtenEvents, accompaniment};
 })();
 
 if (typeof module === "object") module.exports = ReviewPlayback;

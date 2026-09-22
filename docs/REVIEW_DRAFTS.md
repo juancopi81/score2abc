@@ -57,3 +57,26 @@ including decisions, is under `out/<slug>/overrides/review.json`. Canonical even
 MusicXML, generated ABC and frozen experimental truth remain unchanged. Back up
 review records alongside exported ABC; ignored local `out/` files are not included
 in Git commits.
+
+## Prepared manuscript images and pending drafts
+
+The sidebar counts saved pending drafts separately from human-reviewed scores.
+A prepared work may provide `out/<slug>/review_sources/system_001.png` and
+subsequent three-digit PNG names. When present, these verified manuscript-numbered
+context crops replace generated system crops in the source selector. Full pages
+and the PDF remain available. Empty or invalidly named folders fall back to the
+generated crops; symlink paths remain forbidden. Preparation should cover every
+musical row and retain enough context for chords and ending brackets.
+
+## Repeat playback safeguard
+
+A backward repeat following a closed explicit repeat without a new opening repeat
+can make the installed audio renderer expand indefinitely. The desk detects this
+known route before all three audio paths, shows a warning, and disables playback.
+The notation remains visible, editable and savable. Correct a repeat route only
+from source evidence; do not invent a repeat start just to satisfy the player.
+Ordinary matched repeats and first/second endings remain playable. D.C./D.S./Fine
+navigation remains an annotated source instruction, not automatic playback.
+
+The [September 22 Sol calibration](SOL_CALIBRATION.md) uses consumed reviewed
+passages and supports retaining Astra for the next manuscript-drafting batch.
