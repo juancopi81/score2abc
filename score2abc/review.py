@@ -290,16 +290,34 @@ class ReviewApp:
 
     def assets(self, slug: str) -> dict:
         result = {}
-        for folder, pattern, kind in (
-            ("pages", "page_*.png", "page"),
-            ("systems", "system_*.png", "system"),
-        ):
-            directory = self.path(slug, folder)
-            for path in sorted(directory.glob(pattern)):
-                if not re.fullmatch(rf"{kind}_\d+\.png", path.name):
-                    continue
-                path = _safe(self.out_dir, path)
-                result[f"{kind}-{path.stem}"] = (path, kind, path.stem.replace("_", " "))
+        for path in sorted(self.path(slug, "pages").glob("page_*.png")):
+            if not re.fullmatch(r"page_\d+\.png", path.name):
+                continue
+            path = _safe(self.out_dir, path)
+            result[f"page-{path.stem}"] = (path, "page", path.stem.replace("_", " "))
+        review_sources = self.path(slug, "review_sources")
+        manuscript_systems = []
+        for path in sorted(review_sources.glob("system_*.png")):
+            if not re.fullmatch(r"system_\d{3}\.png", path.name):
+                continue
+            path = _safe(self.out_dir, path)
+            if path.is_file():
+                manuscript_systems.append(path)
+        systems = manuscript_systems or [
+            _safe(self.out_dir, path)
+            for path in sorted(self.path(slug, "systems").glob("system_*.png"))
+            if re.fullmatch(r"system_\d+\.png", path.name)
+        ]
+        for path in systems:
+            result[f"system-{path.stem}"] = (
+                path,
+                "system",
+                (
+                    f"manuscript system {path.stem.removeprefix('system_')}"
+                    if manuscript_systems
+                    else path.stem.replace("_", " ")
+                ),
+            )
         # A manifest PDF may live in the sibling dataset directory; never serve arbitrary paths.
         local_pdf = self.path(slug, "source.pdf")
         if local_pdf.is_file():

@@ -77,6 +77,45 @@ test('repeats revisit source symbols and tempo changes keep their timing', {skip
   assert.equal(events.at(-1).end, 6);
 });
 
+test('parsed unmatched later repeat blocks every audio path before ToAudio.add', {skip: !renderer}, () => {
+  const context = engine();
+  const abc = 'X:1\nM:3/4\nL:1/8\nK:C\nC6 |: D6 :| E6 | [1 F6 :| [2 G6 |]\n';
+  let adds = 0, warning;
+  class ForbiddenAudio {
+    add() { adds++; throw new Error('ToAudio.add was called'); }
+  }
+  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: first => {
+    warning = playback.repeatWarning(first, context.abc2svg.C);
+    if (!warning) new ForbiddenAudio().add(first);
+  }}).tosvg('unsafe-render', abc);
+  assert.match(warning, /Playback is disabled.*repeat route.*edit and save/);
+  assert.throws(() => playback.writtenEvents(context.abc2svg.Abc, ForbiddenAudio,
+    context.abc2svg.C, abc), /Playback is disabled/);
+  assert.throws(() => playback.accompaniment(context.abc2svg.Abc, ForbiddenAudio,
+    context.abc2svg.C, abc), /Playback is disabled/);
+  assert.equal(adds, 0);
+});
+
+test('implicit, matched, double, and first/second ending repeats remain playable', {skip: !renderer}, () => {
+  const context = engine();
+  const header = 'X:1\nM:6/4\nL:1/4\nK:C\n';
+  for (const body of [
+    'C6 :| D6 |]',
+    'C6 |: D6 :| E6 |: [1 F6 :| [2 G6 |]',
+    '|: C6 [1 D6 :| [2 E6 |]',
+    '|: C6 :|: D6 :|',
+    'C6 :|: D6 :|: E6 :|', // Carrizal uses consecutive implicit/combined repeats.
+  ]) {
+    let warning;
+    new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: first => {
+      warning = playback.repeatWarning(first, context.abc2svg.C);
+    }}).tosvg('safe-render', header + body + '\n');
+    assert.equal(warning, null, body);
+    assert.ok(playback.writtenEvents(context.abc2svg.Abc, context.ToAudio,
+      context.abc2svg.C, header + body + '\n').length > 0, body);
+  }
+});
+
 function backing(text) {
   const context = engine();
   return playback.accompaniment(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text);

@@ -160,6 +160,63 @@ def test_assets_exclude_chord_bands_and_symlinks(app):
         app.path("../sample")
 
 
+def test_manuscript_systems_replace_generated_systems_but_keep_pages_and_pdf(app):
+    systems = app.path("sample", "systems")
+    systems.mkdir()
+    generated = systems / "system_001.png"
+    generated.write_bytes(b"generated")
+    pages = app.path("sample", "pages")
+    pages.mkdir()
+    page = pages / "page_001.png"
+    page.write_bytes(b"page")
+    pdf = app.path("sample", "source.pdf")
+    pdf.write_bytes(b"%PDF-local")
+    review_sources = app.path("sample", "review_sources")
+    review_sources.mkdir()
+    assert app.assets("sample")["system-system_001"][0] == generated
+    (review_sources / "system_1.png").write_bytes(b"wrong numbering")
+    assert app.assets("sample")["system-system_001"][0] == generated
+
+    manuscript = review_sources / "system_001.png"
+    manuscript.write_bytes(b"manuscript")
+    (review_sources / "system_003.png").write_bytes(b"third system")
+    assets = app.assets("sample")
+    assert list(assets) == ["page-page_001", "system-system_001", "system-system_003", "source-pdf"]
+    assert assets["system-system_001"] == (manuscript, "system", "manuscript system 001")
+    assert assets["page-page_001"][0] == page
+    assert assets["source-pdf"][0] == pdf
+    assert generated.read_bytes() == b"generated"
+    assert [
+        source["label"] for source in app.work("sample")["sources"] if source["kind"] == "system"
+    ] == ["manuscript system 001", "manuscript system 003"]
+
+
+def test_manuscript_system_paths_reject_symlinks(app):
+    systems = app.path("sample", "systems")
+    systems.mkdir()
+    generated = systems / "system_001.png"
+    generated.write_bytes(b"generated")
+    review_sources = app.path("sample", "review_sources")
+    review_sources.symlink_to(systems, target_is_directory=True)
+    with pytest.raises(ReviewError, match="Unsafe"):
+        app.assets("sample")
+    review_sources.unlink()
+    review_sources.mkdir()
+    (review_sources / "system_001.png").symlink_to(generated)
+    with pytest.raises(ReviewError, match="Unsafe"):
+        app.assets("sample")
+
+
+def test_saved_draft_state_is_distinct_from_reviewed_state(app):
+    assert app.state()["works"][0]["has_draft"] is False
+    save(app)
+    assert app.state()["works"][0]["has_draft"] is True
+    assert app.state()["works"][0]["review_state"] == "draft"
+    save(app, revision=1, state="reviewed")
+    assert app.state()["works"][0]["has_draft"] is True
+    assert app.state()["works"][0]["review_state"] == "reviewed"
+
+
 def test_http_csrf_host_traversal_and_export(app):
     try:
         server = create_server(app)

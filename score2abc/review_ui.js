@@ -48,8 +48,9 @@ function renderLibrary() {
     button.onclick = () => loadWork(work.slug);
     $("works").append(button);
   }
+  const drafts = desk.data.works.filter(work => work.has_draft && work.review_state !== "reviewed").length;
   const approved = desk.data.works.filter(work => work.review_state === "reviewed").length;
-  $("library-count").textContent = `${approved} reviewed · ${desk.data.works.length} available here`;
+  $("library-count").textContent = `${drafts} saved drafts · ${approved} reviewed · ${desk.data.works.length} available here`;
 }
 
 function setDirty() {
@@ -152,7 +153,7 @@ function renderNotation() {
   if (!canRender()) {
     $("notation").textContent = "Preview requires the local ABC renderer."; return;
   }
-  const errors = [], warnings = []; let markup = "", notes = 0, abc;
+  const errors = [], warnings = []; let markup = "", notes = 0, abc, playbackWarning = null;
   const text = $("abc").value;
   if (/^(?:M|K):\s*\?\s*$/m.test(text)) {
     errors.push("Confirm the meter (M:) and key (K:) from the manuscript.");
@@ -176,10 +177,11 @@ function renderNotation() {
       },
       get_abcmodel: (first, voices) => {
         desk.scoreBpm = ReviewPlayback.initialBpm(first, abc2svg.C);
+        playbackWarning ||= ReviewPlayback.repeatWarning(first, abc2svg.C);
         for (let symbol = first; symbol; symbol = symbol.ts_next) {
           if (symbol.type === abc2svg.C.NOTE) notes += symbol.notes.length;
         }
-        if (typeof ToAudio !== "undefined") {
+        if (!playbackWarning && typeof ToAudio !== "undefined") {
           const audio = new ToAudio(); audio.add(first, voices);
           desk.audioEvents.push(...Array.from(audio.clear() || []).map(event => Array.from(event)));
         }
@@ -187,7 +189,7 @@ function renderNotation() {
     });
     abc.tosvg("layout", `%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
     abc.tosvg("review", text);
-    if (!errors.length && typeof ToAudio !== "undefined") {
+    if (!errors.length && !playbackWarning && typeof ToAudio !== "undefined") {
       desk.visualEvents = ReviewPlayback.writtenEvents(abc2svg.Abc, ToAudio, abc2svg.C, text);
       const accompaniment = ReviewPlayback.accompaniment(abc2svg.Abc, ToAudio, abc2svg.C, text);
       desk.chordEvents = accompaniment.events;
@@ -207,6 +209,7 @@ function renderNotation() {
       empty.textContent = "Add notes to begin the transcription."; $("notation").append(empty);
     }
   } catch (error) { errors.push(error.message); }
+  if (playbackWarning) warnings.push(playbackWarning);
   $("validation").className = "validation" + (errors.length ? " error" : "");
   const summary = document.createElement("p");
   summary.textContent = errors.length ? "Check the notation before marking this score reviewed." : notes ? `${notes} notes rendered. Check the music against the source.` : "No notes yet. You can save this incomplete draft.";
@@ -221,7 +224,7 @@ function renderNotation() {
     $("validation").append(blocker);
   }
   $("approve").disabled = errors.length > 0 || !notes || hasUnresolved;
-  desk.playbackValid = errors.length === 0 && desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
+  desk.playbackValid = errors.length === 0 && !playbackWarning && desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
   $("play").disabled = !desk.playbackValid;
   showTempo();
   $("download").disabled = desk.dirty || desk.work.revision < 1 || !desk.work.validation?.valid;
