@@ -13,6 +13,7 @@ import subprocess
 import tempfile
 import threading
 import webbrowser
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -57,6 +58,16 @@ def _json(path: Path) -> dict:
 
 def _hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _save_metadata(operation: str, actor: str, review_ms: int, previous: bytes) -> dict:
+    return {
+        "saved_at": datetime.now(timezone.utc).isoformat(),
+        "operation": operation,
+        "reported_actor": actor,
+        "review_ms": review_ms,
+        "previous_review_sha256": hashlib.sha256(previous).hexdigest() if previous else None,
+    }
 
 
 class ReviewApp:
@@ -244,6 +255,9 @@ class ReviewApp:
                 "base_abc": new_base,
                 "base_abc_sha256": _hash(new_base),
                 "chord_source": "supplied_musicxml",
+                "save_metadata": _save_metadata(
+                    "supplied_chord_refresh", "system", 0, previous_bytes
+                ),
             }
             # An exclusive exact backup precedes replacement; a failed refresh never
             # discards the old review, and cannot silently overwrite an earlier backup.
@@ -251,11 +265,112 @@ class ReviewApp:
                 handle.write(previous_bytes)
                 handle.flush()
                 os.fsync(handle.fileno())
-            self._write_review(target, payload)
+            self._write_review(slug, target, payload)
             return self.work(slug)
 
-    @staticmethod
-    def _write_review(target: Path, payload: dict) -> None:
+    def _archive_current(self, slug: str, target: Path) -> Path | None:
+        """Keep the exact prior bytes before replacement, without overwriting a checkpoint."""
+        if not target.exists():
+            return None
+        previous = target.read_bytes()
+        try:
+            revision = json.loads(previous)["revision"]
+        except (ValueError, KeyError, TypeError) as exc:
+            raise ReviewError("Saved review cannot be archived", 409) from exc
+        if type(revision) is not int or revision < 0:
+            raise ReviewError("Saved review has an invalid revision", 409)
+        history = self.path(slug, "overrides/history")
+        history.mkdir(parents=True, exist_ok=True)
+        digest = hashlib.sha256(previous).hexdigest()
+        archive = self.path(slug, f"overrides/history/{revision}-{digest}.json")
+        for existing in history.glob(f"{revision}-*.json"):
+            existing = _safe(self.out_dir, existing)
+            if existing != archive:
+                raise ReviewError("Conflicting archived review revision", 409)
+        if archive.exists():
+            if archive.read_bytes() != previous:
+                raise ReviewError("Archived review hash or contents changed", 409)
+            return archive
+        with tempfile.NamedTemporaryFile(mode="wb", dir=history, delete=False) as handle:
+            temp = Path(handle.name)
+            try:
+                handle.write(previous)
+                handle.flush()
+                os.fsync(handle.fileno())
+                try:
+                    os.link(temp, archive)
+                except FileExistsError:
+                    if (
+                        self.path(slug, f"overrides/history/{archive.name}").read_bytes()
+                        != previous
+                    ):
+                        raise ReviewError("Archived review hash or contents changed", 409) from None
+            finally:
+                temp.unlink(missing_ok=True)
+        return archive
+
+    def checkpoint_history(self, slug: str) -> Path | None:
+        """Archive a current legacy review without changing its revision or bytes."""
+        with self.lock:
+            return self._archive_current(slug, self.path(slug, "overrides/review.json"))
+
+    def history(self, slug: str) -> list[dict]:
+        """Return verified archived revisions and the current revision once."""
+        with self.lock:
+            history = self.path(slug, "overrides/history")
+            paths = sorted(history.glob("*.json")) if history.exists() else []
+            current = self.path(slug, "overrides/review.json")
+            if current.exists():
+                paths.append(current)
+            revisions = {}
+            for path in paths:
+                path = _safe(self.out_dir, path)
+                raw = path.read_bytes()
+                digest = hashlib.sha256(raw).hexdigest()
+                try:
+                    review = json.loads(raw)
+                    revision = review["revision"]
+                except (ValueError, KeyError, TypeError) as exc:
+                    raise ReviewError("Invalid review history record", 409) from exc
+                if type(revision) is not int or revision < 0:
+                    raise ReviewError("Invalid review history revision", 409)
+                if path != current and path.name != f"{revision}-{digest}.json":
+                    raise ReviewError("Archived review hash or revision changed", 409)
+                prior = revisions.get(revision)
+                if prior:
+                    if prior["sha256"] != digest:
+                        raise ReviewError("Conflicting review history revision", 409)
+                    prior["current"] = prior["current"] or path == current
+                    continue
+                revisions[revision] = {
+                    "revision": revision,
+                    "sha256": digest,
+                    "current": path == current,
+                    "save_metadata": review.get("save_metadata")
+                    or {
+                        "saved_at": None,
+                        "operation": "unknown",
+                        "reported_actor": "unknown",
+                        "review_ms": None,
+                        "previous_review_sha256": None,
+                    },
+                    "review": review,
+                }
+            for revision, entry in revisions.items():
+                metadata = entry["save_metadata"]
+                if not isinstance(metadata, dict):
+                    raise ReviewError("Invalid review history metadata", 409)
+                previous_hash = metadata.get("previous_review_sha256")
+                if previous_hash is None:
+                    continue
+                predecessor = revisions.get(revision - 1)
+                if predecessor is None:
+                    raise ReviewError("Missing predecessor review revision", 409)
+                if predecessor["sha256"] != previous_hash:
+                    raise ReviewError("Predecessor review hash does not match", 409)
+            return [revisions[revision] for revision in sorted(revisions)]
+
+    def _write_review(self, slug: str, target: Path, payload: dict) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", dir=target.parent, delete=False
@@ -265,6 +380,7 @@ class ReviewApp:
                 json.dump(payload, handle, ensure_ascii=False, indent=2)
                 handle.flush()
                 os.fsync(handle.fileno())
+                self._archive_current(slug, target)
                 os.replace(temp, target)
             finally:
                 temp.unlink(missing_ok=True)
@@ -415,6 +531,7 @@ class ReviewApp:
                 "active_review_ms": 0,
                 "base_abc_sha256": _hash(base),
                 "base_abc": base,
+                "save_metadata": _save_metadata("model_seed", "model", 0, b""),
             }
             self._write_new_review(target, payload)
             return self.work(slug)
@@ -456,9 +573,13 @@ class ReviewApp:
         if type(elapsed) is not int or elapsed < 0:
             raise ReviewError("review_ms must be a nonnegative integer")
         elapsed = min(elapsed, MAX_REVIEW_INTERVAL_MS)
+        actor = body.get("reported_actor", "unknown")
+        if actor not in ("human", "model", "system", "unknown"):
+            raise ReviewError("Invalid reported actor")
         with self.lock:
             target = self.path(slug, "overrides/review.json")
-            previous = _json(target)
+            previous_bytes = target.read_bytes() if target.exists() else b""
+            previous = json.loads(previous_bytes) if previous_bytes else {}
             if type(body.get("revision")) is not int or body["revision"] != previous.get(
                 "revision", 0
             ):
@@ -490,6 +611,9 @@ class ReviewApp:
                 "active_review_ms": previous.get("active_review_ms", 0) + elapsed,
                 "base_abc_sha256": previous.get("base_abc_sha256", _hash(base)),
                 "base_abc": previous.get("base_abc", base),
+                "save_metadata": _save_metadata(
+                    "human_save" if actor == "human" else "save", actor, elapsed, previous_bytes
+                ),
             }
             if previous.get("draft_source") == "model_from_manuscript":
                 payload.update(
@@ -497,7 +621,7 @@ class ReviewApp:
                     model_name=previous.get("model_name"),
                     provenance=previous.get("provenance", {}),
                 )
-            self._write_review(target, payload)
+            self._write_review(slug, target, payload)
             return self.work(slug)
 
     def export(self, slug: str) -> bytes:
@@ -566,9 +690,11 @@ def create_server(app: ReviewApp, host: str = "127.0.0.1", port: int = 0):
                     return self.respond(app.save(match[1], json.loads(self.rfile.read(size))))
                 if path == "/api/state":
                     return self.respond(app.state())
-                match = re.fullmatch(r"/api/work/([^/]+)(/export\.abc)?", path)
+                match = re.fullmatch(r"/api/work/([^/]+)(/export\.abc|/history)?", path)
                 if match:
-                    if match[2]:
+                    if match[2] == "/history":
+                        return self.respond(app.history(match[1]))
+                    if match[2] == "/export.abc":
                         with app.lock:
                             exported = app.export(match[1])
                             saved = _json(app.path(match[1], "overrides/review.json"))

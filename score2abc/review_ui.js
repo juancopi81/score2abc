@@ -177,17 +177,16 @@ function renderNotation() {
       },
       get_abcmodel: (first, voices) => {
         desk.scoreBpm = ReviewPlayback.initialBpm(first, abc2svg.C);
-        playbackWarning ||= ReviewPlayback.repeatWarning(first, abc2svg.C);
+        playbackWarning ||= ReviewPlayback.playbackWarning(first, abc2svg.C);
         for (let symbol = first; symbol; symbol = symbol.ts_next) {
           if (symbol.type === abc2svg.C.NOTE) notes += symbol.notes.length;
         }
         if (!playbackWarning && typeof ToAudio !== "undefined") {
-          const audio = new ToAudio(); audio.add(first, voices);
-          desk.audioEvents.push(...Array.from(audio.clear() || []).map(event => Array.from(event)));
+          desk.audioEvents.push(...ReviewPlayback.audioEvents(ToAudio, first, voices, abc2svg.C));
         }
       }
     });
-    abc.tosvg("layout", `%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
+    abc.tosvg("layout", `%%partsbox true\n%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
     abc.tosvg("review", text);
     if (!errors.length && !playbackWarning && typeof ToAudio !== "undefined") {
       desk.visualEvents = ReviewPlayback.writtenEvents(abc2svg.Abc, ToAudio, abc2svg.C, text);
@@ -240,7 +239,8 @@ async function save(reviewState = "draft") {
     }, body: JSON.stringify({revision: desk.work.revision, abc: $("abc").value,
       unresolved: $("unresolved").value.split("\n").map(line => line.trim()).filter(Boolean),
       review_notes: $("review-notes").value,
-      review_state: reviewState, review_ms: Math.round(desk.reviewMs)})});
+      review_state: reviewState, review_ms: Math.round(desk.reviewMs),
+      reported_actor: "human"})});
     desk.work = work; desk.dirty = false; desk.reviewMs = 0;
     const listed = desk.data.works.find(item => item.slug === work.slug);
     listed.review_state = work.review_state; listed.has_draft = true;

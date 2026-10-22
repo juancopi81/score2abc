@@ -20,8 +20,110 @@ const ReviewPlayback = (() => {
   }
 
   function requireSafeRepeat(first, constants) {
-    const warning = repeatWarning(first, constants);
+    const warning = playbackWarning(first, constants);
     if (warning) throw new Error(warning);
+  }
+
+  function partPlan(first, constants) {
+    if (!first.parts) return null;
+    const fail = reason => { throw new Error(`Playback is disabled: ${reason} You can still edit and save.`); };
+    const order = first.parts.replace(/\s/g, "");
+    if (!/^[A-Z]{1,128}$/.test(order)) fail("Use at most 128 single-letter section names in the P: order.");
+    const sections = [], names = new Set();
+    let end = 0;
+    for (let s = first; s; s = s.ts_next) {
+      if (s.type === constants.BAR && /:/.test(s.bar_type || "")) {
+        fail("Use either a P: section order or local repeat bars, rather than combining them.");
+      }
+      if ([constants.NOTE, constants.REST].includes(s.type)) end = Math.max(end, s.time + s.dur);
+      if (!s.part) continue;
+      const name = s.part.text.trim();
+      if (!/^[A-Z]$/.test(name) || names.has(name)) fail("Each section needs a unique single-letter P: label.");
+      names.add(name); sections.push({name, start: s.time});
+    }
+    if (!sections.length || sections[0].start !== 0) fail("Label the first section at the start of the music.");
+    for (let i = 0; i < sections.length; i++) {
+      sections[i].end = sections[i + 1]?.start ?? end;
+      if (sections[i].end <= sections[i].start) fail("Each section must contain music.");
+    }
+    if ([...order].some(name => !names.has(name))) fail("The P: order refers to a missing section label.");
+    return {order, sections};
+  }
+
+  function playbackWarning(first, constants) {
+    const warning = repeatWarning(first, constants);
+    if (warning) return warning;
+    try { partPlan(first, constants); } catch (error) { return error.message; }
+    return null;
+  }
+
+  function fillMissingTieIds(first, constants) {
+    // This abc2svg build links tied heads but leaves b40 unset. ToAudio uses
+    // b40 to find each continuation, so unset chord heads all match one head.
+    for (let symbol = first; symbol; symbol = symbol.ts_next) {
+      if (symbol.type !== constants.NOTE) continue;
+      for (const note of symbol.notes) {
+        if (!note.tie_ty || !note.tie_e || note.tie_s) continue;
+        const chain = [], seen = new Set();
+        let head = note;
+        while (head && !seen.has(head)) {
+          chain.push(head); seen.add(head); head = head.tie_e;
+        }
+        if (head) continue; // Leave an invalid cyclic tie to the renderer.
+        const existing = new Set(chain.map(item => item.b40).filter(id => id != null));
+        if (existing.size > 1) continue; // Keep conflicting supplied identities intact.
+        const id = existing.size ? existing.values().next().value : Symbol("tie");
+        for (const item of chain) if (item.b40 == null) item.b40 = id;
+      }
+    }
+  }
+
+  function audioEvents(Audio, first, voices, constants) {
+    requireSafeRepeat(first, constants);
+    const plan = partPlan(first, constants), times = new Map();
+    for (let s = first; s; s = s.ts_next) {
+      if (Number.isInteger(s.istart)) times.set(s.istart, s.time);
+    }
+    fillMissingTieIds(first, constants);
+    const audio = new Audio(); audio.add(first, voices);
+    const raw = Array.from(audio.clear() || [], event => Array.from(event));
+    if (!plan) return raw;
+    // Reorder audio occurrences, retaining original source offsets for score following.
+    // MIDI pitches already include each section's written key/accidental state.
+    const timed = raw.filter(e => times.has(e[0]) && e[2] >= 0 && e[4] > 0);
+    const rendered = new Map();
+    for (const section of plan.sections) {
+      const music = timed.filter(e => times.get(e[0]) >= section.start && times.get(e[0]) < section.end);
+      if (!music.length || Math.min(...music.map(e => times.get(e[0]))) !== section.start) {
+        throw new Error("Playback is disabled: each section must begin with a note or rest.");
+      }
+      const start = Math.min(...music.map(e => e[1]));
+      const next = timed.filter(e => times.get(e[0]) >= section.end);
+      const end = next.length ? Math.min(...next.map(e => e[1])) : Math.max(...music.map(e => e[1] + e[4]));
+      if (music.some(e => e[1] + e[4] > end + .0001)) {
+        throw new Error("Playback is disabled: a held note crosses a section boundary. Check the tie or section label.");
+      }
+      const events = raw.filter(e => {
+        const time = times.get(e[0]);
+        return time >= section.start && (time < section.end ||
+          (time === section.end && e[3] === 0 && e[4] === 0)); // Closing bar markers.
+      });
+      rendered.set(section.name, {events, start, duration: end - start});
+    }
+    const result = raw.filter(e => !times.has(e[0])), duration = [...plan.order]
+      .reduce((total, name) => total + rendered.get(name).duration, 0);
+    if (!Number.isFinite(duration) || duration <= 0 || duration > 1800) {
+      throw new Error("Playback is disabled: the section order exceeds the 30-minute playback limit.");
+    }
+    let offset = 0;
+    for (const name of plan.order) {
+      const section = rendered.get(name);
+      for (const event of section.events) {
+        const copy = [...event]; copy[1] = offset + event[1] - section.start; result.push(copy);
+      }
+      offset += section.duration;
+    }
+    return result;
   }
 
   function initialBpm(first, constants) {
@@ -72,9 +174,7 @@ const ReviewPlayback = (() => {
             delete note.ti2;
           }
         }
-        const audio = new Audio();
-        audio.add(first, voices);
-        events.push(...Array.from(audio.clear() || [], event => Array.from(event)));
+        events.push(...audioEvents(Audio, first, voices, constants));
       }
     });
     parser.tosvg("playback-follow", text);
@@ -143,10 +243,9 @@ const ReviewPlayback = (() => {
             delete note.tie_ty; delete note.ti2;
           }
         }
-        const audio = new Audio(); let raw;
+        let raw;
         try {
-          audio.add(first, voices);
-          raw = Array.from(audio.clear() || [], event => Array.from(event));
+          raw = audioEvents(Audio, first, voices, constants);
         } finally {
           // The parser continues engraving after this callback; remove timing-only symbols.
           for (const marker of markers) {
@@ -192,7 +291,7 @@ const ReviewPlayback = (() => {
     return {events: result, warnings: [...warnings]};
   }
 
-  return {initialBpm, repeatWarning, timeline, activeAt, writtenEvents, accompaniment};
+  return {initialBpm, repeatWarning, playbackWarning, audioEvents, timeline, activeAt, writtenEvents, accompaniment};
 })();
 
 if (typeof module === "object") module.exports = ReviewPlayback;

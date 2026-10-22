@@ -26,3 +26,30 @@ uv run python scripts/build_collection_inventory.py --source /path/to/all_melodi
 ```
 
 The output is create-once; choose a new output name for a later report. Omit `--source` to check portable mapping consistency only, and omit `--output` to print the report. The helper uses the standard library and checks linked-file existence without reading their contents. It does not extract scores, transcribe music, or run evaluation. Splitting or review tools must consume the explicit `pdf_pages` list rather than infer an offset from song number.
+
+## Prepare local score inputs
+
+Use the existing Poppler installation (`pdfseparate`, `pdfunite`, `pdfinfo`) to
+extract the verified pages without rasterizing the source:
+
+```sh
+uv run python scripts/prepare_collection_sources.py --source /path/to/all_melodies.pdf --output out/collection/source_packet_v1
+```
+
+This creates all 95 available work PDFs, ingest-compatible `metadata.csv`, and
+`packet_manifest.json` with source/catalog hashes, output hashes and page counts,
+and explicit original page ownership. El Tato retains both pages. Missing and
+unnamed rows remain in the report. To extract only selected mapped works, repeat
+`--song-number`, for example `--song-number 19 --song-number 86`.
+
+An existing output directory is rejected. Extraction stages privately, rechecks
+the source hash, reserves a new directory and publishes the manifest last. A
+directory without that manifest is not a completed packet. MusicXML, saved
+reviews and experimental truth are never opened. Meter, key and tempo remain
+blank; the source table's genre does not establish those fields. These are local
+pipeline inputs with transcription still pending, not a distributable edition.
+
+The metadata paths are relative to the packet root, so the input directory for
+the existing `ingest` command is `out/collection/source_packet_v1`, not its
+`pdfs/` subdirectory. Use selected metadata and a new output root for a bounded
+pilot; see [COLLECTION_PILOT.md](../../docs/COLLECTION_PILOT.md).

@@ -1,6 +1,18 @@
 # Roadmap
 
-This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-09-07, the next delivery milestone is a three-score assisted-transcription pilot with measured human correction time; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
+This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-22, the delivery priority is complete source review and audited editorial batches, including targeted approval of Aviador's new form proposal; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
+
+2026-09-09 update: the fresh-context Astra comparison on consumed Aviador system 8
+reached `7/7` exact measures from the original PDF and `4/7` from historical crops,
+against the frozen pipeline's `1/7`. The next recommended experiment is a broader
+Astra-assisted drafting pilot; this result does not promote a default recognizer.
+See [Astra benchmark findings](ASTRA_BENCHMARK.md).
+
+The later [three-score diagnostic](ASTRA_COLLECTION_PILOT.md) supports complete
+assisted drafts: Carrizal reaches 6/8 exact physical measures and Coqueteos 5/7.
+Gato'e Fique retains a pitch-only comparison because the full-event reference
+has overlapping voices. Inherited repository instructions invalidate the
+intended source-only isolation; these remain consumed assisted diagnostics.
 
 ## M0 — Thin End-to-End Slice (baseline flow)
 
@@ -27,6 +39,7 @@ Goal: make accuracy measurable on the 10-PDF dataset.
 - [x] Create a small labeled subset format (ground-truth ABC or events).
 - [x] Add a “compare vs ground truth” script/report.
 - [x] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
+- [x] Verify the complete collection's explicit page catalog and prepare create-once local source packets with source/output hashes, preserved multi-page works and missing-row accounting. The supplied book yields 95 work inputs on 96 pages; this is source coverage, not transcription completion.
 
 Done when: you can run an evaluation command that produces a numeric report for the dataset.
 
@@ -45,6 +58,7 @@ Goal: improve recognition quality with prioritized de-risking.
 - [ ] Replace the fixture MusicXML backend with a real recognition path that produces `intermediate/musicxml.xml` from rendered pages or system crops. Current homr/Audiveris results are useful as a benchmark harness, but not accurate enough to become the primary melody path.
 - [x] Add first local VLM melody-input builder: split detected system crops into measure-level raw/staff/overlay crops plus JSONL context, with no model calls or budget usage.
 - [x] Prototype cost-capped VLM-assisted melody extraction on measure/system crops, including raw/staff/pitch-ruler inputs, candidate-assisted localization, and neighboring-measure context. The best context arm fixed one development measure but failed both blind measures; direct VLM transcription is not ready for pipeline integration. See `docs/VLM_MELODY_SPIKE.md`.
+- [x] Revisit direct transcription with Astra at extra-high reasoning in independently submitted original-PDF and historical-crop conditions. On consumed Aviador system 8, original-PDF transcription scores note F1 `1.0` and historical crops score `0.866667`, versus the reproduced frozen baseline `0.42623`. Both ABC outputs match their structured events. A later context audit found inherited repository instructions in the crop subagent, limiting that condition's interpretation; see `docs/ASTRA_BENCHMARK.md`.
 - [x] Test the notehead-selection gate without held-out leakage, then move to candidate-confirming HITL after affine rectification and a candidate-ID-only VLM both miss the fixed automatic-selection gate. The local reviewer preserves full proposal snapshots and corrections without exposing GT during review.
 - [x] Run a timed GT-blind review of Aviador system 1 measures 1-4 and promote the result into portable training fixtures. Selection and final pitch reached `14/14`; automatic natural pitch reached `11/14`. The timing gate failed (43-second median), so the current reviewer is a labeling tool rather than the final product workflow.
 - [x] Add a leak-resistant melody-event benchmark with frozen image requests and explicit development (systems 1-2), validation (systems 7-8), sealed heldout (system 3), and quarantined ambiguous systems.
@@ -114,13 +128,25 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
 - [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Chords stop at each barline; unmarked bars remain melody-only. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.
 - [x] Adjustable quarter-note BPM for synchronized melody/chord/cursor playback, with per-melody browser preferences and a score-tempo reset. Listening tempo does not alter saved or exported ABC.
+- [x] Play an explicit, bounded ABC section order with synchronized melody, chords and highlighting while engraving each section once. Amalia's editorial `AA–BB–CC–A–B–CC` route preserves all 48 reviewed written measures and plays 160 measures; handwritten return-sign interpretation remains a separate human decision.
 - [x] ABC/chord editing with rendered note/rest/bar selection into the text editor; source-system selection is manual.
 - [x] Save exact ABC overrides with revision checks, draft/reviewed states, validation, questions, and active review time. Export saved valid ABC without modifying canonical output.
-- [x] Guard the known unmatched-repeat audio expansion before playback while retaining notation and saving; verify matched-repeat recovery in the browser.
-- [x] Show pending saved drafts separately from reviewed works and prefer verified manuscript-numbered review images when supplied.
-- [x] Calibrate Sol High on two consumed reviewed manuscript passages; retain Astra for drafting after only 1/14 bars matched completely. See `docs/SOL_CALIBRATION.md`.
+- [x] Preserve answered questions and decisions in a separate review-notes field that does not block approval. Keep unresolved-question and notation gates intact; migrate Carrizal's saved resolutions without changing Juan's ABC or review time.
+- [x] Seed complete model-assisted manuscript drafts without replacing existing reviews; preserve model/source provenance through saves and show it in the desk. Carrizal's eight-system, 48-bar draft is human-reviewed at revision 4. Rumichaca's seven-row, 45-span provisional draft is delivered with 17 questions; this does not complete the three-score pilot. Model-assisted seeding/review notes shipped in PR #11; explicit naturals shipped in PR #10 (2026-09-14).
+- [x] Preserve explicit MusicXML naturals through canonical events and ABC, with rendered-playback regression coverage. Repair Aviador's seven omitted signs while retaining the reviewed revision and prior human correction. Juan confirmed the changed pitch and saved revision 7 as reviewed with no open questions on 2026-09-12.
+- [ ] Complete a source-based form pass for pilot scores: ordinary repeats, first/second endings, and annotations for deferred complex navigation.
+- [x] Verify Carrizal's existing AA BB CC repeats without changing its reviewed draft, and deliver an independently audited, note-preserving ABAC form proposal for Aviador. Two Aviador navigation decisions remain pending; see `docs/FORM_REVIEW_20261022.md`.
+- [x] Guard the proven unmatched-repeat audio expansion before audio construction. Preserve notation and draft saving, show a playback warning, and keep matched repeats playable; renderer regression and disposable-browser save/reopen checks pass. Rumichaca's unresolved form remains annotation-only.
+- [x] Calibrate Sol High on two consumed reviewed passages before assigning collection drafts. Only 1/14 bars matched completely; retain Astra for manuscript reading and Sol for bounded engineering. See `docs/SOL_CALIBRATION.md`.
+- [x] Show pending saved drafts separately from reviewed works and use verified manuscript-numbered context images when supplied.
+- [x] Deliver five complete Astra-assisted drafts after Sol calibration: Coqueteos, Gato'e fique, Chispazo, Sobre el Humo and La Chata. All 41 musical rows are represented; with unchanged Rumichaca, six drafts await human review. Source questions, provenance and review instructions are in `docs/COLLECTION_BATCH_20260922.md`; none is promoted to canonical truth.
+- [x] Add a second five-score review batch: Acuata, Amalia, Atardecer, Entusiasmo and Estrella del Caribe. All 49 source rows are available; unresolved terminal glyphs and voice details remain explicit questions. Source audits and render/playback/persistence checks pass. The queue has eleven pending drafts and two reviewed scores, with all eight earlier review records preserved. See `docs/COLLECTION_BATCH_20261003.md`; no canonical or training promotion.
+- [x] Apply the Amalia-informed editorial protocol to Coqueteos, Atardecer and Rumichaca: separate source/proposal ABCs, complete source reads, independent audits, corrected phrasing/voice encoding, explicit uncertain repairs, and revision-checked delivery. All three remain drafts; the current collection has ten pending drafts and three reviewed scores. See `docs/EDITORIAL_BATCH_20261022.md`.
+- [x] Complete one further bounded editorial batch: Gato'e Fique, Chispazo and La Chata, with source/proposal separation, independent audits, retained disagreements and guarded draft delivery. Fix missing renderer tie identities that caused six audible chord-note reattacks across Coqueteos and La Chata; all twelve source/proposal variants pass post-fix checks. Larger-batch decisions await musician feedback, not model agreement alone.
 - [x] Prefer supplied MusicXML harmonies over OCR, show melody/chord origins separately, and restore legacy chord labels through an explicit revision-checked operation that preserves accidental edits and backs up the original draft.
 - [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
+- [x] Preserve automatic per-save revision history: archive exact prior review bytes before replacement, retain new model seeds, record save metadata, and expose verified read-only history. Existing reviews can be checkpointed without modification; previously overwritten revisions remain unavailable. Historical delivered model drafts remain in the separate delivery snapshots.
+- [ ] Align preserved human corrections to source measures with source/editorial decision labels before evaluation or training promotion.
 - [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.
 
 Done when: a user can correct a flagged work end-to-end in minutes and the corrections persist.
