@@ -53,4 +53,6 @@ frozen research artifacts were not changed.
 
 These local score artifacts are excluded from Git. The PR records application
 code and this handoff; it does not publish the scores or create automatic human
-revision history. See [save-record limitations](COLLECTION_WORKFLOW.md#what-human-saves-preserve).
+revision history at that handoff. Automatic history was subsequently added for
+future saves; it cannot recover earlier overwritten revisions. See
+[what human saves preserve](COLLECTION_WORKFLOW.md#what-human-saves-preserve).

@@ -91,12 +91,27 @@ event-level training label, a MusicXML export, or part of `score2abc export`.
 
 ### What human saves preserve
 
-Each Save replaces the current `review.json`; its increasing revision is a
-concurrency check, not a revision archive. Notes and questions are saved as their
-current contents. There is no automatic per-save history, timestamp, reviewer
-identity or event-level correction log. Active review time is an accumulated
-UI estimate: it counts focused, visible activity within 30 seconds of input and
-is submitted when saving, rather than measuring every musical decision.
+Each successful Save keeps the current `review.json` and archives the exact
+previous file under `overrides/history/<revision>-<sha256>.json` before replacing
+it. The archive includes ABC, notes, questions, review state, accumulated review
+time and existing model/source provenance. Archive failures block replacement;
+stale and rejected saves do not create new revisions. Use one review-server
+process per output directory; its lock and revision checks serialize saves.
+
+New saves also record a UTC timestamp, operation, self-reported actor, per-save
+review time and previous-file hash. The browser reports `human`, model seeding
+reports `model`, and older/API clients default to `unknown`; these labels are
+not authenticated reviewer identities. Active review time remains a UI estimate:
+it counts focused, visible activity within 30 seconds of input and is submitted
+when saving, rather than measuring every musical decision.
+
+`ReviewApp.history(slug)` and the read-only local endpoint
+`/api/work/<slug>/history` return verified archived revisions plus the current
+revision, without duplicates. There is no history browsing or restore UI yet.
+`ReviewApp.checkpoint_history(slug)` can preserve an existing review without
+changing its bytes or revision. Legacy files have unknown save metadata; revisions
+overwritten before history was activated cannot be reconstructed. Restart an
+already-running desk and refresh its browser tab to activate the new save code.
 
 The retained `base_abc` is the original generated/supplied notation. For a
 model-seeded score it may be a placeholder, so it must not be treated as the AI
@@ -105,12 +120,13 @@ delivered AI ABC, source reading, proposals, source hashes and save receipts und
 `out/collection/editorial_pilot_20261022_v1/` and
 `out/collection/editorial_batch_20261022_02/`. These snapshots support a later
 before/after comparison with the completed review, but do not recover every
-intermediate save or automatically train the recognizer.
+intermediate save that predates automatic history, or automatically train the
+recognizer. New model seeds are retained as revision 1 and archived on replacement.
 
 Before using corrections for evaluation or training, align changes to source
 measures and distinguish source corrections from accepted reconstructions and
-performance choices. A future save journal should preserve each revision and
-its provenance; that journal and label promotion are not implemented yet.
+performance choices. Automatic history supplies the saved before/after evidence;
+measure alignment, decision labels and training promotion remain separate work.
 All `out/` artifacts, including human saves and these snapshots, remain local
 and are excluded from Git. Committing and pushing application code does not
 back up the score-review data to GitHub.

@@ -1,5 +1,6 @@
 """Review persistence, isolation, and local HTTP boundaries."""
 
+import hashlib
 import json
 import threading
 import urllib.error
@@ -7,6 +8,7 @@ import urllib.request
 
 import pytest
 
+import score2abc.review as review_module
 from score2abc.review import MAX_REVIEW_NOTES, ReviewApp, ReviewError, create_server
 
 ABC = 'X:1\nT:Edited\nM:3/4\nL:1/8\nK:G\n"Am"(3ABC [df]2- [df]2 | z2 G4 |]\n'
@@ -247,6 +249,9 @@ def test_http_csrf_host_traversal_and_export(app):
         assert request("/api/state", headers={"Host": "evil.example"})[0] == 403
         assert request("/assets/sample/%2e%2e")[0] == 404
         assert request("/api/work/sample", body, headers)[0] == 200
+        status, history_body = request("/api/work/sample/history")
+        assert status == 200
+        assert [entry["revision"] for entry in json.loads(history_body)] == [1]
         assert request("/api/work/sample/export.abc") == (200, ABC.encode())
         assert request("/api/work/sample", body, headers)[0] == 409
         with urllib.request.urlopen(base + "/api/work/sample/export.abc") as response:
@@ -254,6 +259,9 @@ def test_http_csrf_host_traversal_and_export(app):
             assert "object-src 'none'" in response.headers["Content-Security-Policy"]
         body.update(revision=1, review_state="reviewed")
         assert request("/api/work/sample", body, headers)[0] == 200
+        status, history_body = request("/api/work/sample/history")
+        assert status == 200
+        assert [entry["revision"] for entry in json.loads(history_body)] == [1, 2]
         with urllib.request.urlopen(base + "/api/work/sample/export.abc") as response:
             assert 'filename="sample-reviewed.abc"' in response.headers["Content-Disposition"]
             assert response.read() == ABC.encode()
@@ -431,3 +439,190 @@ def test_seed_model_draft_tracks_generated_base_changes_without_touching_sources
 def test_invalid_review_accounting_rejected(app, interval):
     with pytest.raises(ReviewError, match="nonnegative integer"):
         save(app, review_ms=interval)
+
+
+def test_every_successful_save_keeps_exact_prior_revision_and_metadata(app):
+    seeded = app.seed_model_draft("sample", ABC, ["Check source"], provenance={"page": 3})
+    target = app.path("sample", "overrides/review.json")
+    seed_bytes = target.read_bytes()
+    assert seeded["revision"] == 1
+    assert json.loads(seed_bytes)["save_metadata"]["operation"] == "model_seed"
+    second = save(
+        app,
+        revision=1,
+        review_notes="Source A♭ confirmed.\n",
+        unresolved=[],
+        review_ms=51,
+        reported_actor="human",
+    )
+    second_bytes = target.read_bytes()
+    third = save(app, revision=2, state="reviewed", review_ms=9, reported_actor="human")
+    entries = app.history("sample")
+    assert [entry["revision"] for entry in entries] == [1, 2, 3]
+    assert [entry["current"] for entry in entries] == [False, False, True]
+    assert entries[0]["sha256"] == hashlib.sha256(seed_bytes).hexdigest()
+    assert entries[1]["sha256"] == hashlib.sha256(second_bytes).hexdigest()
+    assert entries[0]["review"]["provenance"] == {"page": 3}
+    assert entries[1]["review"]["review_notes"] == "Source A♭ confirmed.\n"
+    assert entries[1]["review"]["abc"] == ABC
+    assert entries[1]["save_metadata"]["previous_review_sha256"] == entries[0]["sha256"]
+    assert entries[1]["save_metadata"]["review_ms"] == 51
+    assert entries[1]["save_metadata"]["reported_actor"] == "human"
+    assert entries[2]["review"]["review_notes"] == second["review_notes"]
+    assert third["active_review_ms"] == 60
+    for entry, original in zip(entries[:2], (seed_bytes, second_bytes), strict=True):
+        archived = app.path(
+            "sample", f"overrides/history/{entry['revision']}-{entry['sha256']}.json"
+        )
+        assert archived.read_bytes() == original
+
+
+def test_legacy_checkpoint_is_read_only_and_deduplicated(app):
+    target = app.path("sample", "overrides/review.json")
+    target.parent.mkdir(parents=True)
+    legacy = {"version": 1, "revision": 17, "abc": ABC, "review_notes": "old note"}
+    target.write_text(json.dumps(legacy, indent=3, ensure_ascii=False), encoding="utf-8")
+    original = target.read_bytes()
+    archive = app.checkpoint_history("sample")
+    assert archive.read_bytes() == original
+    assert app.checkpoint_history("sample") == archive
+    assert target.read_bytes() == original
+    entries = app.history("sample")
+    assert len(entries) == 1 and entries[0]["revision"] == 17
+    assert entries[0]["current"]
+    assert entries[0]["save_metadata"]["saved_at"] is None
+    assert entries[0]["save_metadata"]["reported_actor"] == "unknown"
+    assert entries[0]["review"] == legacy
+
+
+def test_first_save_after_legacy_review_archives_exact_bytes(app):
+    target = app.path("sample", "overrides/review.json")
+    target.parent.mkdir(parents=True)
+    legacy = {"version": 1, "revision": 17, "abc": ABC, "review_notes": "old note"}
+    target.write_text(json.dumps(legacy, indent=3, ensure_ascii=False), encoding="utf-8")
+    original = target.read_bytes()
+    saved = save(app, revision=17, review_notes="new note")
+    entries = app.history("sample")
+    assert saved["revision"] == 18
+    assert [entry["revision"] for entry in entries] == [17, 18]
+    assert entries[0]["review"] == legacy
+    assert entries[0]["save_metadata"]["operation"] == "unknown"
+    assert (
+        entries[1]["save_metadata"]["previous_review_sha256"]
+        == hashlib.sha256(original).hexdigest()
+    )
+    archived = app.path("sample", f"overrides/history/17-{entries[0]['sha256']}.json")
+    assert archived.read_bytes() == original
+
+
+def test_history_rejects_missing_intermediate_predecessor(app):
+    save(app)
+    save(app, revision=1)
+    save(app, revision=2)
+    second = next(app.path("sample", "overrides/history").glob("2-*.json"))
+    second.unlink()
+    with pytest.raises(ReviewError, match="Missing predecessor review revision") as exc:
+        app.history("sample")
+    assert exc.value.status == 409
+
+
+def test_history_rejects_mismatched_predecessor_hash(app):
+    save(app)
+    save(app, revision=1)
+    target = app.path("sample", "overrides/review.json")
+    current = json.loads(target.read_bytes())
+    current["save_metadata"]["previous_review_sha256"] = "0" * 64
+    target.write_text(json.dumps(current), encoding="utf-8")
+    with pytest.raises(ReviewError, match="Predecessor review hash does not match") as exc:
+        app.history("sample")
+    assert exc.value.status == 409
+
+
+def test_supplied_chord_refresh_archives_prior_revision(app, monkeypatch):
+    save(app, review_notes="preserve", reported_actor="human")
+    target = app.path("sample", "overrides/review.json")
+    original = target.read_bytes()
+    monkeypatch.setattr(app, "_supplied_base", lambda _slug: json.loads(original)["base_abc"])
+    monkeypatch.setattr(review_module, "transfer_accidentals", lambda _old, abc, _new: abc)
+    refreshed = app.refresh_supplied_chords("sample", 1)
+    entries = app.history("sample")
+    assert refreshed["revision"] == 2
+    assert entries[0]["review"]["review_notes"] == "preserve"
+    assert entries[1]["save_metadata"]["operation"] == "supplied_chord_refresh"
+    assert entries[1]["save_metadata"]["previous_review_sha256"] == entries[0]["sha256"]
+    assert (
+        app.path("sample", f"overrides/history/1-{entries[0]['sha256']}.json").read_bytes()
+        == original
+    )
+
+
+def test_rejected_saves_create_no_history_and_archive_failure_keeps_current(app, monkeypatch):
+    save(app, review_notes="keep", reported_actor="human")
+    target = app.path("sample", "overrides/review.json")
+    before = target.read_bytes()
+    with pytest.raises(ReviewError, match="Stale revision"):
+        save(app, revision=0)
+    with pytest.raises(ReviewError, match="no unresolved items"):
+        save(app, revision=1, state="reviewed", unresolved=["pending"])
+    assert app.history("sample")[0]["revision"] == 1
+
+    def fail_link(*_args):
+        raise OSError("archive unavailable")
+
+    monkeypatch.setattr(review_module.os, "link", fail_link)
+    with pytest.raises(OSError, match="archive unavailable"):
+        save(app, revision=1, review_notes="new")
+    assert target.read_bytes() == before
+    assert app.history("sample")[0]["revision"] == 1
+
+
+def test_replace_failure_keeps_current_and_archive_is_deduplicated(app, monkeypatch):
+    save(app)
+    target = app.path("sample", "overrides/review.json")
+    before = target.read_bytes()
+    original_replace = review_module.os.replace
+
+    def fail_replace(*_args):
+        raise OSError("replacement unavailable")
+
+    monkeypatch.setattr(review_module.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="replacement unavailable"):
+        save(app, revision=1, review_notes="attempt")
+    assert target.read_bytes() == before
+    assert len(app.history("sample")) == 1
+    monkeypatch.setattr(review_module.os, "replace", original_replace)
+    save(app, revision=1, review_notes="success")
+    assert [entry["revision"] for entry in app.history("sample")] == [1, 2]
+
+
+def test_history_rejects_tampering_conflicts_and_symlinks(app):
+    save(app)
+    save(app, revision=1)
+    archive = next(app.path("sample", "overrides/history").glob("*.json"))
+    original = archive.read_bytes()
+    archive.write_bytes(original + b" ")
+    with pytest.raises(ReviewError, match="hash or revision changed"):
+        app.history("sample")
+    archive.write_bytes(original)
+    altered = json.dumps(json.loads(original), indent=4).encode()
+    conflict = archive.with_name("1-" + hashlib.sha256(altered).hexdigest() + ".json")
+    conflict.write_bytes(altered)
+    with pytest.raises(ReviewError, match="Conflicting review history revision"):
+        app.history("sample")
+    conflict.unlink()
+    archive.unlink()
+    archive.symlink_to(app.path("sample", "overrides/review.json"))
+    with pytest.raises(ReviewError, match="Unsafe"):
+        app.history("sample")
+
+
+def test_history_directory_symlink_is_rejected_before_replacement(app, tmp_path):
+    save(app)
+    target = app.path("sample", "overrides/review.json")
+    before = target.read_bytes()
+    external = tmp_path / "external"
+    external.mkdir()
+    target.parent.joinpath("history").symlink_to(external, target_is_directory=True)
+    with pytest.raises(ReviewError, match="Unsafe"):
+        save(app, revision=1)
+    assert target.read_bytes() == before

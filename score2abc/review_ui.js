@@ -239,7 +239,8 @@ async function save(reviewState = "draft") {
     }, body: JSON.stringify({revision: desk.work.revision, abc: $("abc").value,
       unresolved: $("unresolved").value.split("\n").map(line => line.trim()).filter(Boolean),
       review_notes: $("review-notes").value,
-      review_state: reviewState, review_ms: Math.round(desk.reviewMs)})});
+      review_state: reviewState, review_ms: Math.round(desk.reviewMs),
+      reported_actor: "human"})});
     desk.work = work; desk.dirty = false; desk.reviewMs = 0;
     const listed = desk.data.works.find(item => item.slug === work.slug);
     listed.review_state = work.review_state; listed.has_draft = true;
