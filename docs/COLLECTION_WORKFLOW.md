@@ -4,8 +4,11 @@ Goal: finish the 100-melody collection through assisted transcription and human
 musical review. A complete, source-checked score is the unit of delivery.
 
 Current handoff: [audited editorial drafts, October 22](EDITORIAL_BATCH_20261022.md).
-The local queue contains ten pending drafts and three reviewed scores: Aviador,
-Carrizal, and Amalia. The [October 3](COLLECTION_BATCH_20261003.md) and
+At that delivery the local queue contained ten pending drafts and three reviewed
+scores: Aviador, Carrizal, and Amalia. The subsequent
+[form check](FORM_REVIEW_20261022.md) preserves Carrizal and adds an Aviador form-only
+draft with two targeted questions; the desk shows the current review counts.
+The [October 3](COLLECTION_BATCH_20261003.md) and
 [September 22](COLLECTION_BATCH_20260922.md) submissions remain preserved.
 The [editorial protocol](EDITORIAL_TRANSCRIPTION_PROTOCOL.md) separates source
 readings from provisional reconstructions and requires an independent source audit.
@@ -124,8 +127,9 @@ symbol remains uncertain; it is not automatically a manuscript mistake.
 Complete-score delivery includes ordinary repeats and first/second endings
 (casillas, or volta brackets). Preserve their written structure instead of
 duplicating bars in the archival ABC. The current renderer/player accepts ABC
-repeat and ending syntax, but the generated Aviador draft does not yet retain
-its complete form. Transcribe the form from the page before publication. Retain
+repeat and ending syntax. Aviador's October 22 form proposal uses an explicit
+ABAC route pending two source/editorial decisions; Carrizal's existing repeats
+were independently verified. Confirm the form before publication. Retain
 D.C., D.S., Fine and related directions as source annotations; automatic complex
 navigation and an editorial-version UI are deferred. Listening through a linear
 draft does not verify the performed form.

@@ -77,7 +77,9 @@ available in their previous draft versions. No remaining-book batch has been
 launched. These checks establish usable drafts, not autonomous transcription
 accuracy or final approval of inferred repairs.
 
-The full local queue remains thirteen available scores: three reviewed and ten
-drafts. These passes improve existing drafts; they do not add newly transcribed
+At this delivery the local queue contained thirteen available scores: three
+reviewed and ten drafts. The later [Aviador form check](FORM_REVIEW_20261022.md)
+adds a targeted form-only draft; the desk shows current review counts.
+These passes improve existing drafts; they do not add newly transcribed
 works. The supplied book still has 95 identifiable works, with the known missing
 catalog entries documented separately.

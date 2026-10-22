@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-22, the delivery priority is complete source review and audited editorial batches, with three reviewed scores and ten pending drafts; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
+This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-22, the delivery priority is complete source review and audited editorial batches, including targeted approval of Aviador's new form proposal; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
 2026-09-09 update: the fresh-context Astra comparison on consumed Aviador system 8
 reached `7/7` exact measures from the original PDF and `4/7` from historical crops,
@@ -135,6 +135,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Seed complete model-assisted manuscript drafts without replacing existing reviews; preserve model/source provenance through saves and show it in the desk. Carrizal's eight-system, 48-bar draft is human-reviewed at revision 4. Rumichaca's seven-row, 45-span provisional draft is delivered with 17 questions; this does not complete the three-score pilot. Model-assisted seeding/review notes shipped in PR #11; explicit naturals shipped in PR #10 (2026-09-14).
 - [x] Preserve explicit MusicXML naturals through canonical events and ABC, with rendered-playback regression coverage. Repair Aviador's seven omitted signs while retaining the reviewed revision and prior human correction. Juan confirmed the changed pitch and saved revision 7 as reviewed with no open questions on 2026-09-12.
 - [ ] Complete a source-based form pass for pilot scores: ordinary repeats, first/second endings, and annotations for deferred complex navigation.
+- [x] Verify Carrizal's existing AA BB CC repeats without changing its reviewed draft, and deliver an independently audited, note-preserving ABAC form proposal for Aviador. Two Aviador navigation decisions remain pending; see `docs/FORM_REVIEW_20261022.md`.
 - [x] Guard the proven unmatched-repeat audio expansion before audio construction. Preserve notation and draft saving, show a playback warning, and keep matched repeats playable; renderer regression and disposable-browser save/reopen checks pass. Rumichaca's unresolved form remains annotation-only.
 - [x] Calibrate Sol High on two consumed reviewed passages before assigning collection drafts. Only 1/14 bars matched completely; retain Astra for manuscript reading and Sol for bounded engineering. See `docs/SOL_CALIBRATION.md`.
 - [x] Show pending saved drafts separately from reviewed works and use verified manuscript-numbered context images when supplied.
