@@ -52,20 +52,26 @@ three beats. Some descriptive measure numbers differed from the actual edited
 bars, so the local correction report keeps the original notes alongside the
 mapped changes. The old A5-quarter annotation was stale after the human B5 edit.
 
-Juan selected **A1–A2, B1–B2, returned A2, C1–C2**, followed by a final
-**D.C. A–B–C** without repeats, using second endings and stopping at manuscript
-system 9, measure 4, before C's first ending. C's second ending is a direction,
-not an extra musical bar. This remains an adopted editorial route; uncertain
-manuscript signs have not become confirmed source readings.
+Juan selected **A1–A2, B1–B2, returned A, C1–C2**, followed by a final
+**D.C. A–B–C** without repeats and stopping at manuscript system 9, measure 4,
+before C's first ending. His revision 11 audition clarified the connections:
+the casillas contain lead-ins for particular destinations, so they are not
+automatically played whenever repeats are suppressed. On the returned A, play
+through S3M4 and skip both A endings into C at S7M1. On the final D.C., A's
+second ending still leads into B; B ends at S5M6 and skips both endings into C.
+The initial A/B repetitions retain their endings. C's second ending is a
+direction, not an extra musical bar. This remains an adopted editorial route;
+uncertain manuscript signs have not become confirmed source readings.
 
-Live revision 10 is a draft with one targeted audition question. It preserves
+Live revision 12 is a draft with one targeted audition question. It preserves
 all human musical choices: 52 written bars, 246 noteheads, 16 rests, 28 chord
-symbols, 41 phrase slurs and 12 tied-pitch links. The route plays 162 bar visits
-in 243 seconds at 120 BPM. Independent checks verify the full melody, chords,
+symbols, 41 phrase slurs and 12 tied-pitch links. The corrected connections remove
+two ending visits: the route now plays 160 bar visits in 240 seconds at 120 BPM.
+Independent checks verify the full melody, chords,
 highlight order and key resets, including the return from D major to D minor.
 
-Refresh the desk and listen for A's second ending into the coda, the final
-D.C. A–B–C, and the stop at system 9 measure 4. If accepted, record the resolution,
+Refresh the desk and listen for S3M4 directly into the coda, the final D.C.'s
+S5M6 directly into the coda, and the stop at system 9 measure 4. If accepted, record the resolution,
 remove the audition question, and mark Reviewed after completing the source
 review. Current coordinator notes appear first; Juan's exact notes and earlier
 AI preparation notes are retained separately. No human review time was added.
@@ -73,7 +79,9 @@ AI preparation notes are retained separately. No human review time was added.
 The first-pass comparison, form proposal, independent audit and preview/live
 receipts are under `out/collection/coqueteos_first_pass_20261022/`. The live
 save/reopen/export and automatic history were verified; the other twelve saved
-reviews remain unchanged.
+reviews remain unchanged. The later connection correction and exact human
+revision 11 are preserved under `out/collection/coqueteos_connections_20261022/`
+and in automatic review history.
 
 ## Evidence and scope
 
