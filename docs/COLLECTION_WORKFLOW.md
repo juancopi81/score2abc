@@ -8,6 +8,8 @@ At that delivery the local queue contained ten pending drafts and three reviewed
 scores: Aviador, Carrizal, and Amalia. The subsequent
 [form check](FORM_REVIEW_20261022.md) preserves Carrizal and adds an Aviador form-only
 draft with two targeted questions; the desk shows the current review counts.
+Coqueteos's subsequent first-pass edits and selected editorial form are preserved
+in revision 10, pending the targeted audition described in that form check.
 The [October 3](COLLECTION_BATCH_20261003.md) and
 [September 22](COLLECTION_BATCH_20260922.md) submissions remain preserved.
 The [editorial protocol](EDITORIAL_TRANSCRIPTION_PROTOCOL.md) separates source

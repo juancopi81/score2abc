@@ -1,8 +1,9 @@
-# Aviador and Carrizal form check — October 22, 2026
+# Collection form checks — October 22, 2026
 
 Carrizal already contains its complete supported repeat structure. Aviador now
 has a provisional performance route awaiting two targeted musical decisions.
-Continue reviewing Coqueteos first; Aviador needs a form check afterwards, not a
+Coqueteos now incorporates Juan's first pass and selected editorial route; its
+next check is a targeted audition. Aviador needs a form check afterwards, not a
 fresh note-by-note review.
 
 ## Carrizal: preserve the reviewed version
@@ -43,16 +44,48 @@ draft only because the new form needs approval; no human review time was added.
 Record the two decisions in Review notes, remove their resolved questions, and
 mark Reviewed once the performance route is accepted.
 
+## Coqueteos: first-pass corrections and selected form
+
+Human revision 9 is preserved exactly in automatic history. Its edits were
+mapped to manuscript measures; both added ties work and all 52 bars contain
+three beats. Some descriptive measure numbers differed from the actual edited
+bars, so the local correction report keeps the original notes alongside the
+mapped changes. The old A5-quarter annotation was stale after the human B5 edit.
+
+Juan selected **A1–A2, B1–B2, returned A2, C1–C2**, followed by a final
+**D.C. A–B–C** without repeats, using second endings and stopping at manuscript
+system 9, measure 4, before C's first ending. C's second ending is a direction,
+not an extra musical bar. This remains an adopted editorial route; uncertain
+manuscript signs have not become confirmed source readings.
+
+Live revision 10 is a draft with one targeted audition question. It preserves
+all human musical choices: 52 written bars, 246 noteheads, 16 rests, 28 chord
+symbols, 41 phrase slurs and 12 tied-pitch links. The route plays 162 bar visits
+in 243 seconds at 120 BPM. Independent checks verify the full melody, chords,
+highlight order and key resets, including the return from D major to D minor.
+
+Refresh the desk and listen for A's second ending into the coda, the final
+D.C. A–B–C, and the stop at system 9 measure 4. If accepted, record the resolution,
+remove the audition question, and mark Reviewed after completing the source
+review. Current coordinator notes appear first; Juan's exact notes and earlier
+AI preparation notes are retained separately. No human review time was added.
+
+The first-pass comparison, form proposal, independent audit and preview/live
+receipts are under `out/collection/coqueteos_first_pass_20261022/`. The live
+save/reopen/export and automatic history were verified; the other twelve saved
+reviews remain unchanged.
+
 ## Evidence and scope
 
 Local snapshots, source crops, measure maps, independent audit, validation and
 preview/live delivery receipts are under `out/collection/form_review_20261022/`.
 Rendering and Play/Stop were checked in an isolated desk; live save/reopen/export
-matched exactly. Coqueteos was not edited or reloaded, and canonical data and
-frozen research artifacts were not changed.
+matched exactly. During that earlier Aviador/Carrizal pass, Coqueteos was not
+edited or reloaded. The subsequent Coqueteos pass is documented above. Canonical
+data and frozen research artifacts were not changed.
 
 These local score artifacts are excluded from Git. The PR records application
-code and this handoff; it does not publish the scores or create automatic human
-revision history at that handoff. Automatic history was subsequently added for
-future saves; it cannot recover earlier overwritten revisions. See
+code and this handoff; it does not publish the scores. Automatic history was
+subsequently added and all thirteen saved reviews checkpointed without changes;
+it cannot recover earlier overwritten revisions. See
 [what human saves preserve](COLLECTION_WORKFLOW.md#what-human-saves-preserve).
