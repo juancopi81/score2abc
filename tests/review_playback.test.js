@@ -55,6 +55,46 @@ test('written cursor follows tuplets, both tied heads, and the final rest', {ski
   assert.equal(visual.at(-1).end, 6);
 });
 
+test('tied dyad playback sustains each head once through a continuation and a chain', {skip: !renderer}, () => {
+  const prefix = 'X:1\nM:5/4\nL:1/4\nQ:1/4=60\nK:C\n';
+  for (const body of ['[Dc]-[Dc]4', '[Dc]-[Dc]-[Dc]3']) {
+    const text = prefix + body + ' |]\n', first = text.indexOf('[Dc]');
+    assert.deepEqual(sound(text).map(e => [e[0], e[1], e[3], e[4]]),
+      [[first, 0, 62, 5], [first, 0, 72, 5]], body);
+  }
+});
+
+test('tied dyads keep separate repeat occurrences', {skip: !renderer}, () => {
+  const repeated = 'X:1\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n|: [Dc]-[Dc]2 :|\n';
+  const first = repeated.indexOf('[Dc]');
+  assert.deepEqual(sound(repeated).map(e => [e[0], e[1], e[3], e[4]]), [
+    [first, 0, 62, 3], [first, 0, 72, 3], [first, 3, 62, 3], [first, 3, 72, 3],
+  ]);
+});
+
+test('tie repair preserves supplied identities and is stable on repeated conversion', {skip: !renderer}, () => {
+  const text = 'X:1\nM:5/4\nL:1/4\nQ:1/4=60\nK:C\n[Dc]-[Dc]4|\n';
+  const context = engine(); let events;
+  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first, voices) => {
+    const notes = [];
+    for (let symbol = first; symbol; symbol = symbol.ts_next) {
+      if (symbol.type === context.abc2svg.C.NOTE) notes.push(...symbol.notes);
+    }
+    const before = notes.map(note => [note.midi, note.pit, note.dur, note.tie_ty]);
+    notes[0].b40 = 777;
+    const once = playback.audioEvents(context.ToAudio, first, voices, context.abc2svg.C);
+    const twice = playback.audioEvents(context.ToAudio, first, voices, context.abc2svg.C);
+    assert.deepEqual(twice, once);
+    assert.equal(notes[0].b40, 777);
+    assert.equal(notes[2].b40, 777);
+    assert.notEqual(notes[1].b40, notes[0].b40);
+    assert.equal(notes[3].b40, notes[1].b40);
+    assert.deepEqual(notes.map(note => [note.midi, note.pit, note.dur, note.tie_ty]), before);
+    events = once.filter(e => e[2] >= 0 && e[3] > 0 && e[5] > 0);
+  }}).tosvg('reused-audio-model', text);
+  assert.deepEqual(events.map(e => [e[1], e[3], e[4]]), [[0, 62, 5], [0, 72, 5]]);
+});
+
 test('explicit naturals cancel flat and sharp playback state', {skip: !renderer}, () => {
   const context = engine();
   const abc = 'X:1\nM:3/4\nL:1/4\nK:F\n_B/2 =B/2 ^F/2 =F/2 [=Bd] |\n';
@@ -120,6 +160,71 @@ function backing(text) {
   const context = engine();
   return playback.accompaniment(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text);
 }
+
+function sound(text) {
+  const context = engine(); let result;
+  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first, voices) => {
+    result = playback.audioEvents(context.ToAudio, first, voices, context.abc2svg.C);
+  }}).tosvg('performance', text);
+  return result.filter(e => e[2] >= 0 && e[3] > 0 && e[5] > 0);
+}
+
+test('section order shares melody, ties, cursor, key changes and bar-limited chords', {skip: !renderer}, () => {
+  const text = 'X:1\nP:AABBCCABCC\nM:3/4\nL:1/4\nQ:1/4=60\nK:F\n' +
+    'P:A\n"C"C2- C | z3 ||\nP:B\n"Gm"B3 | d3 ||\nP:C\n[K:D]"D"F3 | z3 |]\n';
+  const audio = sound(text), firstC = text.indexOf('C2-'), continuation = text.indexOf(' C |') + 1;
+  assert.deepEqual(audio.map(e => [e[1], e[3], e[4]]), [
+    [0,60,3], [6,60,3], [12,70,3], [15,74,3], [18,70,3], [21,74,3],
+    [24,66,3], [30,66,3], [36,60,3], [42,70,3], [45,74,3], [48,66,3], [54,66,3],
+  ]);
+  assert.deepEqual(audio.filter(e => e[3] === 60).map(e => e[0]), [firstC, firstC, firstC]);
+  const context = engine(), cursor = playback.writtenEvents(context.abc2svg.Abc,
+    context.ToAudio, context.abc2svg.C, text);
+  assert.equal(cursor.at(-1).end, 60); // Includes the final three-beat rest.
+  assert.deepEqual(playback.activeAt(cursor, 2.5).map(e => e.index), [continuation]);
+  assert.deepEqual(playback.activeAt(cursor, 36.5).map(e => e.index), [firstC]);
+  const chords = backing(text);
+  assert.deepEqual(chords.events.map(e => [e.start,e.duration,e.symbol]), [
+    [0,3,'C'], [6,3,'C'], [12,3,'Gm'], [18,3,'Gm'], [24,3,'D'],
+    [30,3,'D'], [36,3,'C'], [42,3,'Gm'], [48,3,'D'], [54,3,'D'],
+  ]);
+  assert.deepEqual(chords.warnings, []);
+});
+
+test('section returns retain their own tempo rather than the preceding section tempo', {skip: !renderer}, () => {
+  const text = 'X:1\nP:ABA\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
+    'P:A\nC3 ||\nP:B\nQ:1/4=120\nD3 |]\n';
+  const audio = sound(text);
+  assert.deepEqual(audio.map(e => [e[1],e[3],e[4]]), [[0,60,3],[3,62,1.5],[4.5,60,3]]);
+});
+
+test('unsupported section orders stop every audio path before conversion', {skip: !renderer}, () => {
+  const base = 'X:1\nP:AA\nM:3/4\nL:1/4\nK:C\nP:A\nC3 |]\n';
+  for (const text of [
+    base.replace('P:AA', 'P:AZ'),
+    base.replace('P:AA', 'P:(A)2'),
+    base.replace('P:AA', 'P:' + 'A'.repeat(129)),
+    base.replace('C3 |]', '|: C3 :|'),
+    base.replace('C3 |]', 'C3 |\nP:A\nD3 |]'),
+    base.replace('P:A\n', ''),
+  ]) {
+    const context = engine(); let calls = 0;
+    class ForbiddenAudio { add() { calls++; throw new Error('Unexpected conversion'); } }
+    new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first,voices) => {
+      assert.match(playback.playbackWarning(first,context.abc2svg.C), /Playback is disabled/);
+      assert.throws(() => playback.audioEvents(ForbiddenAudio,first,voices,context.abc2svg.C), /Playback is disabled/);
+    }}).tosvg('invalid-order',text);
+    assert.throws(() => playback.writtenEvents(context.abc2svg.Abc,ForbiddenAudio,context.abc2svg.C,text), /Playback is disabled/);
+    assert.throws(() => playback.accompaniment(context.abc2svg.Abc,ForbiddenAudio,context.abc2svg.C,text), /Playback is disabled/);
+    assert.equal(calls,0);
+  }
+});
+
+test('section expansion is bounded and rejects held notes crossing section boundaries', {skip: !renderer}, () => {
+  assert.throws(() => sound('X:1\nP:AB\nM:3/4\nL:1/4\nK:C\nP:A\nC3- |\nP:B\nC3 |]\n'), /Playback is disabled/);
+  assert.throws(() => sound('X:1\nP:' + 'A'.repeat(128) +
+    '\nM:3/4\nL:1/4\nQ:1/4=1\nK:C\nP:A\nC3 |]\n'), /30-minute/);
+});
 const header = 'X:1\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\n';
 
 test('accompaniment uses edited harmonies at note/rest/tied onsets, without pickup chords', {skip: !renderer}, () => {
