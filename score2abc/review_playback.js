@@ -32,9 +32,6 @@ const ReviewPlayback = (() => {
     const sections = [], names = new Set();
     let end = 0;
     for (let s = first; s; s = s.ts_next) {
-      if (s.type === constants.BAR && /:/.test(s.bar_type || "")) {
-        fail("Use either a P: section order or local repeat bars, rather than combining them.");
-      }
       if ([constants.NOTE, constants.REST].includes(s.type)) end = Math.max(end, s.time + s.dur);
       if (!s.part) continue;
       const name = s.part.text.trim();
@@ -51,10 +48,10 @@ const ReviewPlayback = (() => {
   }
 
   function playbackWarning(first, constants) {
-    const warning = repeatWarning(first, constants);
-    if (warning) return warning;
-    try { partPlan(first, constants); } catch (error) { return error.message; }
-    return null;
+    try {
+      if (partPlan(first, constants)) return null;
+    } catch (error) { return error.message; }
+    return repeatWarning(first, constants);
   }
 
   function fillMissingTieIds(first, constants) {
@@ -85,7 +82,25 @@ const ReviewPlayback = (() => {
       if (Number.isInteger(s.istart)) times.set(s.istart, s.time);
     }
     fillMissingTieIds(first, constants);
-    const audio = new Audio(); audio.add(first, voices);
+    const audio = new Audio(), bars = [];
+    try {
+      if (plan) for (let s = first; s; s = s.ts_next) {
+        if (s.type !== constants.BAR) continue;
+        bars.push([s, Object.getOwnPropertyDescriptor(s, "bar_type"),
+          Object.getOwnPropertyDescriptor(s, "text")]);
+        // P: owns the route; convert every written ending once, without local jumps.
+        s.bar_type = "|"; s.text = "";
+      }
+      audio.add(first, voices);
+    } finally {
+      // The parser engraves after this callback, including when conversion fails.
+      for (const [s, barType, text] of bars) {
+        if (barType) Object.defineProperty(s, "bar_type", barType);
+        else delete s.bar_type;
+        if (text) Object.defineProperty(s, "text", text);
+        else delete s.text;
+      }
+    }
     const raw = Array.from(audio.clear() || [], event => Array.from(event));
     if (!plan) return raw;
     // Reorder audio occurrences, retaining original source offsets for score following.
@@ -108,7 +123,7 @@ const ReviewPlayback = (() => {
         return time >= section.start && (time < section.end ||
           (time === section.end && e[3] === 0 && e[4] === 0)); // Closing bar markers.
       });
-      rendered.set(section.name, {events, start, duration: end - start});
+      rendered.set(section.name, {events, start, writtenEnd: section.end, duration: end - start});
     }
     const result = raw.filter(e => !times.has(e[0])), duration = [...plan.order]
       .reduce((total, name) => total + rendered.get(name).duration, 0);
@@ -119,7 +134,11 @@ const ReviewPlayback = (() => {
     for (const name of plan.order) {
       const section = rendered.get(name);
       for (const event of section.events) {
-        const copy = [...event]; copy[1] = offset + event[1] - section.start; result.push(copy);
+        const copy = [...event];
+        // A closing marker and the final note's end can round differently in ToAudio.
+        copy[1] = times.get(event[0]) === section.writtenEnd ? offset + section.duration :
+          offset + event[1] - section.start;
+        result.push(copy);
       }
       offset += section.duration;
     }

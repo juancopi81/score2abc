@@ -124,9 +124,11 @@ test('parsed unmatched later repeat blocks every audio path before ToAudio.add',
   class ForbiddenAudio {
     add() { adds++; throw new Error('ToAudio.add was called'); }
   }
-  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: first => {
+  new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first, voices) => {
     warning = playback.repeatWarning(first, context.abc2svg.C);
-    if (!warning) new ForbiddenAudio().add(first);
+    assert.equal(playback.playbackWarning(first, context.abc2svg.C), warning);
+    assert.throws(() => playback.audioEvents(ForbiddenAudio, first, voices,
+      context.abc2svg.C), /Playback is disabled/);
   }}).tosvg('unsafe-render', abc);
   assert.match(warning, /Playback is disabled.*repeat route.*edit and save/);
   assert.throws(() => playback.writtenEvents(context.abc2svg.Abc, ForbiddenAudio,
@@ -149,6 +151,7 @@ test('implicit, matched, double, and first/second ending repeats remain playable
     let warning;
     new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: first => {
       warning = playback.repeatWarning(first, context.abc2svg.C);
+      assert.equal(playback.playbackWarning(first, context.abc2svg.C), warning);
     }}).tosvg('safe-render', header + body + '\n');
     assert.equal(warning, null, body);
     assert.ok(playback.writtenEvents(context.abc2svg.Abc, context.ToAudio,
@@ -168,6 +171,100 @@ function sound(text) {
   }}).tosvg('performance', text);
   return result.filter(e => e[2] >= 0 && e[3] > 0 && e[5] > 0);
 }
+
+const repeatedSections = 'X:1\nP:AB AC DE DF AC DF\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
+  'P:A\n|: "C"C3 |\nP:B\n[1 "G"D3 :|\nP:C\n[2 "Am"E3 ||\n' +
+  'P:D\n|: "F"F3 |\nP:E\n[1 "Dm"G3 :|\nP:F\n[2 "G7"A3 |]\n';
+
+test('section order owns repeated bars and both endings, including the final return without repeats', {skip: !renderer}, () => {
+  const text = repeatedSections;
+  const notes = ['C3', 'D3', 'C3', 'E3', 'F3', 'G3', 'F3', 'A3', 'C3', 'E3', 'F3', 'A3'];
+  const indices = notes.map(note => text.indexOf(note));
+  const pitches = [60, 62, 60, 64, 65, 67, 65, 69, 60, 64, 65, 69];
+  const audio = sound(text);
+  assert.deepEqual(audio.map(e => [e[0], e[1], e[3], e[4]]),
+    indices.map((index, i) => [index, i * 3, pitches[i], 3]));
+  const context = engine(), cursor = playback.writtenEvents(context.abc2svg.Abc,
+    context.ToAudio, context.abc2svg.C, text);
+  assert.deepEqual(cursor, indices.map((index, i) => ({index, start: i * 3, end: (i + 1) * 3})));
+  const chords = backing(text);
+  assert.deepEqual(chords.events.map(e => [e.index, e.start, e.duration, e.symbol]),
+    ['C', 'G', 'C', 'Am', 'F', 'Dm', 'F', 'G7', 'C', 'Am', 'F', 'G7']
+      .map((symbol, i) => [indices[i], i * 3, 3, symbol]));
+  assert.deepEqual(chords.warnings, []);
+});
+
+test('fractional-tempo section returns retain full-bar chords across a combined repeat boundary', {skip: !renderer}, () => {
+  const text = 'X:1\nP:IABABI\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
+    'P:I\n"F"C3 |:\nP:A\nQ:1/4=190\n"Dm"D3 :|:\nP:B\n"G"E3 | "C"F3 :|\n';
+  const context = engine(), cursor = playback.writtenEvents(context.abc2svg.Abc,
+    context.ToAudio, context.abc2svg.C, text);
+  const audio = sound(text), chords = backing(text);
+  assert.deepEqual(audio.map(e => [e[0], e[1]]), cursor.map(e => [e.index, e.start]));
+  assert.deepEqual(chords.events.map(e => [e.index, e.start, e.symbol]),
+    ['F', 'Dm', 'G', 'C', 'Dm', 'G', 'C', 'F']
+      .map((symbol, i) => [cursor[i].index, cursor[i].start, symbol]));
+  assert.deepEqual(chords.events.map(e => e.duration),
+    cursor.map((e, i) => (cursor[i + 1]?.start ?? e.end) - e.start));
+  assert.deepEqual(chords.warnings, []);
+});
+
+test('section conversion restores exact repeat and ending properties before engraving on success or error', {skip: !renderer}, () => {
+  const text = repeatedSections, baseline = [], plain = engine();
+  new plain.abc2svg.Abc({img_out: svg => baseline.push(svg)}).tosvg('navigation-bars', text);
+  for (const fail of [false, true]) {
+    const context = engine(), rendered = []; let calls = 0;
+    function CheckedAudio() {
+      const audio = new context.ToAudio();
+      return {add(first, voices) {
+        calls++;
+        for (let s = first; s; s = s.ts_next) if (s.type === context.abc2svg.C.BAR) {
+          assert.equal(s.bar_type, '|');
+          assert.equal(s.text, '');
+        }
+        if (fail) throw new Error('conversion failed');
+        audio.add(first, voices);
+      }, clear: () => audio.clear()};
+    }
+    new context.abc2svg.Abc({img_out: svg => rendered.push(svg), get_abcmodel(first, voices) {
+      const bars = [];
+      for (let s = first; s; s = s.ts_next) if (s.type === context.abc2svg.C.BAR) bars.push(s);
+      const properties = () => bars.map(s => ({
+        bar_type: Object.getOwnPropertyDescriptor(s, 'bar_type'),
+        text: Object.getOwnPropertyDescriptor(s, 'text'),
+      }));
+      const before = properties();
+      assert.ok(before.some(bar => bar.bar_type.value.includes(':')));
+      assert.ok(before.some(bar => bar.text?.value === '1'));
+      assert.ok(before.some(bar => bar.text?.value === '2'));
+      assert.ok(before.some(bar => !bar.text));
+      if (fail) assert.throws(() => playback.audioEvents(CheckedAudio, first, voices,
+        context.abc2svg.C), /conversion failed/);
+      else playback.audioEvents(CheckedAudio, first, voices, context.abc2svg.C);
+      assert.deepEqual(properties(), before);
+    }}).tosvg('navigation-bars', text);
+    assert.equal(calls, 1);
+    assert.deepEqual(rendered, baseline);
+  }
+});
+
+test('valid section orders bypass unsafe local navigation while ordinary repeats still unfold', {skip: !renderer}, () => {
+  const ordinary = 'X:1\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n|: C3 [1 D3 :| [2 E3 |]\n';
+  assert.deepEqual(sound(ordinary).map(e => [e[1], e[3]]), [[0, 60], [3, 62], [6, 60], [9, 64]]);
+  const text = 'X:1\nP:ABA\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
+    'P:A\n"C"C3 |: "C"C3 :|\nP:B\n"G"D3 :|\n';
+  const context = engine();
+  new context.abc2svg.Abc({img_out() {}, get_abcmodel(first) {
+    assert.match(playback.repeatWarning(first, context.abc2svg.C), /Playback is disabled/);
+    assert.equal(playback.playbackWarning(first, context.abc2svg.C), null);
+  }}).tosvg('explicit-unsafe-navigation', text);
+  assert.deepEqual(sound(text).map(e => [e[1], e[3]]),
+    [[0, 60], [3, 60], [6, 62], [9, 60], [12, 60]]);
+  assert.deepEqual(playback.writtenEvents(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text)
+    .map(e => [e.start, e.end]), [[0, 3], [3, 6], [6, 9], [9, 12], [12, 15]]);
+  assert.deepEqual(backing(text).events.map(e => [e.start, e.duration, e.symbol]),
+    [[0, 3, 'C'], [3, 3, 'C'], [6, 3, 'G'], [9, 3, 'C'], [12, 3, 'C']]);
+});
 
 test('section order shares melody, ties, cursor, key changes and bar-limited chords', {skip: !renderer}, () => {
   const text = 'X:1\nP:AABBCCABCC\nM:3/4\nL:1/4\nQ:1/4=60\nK:F\n' +
@@ -204,7 +301,8 @@ test('unsupported section orders stop every audio path before conversion', {skip
     base.replace('P:AA', 'P:AZ'),
     base.replace('P:AA', 'P:(A)2'),
     base.replace('P:AA', 'P:' + 'A'.repeat(129)),
-    base.replace('C3 |]', '|: C3 :|'),
+    base.replace('P:AA', 'P:AZ').replace('C3 |]', 'C3 |: D3 :| E3 :|'),
+    base.replace('P:A\n', 'P:AB\n'),
     base.replace('C3 |]', 'C3 |\nP:A\nD3 |]'),
     base.replace('P:A\n', ''),
   ]) {
@@ -212,6 +310,9 @@ test('unsupported section orders stop every audio path before conversion', {skip
     class ForbiddenAudio { add() { calls++; throw new Error('Unexpected conversion'); } }
     new context.abc2svg.Abc({img_out: () => {}, get_abcmodel: (first,voices) => {
       assert.match(playback.playbackWarning(first,context.abc2svg.C), /Playback is disabled/);
+      if (text.includes('P:AZ')) {
+        assert.match(playback.playbackWarning(first,context.abc2svg.C), /missing section label/);
+      }
       assert.throws(() => playback.audioEvents(ForbiddenAudio,first,voices,context.abc2svg.C), /Playback is disabled/);
     }}).tosvg('invalid-order',text);
     assert.throws(() => playback.writtenEvents(context.abc2svg.Abc,ForbiddenAudio,context.abc2svg.C,text), /Playback is disabled/);

@@ -159,10 +159,15 @@ each section once and follows the stated order for melody, chord accompaniment
 and highlighting, retaining each section's written pitches and tempo. This is a
 bounded route chosen by the reviewer; the desk does not interpret handwritten
 D.C./D.S./Fine instructions automatically. Record an editorial route and its
-evidence in review notes when the source remains ambiguous. The current player
-accepts up to 128 uppercase section letters and 30 minutes, and rejects missing
-or duplicate labels, combinations with local repeat bars, and held notes crossing
-section boundaries. It does not expand numbered groups such as `(AB)2`.
+evidence in review notes when the source remains ambiguous. Conventional repeat
+barlines and numbered endings may remain visible alongside a `P:` order. In that
+case the complete `P:` order controls playback: include every intended repeat and
+ending choice there. The player visits each named span once per letter, including
+both written endings when selected, without expanding the printed repeats again.
+Without a `P:` order, ordinary repeat playback is unchanged.
+The current player accepts up to 128 uppercase section letters and 30 minutes,
+and rejects missing or duplicate labels and held notes crossing section
+boundaries. It does not expand numbered groups such as `(AB)2`.
 
 Amalia's October 21 handoff selects `AA–BB–CC–A–B–CC` from Juan's reported
 recording comparison. The 48 written measures and all reviewed note events are
@@ -173,9 +178,9 @@ saved revision is 23 and reviewed, with his ABC and decisions preserved. The
 October 22 notes refresh did not change that music or status. This does not turn
 the ambiguous manuscript return signs into a confirmed source reading.
 
-The desk now blocks the known unsafe audio route where a backward repeat follows
-a closed explicit repeat without a new opening repeat. It shows a warning and
-keeps rendering, editing and saving available. Correct the route only from source
+Without an explicit `P:` order, the desk blocks the known unsafe audio route where
+a backward repeat follows a closed explicit repeat without a new opening repeat.
+It shows a warning and keeps rendering, editing and saving available. Correct the route only from source
 evidence; adding a repeat start solely to make the player run invents musical
 meaning. Ordinary supported repeat routes remain playable. This bounded guard
 does not implement D.C./D.S./Fine navigation.
