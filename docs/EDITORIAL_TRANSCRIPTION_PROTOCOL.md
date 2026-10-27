@@ -6,6 +6,11 @@ different reader audits the source and proposed changes before coordinator
 validation and delivery. This is assisted collection work on consumed material,
 not a blind benchmark, model training, or promotion of the experimental recognizer.
 
+Use the [collection form convention](FORM_NOTATION.md) for every new score:
+boxed musical sections, conventional repeat barlines and numbered endings,
+with explicit directions for exceptional returns. Hide technical playback spans
+while preserving the adopted performed route.
+
 ## Preserve evidence while making a playable proposal
 
 Retain the previous draft and a source reading alongside the proposed edition.
@@ -53,7 +58,9 @@ new evidence with the player and ABC hashes rather than rewriting the old audit.
 The current review desk has one working ABC and free-text review notes. The source
 reading and structured decisions remain in the local delivery packet; the notes
 identify that packet and summarize proposals. Agent work adds no human review time
-and never marks a score Reviewed.
+and never grants a new musical Reviewed approval. Presentation-only maintenance
+may preserve a musician's existing Reviewed state only under the unchanged-music
+and unchanged-performance checks in [the form convention](FORM_NOTATION.md#maintaining-reviewed-scores).
 
 ## Batch decision
 

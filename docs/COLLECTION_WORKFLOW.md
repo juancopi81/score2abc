@@ -3,7 +3,13 @@
 Goal: finish the 100-melody collection through assisted transcription and human
 musical review. A complete, source-checked score is the unit of delivery.
 
-Current handoff: [audited editorial drafts, October 22](EDITORIAL_BATCH_20261022.md).
+Current review checkpoint — October 27, 2026: Amalia, Carrizal, Coqueteos,
+Atardecer and Rumichaca are musician-reviewed. Their presentation follows the
+[shared form convention](FORM_NOTATION.md), preserving the approved music and
+routes. Aviador's earlier musical review is retained, with two later form
+decisions still pending in its current draft.
+
+Earlier handoff: [audited editorial drafts, October 22](EDITORIAL_BATCH_20261022.md).
 At that delivery the local queue contained ten pending drafts and three reviewed
 scores: Aviador, Carrizal, and Amalia. The subsequent
 [form check](FORM_REVIEW_20261022.md) preserves Carrizal and adds an Aviador form-only
@@ -146,8 +152,9 @@ symbol remains uncertain; it is not automatically a manuscript mistake.
 Complete-score delivery includes ordinary repeats and first/second endings
 (casillas, or volta brackets). Preserve their written structure instead of
 duplicating bars in the archival ABC. The current renderer/player accepts ABC
-repeat and ending syntax. Aviador's October 22 form proposal uses an explicit
-ABAC route pending two source/editorial decisions; Carrizal's existing repeats
+repeat and ending syntax. Follow the [form convention](FORM_NOTATION.md) for
+labels, brackets and exceptional returns. Aviador's October 22 form proposal uses
+an explicit ABAC route pending two source/editorial decisions; Carrizal's existing repeats
 were independently verified. Confirm the form before publication. Retain
 D.C., D.S., Fine and related directions as source annotations; automatic complex
 navigation and an editorial-version UI are deferred. Listening through a linear

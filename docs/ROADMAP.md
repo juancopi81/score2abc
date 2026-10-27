@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-22, the delivery priority is complete source review and audited editorial batches, including targeted approval of Aviador's new form proposal; see `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
+This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-27, five works are musician-reviewed: Amalia, Carrizal, Coqueteos, Atardecer and Rumichaca. Their engraving follows `docs/FORM_NOTATION.md`, preserving the approved music and playback routes; Aviador still needs two form decisions. See `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
 2026-09-09 update: the fresh-context Astra comparison on consumed Aviador system 8
 reached `7/7` exact measures from the original PDF and `4/7` from historical crops,
@@ -138,6 +138,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Verify Carrizal's existing AA BB CC repeats without changing its reviewed draft, and deliver an independently audited, note-preserving ABAC form proposal for Aviador. Two Aviador navigation decisions remain pending; see `docs/FORM_REVIEW_20261022.md`.
 - [x] Guard the proven unmatched-repeat audio expansion before audio construction. Preserve notation and draft saving, show a playback warning, and keep matched repeats playable; renderer regression and disposable-browser save/reopen checks pass.
 - [x] Preserve conventional repeat barlines and numbered endings alongside a bounded `P:` performance order. The explicit order controls melody, accompaniment and highlighting without expanding printed repeats a second time; ordinary repeat handling remains unchanged when no `P:` order is supplied.
+- [x] Define one collection form convention for the five musician-reviewed works and future drafts: boxed musical sections, repeat dots, numbered ending brackets and concise Spanish directions for exceptional returns. Preserve reviewed music/performed events and human approval through presentation-only changes; see `docs/FORM_NOTATION.md`.
 - [x] Calibrate Sol High on two consumed reviewed passages before assigning collection drafts. Only 1/14 bars matched completely; retain Astra for manuscript reading and Sol for bounded engineering. See `docs/SOL_CALIBRATION.md`.
 - [x] Show pending saved drafts separately from reviewed works and use verified manuscript-numbered context images when supplied.
 - [x] Deliver five complete Astra-assisted drafts after Sol calibration: Coqueteos, Gato'e fique, Chispazo, Sobre el Humo and La Chata. All 41 musical rows are represented; with unchanged Rumichaca, six drafts await human review. Source questions, provenance and review instructions are in `docs/COLLECTION_BATCH_20260922.md`; none is promoted to canonical truth.

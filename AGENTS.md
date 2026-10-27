@@ -11,6 +11,7 @@
 - `score2abc/utils/` holds shared logging and timing utilities.
 - `scripts/` holds one-off developer utilities (e.g., `record_vlm_fixtures.py`).
 - `docs/PROJECT_SPEC.md` contains the end-to-end product specification and planned architecture.
+- `docs/FORM_NOTATION.md` defines the shared engraving convention for every new editorial score and presentation-only maintenance of reviewed works. Follow it before handing off a transcription.
 - `docs/ROADMAP.md` tracks milestone progress with checkboxes — update it when milestone items ship.
 - `CLAUDE.md` is a thin pointer for Claude Code back to this file.
 - `pyproject.toml` defines the package metadata and Python version requirement.
