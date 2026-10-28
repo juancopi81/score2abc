@@ -2,9 +2,9 @@
 
 ## Current status and local commands
 
-PR #13 is merged. The October 28 checkpoint and six-reference freeze are complete;
-see the [checkpoint receipt](CHECKPOINT_20261028.md). PR #14 contains that foundation
-and is synchronized with main. The next change adds a 30-decision provenance
+PRs #13 and #14 are merged. The October 28 checkpoint and six-reference freeze are
+complete; see the [checkpoint receipt](CHECKPOINT_20261028.md). PR #15 adds a
+30-decision provenance
 inventory, an offline musical grader, bounded validation/repair hooks and the
 six-piece Astra–Terra comparison dashboard. See [the harness guide](EVAL_HARNESS_V1.md).
 
@@ -13,6 +13,12 @@ acceptance still need adjudication; every whole-source-bar eligibility list rema
 empty. Current numeric grading measures agreement with the reviewed performing
 edition, separately from structural validity. Enforced agent-run isolation and
 provider execution remain the next implementation step.
+
+The initial implementation deliberately fixes two model configurations and six
+works. The [proposed comparison/versioning design](EVAL_VERSIONING.md) describes
+the next bounded extension: explicit system configurations and independently
+versioned data, labels, graders and authoring tools. This design is not yet an
+implemented multi-provider runner or a new benchmark result.
 
 Verify the existing snapshot; **do not recreate or overwrite it**:
 
