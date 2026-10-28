@@ -1,15 +1,18 @@
 # Complete-score grader and comparison dashboard
 
-This slice makes existing and future complete-score outputs measurable without
-calling a model. It does not yet execute isolated Astra or Terra agents. The six
-reviewed editions are consumed development references, not held-out source truth.
+The grader introduced in PR #15 measures existing and future complete-score
+outputs. The current [configuration/versioning contract](EVAL_VERSIONING.md) and
+[subscription runner](EVAL_RUNNER.md) extend that baseline. The six reviewed
+editions are consumed development references, not held-out source truth.
 
 ## Delivered evidence
 
 - Six verified PDFs and reviewed ABC editions remain in the immutable reference freeze.
-- The separate V2 inventory records 30 source/editorial decisions and their evidence.
+- The separate inventory records 30 source/editorial decisions and their evidence.
   Two Aviador descriptions were corrected from later human revision history; no
-  reviewed music or frozen file changed. See [reference labels](EVAL_REFERENCE_LABELS.md).
+  reviewed music or frozen file changed. V3 adds a model-assisted visual audit of
+  67/312 source bars (268 noteheads), with explicit exclusions and event hashes.
+  See [reference labels](EVAL_REFERENCE_LABELS.md).
 - The ABC adapter reads written notes, simultaneous heads, rests, ties, chord
   symbols, meter and the performed bar route using the installed review renderer.
 - Deterministic feedback flags parse, meter and route issues. Unconfirmed pickups
@@ -23,13 +26,13 @@ reviewed editions are consumed development references, not held-out source truth
 ## Read the dashboard in five minutes
 
 Open `out/eval/comparison/index.html` (or serve `out/eval` on localhost port 8777).
-Read the current finding and run counts, then compare each piece's two model rows.
+Read the current finding and run counts, then compare each piece's configuration rows.
 Open a piece only when you want mismatches, decisions and evidence files. The
 separate grader demo linked near the title shows how measured differences appear.
 
-All twelve real runs currently say **Not run**. A dash means unmeasured, never zero.
+A dash means unmeasured, never zero. Read the report's run counts for execution status.
 Model summaries, when present, average whole-piece metrics and show measured-piece
-denominators. Cost and runtime totals also state their coverage. No overall winner
+denominators. Cost, runtime and reported token totals also state their coverage. No overall winner
 is supported while source fidelity and editorial judgments remain unmeasured.
 
 | Metric | What it establishes now |
@@ -40,9 +43,9 @@ is supported while source fidelity and editorial judgments remain unmeasured.
 | Form | Exact performed sequence of aligned edition bars, including endings and final stop. Different ABC encoding can match. |
 | Bars aligned | Fraction of edition bars paired by the aligner. Same-length unrelated music can align; this is a count check, not accuracy. |
 | Meter valid | Ordinary candidate bars whose total duration matches meter. Confirmed pickup pairs and unresolved partial bars are reported separately. |
-| Source notes | Not scored yet. The inventory does not independently establish every event of a complete source bar. |
+| Source notes | Exact pitch/onset/duration/tie F1 within the V3 audited subset. Missing audited bars count as false negatives; uninspected regions are unscored. The audit is model-assisted and covers 67/312 source bars, not the whole collection. |
 | Editorial acceptance | Not scored yet. Alternative coherent editions need adjudication, not string equality to one chosen reconstruction. |
-| Cost / time / review | Supplied measured values require a pinned measurement record; unknowns remain null. Token pricing estimates are not billed cost. |
+| Cost / time / review | Supplied measured values require a pinned measurement record; unknowns remain null. Reported tokens come from the verified runner trace, including repairs. Tokens are not USD cost. |
 
 Voices' names are ignored in event matching; voice assignment itself, enharmonic
 spelling, articulation, slurs and expressive timing are not graded. Written tie
@@ -53,14 +56,15 @@ perfect scores for unsupported dimensions.
 ## Reproduce local artifacts
 
 Use new destinations for create-once commands. Do not overwrite the reference
-freeze, label V1/V2 sidecars or existing task packets.
+freeze, label V1/V2/V3 sidecars or existing task packets. V3 already exists locally;
+verify it rather than rerunning creation.
 
 ```sh
 uv run python scripts/build_eval_labels.py verify \
-  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v2
+  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v3
 
 uv run python scripts/evaluate_complete_scores.py report \
-  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v2 \
+  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v3 \
   /tmp/new-comparison/report.json
 uv run python scripts/build_model_comparison_dashboard.py \
   /tmp/new-comparison/report.json /tmp/new-comparison/index.html
@@ -78,7 +82,12 @@ The adapter requires the existing optional local Node/abc2svg installation. It
 fails explicitly when unavailable and never installs or fetches code. Python-only
 grader/registry tests remain hermetic; renderer tests skip without that tool.
 
-## Runner integration contract
+## Preserved schema-1 runner integration contract
+
+The original contract below remains supported for archived results. New work
+uses schema 2, configuration records, task/runtime identities and enforced
+subscription execution described in [the runner guide](EVAL_RUNNER.md). A legacy
+attestation alone is not evidence that an execution environment was isolated.
 
 `prepare` copies six PDFs, one generic instruction file and a twelve-task manifest.
 It records the exact PDF/instruction hashes, model identifiers and identical
@@ -122,9 +131,11 @@ stay partial. A partial classification is a review signal: a missing editorial
 bar may still be a defensible PDF-only choice. Never feed edition comparison
 feedback back into a benchmark author.
 
-## Next gate
+## Interpretation and next gate
 
-Complete the source-supported event mask and adjudication rubric, implement and
-verify enforced runner isolation, and run the same twelve task contracts. Keep
-source fidelity, selected-edition agreement and acceptable alternative judgments
-separate. Only then choose a harness/model and test genuinely fresh scores.
+Keep audited source fidelity, selected-edition agreement and acceptable
+alternative judgments separate. A candidate is not incomplete merely because it
+omits explicitly documented editorial insertions such as Aviador's two added
+cadence bars; those differences remain in the edition metrics. Missing actual
+source bars still trigger review. Expand source audits in a new label version,
+repeat promising configurations, then test the frozen harness on fresh scores.

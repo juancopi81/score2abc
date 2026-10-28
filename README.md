@@ -9,11 +9,32 @@ experimental.
 
 ## Evaluation status
 
-The complete-score benchmark is in preparation. Six musician-reviewed performing
-editions are frozen, 30 editorial decisions have evidence labels, and the offline
-grader and comparison dashboard are implemented. **The new six-piece Astra–Terra
-comparison has not run; no full-score accuracy or model winner is claimed.**
-Source-supported event labels and isolated execution are still pending.
+Six musician-reviewed performing editions are frozen. The configurable harness
+pins data, labels, grader, authoring tools and model settings independently;
+the dashboard compares any configured set under one compatible version group.
+V3 labels audit 67/312 source bars (268 noteheads) and preserve 30 documented
+editorial decisions. This partial model-assisted audit is distinct from agreement
+with the complete reviewed editions.
+
+The isolated Codex runner uses ChatGPT subscription authentication, with no model
+tools, PDF-derived images, bounded validation/repair and retained attempt records.
+Both Astra and Terra pass its synthetic image-and-repair canaries. The first
+versioned six-piece comparison ran on 2026-10-28, with one trial per piece and
+configuration, a 15-minute deadline per call and up to two repair passes:
+
+| Configuration | Returned drafts | Audited-source note F1 | Edition note F1 |
+| --- | --- | ---: | ---: |
+| Astra, `xhigh` | 0; all 6 calls timed out | Unmeasured | Unmeasured |
+| Terra, `xhigh` | 3 structurally complete, 3 partial | 0.239 | 0.265 |
+
+F1 requires exact pitch, onset, duration and tie matches. Values are per-piece
+means, including partial drafts; the source audit covers only 67/312 bars.
+**The musical comparison remains incomplete, and no model winner is claimed.**
+This fixed-image, tool-free harness differs from the assisted drafting workflow
+used for the reviewed collection. See the [per-piece findings and next
+experiments](docs/EVAL_COMPARISON_20261028.md) and [portable metrics/version
+identities](docs/eval/astra_terra_20261028_v1.json).
+Subscription token usage is recorded when reported; USD cost remains unknown.
 
 Earlier, narrower experiments provide useful evidence:
 
@@ -25,7 +46,8 @@ Earlier, narrower experiments provide useful evidence:
 These results are historical and must not be pooled into the new benchmark.
 See the [evaluation plan](docs/EVALUATION_PLAN.md),
 [grader guide](docs/EVAL_HARNESS_V1.md), and
-[proposed comparison/versioning design](docs/EVAL_VERSIONING.md).
+[configuration/versioning guide](docs/EVAL_VERSIONING.md), and
+[isolated subscription runner](docs/EVAL_RUNNER.md).
 On a machine with the local artifacts, open `out/eval/comparison/index.html`.
 The synthetic grader demonstration is separate from model results. Source PDFs,
 review histories and generated reports remain excluded from Git; published

@@ -14,14 +14,23 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import quote
 
 RATE_METRICS = {
-    "source_note_f1": ("Source notes", "Note F1 against source-supported labels"),
-    "edition_note_f1": ("Edition notes", "Note F1 against the reviewed performing edition"),
+    "source_note_f1": (
+        "Source notes",
+        "F1 for exact pitch, onset, duration and tie matches within audited source bars",
+    ),
+    "edition_note_f1": (
+        "Edition notes",
+        "F1 for exact pitch, onset, duration and tie matches against the reviewed edition",
+    ),
     "edition_exact_bar_rate": (
         "Exact bars",
         "Exact notation bar agreement with the reviewed edition",
     ),
-    "chord_f1": ("Chords", "Chord-symbol agreement with the reviewed edition"),
-    "meter_valid_rate": ("Meter valid", "Share of candidate bars passing meter validation"),
+    "chord_f1": ("Edition chords", "Chord-symbol agreement with the reviewed edition"),
+    "meter_valid_rate": (
+        "Meter valid",
+        "Share of scored candidate bars passing meter validation; partial bars are excluded",
+    ),
     "bar_coverage": (
         "Bars aligned",
         "Share of reviewed edition bars aligned; not content accuracy",
@@ -66,6 +75,7 @@ main{padding-top:17px!important;padding-bottom:50px!important}h2{font-size:1.5re
 .model-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:12px 0 35px}.model-summary article{background:#F3F8FB;border-top:3px solid var(--teal);padding:13px 17px}.model-summary h3{color:var(--ink);font-size:1.13rem;margin:0 0 8px}.model-summary dl{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:0;font-variant-numeric:tabular-nums}.model-summary dt{color:var(--muted)}.model-summary dd{margin:0;color:var(--ink);font-weight:700}.model-summary p{font-size:.8rem;color:var(--muted);margin:9px 0 0}
 .details{margin:25px 0 35px}.piece{border-bottom:1px solid var(--line)}.piece summary{cursor:pointer;padding:14px 8px;color:var(--ink);font-weight:700;font-size:1.05rem}.piece summary:hover,.piece[open] summary{background:var(--soft)}.piece-body{padding:2px 12px 20px;border-left:3px solid var(--teal);margin-left:8px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:25px}.pair h3{font-size:1rem;color:var(--ink);margin:8px 0}.pair p{margin-bottom:9px}.pair ul{margin:5px 0 17px;padding-left:20px}.pair li{margin-bottom:7px;overflow-wrap:anywhere}.links{display:flex;flex-wrap:wrap;gap:9px 17px}.quiet{color:var(--muted)}.callout{background:#F3F8FB;border-left:3px solid var(--ink);padding:13px 17px;max-width:90ch}.callout strong{color:var(--ink)}
 .reference-decisions{border-top:1px solid var(--line);margin-top:15px;padding-top:8px}.reference-decisions summary{font-size:.92rem;padding:6px 3px}.reference-decisions ul{padding-left:22px}.reference-decisions li{margin-bottom:10px;max-width:88ch}.reference-decisions small{display:block;color:var(--muted)}
+.versions{margin:15px 0;color:var(--muted);font-size:.85rem}.versions summary{cursor:pointer;color:var(--ink)}.versions dl{display:grid;grid-template-columns:100px 1fr;gap:5px 12px}.versions dd{margin:0;overflow-wrap:anywhere}.config{display:block;color:var(--muted);font-size:.76rem;font-weight:400;max-width:30ch;overflow-wrap:anywhere}.config-list{display:flex;flex-wrap:wrap;gap:10px 25px;margin:15px 0}.config-list p{margin:0;max-width:40ch}.pair{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}.model-summary{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));row-gap:8px}.model-summary article{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:subgrid;grid-row:span 10;column-gap:12px}.model-summary article h3,.model-summary article p{grid-column:1/-1}.model-summary article dl{display:contents}
 footer{border-top:1px solid var(--line);padding:17px 0 24px;color:var(--muted);font-size:.83rem}
 @media(max-width:760px){.wrap{padding:0 17px}.folio{display:block}.verdict,.pair,.summary-grid,.model-summary{grid-template-columns:1fr}.verdict{gap:6px}.coverage{gap:6px}}
 """
@@ -84,8 +94,8 @@ def _number(value: object, name: str) -> float:
 
 
 def _validate(report: object) -> dict:
-    if not isinstance(report, dict) or report.get("schema_version") != 1:
-        raise ValueError("Expected comparison report schema_version 1")
+    if not isinstance(report, dict) or report.get("schema_version") not in (1, 2):
+        raise ValueError("Expected comparison report schema_version 1 or 2")
     if report.get("evidence_kind") not in {"actual", "synthetic_demo"}:
         raise ValueError("Report must declare actual or synthetic_demo evidence")
     synthetic = report["evidence_kind"] == "synthetic_demo"
@@ -107,18 +117,30 @@ def _validate(report: object) -> dict:
         raise ValueError("Report created_at needs a timezone")
     models = report.get("models")
     cases = report.get("cases")
-    if not isinstance(models, list) or len(models) != 2:
-        raise ValueError("Comparison requires two model records")
+    if not isinstance(models, list) or not models:
+        raise ValueError("Comparison requires configuration records")
     if any(not isinstance(m, dict) or not m.get("id") or not m.get("label") for m in models):
         raise ValueError("Each model needs an id and label")
     ids = [m["id"] for m in models]
-    expected_ids = {"control", "mutated"} if synthetic else {"astra", "terra"}
-    if set(ids) != expected_ids:
-        raise ValueError(
-            f"Model ids must be {'control and mutated' if synthetic else 'astra and terra'}"
-        )
-    if not isinstance(cases, list) or len(cases) != 6:
-        raise ValueError("Comparison requires six piece records")
+    if any(not isinstance(identifier, str) for identifier in ids) or len(set(ids)) != len(ids):
+        raise ValueError("Configuration ids must be distinct strings")
+    if synthetic and set(ids) != {"control", "mutated"}:
+        raise ValueError("Synthetic model ids must be control and mutated")
+    if not isinstance(cases, list) or not cases:
+        raise ValueError("Comparison requires piece records")
+    if report["schema_version"] == 2:
+        versions = report.get("versions")
+        required = {"dataset", "labels", "grader", "harness", "config"}
+        if not isinstance(versions, dict) or not required.issubset(versions):
+            raise ValueError("Versioned comparison requires independent version identities")
+        for name in required:
+            identity = versions[name]
+            if (
+                not isinstance(identity, dict)
+                or not identity.get("id")
+                or not re.fullmatch(r"[0-9a-f]{64}", str(identity.get("sha256", "")))
+            ):
+                raise ValueError(f"Invalid {name} version identity")
     slugs = []
     for case in cases:
         if not isinstance(case, dict) or not case.get("slug") or not case.get("title"):
@@ -182,6 +204,20 @@ def _validate_result(result: object, context: str) -> None:
         raise ValueError(f"{context}: links must be local paths or null")
     if result["status"] == "not_run" and (result.get("mismatches") or result.get("decisions")):
         raise ValueError(f"{context}: unrun model cannot have musical findings")
+    usage = result.get("usage")
+    if isinstance(usage, list):
+        if result["status"] == "not_run" and usage:
+            raise ValueError(f"{context}: unrun model cannot contain token usage")
+        for entry in usage:
+            if entry is None:
+                continue
+            if not isinstance(entry, dict):
+                raise ValueError(f"{context}: invalid token usage")
+            for name in ("input_tokens", "output_tokens", "cached_input_tokens"):
+                if entry.get(name) is not None and (
+                    type(entry[name]) is not int or entry[name] < 0
+                ):
+                    raise ValueError(f"{context}: invalid {name}")
 
 
 def _metric_cell(metric: float | None, status: str = "") -> str:
@@ -195,6 +231,19 @@ def _metric_cell(metric: float | None, status: str = "") -> str:
 
 def _amount(value: object, unit: str, precision: int = 1) -> str:
     return f"{value:.{precision}f}{unit}" if value is not None else '<span class="unknown">—</span>'
+
+
+def _duration(value: float | None) -> str:
+    if value is not None and value >= 60:
+        return _amount(value / 60, " min")
+    return _amount(value, " s", 0)
+
+
+def _status_label(result: dict) -> str:
+    error = str(result.get("error") or "").lower()
+    if result["status"] == "failed" and ("deadline exceeded" in error or "timed out" in error):
+        return "timed out"
+    return result["status"].replace("_", " ")
 
 
 def _safe_link(report_dir: Path, output: Path, path: str, label: str) -> str:
@@ -211,7 +260,7 @@ def _safe_link(report_dir: Path, output: Path, path: str, label: str) -> str:
 
 
 def _result_detail(result: dict, model: dict, report_dir: Path, output: Path) -> str:
-    status = result["status"].replace("_", " ")
+    status = _status_label(result)
     links = "".join(
         _safe_link(report_dir, output, path, LINK_LABELS[name])
         for name, path in result.get("links", {}).items()
@@ -243,7 +292,16 @@ def _result_detail(result: dict, model: dict, report_dir: Path, output: Path) ->
         for name, value in metric_status.items()
     )
     exact_bars = _metric_cell(result.get("metrics", {}).get("edition_exact_bar_rate"))
+    run = result.get("run", {})
+    run_note = (
+        f'<p class="quiet">Trial {_text(run.get("trial", "unrecorded"))}. '
+        f'Resolved model revision: {_text(run.get("resolved_model") or "not reported")}.</p>'
+        if run
+        else ""
+    )
     return f"""<section><h3>{_text(model['label'])} · {status}</h3>
+      {run_note}
+      <p class="quiet">Reported tokens: {_token_summary([result])}</p>
       <p class="quiet">{_text(result.get('note') or ('No run evidence recorded.' if status == 'not run' else 'No run note recorded.'))}</p>
       <p>Exact edition bars: {exact_bars} <span class="quiet">{coverage_text}</span></p>
       {f'<p class="failed">Run error: {_text(result["error"])}</p>' if result.get('error') else ''}
@@ -265,7 +323,7 @@ def _model_summary(model: dict, cases: list[dict]) -> str:
             if result.get("metrics", {}).get(name) is not None
         ]
         return (
-            f"{100 * sum(values) / len(values):.0f}% <small>({len(values)}/6 pieces)</small>"
+            f"{100 * sum(values) / len(values):.0f}% <small>({len(values)}/{len(cases)} pieces)</small>"
             if values
             else "—"
         )
@@ -276,20 +334,184 @@ def _model_summary(model: dict, cases: list[dict]) -> str:
             for result in results
             if result.get("metrics", {}).get(name) is not None
         ]
-        return (
-            f"{sum(values):.{places}f} {unit} <small>({len(values)}/6 runs)</small>"
-            if values
-            else "—"
+        if not values:
+            return "—"
+        measured = (
+            _duration(sum(values))
+            if name == "elapsed_seconds"
+            else f"{sum(values):.{places}f} {unit}"
         )
+        return f"{measured} <small>({len(values)}/{len(cases)} runs)</small>"
 
-    return f"""<article><h3>{_text(model['label'])}</h3><dl>
+    return f"""<article><h3>{_text(model['label'])}{_configuration_detail(model)}</h3><dl>
+      <dt>Structurally complete drafts</dt><dd>{sum(r['status'] == 'complete' for r in results)}/{len(cases)}</dd>
       <dt>Source note F1, mean</dt><dd>{mean('source_note_f1')}</dd>
       <dt>Edition note F1, mean</dt><dd>{mean('edition_note_f1')}</dd>
       <dt>Exact edition form routes</dt><dd>{mean('form_exact_match')}</dd>
       <dt>Bars aligned, mean</dt><dd>{mean('bar_coverage')}</dd>
       <dt>Known cost, total</dt><dd>{total('cost_usd', 'USD', 2)}</dd>
       <dt>Known runtime, total</dt><dd>{total('elapsed_seconds', 's', 0)}</dd>
+      <dt>Reported tokens, total</dt><dd>{_token_summary(results)}</dd>
     </dl><p>Means include measured attempted runs, including partial outcomes; missing metrics are excluded. Known totals include attempted runs with usage data.</p></article>"""
+
+
+def _token_summary(results: list[dict]) -> str:
+    attempts = [
+        entry
+        for result in results
+        if isinstance(result.get("usage"), list)
+        for entry in result["usage"]
+    ]
+    known = [
+        entry
+        for entry in attempts
+        if entry is not None
+        and entry.get("input_tokens") is not None
+        and entry.get("output_tokens") is not None
+    ]
+    if not known:
+        return f"— <small>(0/{len(attempts)} recorded attempts)</small>" if attempts else "—"
+    total = sum(entry["input_tokens"] + entry["output_tokens"] for entry in known)
+    return f"{total:,} <small>({len(known)}/{len(attempts)} recorded attempts)</small>"
+
+
+def _configuration_detail(model: dict) -> str:
+    values = []
+    for name in ("model", "reasoning_effort"):
+        if model.get(name):
+            values.append(str(model[name]))
+    if model.get("adapter") == "codex_subscription":
+        values.append("ChatGPT subscription")
+    elif model.get("provider"):
+        values.append(str(model["provider"]))
+    harness = model.get("harness_id") or model.get("harness_version")
+    if harness:
+        values.append(f"Harness: {harness}")
+    if model.get("settings"):
+        values.append("Settings: " + json.dumps(model["settings"], sort_keys=True))
+    return f'<span class="config">{_text(" · ".join(values))}</span>' if values else ""
+
+
+def _version_details(report: dict) -> str:
+    versions = report.get("versions")
+    if not versions:
+        return '<p class="versions">Legacy report: complete harness and grader versions were not pinned.</p>'
+    items = "".join(
+        f'<dt>{_text(name.capitalize())}</dt><dd>{_text(versions[name]["id"])}'
+        f'<span class="config">SHA256 {_text(versions[name]["sha256"])}</span></dd>'
+        for name in ("dataset", "labels", "grader", "harness", "config")
+    )
+    provenance = versions.get("grader", {}).get("provenance", {})
+    commit = provenance.get("commit")
+    provenance_note = (
+        f"<p>Grader code commit: {_text(commit)}"
+        f'{" (working changes pinned separately)" if provenance.get("tracked_worktree_dirty") else ""}.</p>'
+        if commit
+        else ""
+    )
+    return (
+        '<details class="versions"><summary>Compared under the same data, labels and grader · '
+        f'{_text(versions["config"]["id"])}</summary><dl>{items}</dl>{provenance_note}'
+        "<p>Each report is one compatible version group. To change the labels or grader, "
+        "rescore all retained outputs together and preserve the earlier report.</p></details>"
+    )
+
+
+def _paired_deltas(models: list[dict], cases: list[dict]) -> str:
+    """Use only jointly measured pieces, never subtract unequal-coverage means."""
+    if len(models) < 2:
+        return ""
+    baseline = models[0]
+    comparisons = []
+    for model in models[1:]:
+        dimensions = []
+        for name, label in (("source_note_f1", "Source"), ("edition_note_f1", "Edition")):
+            pairs = [
+                (
+                    case["results"][baseline["id"]].get("metrics", {}).get(name),
+                    case["results"][model["id"]].get("metrics", {}).get(name),
+                )
+                for case in cases
+            ]
+            differences = [b - a for a, b in pairs if a is not None and b is not None]
+            if differences:
+                delta = 100 * sum(differences) / len(differences)
+                dimensions.append(
+                    f"{label}: {delta:+.1f} points ({len(differences)}/{len(cases)} paired pieces)"
+                )
+        if dimensions:
+            comparisons.append(
+                f'<p><strong>{_text(model["label"])} versus {_text(baseline["label"])}</strong><br>'
+                f'{_text("; ".join(dimensions))}</p>'
+            )
+    if not comparisons:
+        return ""
+    return (
+        '<div class="callout"><strong>Paired differences</strong>'
+        + "".join(comparisons)
+        + "<p>Positive means higher agreement. Only pieces measured for both configurations "
+        "enter each difference; partial outcomes remain included. This is not a winner ranking.</p></div>"
+    )
+
+
+def _source_finding(models: list[dict], cases: list[dict]) -> tuple[str, str] | None:
+    """Describe a fully paired measured dimension without choosing a production winner."""
+    if len(models) < 2:
+        return None
+    for case in cases:
+        outcomes = [case["results"][model["id"]] for model in models]
+        if any(outcome.get("metrics", {}).get("source_note_f1") is None for outcome in outcomes):
+            return None
+        coverage = {
+            (
+                outcome.get("coverage", {}).get("source_scored_measures"),
+                outcome.get("coverage", {}).get("source_expected_noteheads"),
+            )
+            for outcome in outcomes
+        }
+        if len(coverage) != 1 or next(iter(coverage))[0] in (None, 0):
+            return None
+    means = [
+        (
+            sum(case["results"][model["id"]]["metrics"]["source_note_f1"] for case in cases)
+            / len(cases),
+            model["label"],
+        )
+        for model in models
+    ]
+    highest = max(mean for mean, _ in means)
+    leaders = [label for mean, label in means if math.isclose(mean, highest, abs_tol=1e-12)]
+    verdict = (
+        f"{leaders[0]} has the highest agreement on the audited notes."
+        if len(leaders) == 1
+        else "The highest audited-note agreement is tied."
+    )
+    measured = "; ".join(f"{label}: {mean:.0%}" for mean, label in means)
+    basis = (
+        f"Mean note F1 across {len(cases)} paired pieces: {measured}. "
+        "This covers the audited subset and includes partial drafts. "
+        "Editorial acceptance and run-to-run reliability remain separate questions."
+    )
+    return _text(verdict), _text(basis)
+
+
+def _timeout_finding(models: list[dict], cases: list[dict]) -> tuple[str, str] | None:
+    if any(
+        case["results"][model["id"]]["status"] == "not_run" for case in cases for model in models
+    ):
+        return None
+    timed_out = [
+        model["label"]
+        for model in models
+        if all(_status_label(case["results"][model["id"]]) == "timed out" for case in cases)
+    ]
+    if not timed_out:
+        return None
+    return (
+        _text("No gradable scores within the time limit: " + ", ".join(timed_out) + "."),
+        "The attempts finished, but the musical comparison is incomplete. Timeouts are not "
+        "zero note accuracy. A different deadline must be tested as a separate versioned run.",
+    )
 
 
 def _reference_decisions(case: dict) -> str:
@@ -327,7 +549,7 @@ def _reference_decisions(case: dict) -> str:
 
 
 def render_comparison_dashboard(report_path: Path, output: Path) -> str:
-    """Validate and render one six-piece, two-model report; return HTML for the caller to save."""
+    """Render one compatible version group with any number of configurations."""
     report_path = Path(report_path).resolve()
     output = Path(output).resolve()
     if output == report_path:
@@ -361,9 +583,15 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         raise ValueError("summary must be an object")
     winner = summary.get("winner")
     if winner is not None and (
-        winner not in {m["id"] for m in models} or synthetic or paired != 6 or not full_metrics
+        winner not in {m["id"] for m in models}
+        or len(models) < 2
+        or synthetic
+        or paired != len(cases)
+        or not full_metrics
     ):
-        raise ValueError("A winner requires six actual, complete, fully scored pairs")
+        raise ValueError(
+            "A winner requires actual, complete, fully scored comparisons for every piece"
+        )
     if winner and not summary.get("basis"):
         raise ValueError("A winner needs a stated evidence basis")
     if winner:
@@ -376,20 +604,39 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
     else:
         verdict = "Insufficient measured evidence to choose a model."
         basis = (
-            "All six paired works need scored source, edition, form, completeness and editorial evidence before a choice is supported."
-            if paired < 6 or not full_metrics
+            "All compared pieces need scored source, edition, form, completeness and editorial evidence before a choice is supported."
+            if paired < len(cases) or not full_metrics
             else "The measured dimensions do not support a single choice. Review the per-piece differences and unresolved musical decisions."
         )
     if synthetic:
         verdict = "Synthetic grader demonstration; no model comparison result."
         basis = "The values below exercise the report pipeline. They are not Astra or Terra score-reading results."
+    elif not winner and (finding := _source_finding(models, cases)):
+        verdict, basis = finding
+    elif not winner and (finding := _timeout_finding(models, cases)):
+        verdict, basis = finding
     rows = []
     for case, model, result in results:
         metrics = result.get("metrics", {})
         statuses = result.get("metric_status", {})
-        cells = "".join(
-            f"<td>{_metric_cell(metrics.get(name), statuses.get(name, ''))}</td>"
-            for name in ("source_note_f1", "edition_note_f1", "chord_f1")
+        source_coverage = result.get("coverage", {})
+        source_count = source_coverage.get("source_eligible_measures") or source_coverage.get(
+            "source_scored_measures", 0
+        )
+        source_total = source_coverage.get("source_total_measures")
+        reference_count = source_total or source_coverage.get("reference_measures")
+        source_basis = "source" if source_total else "reference"
+        source_note = (
+            f'<small class="quiet">{source_count}/{reference_count} {source_basis} bars audited</small>'
+            if source_count and reference_count
+            else ""
+        )
+        cells = (
+            f'<td>{_metric_cell(metrics.get("source_note_f1"), statuses.get("source_note_f1", ""))}{source_note}</td>'
+            + "".join(
+                f"<td>{_metric_cell(metrics.get(name), statuses.get(name, ''))}</td>"
+                for name in ("edition_note_f1", "chord_f1")
+            )
         )
         form = metrics.get("form_exact_match")
         form_cell = (
@@ -398,17 +645,23 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         if statuses.get("form_exact_match"):
             form_cell += f'<small class="quiet">{_text(statuses["form_exact_match"].replace("_", " "))}</small>'
         cells += f"<td>{form_cell}</td>"
+        partial_bars = source_coverage.get("meter_partial_measures", 0)
+        meter_note = (
+            f"meter valid; {partial_bars} partial bar(s) excluded"
+            if partial_bars
+            else "meter valid"
+        )
         cells += (
             f'<td>{_metric_cell(metrics.get("bar_coverage"))}<small class="quiet">bars aligned</small>'
-            f'{_metric_cell(metrics.get("meter_valid_rate"))}<small class="quiet">meter valid</small></td>'
+            f'{_metric_cell(metrics.get("meter_valid_rate"))}<small class="quiet">{_text(meter_note)}</small></td>'
         )
         cells += f'<td>{_metric_cell(metrics.get("editorial_acceptance"))}</td>'
         anchor = quote(str(case["slug"]), safe="-_")
         rows.append(
             f'<tr><td class="work">{_text(case["title"])}<a href="#{_text(anchor)}">Inspect evidence</a></td>'
-            f'<td class="model">{_text(model["label"])}</td><td class="status {result["status"]}">{_text(result["status"].replace("_", " "))}</td>'
+            f'<td class="model">{_text(model["label"])}<span class="config">{_text(model.get("reasoning_effort") or "")}</span></td><td class="status {result["status"]}">{_text(_status_label(result))}</td>'
             f'{cells}<td>{_amount(metrics.get("human_review_minutes"), " min")}</td>'
-            f'<td>{_amount(metrics.get("cost_usd"), " USD", 2)}</td><td>{_amount(metrics.get("elapsed_seconds"), " s", 0)}</td></tr>'
+            f'<td>{_amount(metrics.get("cost_usd"), " USD", 2)}</td><td>{_duration(metrics.get("elapsed_seconds"))}</td></tr>'
         )
     details = "".join(
         f'<details class="piece" id="{_text(quote(str(case["slug"]), safe="-_"))}"><summary>{_text(case["title"])}</summary><div class="piece-body"><div class="pair">'
@@ -436,7 +689,7 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         if demo_path is not None
         else ""
     )
-    columns = '<th scope="col">Source notes</th><th scope="col">Edition notes</th><th scope="col">Chords</th><th scope="col">Form</th><th scope="col">Completeness</th><th scope="col">Editorial</th>'
+    columns = '<th scope="col">Source notes</th><th scope="col">Edition notes</th><th scope="col">Edition chords</th><th scope="col">Edition route</th><th scope="col">Completeness</th><th scope="col">Editorial</th>'
     has_measures = any(
         value is not None
         for _, _, result in results
@@ -448,26 +701,41 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         if has_measures
         else ""
     )
-    headline = "Does the grader catch mistakes?" if synthetic else "Astra vs. Terra"
+    headline = (
+        "Does the grader catch mistakes?"
+        if synthetic
+        else (
+            "Astra vs. Terra"
+            if [m["id"] for m in models] == ["astra", "terra"]
+            else "Compare transcription systems"
+        )
+    )
     lede = (
         "Known changes test the grader. These values are fixtures, not model results."
         if synthetic
         else "Per-score musical results, coverage and measured effort."
     )
     item_label = "Case" if synthetic else "Piece"
-    model_label = "Fixture" if synthetic else "Model"
+    model_label = "Fixture" if synthetic else "Configuration"
+    version_details = "" if synthetic else _version_details(report)
+    configuration_list = "".join(
+        f'<p><strong>{_text(model["label"])}</strong>{_configuration_detail(model)}</p>'
+        for model in models
+    )
     created_at = datetime.fromisoformat(report["created_at"].replace("Z", "+00:00"))
     created_label = created_at.astimezone(timezone.utc).strftime("%d %b %Y, %H:%M UTC")
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Model comparison | score2abc</title><style>{_CSS}</style></head><body><header class="mast"><div class="wrap">
 <div class="folio"><strong>score2abc · evaluation desk</strong><span>Complete-score comparison · {created_label}</span></div>
-<h1>{headline}</h1><p class="lede">{lede}</p>{demo_banner}{demo_nav}
+<h1>{headline}</h1><p class="lede">{lede}</p>{demo_banner}{demo_nav}{version_details}
 <div class="verdict" role="status"><b>Current finding</b><div><strong>{verdict}</strong><p>{basis}</p></div></div></div></header>
-<main class="wrap"><div class="coverage"><span><strong>{paired}/6</strong> complete pairs</span><span><strong>{complete}/12</strong> complete runs</span><span><strong>{partial}</strong> partial</span><span><strong>{failed}</strong> failed</span><span><strong>{12 - complete - partial - failed}</strong> not run</span></div>
+<main class="wrap"><div class="coverage"><span><strong>{paired}/{len(cases)}</strong> pieces complete for all configurations</span><span><strong>{complete}/{len(results)}</strong> complete runs</span><span><strong>{partial}</strong> partial</span><span><strong>{failed}</strong> failed</span><span><strong>{len(results) - complete - partial - failed}</strong> not run</span></div>
+{f'<div class="config-list">{configuration_list}</div>' if not has_measures else ''}
 {overview}
-<section aria-labelledby="matrix-heading"><div class="section-head"><h2 id="matrix-heading">{item_label}-by-{item_label.lower()} comparison</h2><p>— means unmeasured. Completeness shows bars aligned and meter validity separately.</p></div>
+{_paired_deltas(models, cases)}
+<section aria-labelledby="matrix-heading"><div class="section-head"><h2 id="matrix-heading">{item_label}-by-{item_label.lower()} comparison</h2><p>— means unmeasured. Completeness shows bars aligned and meter validity separately. Complete means a structurally valid draft, not musical approval.</p></div>
 <div class="table-scroll" role="region" aria-label="{model_label} comparison table" tabindex="0"><table><thead><tr><th scope="col">{item_label}</th><th scope="col">{model_label}</th><th scope="col">Run</th>{columns}<th scope="col">Review</th><th scope="col">Cost</th><th scope="col">Time</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
-<p class="below">Source notes measure only source-supported notation. Edition notes measure similarity to a reviewed performing edition, which may contain reconstruction. F1 is the balance of precision and recall. Review time is recorded human effort; cost and runtime appear only when measured. Failed and partial attempts stay visible.</p></section>
+<p class="below">Source notes measure only the audited subset of readable notation; coverage appears with each score. A model-assisted source audit is not a new musician approval. Edition notes, chords and routes measure agreement with your reviewed edition, including its reconstructions. A different coherent route can still be musically acceptable. F1 balances precision and recall. Review time is recorded human effort; cost and runtime appear only when measured. Failed and partial attempts stay visible.</p></section>
 <section aria-labelledby="definitions-heading"><div class="section-head"><h2 id="definitions-heading">How to read the measures</h2></div><div class="summary-grid">{metric_guide}</div></section>
 <section class="details" aria-labelledby="details-heading"><div class="section-head"><h2 id="details-heading">Evidence by {item_label.lower()}</h2><p>Open a {item_label.lower()} for mismatches, editorial decisions and run files.</p></div>{details}</section>
 <aside class="callout"><strong>Interpretation limit</strong><p>One initial attempt per model and piece describes these attempts, not run-to-run reliability. Editorial choices that still need a musician remain pending; an accepted edition alone does not prove what the PDF uniquely supports.</p></aside>

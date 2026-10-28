@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "reviewed-six-astra-terra-v1",
+  "dataset_version": "reviewed-six-pdf-v1",
+  "labels_version": "reviewed_six_v3",
+  "grader_version": "complete-score-v2",
+  "harness": {
+    "id": "pdf-only-tool-less-v1",
+    "max_revision_passes": 2
+  },
+  "systems": [
+    {
+      "id": "astra",
+      "label": "GPT-6 Astra",
+      "provider": "openai",
+      "adapter": "codex_subscription",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh",
+      "settings": {}
+    },
+    {
+      "id": "terra",
+      "label": "GPT-6.1 Terra",
+      "provider": "openai",
+      "adapter": "codex_subscription",
+      "model": "gpt-6.1-terra",
+      "reasoning_effort": "xhigh",
+      "settings": {}
+    }
+  ]
+}

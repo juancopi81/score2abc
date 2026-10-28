@@ -213,3 +213,137 @@ def test_reference_decisions_are_separate_and_escaped(tmp_path: Path) -> None:
     assert "AM-01 · Edition bar 45" in _render(tmp_path, report)
     report["cases"][0]["reference_decisions"][0].update(source_location={"bar_range": [47, 62]})
     assert "AM-01 · Source bars 47–62" in _render(tmp_path, report)
+
+
+def _versioned_report() -> dict:
+    report = _report()
+    report["schema_version"] = 2
+    report["versions"] = {
+        name: {"id": f"{name}-v2", "sha256": "a" * 64}
+        for name in ("dataset", "labels", "grader", "harness", "config")
+    }
+    return report
+
+
+def test_arbitrary_configs_and_piece_counts_show_exact_settings(tmp_path: Path) -> None:
+    report = _versioned_report()
+    report["cases"] = report["cases"][:2]
+    report["models"].append(
+        {
+            "id": "luna-medium",
+            "label": "Luna medium",
+            "model": "example-luna",
+            "reasoning_effort": "medium",
+            "provider": "example-provider",
+            "harness_id": "pdf-tools-v2",
+        }
+    )
+    for case in report["cases"]:
+        case["results"]["luna-medium"] = {"status": "not_run", "metrics": {}}
+    html = _render(tmp_path, report)
+    assert "Compare transcription systems" in html
+    assert "0/2" in html
+    assert "0/6" in html
+    assert "6</strong> not run" in html
+    assert "example-luna · medium · example-provider · Harness: pdf-tools-v2" in html
+    assert "labels-v2" in html
+    assert "grader-v2" in html
+    assert html.count('class="status not_run"') == 6
+    assert "/12" not in html
+
+
+def test_version_metadata_and_duplicate_configs_fail_closed(tmp_path: Path) -> None:
+    report = _versioned_report()
+    del report["versions"]["grader"]
+    with pytest.raises(ValueError, match="version identities"):
+        _render(tmp_path, report)
+    report = _versioned_report()
+    report["models"][1]["id"] = report["models"][0]["id"]
+    with pytest.raises(ValueError, match="ids must be distinct"):
+        _render(tmp_path, report)
+
+
+def test_paired_deltas_exclude_unpaired_values_and_include_partial(tmp_path: Path) -> None:
+    report = _versioned_report()
+    for model, values in {"astra": [0.5, 1.0, 1.0], "terra": [0.7, 0.6]}.items():
+        for index, value in enumerate(values):
+            report["cases"][index]["results"][model] = {
+                "status": "partial",
+                "metrics": {"edition_note_f1": value},
+            }
+    html = _render(tmp_path, report)
+    assert "Edition: -10.0 points (2/6 paired pieces)" in html
+    assert "partial outcomes remain included" in html
+    assert "Source:" not in html
+
+
+def test_single_config_cannot_be_declared_winner(tmp_path: Path) -> None:
+    report = _report()
+    report["models"] = report["models"][:1]
+    for case in report["cases"]:
+        del case["results"]["terra"]
+    report["summary"] = {"winner": "astra", "basis": "Only configuration"}
+    with pytest.raises(ValueError, match="winner requires"):
+        _render(tmp_path, report)
+
+
+def test_source_score_displays_partial_audit_coverage(tmp_path: Path) -> None:
+    report = _versioned_report()
+    report["cases"][0]["results"]["astra"] = {
+        "status": "partial",
+        "metrics": {"source_note_f1": 0.8},
+        "coverage": {"source_scored_measures": 7, "reference_measures": 48},
+    }
+    html = _render(tmp_path, report)
+    assert "7/48 reference bars audited" in html
+    assert "model-assisted source audit is not a new musician approval" in html
+
+
+def test_token_usage_keeps_missing_attempts_and_does_not_double_count_cached(tmp_path: Path):
+    report = _versioned_report()
+    report["cases"][0]["results"]["astra"] = {
+        "status": "partial",
+        "metrics": {},
+        "usage": [{"input_tokens": 100, "output_tokens": 20, "cached_input_tokens": 80}, None],
+    }
+    html = _render(tmp_path, report)
+    assert "120 <small>(1/2 recorded attempts)</small>" in html
+    assert "0.00 USD" not in html
+    report["cases"][0]["results"]["astra"]["usage"][0]["input_tokens"] = -1
+    with pytest.raises(ValueError, match="invalid input_tokens"):
+        _render(tmp_path, report)
+
+
+def test_fully_paired_source_finding_is_scoped_and_keeps_editorial_pending(tmp_path: Path):
+    report = _versioned_report()
+    for case in report["cases"]:
+        for model, value in (("astra", 0.8), ("terra", 0.6)):
+            case["results"][model] = {
+                "status": "partial",
+                "metrics": {"source_note_f1": value, "editorial_acceptance": None},
+                "coverage": {"source_scored_measures": 5, "source_expected_noteheads": 20},
+            }
+    html = _render(tmp_path, report)
+    assert "GPT-6 Astra has the highest agreement on the audited notes" in html
+    assert "Mean note F1 across 6 paired pieces: GPT-6 Astra: 80%; GPT-6 Terra: 60%" in html
+    assert "Editorial acceptance and run-to-run reliability remain separate questions" in html
+    report["cases"][0]["results"]["terra"]["metrics"]["source_note_f1"] = None
+    assert "Insufficient measured evidence" in _render(tmp_path, report)
+
+
+def test_full_timeout_cohort_is_not_misreported_as_zero_quality(tmp_path: Path):
+    report = _versioned_report()
+    for case in report["cases"]:
+        case["results"]["astra"] = {
+            "status": "failed",
+            "metrics": {},
+            "error": "Runner deadline exceeded",
+            "usage": [None],
+        }
+        case["results"]["terra"] = {"status": "complete", "metrics": {"source_note_f1": 0.5}}
+    html = _render(tmp_path, report)
+    assert "No gradable scores within the time limit: GPT-6 Astra" in html
+    assert "Timeouts are not zero note accuracy" in html
+    assert "(0/6 recorded attempts)" in html
+    report["cases"][0]["results"]["terra"] = {"status": "not_run", "metrics": {}}
+    assert "No gradable scores within the time limit" not in _render(tmp_path, report)

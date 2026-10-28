@@ -12,6 +12,16 @@ from pathlib import Path
 from score2abc.eval_labels import verify_labels
 from score2abc.reference_freeze import verify_freeze
 from score2abc.score_eval_abc import normalize_abc
+from score2abc.score_eval_config import (
+    configured_systems,
+    digest,
+    generation_identity,
+    grading_versions,
+    load_config,
+    task_id,
+    verify_generation,
+)
+from score2abc.score_eval_source import score_source
 
 MODELS = [
     {"id": "astra", "label": "GPT-6 Astra", "model": "gpt-6-astra", "reasoning_effort": "xhigh"},
@@ -324,7 +334,9 @@ def _usage_metrics(record: dict, base: Path) -> tuple[dict, dict, str | None]:
     return values, statuses, str(path)
 
 
-def _verify_run_record(record: dict, base: Path) -> Path:
+def _verify_run_record(
+    record: dict, base: Path, generation: dict | None = None
+) -> tuple[Path, dict]:
     """Check a pinned runner attestation, not a model's assertion of its own isolation."""
     from score2abc.score_eval_harness import AUTHOR_INSTRUCTIONS
 
@@ -335,46 +347,131 @@ def _verify_run_record(record: dict, base: Path) -> Path:
     for key in ("model", "reasoning_effort", "input_pdf_sha256", "status"):
         if trace.get(key) != record.get(key):
             raise ValueError(f"Runner record differs from registered output: {key}")
+    instructions_sha256 = (
+        generation["harness"]["manifest"]["instructions_sha256"]
+        if generation
+        else sha256(AUTHOR_INSTRUCTIONS.encode())
+    )
+    revision_limit = (
+        generation["harness"]["manifest"]["policy"]["max_revision_passes"] if generation else 2
+    )
     if (
-        trace.get("schema_version") != 1
-        or trace.get("instructions_sha256") != sha256(AUTHOR_INSTRUCTIONS.encode())
+        trace.get("schema_version") != (2 if generation else 1)
+        or trace.get("instructions_sha256") != instructions_sha256
         or trace.get("isolation") != "input_only"
         or trace.get("fresh_context") is not True
         or trace.get("network_access") is not False
         or not trace.get("runner_name")
         or type(trace.get("revision_passes")) is not int
-        or not 0 <= trace["revision_passes"] <= 2
+        or not 0 <= trace["revision_passes"] <= revision_limit
     ):
         raise ValueError("Runner record does not satisfy the PDF-only paired contract")
+    if generation:
+        for key in (
+            "run_id",
+            "task_id",
+            "trial",
+            "generation_sha256",
+            "system_sha256",
+            "provider",
+            "adapter",
+            "settings",
+        ):
+            if trace.get(key) != record.get(key):
+                raise ValueError(f"Runner version/configuration differs: {key}")
+        if trace.get("resolved_model") != record.get("resolved_model"):
+            raise ValueError("Resolved model differs from runner evidence")
+        if trace.get("runtime_sha256") != digest(
+            generation["harness"]["manifest"]["runner_runtime"]
+        ):
+            raise ValueError("Runner runtime differs from pinned harness")
     if record["status"] != "failed":
         for key in ("abc_sha256", "decision_log_sha256"):
             if trace.get(key) != record.get(key) or not trace.get(key):
                 raise ValueError(f"Runner output hash is missing or inconsistent: {key}")
-    return path
+    # Legacy registries could carry unpinned usage; reporting still reads only the trace.
+    if generation and "usage" in record and record["usage"] != trace.get("usage"):
+        raise ValueError("Registry usage differs from pinned runner evidence")
+    return path, trace
 
 
-def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = None) -> dict:
-    """Evaluate registered outputs or produce an explicit six-by-two unrun matrix."""
+def _source_required_edition_bars(reference: dict, work_labels: dict) -> set[int]:
+    """Completeness excludes only explicitly mapped editorial insertions.
+
+    This covers the entire source, not merely the much smaller audited note mask.
+    Edition agreement still charges omissions of editorial bars as differences.
+    """
+    all_bars = {bar["number"] for bar in reference["measures"]}
+    mapping = work_labels.get("source_to_edition_mapping")
+    if mapping is None:
+        return all_bars
+    source_map = mapping.get("source_to_edition_bar", {})
+    values = list(source_map.values())
+    if (
+        not values
+        or any(type(value) is not int for value in values)
+        or len(set(values)) != len(values)
+        or not set(values).issubset(all_bars)
+    ):
+        raise ValueError("Invalid explicit source-to-edition completeness mapping")
+    return set(values)
+
+
+def build_report(
+    frozen_root: Path,
+    labels_root: Path,
+    registry: Path | None = None,
+    config: Path | dict | None = None,
+) -> dict:
+    """Evaluate one compatible configured cohort; legacy v1 registries stay readable.
+
+    A cohort contains one trial per system/piece. New trials get separate immutable
+    registries; this function never chooses the highest-scoring attempt.
+    """
+    from score2abc.score_eval_harness import AUTHOR_INSTRUCTIONS
+
     frozen_root, labels_root = Path(frozen_root).resolve(), Path(labels_root).resolve()
     frozen = verify_freeze(frozen_root)
     labels = verify_labels(labels_root, frozen_root)
     label_works = {work["slug"]: work for work in labels["works"]}
     records, evidence_kind, registry_base = [], "actual", Path.cwd()
+    configuration = load_config(config) if config is not None else None
+    generation = None
     if registry is not None:
         registry = Path(registry).resolve()
         raw = json.loads(registry.read_text())
-        if raw.get("schema_version") != 1 or raw.get("evidence_kind") != "actual":
+        if raw.get("schema_version") not in (1, 2) or raw.get("evidence_kind") != "actual":
             raise ValueError(
                 "Run registries require actual evidence; use self-test for synthetic data"
             )
         records, evidence_kind, registry_base = raw["runs"], raw["evidence_kind"], registry.parent
-    slugs, model_ids = {w["slug"] for w in frozen["works"]}, {m["id"] for m in MODELS}
+        if raw["schema_version"] == 2:
+            registered_config = load_config(raw.get("config"))
+            generation_keys = ("dataset_version", "harness", "systems")
+            if "config" not in raw or (
+                configuration
+                and any(configuration[key] != registered_config[key] for key in generation_keys)
+            ):
+                raise ValueError("Registry configuration differs from requested configuration")
+            configuration = configuration or registered_config
+            generation = raw.get("generation")
+            verify_generation(generation, configuration, frozen)
+        elif configuration:
+            raise ValueError("Legacy unversioned registry cannot join a versioned cohort")
+    if configuration and generation is None:
+        generation = generation_identity(frozen, configuration, AUTHOR_INSTRUCTIONS)
+    if configuration and labels.get("label_set") != configuration["labels_version"]:
+        raise ValueError("Configured label version differs from verified label set")
+    models = configured_systems(configuration, generation) if configuration else MODELS
+    slugs, model_ids = {w["slug"] for w in frozen["works"]}, {m["id"] for m in models}
     by_key = {}
+    run_ids = set()
+    trials = set()
     for record in records:
         key = record["slug"], record["model_id"]
         if key in by_key or key[0] not in slugs or key[1] not in model_ids:
             raise ValueError("Duplicate or unknown run identity")
-        model = next(m for m in MODELS if m["id"] == key[1])
+        model = next(m for m in models if m["id"] == key[1])
         if (
             record.get("model") != model["model"]
             or record.get("reasoning_effort") != model["reasoning_effort"]
@@ -382,6 +479,24 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
             raise ValueError("Run model/settings differ from the paired contract")
         if record.get("status") not in ("complete", "partial", "failed"):
             raise ValueError("Registered runs must have an explicit outcome")
+        if configuration:
+            if (
+                record.get("generation_sha256") != generation["sha256"]
+                or record.get("system_sha256") != model["system_sha256"]
+                or any(record.get(k) != model[k] for k in ("provider", "adapter", "settings"))
+            ):
+                raise ValueError("Run system or generation versions differ from cohort")
+            if type(record.get("trial")) is not int or record["trial"] < 1:
+                raise ValueError("Run needs a positive trial number")
+            trials.add(record["trial"])
+            if len(trials) > 1:
+                raise ValueError("Mixed trial numbers cannot form one comparison cohort")
+            if record.get("task_id") != task_id(record):
+                raise ValueError("Run task identity differs from its source/system/trial")
+            run_id = record.get("run_id")
+            if not isinstance(run_id, str) or not run_id.strip() or run_id in run_ids:
+                raise ValueError("Run ids must be nonempty and unique")
+            run_ids.add(run_id)
         by_key[key] = record
     cases = []
     for work in frozen["works"]:
@@ -392,19 +507,24 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
                 f"Reference parser unavailable/invalid for {work['title']}: {reference['errors']}"
             )
         results = {}
-        for model in MODELS:
+        source_audit = label_works[work["slug"]].get("source_audit", {})
+        for model in models:
             record = by_key.get((work["slug"], model["id"]))
             result = {
                 "status": "not_run",
                 "metrics": dict.fromkeys(METRICS),
                 "metric_status": {
-                    "source_note_f1": "pending_source_labels",
+                    "source_note_f1": (
+                        "not_run" if source_audit.get("measures") else "pending_source_labels"
+                    ),
                     "editorial_acceptance": "requires_musical_adjudication",
                 },
                 "coverage": {
                     "reference_measures": len(reference["measures"]),
                     "candidate_measures": None,
                     "source_scored_measures": 0,
+                    "source_eligible_measures": len(source_audit.get("measures", [])),
+                    "source_total_measures": source_audit.get("total_source_measures"),
                 },
                 "mismatches": [],
                 "decisions": [],
@@ -415,12 +535,31 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
                 expected_pdf = frozen["files"][work["source_pdf_path"]]["sha256"]
                 if record.get("input_pdf_sha256") != expected_pdf:
                     raise ValueError("Run input PDF differs from frozen source")
-                if evidence_kind == "actual" and record.get("authorship") != "model":
-                    raise ValueError("Actual comparison requires declared model authorship")
-                run_path = _verify_run_record(record, registry_base)
+                expected_authorship = "model" if model["model"] is not None else "deterministic"
+                if evidence_kind == "actual" and record.get("authorship") != expected_authorship:
+                    raise ValueError(
+                        f"Actual comparison requires declared {expected_authorship} authorship"
+                    )
+                run_path, run_trace = _verify_run_record(record, registry_base, generation)
                 result["links"]["run_record"] = str(run_path)
                 result["status"] = record["status"]
                 result["error"] = record.get("error")
+                if record["status"] == "failed" and source_audit.get("measures"):
+                    result["metric_status"]["source_note_f1"] = "run_failed"
+                if configuration:
+                    result["run"] = {
+                        key: record.get(key)
+                        for key in (
+                            "run_id",
+                            "task_id",
+                            "trial",
+                            "system_sha256",
+                            "model",
+                            "resolved_model",
+                            "provider",
+                            "adapter",
+                        )
+                    }
                 if record["status"] != "failed":
                     path, candidate_bytes = _pinned_file(record, "abc_path", registry_base)
                     if evidence_kind == "actual" and path.is_relative_to(frozen_root):
@@ -429,13 +568,36 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
                         )
                     candidate = normalize_abc(candidate_bytes.decode("utf-8"))
                     result.update(compare_normalized(reference, candidate))
+                    source_result = score_source(
+                        reference,
+                        candidate,
+                        result.get("alignment", []),
+                        label_works[work["slug"]],
+                    )
+                    for field in ("metrics", "metric_status", "coverage"):
+                        result[field].update(source_result[field])
+                    result["mismatches"].extend(source_result.get("mismatches", []))
+                    result["source_scope"] = source_result.get("source_scope")
+                    required = _source_required_edition_bars(reference, label_works[work["slug"]])
+                    paired = {
+                        item["reference"]
+                        for item in result.get("alignment", [])
+                        if item["reference"] is not None and item["candidate"] is not None
+                    }
+                    result["coverage"].update(
+                        source_required_edition_measures=len(required),
+                        source_aligned_required_measures=len(required & paired),
+                        edition_only_measures_excluded_from_completeness=(
+                            len(reference["measures"]) - len(required)
+                        ),
+                    )
                     result["links"]["candidate_abc"] = str(path)
                     result["candidate_sha256"] = sha256(candidate_bytes)
                     if not candidate["valid"]:
                         result["status"], result["error"] = "failed", "; ".join(candidate["errors"])
                     elif candidate["route_status"] != "resolved":
                         result["status"] = "partial"
-                    elif result["coverage"].get("paired_measures") != len(reference["measures"]):
+                    elif not required.issubset(paired):
                         result["status"] = "partial"
                     if candidate_bytes == (frozen_root / work["answer_abc_path"]).read_bytes():
                         result["status"] = "partial"
@@ -473,7 +635,7 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
                 result["metric_status"].update(statuses)
                 if measurement_path:
                     result["links"]["measurement_record"] = measurement_path
-                result["usage"] = record.get("usage", {})
+                result["usage"] = run_trace.get("usage", [])
             results[model["id"]] = result
         cases.append(
             {
@@ -481,31 +643,46 @@ def build_report(frozen_root: Path, labels_root: Path, registry: Path | None = N
                 "title": work["title"],
                 "results": results,
                 "reference_decisions": label_works[work["slug"]]["decisions"],
-                "source_label_status": "pending_full_source_audit",
+                "source_label_status": (
+                    "model_audited_source_subset"
+                    if label_works[work["slug"]].get("source_audit", {}).get("measures")
+                    else "pending_full_source_audit"
+                ),
             }
         )
-    return {
-        "schema_version": 1,
+    report = {
+        "schema_version": 2 if configuration else 1,
         "evidence_kind": evidence_kind,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "frozen_manifest_sha256": sha256((frozen_root / "manifest.json").read_bytes()),
         "labels_sha256": sha256((labels_root / "manifest.json").read_bytes()),
-        "models": MODELS,
+        "models": models,
         "cases": cases,
         "summary": {
             "recommendation": (
                 "Insufficient measured source and editorial evidence to choose a model."
             ),
-            "planned_runs": len(cases) * len(MODELS),
+            "planned_runs": len(cases) * len(models),
             "registered_runs": len(records),
-            "source_accuracy_available": False,
+            "source_accuracy_available": any(
+                result["metrics"]["source_note_f1"] is not None
+                for case in cases
+                for result in case["results"].values()
+            ),
         },
         "limitations": [
             "Edition agreement measures the chosen edition, including its editorial changes.",
-            "Source fidelity and editorial acceptance await adjudicated labels.",
+            "Source fidelity covers audited bars only; editorial acceptance needs adjudication.",
             "Repeated phrases can make bar alignment ambiguous; inspect mismatches.",
             "Pitch spelling, voice assignment, slurs, articulation and expression are ungraded.",
             "Written ties are compared; sounding attack/hold equivalence is not separately graded.",
             "Pinned runner attestations require independent enforcement, not model self-report.",
         ],
     }
+    if configuration:
+        report["versions"] = grading_versions(configuration, generation, frozen_root, labels_root)
+        report["generation_sha256"] = generation["sha256"]
+        report["comparison_kind"] = "shared_harness_model_comparison"
+        report["trial_policy"] = "one_attempt_per_piece_and_system; separate_reports_for_new_trials"
+        report["trial"] = next(iter(trials), 1)
+    return report

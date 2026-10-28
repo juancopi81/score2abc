@@ -11,6 +11,12 @@ from pathlib import Path
 from score2abc.reference_freeze import verify_freeze
 from score2abc.score_eval import MODELS, compare_normalized, sha256, validate_candidate
 from score2abc.score_eval_abc import normalize_abc
+from score2abc.score_eval_config import (
+    configured_systems,
+    generation_identity,
+    load_config,
+    task_id,
+)
 
 AUTHOR_INSTRUCTIONS = """Transcribe the supplied handwritten Colombian music PDF into one complete
 playable ABC score. Use only this PDF and musical reasoning; do not use recordings,
@@ -44,12 +50,28 @@ available. Never invent cost, reviewer approval or successful validation.
 """
 
 
-def prepare_inputs(frozen_root: Path, destination: Path) -> dict:
+def prepare_inputs(
+    frozen_root: Path, destination: Path, config: Path | dict | None = None, *, trial: int = 1
+) -> dict:
     """Create a source-only task packet. Execution isolation is a separate requirement."""
     frozen_root, destination = Path(frozen_root).resolve(), Path(destination).resolve()
+    if type(trial) is not int or trial < 1:
+        raise ValueError("Trial must be a positive integer")
+    if config is None and trial != 1:
+        raise ValueError("Repeated trials require a versioned system configuration")
     if destination.is_relative_to(frozen_root) or frozen_root.is_relative_to(destination):
         raise ValueError("Task packet must be separate from frozen references")
     frozen = verify_freeze(frozen_root)
+    configuration = load_config(config) if config is not None else None
+    generation = (
+        generation_identity(frozen, configuration, AUTHOR_INSTRUCTIONS) if configuration else None
+    )
+    if (
+        generation
+        and generation["harness"]["manifest"]["runner_runtime"].get("status") != "prepared"
+    ):
+        raise ValueError("Prepare the subscription runtime before creating an execution packet")
+    models = configured_systems(configuration, generation) if configuration else MODELS
     destination.mkdir(parents=True, exist_ok=False)
     try:
         prompt = AUTHOR_INSTRUCTIONS.encode()
@@ -64,20 +86,33 @@ def prepare_inputs(frozen_root: Path, destination: Path) -> dict:
             if sha256(data) != frozen["files"][work["source_pdf_path"]]["sha256"]:
                 raise ValueError("PDF changed while preparing input packet")
             target.write_bytes(data)
-            for model in MODELS:
-                tasks.append(
-                    {
-                        "slug": work["slug"],
-                        "model_id": model["id"],
-                        "model": model["model"],
-                        "reasoning_effort": model["reasoning_effort"],
-                        "input_pdf_path": relative,
-                        "input_pdf_sha256": sha256(data),
-                        "instructions_sha256": sha256(prompt),
-                        "max_revision_passes": 2,
-                        "status": "not_run",
-                    }
-                )
+            for model in models:
+                task = {
+                    "slug": work["slug"],
+                    "model_id": model["id"],
+                    "model": model["model"],
+                    "reasoning_effort": model["reasoning_effort"],
+                    "input_pdf_path": relative,
+                    "input_pdf_sha256": sha256(data),
+                    "instructions_sha256": sha256(prompt),
+                    "max_revision_passes": (
+                        configuration["harness"]["max_revision_passes"] if configuration else 2
+                    ),
+                    "status": "not_run",
+                }
+                if configuration:
+                    task.update(
+                        {
+                            "provider": model["provider"],
+                            "adapter": model["adapter"],
+                            "settings": deepcopy(model["settings"]),
+                            "system_sha256": model["system_sha256"],
+                            "generation_sha256": generation["sha256"],
+                            "trial": trial,
+                        }
+                    )
+                    task["task_id"] = task_id(task)
+                tasks.append(task)
         contract = {
             "schema_version": 1,
             "source_policy": "pdf_only",
@@ -85,6 +120,14 @@ def prepare_inputs(frozen_root: Path, destination: Path) -> dict:
             "execution_status": "not_run",
             "tasks": tasks,
         }
+        if configuration:
+            contract.update(
+                schema_version=2,
+                config=configuration,
+                generation=generation,
+                systems=models,
+                trial=trial,
+            )
         payload = (json.dumps(contract, indent=2) + "\n").encode()
         (destination / "tasks.json").write_bytes(payload)
         (destination / "tasks.sha256").write_text(sha256(payload) + "\n")

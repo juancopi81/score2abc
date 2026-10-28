@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "id": "astra-terra-20261028-v1",
+  "evidence_kind": "actual_consumed_development",
+  "date": "2026-10-28",
+  "trial": 1,
+  "trial_policy": "one_attempt_per_piece_and_system; separate_reports_for_new_trials",
+  "report_sha256": "bbba9589b83a6b63637d12fa798fb07d4a27329b72f2351fb0061bd845799af5",
+  "frozen_reference_manifest_sha256": "ad1995ca51050202770f8ceeb6fc6fe03ee2d622cbbf042b5ad84e3ca27f722f",
+  "labels_manifest_sha256": "78fdfc98b28d0572d67e3050167fb6acad2f17923aaaf45a1119e648f09bdb28",
+  "generation_sha256": "c12eccee0c12f85b77bcc277227f7cf84330e100488b1f5488ad5e8106042569",
+  "generation_code_commit": "7b786668b7579aa1a5df7aad54c5256abe55d23d",
+  "versions": {
+    "dataset": {
+      "id": "reviewed-six-pdf-v1",
+      "sha256": "545c7640c2a24814464ec5b17060d2caf62899fd45cb7cf7c14f8616e4916151"
+    },
+    "harness": {
+      "id": "pdf-only-tool-less-v1",
+      "sha256": "eb9c0008e95817244f4c99244bc692c642b3acdd2c2f7cda9264b78232a15648"
+    },
+    "labels": {
+      "id": "reviewed_six_v3",
+      "sha256": "aa425227d9f5e1757ed05f3e698149d9d8bf0500781e364991b57b301c5046b0"
+    },
+    "grader": {
+      "id": "complete-score-v2",
+      "sha256": "06ce3f7ff59d4b427544e1c7fa7f85ab663125a71ebf13e5cc3acea25cdafa12"
+    },
+    "config": {
+      "id": "reviewed-six-astra-terra-v1",
+      "sha256": "221897e3d8da10827db427f4c58a555ab8180598b0adf7bd5a071dc6b0525ace"
+    }
+  },
+  "models": [
+    {
+      "adapter": "codex_subscription",
+      "id": "astra",
+      "label": "GPT-6 Astra",
+      "model": "gpt-6-astra",
+      "provider": "openai",
+      "reasoning_effort": "xhigh",
+      "settings": {},
+      "harness_version": "pdf-only-tool-less-v1",
+      "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa"
+    },
+    {
+      "adapter": "codex_subscription",
+      "id": "terra",
+      "label": "GPT-6.1 Terra",
+      "model": "gpt-6.1-terra",
+      "provider": "openai",
+      "reasoning_effort": "xhigh",
+      "settings": {},
+      "harness_version": "pdf-only-tool-less-v1",
+      "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869"
+    }
+  ],
+  "execution": {
+    "authentication": "chatgpt_subscription",
+    "api_key_billing": false,
+    "codex_cli_version": "0.164.0-alpha.11.1",
+    "deadline_seconds_per_call": 900,
+    "max_revision_passes": 2,
+    "max_parallel_tasks": 2,
+    "image_dpi": 160,
+    "images_per_page": "overview plus three overlapping vertical crops",
+    "model_tools": [],
+    "resolved_model_revision": null
+  },
+  "source_audit": {
+    "bars": 67,
+    "total_physical_bars": 312,
+    "noteheads": 268,
+    "status": "partial_model_assisted_visual_audit",
+    "new_human_approval": false,
+    "sampling": "purposive_consumed_development_not_representative"
+  },
+  "metric_definition": "Note F1 requires exact MIDI pitch, onset, written duration and tie after bar alignment; missing audited bars count as omissions.",
+  "limitations": [
+    "One trial per configuration and work; no reliability estimate.",
+    "Astra has no gradable scores within the fixed deadline; musical comparison is incomplete.",
+    "Source audit covers notes on 67/312 bars, not source rests, chords or form.",
+    "Edition agreement includes editorial choices; alternatives require musical adjudication.",
+    "Costs and unreported timeout token usage are unknown, never zero.",
+    "The fixed-image tool-free harness differs from the assisted collection workflow."
+  ],
+  "cases": [
+    {
+      "slug": "jaime-llanos_6_amalia_pasillo_joaquin-ariza",
+      "title": "Amalia",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 902.4327211249984,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 48,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 15,
+            "source_total_measures": 48
+          },
+          "run": {
+            "run_id": "jaime-llanos_6_amalia_pasillo_joaquin-ariza__astra__trial1",
+            "task_id": "9f05e385be4395ebea480df9aae09d8387a3d46dbd27bc29d2adcc30df1a3b02",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "18e298a6db2d2761a9938570e41ce4a2d25b291f0c5e4478ee17eb224ca7b13d"
+        },
+        "terra": {
+          "status": "complete",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.3333333333333333,
+            "edition_exact_bar_rate": 0.10416666666666667,
+            "source_note_f1": 0.3387096774193548,
+            "chord_f1": 0.8135593220338984,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 1.0,
+            "cost_usd": null,
+            "elapsed_seconds": 120.99525949999952,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 48,
+            "candidate_measures": 48,
+            "source_scored_measures": 15,
+            "paired_measures": 48,
+            "exact_measures": 5,
+            "alignment_columns": 48,
+            "meter_scored_measures": 48,
+            "meter_partial_measures": 0,
+            "source_eligible_measures": 15,
+            "source_total_measures": 48,
+            "source_matched_measures": 15,
+            "source_expected_noteheads": 62,
+            "source_predicted_noteheads": 62,
+            "source_matched_noteheads": 21,
+            "source_required_edition_measures": 48,
+            "source_aligned_required_measures": 48,
+            "edition_only_measures_excluded_from_completeness": 0
+          },
+          "run": {
+            "run_id": "jaime-llanos_6_amalia_pasillo_joaquin-ariza__terra__trial1",
+            "task_id": "35f91d89979f5767905fa124fe2987bc1a09e39fe4fcf989b93fe620112fecf0",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7256,
+              "output_tokens": 2339,
+              "reasoning_output_tokens": 1873
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7755,
+              "output_tokens": 3104,
+              "reasoning_output_tokens": 1866
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 8522,
+              "output_tokens": 1708,
+              "reasoning_output_tokens": 283
+            }
+          ],
+          "output_sha256": "930c542ba8829652621a5670984cf1782a8c117013e131ac5aa9d938aff779ee",
+          "decision_log_sha256": "cc5086e935b92742b804accb67267428d0111131a8964d204cf28db6bbd1c73f",
+          "run_record_sha256": "6f22e79b04fdcf69a28c6c140f09e50458396834d469abab8eb43f96aa4a9cce"
+        }
+      }
+    },
+    {
+      "slug": "jaime-llanos_10_atardecer_pasillo_carlos-vieco",
+      "title": "Atardecer",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 901.7307604590023,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 57,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 5,
+            "source_total_measures": 57
+          },
+          "run": {
+            "run_id": "jaime-llanos_10_atardecer_pasillo_carlos-vieco__astra__trial1",
+            "task_id": "3f8df99fec703e3ca2331e602425f948292e88dee5709afa35c85049fff6b047",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "7c641df6c3c0bc49faaa9db04edfe08cc2f334f264b6b9388e9479c1486028ef"
+        },
+        "terra": {
+          "status": "complete",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.3520710059171598,
+            "edition_exact_bar_rate": 0.08823529411764706,
+            "source_note_f1": 0.2597402597402597,
+            "chord_f1": 0.6567164179104478,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 1.0,
+            "cost_usd": null,
+            "elapsed_seconds": 51.57461474999582,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 57,
+            "candidate_measures": 68,
+            "source_scored_measures": 5,
+            "paired_measures": 57,
+            "exact_measures": 6,
+            "alignment_columns": 68,
+            "meter_scored_measures": 68,
+            "meter_partial_measures": 0,
+            "source_eligible_measures": 5,
+            "source_total_measures": 57,
+            "source_matched_measures": 5,
+            "source_expected_noteheads": 42,
+            "source_predicted_noteheads": 35,
+            "source_matched_noteheads": 10,
+            "source_required_edition_measures": 57,
+            "source_aligned_required_measures": 57,
+            "edition_only_measures_excluded_from_completeness": 0
+          },
+          "run": {
+            "run_id": "jaime-llanos_10_atardecer_pasillo_carlos-vieco__terra__trial1",
+            "task_id": "ee39241baa822b7505ef8330712ebdb2413ce190ab9c32c48cf22a94ca18dceb",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7252,
+              "output_tokens": 2791,
+              "reasoning_output_tokens": 870
+            }
+          ],
+          "output_sha256": "1e99919690582748a8ae08b56492ff952b77532d5a47095614908c06d6a1fe73",
+          "decision_log_sha256": "23253822a95e9c0209bc5b1acd2b99a102657c618e339f6e87c182878816843a",
+          "run_record_sha256": "c7dd35e30bdf78c56ec00d1a3798afc19ff961a252db6240c879217fd6565b2f"
+        }
+      }
+    },
+    {
+      "slug": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia",
+      "title": "Aviador",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 902.2310539590035,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 64,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 15,
+            "source_total_measures": 62
+          },
+          "run": {
+            "run_id": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia__astra__trial1",
+            "task_id": "7f7daac89d09aa3a382b9d280a91362fb19bddd183267a1dd2e0b1276336115d",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "5890e861ab6296c8082643610f14ded0ba28c2454b24e71a1196c9c4ff16631a"
+        },
+        "terra": {
+          "status": "partial",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.05223880597014925,
+            "edition_exact_bar_rate": 0.0,
+            "source_note_f1": 0.0,
+            "chord_f1": 0.0,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 0.03125,
+            "cost_usd": null,
+            "elapsed_seconds": 79.48993429200345,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 64,
+            "candidate_measures": 2,
+            "source_scored_measures": 15,
+            "paired_measures": 2,
+            "exact_measures": 0,
+            "alignment_columns": 64,
+            "meter_scored_measures": 2,
+            "meter_partial_measures": 0,
+            "source_eligible_measures": 15,
+            "source_total_measures": 62,
+            "source_matched_measures": 0,
+            "source_expected_noteheads": 47,
+            "source_predicted_noteheads": 0,
+            "source_matched_noteheads": 0,
+            "source_required_edition_measures": 62,
+            "source_aligned_required_measures": 2,
+            "edition_only_measures_excluded_from_completeness": 2
+          },
+          "run": {
+            "run_id": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia__terra__trial1",
+            "task_id": "83838b0ad1c6fa238c2bb09b0c584b0987c4bd7f7da0545ef46a26dee64a94e6",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7256,
+              "output_tokens": 1653,
+              "reasoning_output_tokens": 1226
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7750,
+              "output_tokens": 2566,
+              "reasoning_output_tokens": 1981
+            }
+          ],
+          "output_sha256": "dd3b1163f83c91b9ba2ecfc5898caaa21be33ed2bd81d538b0832a0aff7b557b",
+          "decision_log_sha256": "2a7e720447b1f3aa896b86f869e1702fdc3bb0a7f8ff5c7974fbed97195e7283",
+          "run_record_sha256": "ef4ef8f306d54df73b7a6238349cb2b0f69e0303934f9b26157686da84b67ff4"
+        }
+      }
+    },
+    {
+      "slug": "jaime-llanos_19_carrizal_pasillo_emilio-murillo",
+      "title": "Carrizal",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 902.1909017080034,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 48,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 13,
+            "source_total_measures": 48
+          },
+          "run": {
+            "run_id": "jaime-llanos_19_carrizal_pasillo_emilio-murillo__astra__trial1",
+            "task_id": "2871cf6b64d4f293efaa4959dc1f60336e97ee872b5038731ba1765ab06ed8ef",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "9c0cc8c061f73b7ee4fd3727437c35436f9b4609e8a47041258063c31915ad49"
+        },
+        "terra": {
+          "status": "complete",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.16990291262135923,
+            "edition_exact_bar_rate": 0.019230769230769232,
+            "source_note_f1": 0.13793103448275862,
+            "chord_f1": 0.4444444444444444,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 1.0,
+            "cost_usd": null,
+            "elapsed_seconds": 100.47897812500014,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 48,
+            "candidate_measures": 52,
+            "source_scored_measures": 13,
+            "paired_measures": 48,
+            "exact_measures": 1,
+            "alignment_columns": 52,
+            "meter_scored_measures": 52,
+            "meter_partial_measures": 0,
+            "source_eligible_measures": 13,
+            "source_total_measures": 48,
+            "source_matched_measures": 13,
+            "source_expected_noteheads": 36,
+            "source_predicted_noteheads": 51,
+            "source_matched_noteheads": 6,
+            "source_required_edition_measures": 48,
+            "source_aligned_required_measures": 48,
+            "edition_only_measures_excluded_from_completeness": 0
+          },
+          "run": {
+            "run_id": "jaime-llanos_19_carrizal_pasillo_emilio-murillo__terra__trial1",
+            "task_id": "cba666c5ff0810fb0bbecdb797ad753aa05e53503bf70d830d02a418aa067742",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7252,
+              "output_tokens": 2909,
+              "reasoning_output_tokens": 1371
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 9548,
+              "output_tokens": 3500,
+              "reasoning_output_tokens": 1550
+            }
+          ],
+          "output_sha256": "8250bffe7401e92763020f4d1ccc997a2f10eaa91aad56b05fa88ae7f0271cc2",
+          "decision_log_sha256": "74588e16ab86fa1298a1a7b47165428c253ff834a47f19af314ae1c921d6782c",
+          "run_record_sha256": "6db9515c0ee7e127d6a0b24b1994d2dc77d9ac1615fcded2565a0309d36807df"
+        }
+      }
+    },
+    {
+      "slug": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia",
+      "title": "Coqueteos",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 902.677034625005,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 52,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 10,
+            "source_total_measures": 52
+          },
+          "run": {
+            "run_id": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia__astra__trial1",
+            "task_id": "4b3327d38e21e9946ac1d62b4ba51e0f4eec99944b88bf475a9bf4cbffb719ce",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "d730c15748d01dddfa28f479e736345e91770249f23a83a93a617b9654d2c193"
+        },
+        "terra": {
+          "status": "partial",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.266384778012685,
+            "edition_exact_bar_rate": 0.08928571428571429,
+            "source_note_f1": 0.2857142857142857,
+            "chord_f1": 0.6428571428571429,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 0.9807692307692307,
+            "cost_usd": null,
+            "elapsed_seconds": 95.91063570799452,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 52,
+            "candidate_measures": 55,
+            "source_scored_measures": 10,
+            "paired_measures": 51,
+            "exact_measures": 5,
+            "alignment_columns": 56,
+            "meter_scored_measures": 55,
+            "meter_partial_measures": 0,
+            "source_eligible_measures": 10,
+            "source_total_measures": 52,
+            "source_matched_measures": 10,
+            "source_expected_noteheads": 45,
+            "source_predicted_noteheads": 46,
+            "source_matched_noteheads": 13,
+            "source_required_edition_measures": 52,
+            "source_aligned_required_measures": 51,
+            "edition_only_measures_excluded_from_completeness": 0
+          },
+          "run": {
+            "run_id": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia__terra__trial1",
+            "task_id": "c06c3bd00f1311c506cd13e273500ec53cb82e274a37df5df3b84a8dea78c6ce",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7256,
+              "output_tokens": 2984,
+              "reasoning_output_tokens": 1228
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 9107,
+              "output_tokens": 3401,
+              "reasoning_output_tokens": 1097
+            }
+          ],
+          "output_sha256": "85924e148dfa919aef5b748b8d9750842b82a4685a05438ec5f0327a398149ad",
+          "decision_log_sha256": "23632fedb20e4070c4308e49d1fe6d91b61f5a24df84b3d8e9ca0d6090fb26bb",
+          "run_record_sha256": "fd29158f1c2512107f5749d721e0e89d4c3e4a29b39c35e7fe4f271323d84a63"
+        }
+      }
+    },
+    {
+      "slug": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo",
+      "title": "Rumichaca",
+      "results": {
+        "astra": {
+          "status": "failed",
+          "failure_reason": "deadline_exceeded",
+          "metrics": {
+            "edition_note_f1": null,
+            "edition_exact_bar_rate": null,
+            "source_note_f1": null,
+            "chord_f1": null,
+            "form_exact_match": null,
+            "meter_valid_rate": null,
+            "bar_coverage": null,
+            "cost_usd": null,
+            "elapsed_seconds": 902.2250265420007,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "run_failed",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 45,
+            "candidate_measures": null,
+            "source_scored_measures": 0,
+            "source_eligible_measures": 9,
+            "source_total_measures": 45
+          },
+          "run": {
+            "run_id": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo__astra__trial1",
+            "task_id": "09cff5889222077e637dfbbf26bccc2d6449d5b416f9143c43e9afb41fd2d675",
+            "trial": 1,
+            "system_sha256": "4f0f1de8a578c80469826734ade9927e88d24b941aad18c7fa95fbd537104aaa",
+            "model": "gpt-6-astra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            null
+          ],
+          "output_sha256": null,
+          "decision_log_sha256": null,
+          "run_record_sha256": "9907b54dc7bb4c662cbc4f3e8fa014415fa666645f1a97e46a8dcb7f9e5a4fec"
+        },
+        "terra": {
+          "status": "partial",
+          "failure_reason": null,
+          "metrics": {
+            "edition_note_f1": 0.41379310344827586,
+            "edition_exact_bar_rate": 0.0,
+            "source_note_f1": 0.410958904109589,
+            "chord_f1": 0.5135135135135135,
+            "form_exact_match": false,
+            "meter_valid_rate": 1.0,
+            "bar_coverage": 1.0,
+            "cost_usd": null,
+            "elapsed_seconds": 120.5187954159992,
+            "human_review_minutes": null,
+            "editorial_acceptance": null
+          },
+          "metric_status": {
+            "source_note_f1": "model_audited_source_subset",
+            "editorial_acceptance": "requires_musical_adjudication",
+            "form_exact_match": "edition_route_only",
+            "elapsed_seconds": "monotonic_clock"
+          },
+          "coverage": {
+            "reference_measures": 45,
+            "candidate_measures": 51,
+            "source_scored_measures": 9,
+            "paired_measures": 45,
+            "exact_measures": 0,
+            "alignment_columns": 51,
+            "meter_scored_measures": 50,
+            "meter_partial_measures": 1,
+            "source_eligible_measures": 9,
+            "source_total_measures": 45,
+            "source_matched_measures": 9,
+            "source_expected_noteheads": 36,
+            "source_predicted_noteheads": 37,
+            "source_matched_noteheads": 15,
+            "source_required_edition_measures": 45,
+            "source_aligned_required_measures": 45,
+            "edition_only_measures_excluded_from_completeness": 0
+          },
+          "run": {
+            "run_id": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo__terra__trial1",
+            "task_id": "cd5b86b395bb1da025b87f1db1bc9742294d690e56802e1ff427117115de5559",
+            "trial": 1,
+            "system_sha256": "ba24f5713f03b8343f2e59ddfcd91405063194f33b9e3c85a929729889c02869",
+            "model": "gpt-6.1-terra",
+            "resolved_model": null,
+            "provider": "openai",
+            "adapter": "codex_subscription"
+          },
+          "usage": [
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 7256,
+              "output_tokens": 3450,
+              "reasoning_output_tokens": 1482
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 9194,
+              "output_tokens": 2307,
+              "reasoning_output_tokens": 192
+            },
+            {
+              "cache_write_input_tokens": 0,
+              "cached_input_tokens": 0,
+              "input_tokens": 9331,
+              "output_tokens": 3446,
+              "reasoning_output_tokens": 1145
+            }
+          ],
+          "output_sha256": "470748fa624b2070d60edef3f6e0d44eb846eb317a6c5e44c95d8233c63b119a",
+          "decision_log_sha256": "f59437597fe904e10383cea6ea029c48d3f44f2f74a7d23c5a8a5942dbb23e61",
+          "run_record_sha256": "98929e3805083d58540e67f045bf0474ca0e232aa34d801b78a7bb8457eec60d"
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "astra": {
+      "statuses": {
+        "complete": 0,
+        "partial": 0,
+        "failed": 6
+      },
+      "metrics": {
+        "source_note_f1": {
+          "macro_mean": null,
+          "measured_pieces": 0,
+          "includes_partial_drafts": true
+        },
+        "edition_note_f1": {
+          "macro_mean": null,
+          "measured_pieces": 0,
+          "includes_partial_drafts": true
+        },
+        "chord_f1": {
+          "macro_mean": null,
+          "measured_pieces": 0,
+          "includes_partial_drafts": true
+        },
+        "meter_valid_rate": {
+          "macro_mean": null,
+          "measured_pieces": 0,
+          "includes_partial_drafts": true
+        }
+      },
+      "elapsed_seconds_sum": 5413.487498418013,
+      "known_token_total": null,
+      "known_usage_attempts": 0,
+      "total_attempts": 6,
+      "cost_usd": null
+    },
+    "terra": {
+      "statuses": {
+        "complete": 3,
+        "partial": 3,
+        "failed": 0
+      },
+      "metrics": {
+        "source_note_f1": {
+          "macro_mean": 0.23884236024437464,
+          "measured_pieces": 6,
+          "includes_partial_drafts": true
+        },
+        "edition_note_f1": {
+          "macro_mean": 0.2646206565504937,
+          "measured_pieces": 6,
+          "includes_partial_drafts": true
+        },
+        "chord_f1": {
+          "macro_mean": 0.5118484734599078,
+          "measured_pieces": 6,
+          "includes_partial_drafts": true
+        },
+        "meter_valid_rate": {
+          "macro_mean": 1.0,
+          "measured_pieces": 6,
+          "includes_partial_drafts": true
+        }
+      },
+      "elapsed_seconds_sum": 568.9682177909926,
+      "known_token_total": 140893,
+      "known_usage_attempts": 13,
+      "total_attempts": 13,
+      "cost_usd": null
+    }
+  }
+}

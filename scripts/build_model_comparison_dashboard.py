@@ -1,4 +1,4 @@
-"""Build an offline Astra–Terra comparison dashboard from a versioned report."""
+"""Build an offline configuration comparison dashboard from a versioned report."""
 
 from __future__ import annotations
 

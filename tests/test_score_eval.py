@@ -212,6 +212,24 @@ def test_registered_run_keeps_unmeasured_cost_and_source_accuracy_null(tmp_path,
     assert report["cases"][0]["results"]["terra"]["status"] == "not_run"
 
 
+@pytest.mark.parametrize("pinned_usage", [None, [{"input_tokens": 40, "output_tokens": 10}, None]])
+def test_legacy_registry_only_usage_is_ignored_without_blocking_report(
+    tmp_path, monkeypatch, pinned_usage
+):
+    record, run, _ = registry_fixture(tmp_path, monkeypatch)
+    record["usage"] = {"input_tokens": 100, "output_tokens": 20}
+    if pinned_usage is not None:
+        path = tmp_path / "run.json"
+        trace = json.loads(path.read_text())
+        trace["usage"] = pinned_usage
+        path.write_text(json.dumps(trace))
+        record["run_record_sha256"] = _sha(path.read_bytes())
+    result = run([record])["cases"][0]["results"]["astra"]
+    assert result["status"] == "complete"
+    assert result["usage"] == (pinned_usage if pinned_usage is not None else [])
+    assert result["metrics"]["cost_usd"] is None
+
+
 def test_unbacked_cost_is_rejected_and_pinned_provider_cost_is_preserved(tmp_path, monkeypatch):
     record, run, _ = registry_fixture(tmp_path, monkeypatch)
     record["cost_usd"] = 0.25
