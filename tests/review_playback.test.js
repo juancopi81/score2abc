@@ -26,6 +26,81 @@ test('overlapping voices highlight both sounding symbols', () => {
   assert.deepEqual(playback.activeAt(events, 2).map(e => e.index), [4]);
 });
 
+test('selection clips overlapping voices and chords, preserves polyphony and final rests without mutation', () => {
+  const audio = [
+    [0, 0, -1, 121, 0, 1], [2, 0, 0, 55, 4, 1, 'held voice'],
+    [6, 0, 0, 60, 2, 1], [10, 2, 0, 64, 1, 1], [10, 2, 0, 67, 1, 1],
+    [14, 3, 0, 0, 2, 0], [18, 5, 0, 72, 1, 1], [22, 6, 0, 0, 3, 0],
+  ];
+  const chords = [{index: 6, start: 0, duration: 3, pitches: [48, 52, 55], symbol: 'C'},
+    {index: 18, start: 5, duration: 1, pitches: [55, 59, 62], symbol: 'G'}];
+  const visual = playback.timeline(audio);
+  const before = JSON.stringify([audio, chords, visual]);
+  for (const event of audio) Object.freeze(event);
+  for (const event of chords) { Object.freeze(event.pitches); Object.freeze(event); }
+  visual.forEach(Object.freeze);
+  [audio, chords, visual].forEach(Object.freeze);
+  const selected = playback.fromSelection(audio, chords, visual, 10);
+  assert.equal(selected.start, 2); assert.equal(selected.end, 7);
+  assert.deepEqual(selected.audioEvents, [
+    [2, 0, 0, 55, 2, 1, 'held voice'], [10, 0, 0, 64, 1, 1], [10, 0, 0, 67, 1, 1],
+    [14, 1, 0, 0, 2, 0], [18, 3, 0, 72, 1, 1], [22, 4, 0, 0, 3, 0],
+  ]);
+  assert.deepEqual(selected.chordEvents, [
+    {index: 6, start: 0, duration: 1, pitches: [48, 52, 55], symbol: 'C'},
+    {index: 18, start: 3, duration: 1, pitches: [55, 59, 62], symbol: 'G'},
+  ]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, 0).map(event => event.index), [2, 10]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, 4).map(event => event.index), [22]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, 7), []);
+  assert.equal(JSON.stringify([audio, chords, visual]), before);
+  assert.notEqual(selected.audioEvents[0], audio[1]);
+  assert.notEqual(selected.chordEvents[0].pitches, chords[0].pitches);
+  assert.notEqual(selected.visualEvents[0], visual[0]);
+});
+
+test('selection uses the earliest valid performed occurrence, including source index zero', () => {
+  const audio = [[0, 4, 0, 60, 1, 1], [0, 1, 0, 60, 1, 1]];
+  const visual = [{index: 0, start: 4, end: 5}, {index: 0, start: -1, end: 1},
+    {index: 0, start: .5, end: .5}, {index: 0, start: NaN, end: 2},
+    {index: 0, start: 1, end: 2}];
+  const selected = playback.fromSelection(audio, [], visual, 0);
+  assert.equal(selected.start, 1); assert.equal(selected.end, 4);
+  assert.deepEqual(selected.audioEvents.map(event => event[1]), [3, 0]);
+  for (const index of [undefined, null, -1, 1.5, NaN, Infinity, '0', 999]) {
+    assert.equal(playback.fromSelection(audio, [], visual, index), null);
+  }
+  assert.equal(playback.fromSelection(audio, [], [], 0), null);
+  assert.equal(playback.fromSelection(audio, [], [{index: 0, start: 2, end: 1}], 0), null);
+  assert.equal(playback.fromSelection(null, [], visual, 0), null);
+  assert.equal(playback.fromSelection(audio, null, visual, 0), null);
+  assert.equal(playback.fromSelection(audio, [], null, 0), null);
+});
+
+test('selection retains silent rests without inventing melody or inherited accompaniment', () => {
+  const audio = [[2, 0, 0, 60, 1, 1], [8, 1, 0, 0, 2, 0]];
+  const chords = [{start: 0, duration: 1, pitches: [48, 52, 55], symbol: 'C', index: 2}];
+  const selected = playback.fromSelection(audio, chords, playback.timeline(audio), 8);
+  assert.deepEqual(selected.audioEvents, [[8, 0, 0, 0, 2, 0]]);
+  assert.deepEqual(selected.chordEvents, []);
+  assert.deepEqual(selected.visualEvents, [{index: 8, start: 0, end: 2}]);
+  assert.equal(selected.start, 1); assert.equal(selected.end, 2);
+});
+
+test('selection clips the original bounded holds rather than extending them after rebasing', () => {
+  const audio = [[2, 0, 0, 60, 100, 1], [8, 50, 0, 67, 1, 1],
+    [16, 70, 0, 72, -1, 1], [17, 70, -1, 72, 1, 1], [18, NaN, 0, 72, 1, 1]];
+  const selected = playback.fromSelection(audio, [], playback.timeline(audio), 8);
+  assert.deepEqual(selected.audioEvents, [[2, 0, 0, 60, 10, 1], [8, 0, 0, 67, 1, 1]]);
+  assert.equal(selected.end, 10);
+  const boundedChord = playback.fromSelection([], [
+    {start: 1795, duration: 20, pitches: [48, 52, 55], symbol: 'C', index: 2},
+    {start: 1790, duration: 20, pitches: [], symbol: 'N.C.', index: 3},
+  ], [{index: 8, start: 1798, end: 1799}], 8);
+  assert.equal(boundedChord.chordEvents[0].duration, 2);
+  assert.equal(boundedChord.end, 2);
+});
+
 const renderer = process.env.SCORE2ABC_TEST_RENDERER;
 function engine() {
   const context = vm.createContext({});
@@ -172,9 +247,80 @@ function sound(text) {
   return result.filter(e => e[2] >= 0 && e[3] > 0 && e[5] > 0);
 }
 
+function performance(text) {
+  const context = engine(); let audioEvents;
+  new context.abc2svg.Abc({img_out() {}, get_abcmodel(first, voices) {
+    audioEvents = playback.audioEvents(context.ToAudio, first, voices, context.abc2svg.C);
+  }}).tosvg('selection-performance', text);
+  const visualEvents = playback.writtenEvents(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text);
+  const chordEvents = playback.accompaniment(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text).events;
+  return {audioEvents, chordEvents, visualEvents};
+}
+
+test('selecting a tied continuation sounds both held heads once for their remaining duration', {skip: !renderer}, () => {
+  const text = 'X:1\nM:4/4\nL:1/4\nQ:1/4=60\nK:C\n' +
+    '"Dm"[Dc]2- [Dc]2 | z4 |\n';
+  const first = text.indexOf('[Dc]'), continuation = text.indexOf('[Dc]', first + 1);
+  const streams = performance(text);
+  const before = JSON.stringify(streams);
+  const selected = playback.fromSelection(streams.audioEvents, streams.chordEvents, streams.visualEvents, continuation);
+  assert.equal(selected.start, 2); assert.equal(selected.end, 6);
+  assert.deepEqual(selected.audioEvents.filter(event => event[3] > 0).map(event =>
+    [event[0], event[1], event[3], event[4]]).sort((a, b) => a[2] - b[2]), [
+    [first, 0, 62, 2], [first, 0, 72, 2],
+  ]);
+  assert.deepEqual(selected.chordEvents.map(event => [event.start, event.duration, event.symbol]), [[0, 2, 'Dm']]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, 0).map(event => event.index), [continuation]);
+  assert.equal(JSON.stringify(streams), before);
+});
+
+test('selecting an in-bar rest keeps its silence and active chord, then leaves the unmarked bar silent', {skip: !renderer}, () => {
+  const text = 'X:1\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n"C"C z D | E z2 |]\n';
+  const streams = performance(text), rest = text.indexOf(' z ') + 1;
+  const selected = playback.fromSelection(streams.audioEvents, streams.chordEvents, streams.visualEvents, rest);
+  assert.equal(selected.start, 1); assert.equal(selected.end, 5);
+  assert.deepEqual(selected.audioEvents.filter(event => event[3] > 0).map(event =>
+    [event[1], event[3], event[4]]), [[1, 62, 1], [2, 64, 1]]);
+  assert.deepEqual(selected.chordEvents.map(event => [event.start, event.duration, event.symbol]), [[0, 2, 'C']]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, .5).map(event => event.index), [rest]);
+  assert.deepEqual(playback.activeAt(selected.visualEvents, 4).map(event => event.index), [text.indexOf('z2')]);
+  const silentBar = playback.fromSelection(streams.audioEvents, streams.chordEvents,
+    streams.visualEvents, text.indexOf('E z2'));
+  assert.deepEqual(silentBar.chordEvents, []);
+});
+
+test('selection in ordinary repeats keeps the first visit, repeat return and second ending', {skip: !renderer}, () => {
+  const text = 'X:1\nM:2/4\nL:1/4\nQ:1/4=60\nK:C\n|: "C"C D |1 "G"E z :|2 F G |]\n';
+  const streams = performance(text), index = text.indexOf('D |1');
+  const selected = playback.fromSelection(streams.audioEvents, streams.chordEvents, streams.visualEvents, index);
+  assert.equal(selected.start, 1); assert.equal(selected.end, 7);
+  assert.deepEqual(selected.audioEvents.filter(event => event[3] > 0).map(event =>
+    [event[1], event[3]]), [[0, 62], [1, 64], [3, 60], [4, 62], [5, 65], [6, 67]]);
+  assert.deepEqual(selected.visualEvents.map(event => [event.start, event.index]),
+    [[0, index], [1, text.indexOf('E z')], [2, text.indexOf('z :|')],
+      [3, text.indexOf('C D')], [4, index], [5, text.indexOf('F G')], [6, text.indexOf('G |]')]]);
+  assert.deepEqual(selected.chordEvents.map(event => [event.start, event.duration, event.symbol]),
+    [[0, 1, 'C'], [1, 2, 'G'], [3, 2, 'C']]);
+});
+
 const repeatedSections = 'X:1\nP:AB AC DE DF AC DF\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
   'P:A\n|: "C"C3 |\nP:B\n[1 "G"D3 :|\nP:C\n[2 "Am"E3 ||\n' +
   'P:D\n|: "F"F3 |\nP:E\n[1 "Dm"G3 :|\nP:F\n[2 "G7"A3 |]\n';
+
+test('selection keeps the complete explicit part-route suffix and rejects an unperformed part', {skip: !renderer}, () => {
+  const streams = performance(repeatedSections), index = repeatedSections.indexOf('E3');
+  const selected = playback.fromSelection(streams.audioEvents, streams.chordEvents, streams.visualEvents, index);
+  assert.equal(selected.start, 9); assert.equal(selected.end, 27);
+  assert.deepEqual(selected.audioEvents.filter(event => event[3] > 0).map(event =>
+    [event[1], event[3]]), [64, 65, 67, 65, 69, 60, 64, 65, 69].map((pitch, i) => [i * 3, pitch]));
+  assert.deepEqual(selected.chordEvents.map(event => [event.start, event.symbol]),
+    ['Am', 'F', 'Dm', 'F', 'G7', 'C', 'Am', 'F', 'G7'].map((symbol, i) => [i * 3, symbol]));
+  assert.deepEqual(selected.visualEvents.filter(event => event.index === index).map(event => event.start), [0, 18]);
+  const text = 'X:1\nP:AA\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\nP:A\nC3 |\nP:B\nD3 |]\n';
+  const unplayed = performance(text);
+  assert.equal(playback.fromSelection(unplayed.audioEvents, unplayed.chordEvents,
+    unplayed.visualEvents, text.indexOf('D3')), null);
+});
 
 test('section order owns repeated bars and both endings, including the final return without repeats', {skip: !renderer}, () => {
   const text = repeatedSections;

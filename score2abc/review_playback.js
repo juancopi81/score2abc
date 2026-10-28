@@ -177,6 +177,57 @@ const ReviewPlayback = (() => {
     return events.filter(event => event.start <= seconds && seconds < event.end);
   }
 
+  function fromSelection(audioEvents, chordEvents, visualEvents, sourceIndex) {
+    if (!Number.isInteger(sourceIndex) || sourceIndex < 0 ||
+        ![audioEvents, chordEvents, visualEvents].every(Array.isArray)) return null;
+    const validVisual = event => event && Number.isInteger(event.index) && event.index >= 0 &&
+      [event.start, event.end].every(Number.isFinite) && event.start >= 0 &&
+      event.start <= 1800 && event.end > event.start;
+    // One written symbol can occur several times. A selection always starts at
+    // its first performed visit and keeps the existing route's complete suffix.
+    const start = visualEvents.reduce((first, event) => validVisual(event) &&
+      event.index === sourceIndex ? Math.min(first, event.start) : first, Infinity);
+    if (!Number.isFinite(start)) return null;
+    const audio = [];
+    for (const event of audioEvents) {
+      if (!Array.isArray(event)) continue;
+      const [index, time, instrument, pitch, duration, volume] = event;
+      if (![index, time, instrument, pitch, duration, volume].every(Number.isFinite) ||
+          !Number.isInteger(index) || index < 0 || time < 0 || time > 1800 ||
+          instrument < 0 || duration <= 0 ||
+          !((pitch > 0 && volume > 0) || (pitch === 0 && volume === 0))) continue;
+      // Apply the player's hold limit before clipping, so a selection cannot
+      // extend an already capped note or retrigger each written tie continuation.
+      const end = time + Math.min(duration, 60);
+      if (end <= start) continue;
+      const copy = [...event], onset = Math.max(time, start);
+      copy[1] = onset - start; copy[4] = end - onset;
+      audio.push(copy);
+    }
+    const chords = [];
+    for (const event of chordEvents) {
+      if (!event || ![event.start, event.duration].every(Number.isFinite) ||
+          event.start < 0 || event.start > 1800 || event.duration <= 0 ||
+          !Array.isArray(event.pitches) || !event.pitches.some(pitch =>
+            Number.isFinite(pitch) && pitch > 0 && pitch < 128)) continue;
+      // Accompaniment is already bar-limited; never infer a chord in a gap.
+      const end = event.start + Math.min(event.duration, 1800 - event.start);
+      if (end <= start) continue;
+      const onset = Math.max(event.start, start);
+      chords.push({...event, pitches: [...event.pitches], start: onset - start,
+        duration: end - onset});
+    }
+    const visual = visualEvents.filter(event => validVisual(event) && event.end > start)
+      .map(event => ({...event, start: Math.max(event.start, start) - start, end: event.end - start}));
+    // start is an original score-clock offset. end is the rebased remaining
+    // duration, including final rests; every returned stream uses seconds from 0.
+    const end = Math.max(
+      audio.reduce((last, event) => Math.max(last, event[1] + event[4]), 0),
+      chords.reduce((last, event) => Math.max(last, event.start + event.duration), 0),
+      visual.reduce((last, event) => Math.max(last, event.end), 0));
+    return {audioEvents: audio, chordEvents: chords, visualEvents: visual, start, end};
+  }
+
   function writtenEvents(Abc, Audio, constants, text) {
     let events = [];
     // Parse a separate display model: audio keeps its ties, while the cursor moves
@@ -310,7 +361,7 @@ const ReviewPlayback = (() => {
     return {events: result, warnings: [...warnings]};
   }
 
-  return {initialBpm, repeatWarning, playbackWarning, audioEvents, timeline, activeAt, writtenEvents, accompaniment};
+  return {initialBpm, repeatWarning, playbackWarning, audioEvents, timeline, activeAt, fromSelection, writtenEvents, accompaniment};
 })();
 
 if (typeof module === "object") module.exports = ReviewPlayback;

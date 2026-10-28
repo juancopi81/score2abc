@@ -3,20 +3,24 @@
 Goal: finish the 100-melody collection through assisted transcription and human
 musical review. A complete, source-checked score is the unit of delivery.
 
-Current review checkpoint — October 27, 2026: Amalia, Carrizal, Coqueteos,
-Atardecer and Rumichaca are musician-reviewed. Their presentation follows the
-[shared form convention](FORM_NOTATION.md), preserving the approved music and
-routes. Aviador's earlier musical review is retained, with two later form
-decisions still pending in its current draft.
+Current review checkpoint — October 28, 2026: **six** scores are musician-reviewed:
+Amalia (revision 24), Atardecer (18), Aviador (18), Carrizal (5), Coqueteos (15)
+and Rumichaca (10). All six have valid notation, zero unresolved questions and
+verified available revision histories. Seven other saved scores remain drafts.
+The [shared form convention](FORM_NOTATION.md) applies to future delivery.
+The [October 28 checkpoint](CHECKPOINT_20261028.md) records exact revisions,
+separate data backup and the evaluation boundary.
+
+Aviador's latest approval includes Juan's chosen `AABACC` route, an editorial
+opening rest, Trío harmony and two added B cadence bars. These are accepted
+performing-edition choices, not newly recovered source ink. Coqueteos's approved
+route includes destination-specific ending connections. Earlier pending-form
+handoffs below are historical and superseded by these saved approvals.
 
 Earlier handoff: [audited editorial drafts, October 22](EDITORIAL_BATCH_20261022.md).
 At that delivery the local queue contained ten pending drafts and three reviewed
-scores: Aviador, Carrizal, and Amalia. The subsequent
-[form check](FORM_REVIEW_20261022.md) preserves Carrizal and adds an Aviador form-only
-draft with two targeted questions; the desk shows the current review counts.
-Coqueteos's subsequent first-pass edits and selected editorial form are preserved
-in revision 12, including the destination-specific ending corrections from his
-audition; the two corrected connections await the targeted check described there.
+scores. The [form check](FORM_REVIEW_20261022.md) and subsequent reviews preserve
+the decisions leading to the current checkpoint.
 The [October 3](COLLECTION_BATCH_20261003.md) and
 [September 22](COLLECTION_BATCH_20260922.md) submissions remain preserved.
 The [editorial protocol](EDITORIAL_TRANSCRIPTION_PROTOCOL.md) separates source
@@ -71,6 +75,15 @@ Compare page/system images with notation, edit ABC and chord symbols, listen,
 record unresolved questions, save, reopen, and export. Only mark a score reviewed
 after checking its complete music. The first UI has text editing and selectable
 rendered symbols; it is not a graphical engraving editor.
+Small numbers at later system starts identify written measures, counting both
+alternate endings once, independently of repeated playback visits.
+
+Click a note or rest, then **Play from here**, to hear the remaining performance
+route from that symbol's first performed visit. Clicking also selects its exact
+ABC text without starting audio. **Play** always starts at the beginning.
+The selected start survives Stop, tempo changes, saving and preview resizing;
+editing or opening another work clears it. It is a listening control and is not
+saved in the transcription.
 
 Playback highlights each written note/group and rest, including tied
 continuations, and follows it in the notation when “Follow playback” is checked.
@@ -154,8 +167,9 @@ Complete-score delivery includes ordinary repeats and first/second endings
 duplicating bars in the archival ABC. The current renderer/player accepts ABC
 repeat and ending syntax. Follow the [form convention](FORM_NOTATION.md) for
 labels, brackets and exceptional returns. Aviador's October 22 form proposal uses
-an explicit ABAC route pending two source/editorial decisions; Carrizal's existing repeats
-were independently verified. Confirm the form before publication. Retain
+an explicit ABAC route that was subsequently replaced by Juan's approved
+editorial AABACC route on October 28; Carrizal's existing repeats were independently
+verified. Confirm the form before publication. Retain
 D.C., D.S., Fine and related directions as source annotations; automatic complex
 navigation and an editorial-version UI are deferred. Listening through a linear
 draft does not verify the performed form.
