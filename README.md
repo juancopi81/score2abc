@@ -36,6 +36,24 @@ experiments](docs/EVAL_COMPARISON_20261028.md) and [portable metrics/version
 identities](docs/eval/astra_terra_20261028_v1.json).
 Subscription token usage is recorded when reported; USD cost remains unknown.
 
+A separate [source-inspection reproduction pilot](docs/ASTRA_BASELINE_REPRODUCTION.md)
+restored adaptive PDF crops, notation checks and a fresh independent Astra reader:
+
+| Target | Initial AI draft | After independent AI review |
+| --- | ---: | ---: |
+| Aviador's seven bars, exact note/rest matches | 6/7 | 7/7 |
+| Rumichaca, note F1 against the complete performing edition | 0.881 | 0.935 |
+
+Rumichaca returned all 45 bars in both stages. Its separate nine-bar source audit
+matched 35/36 note events in both; this does not measure whole-score source
+accuracy. Chord-event agreement was 0.703 and the performance routes differed
+from the approved edition. The [findings](docs/ASTRA_BASELINE_REPRODUCTION.md)
+explain harmony-repeat encoding and editorial form choices. Total model-run time
+was 14m 46s for Aviador and 57m 43s for Rumichaca, including independent review.
+These results use a different harness and longer stage limits; no Terra run was
+made under it. [Portable metrics and provenance](docs/eval/astra_workflow_reproduction_20261028_v1.json)
+remain separate from the tool-free cohort above.
+
 Earlier, narrower experiments provide useful evidence:
 
 | Experiment | Observed result | Scope |
