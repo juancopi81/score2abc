@@ -27,7 +27,10 @@ RATE_METRICS = {
         "Exact notation bar agreement with the reviewed edition",
     ),
     "chord_f1": ("Edition chords", "Chord-symbol agreement with the reviewed edition"),
-    "meter_valid_rate": ("Meter valid", "Share of candidate bars passing meter validation"),
+    "meter_valid_rate": (
+        "Meter valid",
+        "Share of scored candidate bars passing meter validation; partial bars are excluded",
+    ),
     "bar_coverage": (
         "Bars aligned",
         "Share of reviewed edition bars aligned; not content accuracy",
@@ -72,7 +75,7 @@ main{padding-top:17px!important;padding-bottom:50px!important}h2{font-size:1.5re
 .model-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:12px 0 35px}.model-summary article{background:#F3F8FB;border-top:3px solid var(--teal);padding:13px 17px}.model-summary h3{color:var(--ink);font-size:1.13rem;margin:0 0 8px}.model-summary dl{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:0;font-variant-numeric:tabular-nums}.model-summary dt{color:var(--muted)}.model-summary dd{margin:0;color:var(--ink);font-weight:700}.model-summary p{font-size:.8rem;color:var(--muted);margin:9px 0 0}
 .details{margin:25px 0 35px}.piece{border-bottom:1px solid var(--line)}.piece summary{cursor:pointer;padding:14px 8px;color:var(--ink);font-weight:700;font-size:1.05rem}.piece summary:hover,.piece[open] summary{background:var(--soft)}.piece-body{padding:2px 12px 20px;border-left:3px solid var(--teal);margin-left:8px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:25px}.pair h3{font-size:1rem;color:var(--ink);margin:8px 0}.pair p{margin-bottom:9px}.pair ul{margin:5px 0 17px;padding-left:20px}.pair li{margin-bottom:7px;overflow-wrap:anywhere}.links{display:flex;flex-wrap:wrap;gap:9px 17px}.quiet{color:var(--muted)}.callout{background:#F3F8FB;border-left:3px solid var(--ink);padding:13px 17px;max-width:90ch}.callout strong{color:var(--ink)}
 .reference-decisions{border-top:1px solid var(--line);margin-top:15px;padding-top:8px}.reference-decisions summary{font-size:.92rem;padding:6px 3px}.reference-decisions ul{padding-left:22px}.reference-decisions li{margin-bottom:10px;max-width:88ch}.reference-decisions small{display:block;color:var(--muted)}
-.versions{margin:15px 0;color:var(--muted);font-size:.85rem}.versions summary{cursor:pointer;color:var(--ink)}.versions dl{display:grid;grid-template-columns:100px 1fr;gap:5px 12px}.versions dd{margin:0;overflow-wrap:anywhere}.config{display:block;color:var(--muted);font-size:.76rem;font-weight:400;max-width:30ch;overflow-wrap:anywhere}.config-list{display:flex;flex-wrap:wrap;gap:10px 25px;margin:15px 0}.config-list p{margin:0;max-width:40ch}.pair{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}.model-summary{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+.versions{margin:15px 0;color:var(--muted);font-size:.85rem}.versions summary{cursor:pointer;color:var(--ink)}.versions dl{display:grid;grid-template-columns:100px 1fr;gap:5px 12px}.versions dd{margin:0;overflow-wrap:anywhere}.config{display:block;color:var(--muted);font-size:.76rem;font-weight:400;max-width:30ch;overflow-wrap:anywhere}.config-list{display:flex;flex-wrap:wrap;gap:10px 25px;margin:15px 0}.config-list p{margin:0;max-width:40ch}.pair{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}.model-summary{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));row-gap:8px}.model-summary article{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:subgrid;grid-row:span 10;column-gap:12px}.model-summary article h3,.model-summary article p{grid-column:1/-1}.model-summary article dl{display:contents}
 footer{border-top:1px solid var(--line);padding:17px 0 24px;color:var(--muted);font-size:.83rem}
 @media(max-width:760px){.wrap{padding:0 17px}.folio{display:block}.verdict,.pair,.summary-grid,.model-summary{grid-template-columns:1fr}.verdict{gap:6px}.coverage{gap:6px}}
 """
@@ -230,6 +233,19 @@ def _amount(value: object, unit: str, precision: int = 1) -> str:
     return f"{value:.{precision}f}{unit}" if value is not None else '<span class="unknown">—</span>'
 
 
+def _duration(value: float | None) -> str:
+    if value is not None and value >= 60:
+        return _amount(value / 60, " min")
+    return _amount(value, " s", 0)
+
+
+def _status_label(result: dict) -> str:
+    error = str(result.get("error") or "").lower()
+    if result["status"] == "failed" and ("deadline exceeded" in error or "timed out" in error):
+        return "timed out"
+    return result["status"].replace("_", " ")
+
+
 def _safe_link(report_dir: Path, output: Path, path: str, label: str) -> str:
     if not isinstance(path, str) or "://" in path or path.startswith("file:"):
         raise ValueError("File link must be a local path")
@@ -244,7 +260,7 @@ def _safe_link(report_dir: Path, output: Path, path: str, label: str) -> str:
 
 
 def _result_detail(result: dict, model: dict, report_dir: Path, output: Path) -> str:
-    status = result["status"].replace("_", " ")
+    status = _status_label(result)
     links = "".join(
         _safe_link(report_dir, output, path, LINK_LABELS[name])
         for name, path in result.get("links", {}).items()
@@ -318,11 +334,14 @@ def _model_summary(model: dict, cases: list[dict]) -> str:
             for result in results
             if result.get("metrics", {}).get(name) is not None
         ]
-        return (
-            f"{sum(values):.{places}f} {unit} <small>({len(values)}/{len(cases)} runs)</small>"
-            if values
-            else "—"
+        if not values:
+            return "—"
+        measured = (
+            _duration(sum(values))
+            if name == "elapsed_seconds"
+            else f"{sum(values):.{places}f} {unit}"
         )
+        return f"{measured} <small>({len(values)}/{len(cases)} runs)</small>"
 
     return f"""<article><h3>{_text(model['label'])}{_configuration_detail(model)}</h3><dl>
       <dt>Structurally complete drafts</dt><dd>{sum(r['status'] == 'complete' for r in results)}/{len(cases)}</dd>
@@ -351,16 +370,20 @@ def _token_summary(results: list[dict]) -> str:
         and entry.get("output_tokens") is not None
     ]
     if not known:
-        return "—"
+        return f"— <small>(0/{len(attempts)} recorded attempts)</small>" if attempts else "—"
     total = sum(entry["input_tokens"] + entry["output_tokens"] for entry in known)
     return f"{total:,} <small>({len(known)}/{len(attempts)} recorded attempts)</small>"
 
 
 def _configuration_detail(model: dict) -> str:
     values = []
-    for name in ("model", "reasoning_effort", "provider"):
+    for name in ("model", "reasoning_effort"):
         if model.get(name):
             values.append(str(model[name]))
+    if model.get("adapter") == "codex_subscription":
+        values.append("ChatGPT subscription")
+    elif model.get("provider"):
+        values.append(str(model["provider"]))
     harness = model.get("harness_id") or model.get("harness_version")
     if harness:
         values.append(f"Harness: {harness}")
@@ -472,6 +495,25 @@ def _source_finding(models: list[dict], cases: list[dict]) -> tuple[str, str] | 
     return _text(verdict), _text(basis)
 
 
+def _timeout_finding(models: list[dict], cases: list[dict]) -> tuple[str, str] | None:
+    if any(
+        case["results"][model["id"]]["status"] == "not_run" for case in cases for model in models
+    ):
+        return None
+    timed_out = [
+        model["label"]
+        for model in models
+        if all(_status_label(case["results"][model["id"]]) == "timed out" for case in cases)
+    ]
+    if not timed_out:
+        return None
+    return (
+        _text("No gradable scores within the time limit: " + ", ".join(timed_out) + "."),
+        "The attempts finished, but the musical comparison is incomplete. Timeouts are not "
+        "zero note accuracy. A different deadline must be tested as a separate versioned run.",
+    )
+
+
 def _reference_decisions(case: dict) -> str:
     decisions = case.get("reference_decisions", [])
     if not decisions:
@@ -571,6 +613,8 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         basis = "The values below exercise the report pipeline. They are not Astra or Terra score-reading results."
     elif not winner and (finding := _source_finding(models, cases)):
         verdict, basis = finding
+    elif not winner and (finding := _timeout_finding(models, cases)):
+        verdict, basis = finding
     rows = []
     for case, model, result in results:
         metrics = result.get("metrics", {})
@@ -601,17 +645,23 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
         if statuses.get("form_exact_match"):
             form_cell += f'<small class="quiet">{_text(statuses["form_exact_match"].replace("_", " "))}</small>'
         cells += f"<td>{form_cell}</td>"
+        partial_bars = source_coverage.get("meter_partial_measures", 0)
+        meter_note = (
+            f"meter valid; {partial_bars} partial bar(s) excluded"
+            if partial_bars
+            else "meter valid"
+        )
         cells += (
             f'<td>{_metric_cell(metrics.get("bar_coverage"))}<small class="quiet">bars aligned</small>'
-            f'{_metric_cell(metrics.get("meter_valid_rate"))}<small class="quiet">meter valid</small></td>'
+            f'{_metric_cell(metrics.get("meter_valid_rate"))}<small class="quiet">{_text(meter_note)}</small></td>'
         )
         cells += f'<td>{_metric_cell(metrics.get("editorial_acceptance"))}</td>'
         anchor = quote(str(case["slug"]), safe="-_")
         rows.append(
             f'<tr><td class="work">{_text(case["title"])}<a href="#{_text(anchor)}">Inspect evidence</a></td>'
-            f'<td class="model">{_text(model["label"])}{_configuration_detail(model)}</td><td class="status {result["status"]}">{_text(result["status"].replace("_", " "))}</td>'
+            f'<td class="model">{_text(model["label"])}<span class="config">{_text(model.get("reasoning_effort") or "")}</span></td><td class="status {result["status"]}">{_text(_status_label(result))}</td>'
             f'{cells}<td>{_amount(metrics.get("human_review_minutes"), " min")}</td>'
-            f'<td>{_amount(metrics.get("cost_usd"), " USD", 2)}</td><td>{_amount(metrics.get("elapsed_seconds"), " s", 0)}</td></tr>'
+            f'<td>{_amount(metrics.get("cost_usd"), " USD", 2)}</td><td>{_duration(metrics.get("elapsed_seconds"))}</td></tr>'
         )
     details = "".join(
         f'<details class="piece" id="{_text(quote(str(case["slug"]), safe="-_"))}"><summary>{_text(case["title"])}</summary><div class="piece-body"><div class="pair">'
@@ -680,7 +730,7 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
 <h1>{headline}</h1><p class="lede">{lede}</p>{demo_banner}{demo_nav}{version_details}
 <div class="verdict" role="status"><b>Current finding</b><div><strong>{verdict}</strong><p>{basis}</p></div></div></div></header>
 <main class="wrap"><div class="coverage"><span><strong>{paired}/{len(cases)}</strong> pieces complete for all configurations</span><span><strong>{complete}/{len(results)}</strong> complete runs</span><span><strong>{partial}</strong> partial</span><span><strong>{failed}</strong> failed</span><span><strong>{len(results) - complete - partial - failed}</strong> not run</span></div>
-<div class="config-list">{configuration_list}</div>
+{f'<div class="config-list">{configuration_list}</div>' if not has_measures else ''}
 {overview}
 {_paired_deltas(models, cases)}
 <section aria-labelledby="matrix-heading"><div class="section-head"><h2 id="matrix-heading">{item_label}-by-{item_label.lower()} comparison</h2><p>— means unmeasured. Completeness shows bars aligned and meter validity separately. Complete means a structurally valid draft, not musical approval.</p></div>

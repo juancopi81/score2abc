@@ -74,7 +74,8 @@ reference, live review, history, or source PDF is changed.
 
 ```sh
 uv run python scripts/build_eval_labels.py create \
-  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v2
+  out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v2 \
+  --inventory score2abc/eval_labels_reviewed_six_v2.json
 uv run python scripts/build_eval_labels.py verify \
   out/eval/references/reviewed_six_20261028_v1 out/eval/labels/reviewed_six_v2
 ```

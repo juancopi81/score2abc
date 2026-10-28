@@ -329,3 +329,21 @@ def test_fully_paired_source_finding_is_scoped_and_keeps_editorial_pending(tmp_p
     assert "Editorial acceptance and run-to-run reliability remain separate questions" in html
     report["cases"][0]["results"]["terra"]["metrics"]["source_note_f1"] = None
     assert "Insufficient measured evidence" in _render(tmp_path, report)
+
+
+def test_full_timeout_cohort_is_not_misreported_as_zero_quality(tmp_path: Path):
+    report = _versioned_report()
+    for case in report["cases"]:
+        case["results"]["astra"] = {
+            "status": "failed",
+            "metrics": {},
+            "error": "Runner deadline exceeded",
+            "usage": [None],
+        }
+        case["results"]["terra"] = {"status": "complete", "metrics": {"source_note_f1": 0.5}}
+    html = _render(tmp_path, report)
+    assert "No gradable scores within the time limit: GPT-6 Astra" in html
+    assert "Timeouts are not zero note accuracy" in html
+    assert "(0/6 recorded attempts)" in html
+    report["cases"][0]["results"]["terra"] = {"status": "not_run", "metrics": {}}
+    assert "No gradable scores within the time limit" not in _render(tmp_path, report)

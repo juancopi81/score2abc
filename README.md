@@ -18,10 +18,23 @@ with the complete reviewed editions.
 
 The isolated Codex runner uses ChatGPT subscription authentication, with no model
 tools, PDF-derived images, bounded validation/repair and retained attempt records.
-Both Astra and Terra pass its synthetic image-and-repair canaries. **The initial
-six-piece Astra–Terra comparison has not run yet; no full-score accuracy or model
-winner is claimed.** Subscription token usage is recorded when reported; USD cost
-remains unknown rather than zero.
+Both Astra and Terra pass its synthetic image-and-repair canaries. The first
+versioned six-piece comparison ran on 2026-10-28, with one trial per piece and
+configuration, a 15-minute deadline per call and up to two repair passes:
+
+| Configuration | Returned drafts | Audited-source note F1 | Edition note F1 |
+| --- | --- | ---: | ---: |
+| Astra, `xhigh` | 0; all 6 calls timed out | Unmeasured | Unmeasured |
+| Terra, `xhigh` | 3 structurally complete, 3 partial | 0.239 | 0.265 |
+
+F1 requires exact pitch, onset, duration and tie matches. Values are per-piece
+means, including partial drafts; the source audit covers only 67/312 bars.
+**The musical comparison remains incomplete, and no model winner is claimed.**
+This fixed-image, tool-free harness differs from the assisted drafting workflow
+used for the reviewed collection. See the [per-piece findings and next
+experiments](docs/EVAL_COMPARISON_20261028.md) and [portable metrics/version
+identities](docs/eval/astra_terra_20261028_v1.json).
+Subscription token usage is recorded when reported; USD cost remains unknown.
 
 Earlier, narrower experiments provide useful evidence:
 

@@ -389,7 +389,8 @@ def _verify_run_record(
         for key in ("abc_sha256", "decision_log_sha256"):
             if trace.get(key) != record.get(key) or not trace.get(key):
                 raise ValueError(f"Runner output hash is missing or inconsistent: {key}")
-    if "usage" in record and record["usage"] != trace.get("usage"):
+    # Legacy registries could carry unpinned usage; reporting still reads only the trace.
+    if generation and "usage" in record and record["usage"] != trace.get("usage"):
         raise ValueError("Registry usage differs from pinned runner evidence")
     return path, trace
 
