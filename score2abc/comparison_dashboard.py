@@ -298,11 +298,17 @@ def _reference_decisions(case: dict) -> str:
         return ""
     items = []
     for decision in decisions:
-        location = decision.get("source_location") or {}
-        if isinstance(location, dict):
-            location_text = f'S{location.get("system", "?")} M{location.get("measure", "?")}'
+        source = decision.get("source_location")
+        location = source or decision.get("edition_location") or {}
+        prefix = "Source" if source else "Edition"
+        if isinstance(location, dict) and "system" in location and "measure" in location:
+            location_text = f'S{location["system"]} M{location["measure"]}'
+        elif isinstance(location, dict) and "bar" in location:
+            location_text = f'{prefix} bar {location["bar"]}'
+        elif isinstance(location, dict) and "bar_range" in location:
+            location_text = f'{prefix} bars ' + "–".join(map(str, location["bar_range"]))
         else:
-            location_text = "Location unrecorded"
+            location_text = "Score-level decision"
         evidence = decision.get("evidence", [])
         quotes = "".join(
             f'<small>Review evidence: {_text(record["quote"])}</small>'

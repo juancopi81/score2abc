@@ -207,3 +207,11 @@ def test_reference_decisions_are_separate_and_escaped(tmp_path: Path) -> None:
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
     assert "<script>alert(1)</script>" not in html
     assert "Review evidence: faint dot confirmed" in html
+    report["cases"][0]["reference_decisions"][0].update(
+        source_location=None, edition_location={"bar": 45}
+    )
+    assert "AM-01 · Edition bar 45" in _render(tmp_path, report)
+    report["cases"][0]["reference_decisions"][0].update(
+        source_location={"bar_range": [47, 62]}
+    )
+    assert "AM-01 · Source bars 47–62" in _render(tmp_path, report)
