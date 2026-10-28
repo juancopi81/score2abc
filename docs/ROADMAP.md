@@ -150,6 +150,9 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
 - [x] Preserve automatic per-save revision history: archive exact prior review bytes before replacement, retain new model seeds, record save metadata, and expose verified read-only history. Existing reviews can be checkpointed without modification; previously overwritten revisions remain unavailable. Historical delivered model drafts remain in the separate delivery snapshots.
 - [ ] Align preserved human corrections to source measures with source/editorial decision labels before evaluation or training promotion.
+- [x] Freeze the six reviewed editions with exact PDFs, ABC/JSON, all surviving history and referenced decision evidence; verify file hashes, history chains and a separately restored local backup. See `docs/CHECKPOINT_20261028.md`.
+- [x] Generate a verified offline HTML reference-readiness dashboard with six expandable records, preserved source/export links and explicit unmeasured comparison status. See `docs/EVALUATION_PLAN.md`.
+- [ ] Build complete-score eval v1 with source/editorial labels, semantic notation and form metrics, bounded PDF-only agent runs and an Astra–Terra comparison dashboard. Then freeze the harness for fresh-score tests.
 - [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.
 
 Done when: a user can correct a flagged work end-to-end in minutes and the corrections persist.
