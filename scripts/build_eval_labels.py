@@ -14,7 +14,7 @@ def main() -> None:
     parser.add_argument("frozen_root", type=Path)
     parser.add_argument("sidecar_root", type=Path)
     parser.add_argument(
-        "--inventory", type=Path, help="versioned inventory; defaults to v2 on create"
+        "--inventory", type=Path, help="versioned inventory; defaults to v3 on create"
     )
     args = parser.parse_args()
     if args.action == "create":

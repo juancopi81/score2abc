@@ -1,8 +1,26 @@
-# Evaluation configurations and versioning — proposed next slice
+# Evaluation configurations and versioning
 
-Status: design recorded on 2026-10-28; not implemented by the current two-model
-report schema. PR #15 delivers the offline baseline. No new model runs or provider
-integrations are authorized by this document itself.
+The schema-2 harness implements configurable systems and independently pinned
+generation and grading identities. PR #15's schema-1 reports remain readable as
+legacy evidence; they cannot be mixed into a versioned comparison.
+
+The initial configuration is [`configs/eval/astra_terra_v1.json`](../configs/eval/astra_terra_v1.json).
+It schedules Astra and Terra at `xhigh`, with the same PDF inputs and a maximum of
+two deterministic-feedback revisions. Adding another configuration does not
+establish that its model is available or that a provider adapter is implemented.
+
+```sh
+uv run python scripts/evaluate_complete_scores.py config /tmp/my-eval.json
+# Edit model, effort and display name in this copy, using distinct system ids.
+uv run python scripts/evaluate_complete_scores.py prepare \
+  out/eval/references/reviewed_six_20261028_v1 /tmp/new-eval-inputs \
+  --config /tmp/my-eval.json
+```
+
+Preparation makes no model calls. See [the isolated runner](EVAL_RUNNER.md) for
+subscription authentication, enforced input isolation, availability checks and
+bounded execution. Each trial uses a new destination. Source PDFs and review
+answers remain local.
 
 The useful comparison unit is a **system configuration**: provider, exact model
 identifier, reasoning/generation settings, authoring instructions, tools, repair
@@ -28,11 +46,19 @@ provider-resolved revision when available; an alias and a date are not proof of
 identical underlying weights. File `schema_version` describes a serialization
 format, not the musical benchmark version.
 
-The current freeze and V1/V2 label sidecars already provide independent data and
-annotation identities. Current code does **not** yet pin a complete grader/tool
-release or permit arbitrary configured providers/models. Extend the manifest and
-registry before spending on a broader comparison; retain the existing reports
-as historical artifacts rather than silently rewriting their contracts.
+The task packet pins PDF inputs, generic instructions, authoring code, validator,
+renderer and runner runtime policy. Its generation identity contains no reviewed
+answers or label data. The grader separately adds the frozen answer/label hashes
+and grading implementation. Exact file hashes identify working changes; Git
+commit provenance is recorded separately so a documentation-only commit does not
+change an otherwise identical implementation identity.
+
+Each system pins its exact model identifier, effort, provider, adapter, settings
+and harness hash. Each run pins a piece, system, trial and retained output files.
+Requested and provider-resolved model identities are distinct; an unavailable
+resolved revision remains unknown. A `local` / `deterministic` configuration may
+use `null` model and effort, without pretending to be a language model. Its
+execution adapter is not supplied by that declaration.
 
 ## Compare one intended change at a time
 
@@ -64,22 +90,25 @@ constraint rather than quietly giving it a different task.
 
 ## Runs, uncertainty and the dashboard
 
-Replace the hard-coded two-model list with validated configuration records. Derive
-rows and denominators from the selected configurations and tasks, so Luna at two
-effort settings becomes two separate rows and an Anthropic adapter can be added
-without changing the grader. Actual provider identifiers and supported settings
-must be checked before scheduling; adding a dashboard row does not implement an
-inference adapter.
+Configuration records drive dashboard rows and denominators. Luna at two effort
+settings can be two separate systems, and another provider's retained outputs can
+use the same grading contract once its adapter is implemented. Actual provider
+identifiers and supported settings must be checked before scheduling; adding a
+dashboard row does not implement an inference adapter.
 
-The dashboard should first select a compatible dataset/label/grader version, then
-show selected configurations side by side, with model, effort and harness version
-visible. Add paired per-piece deltas and expandable attempts. Keep failed and
+Each dashboard shows one compatible dataset/label/grader group, with expandable
+version hashes, exact model/effort/harness settings, and per-piece evidence. Open
+a different versioned report to change that group; incompatible results are never
+pooled. Paired differences use only pieces measured for both configurations,
+rather than subtracting averages with different coverage. Keep failed and
 partial attempts, measurement coverage, source fidelity, edition agreement,
 editorial adjudication, time and cost distinct. Differences in accepted coherent
 form routes or reconstructions require musical adjudication, not a single
 reference-string match. Show Pareto tradeoffs rather than assuming the highest
 single accuracy score is always the best production choice.
 
+The current registry permits one trial per piece and configuration; repeat trials
+require separate immutable registries/reports. It does not select the best run.
 Start with one attempt per piece for the initial Astra–Terra comparison. Repeat
 promising configurations before making reliability claims; a provisional three
 trials per piece is a small diagnostic, not a precise estimate. Retain every
@@ -103,12 +132,12 @@ old results when a new version supersedes them; describe corrections in a change
 Until the first complete-score comparison runs, the README must say so explicitly.
 Do not publish source PDFs or review histories as a side effect of publishing metrics.
 
-## Recommended order
+## Delivery sequence
 
-1. Ship the offline baseline in #15 after main synchronization and fresh CI.
-2. Add configuration records and independent version identities, with dynamic
-   dashboard rows. Keep the first scheduled model set to Astra and Terra.
-3. Finish source labels and enforced isolated execution; run the initial twelve
+1. The offline baseline shipped in merged PR #15.
+2. Configuration records and independent version identities drive dynamic
+   dashboard rows. The first scheduled model set remains Astra and Terra.
+3. Audit source labels and enforce isolated execution; run the initial twelve
    attempts, publish their scoped results, then repeat finalists.
 4. Add another provider or effort setting and one bounded tool ablation; expand
    according to observed errors and cost, not an exhaustive Cartesian product.

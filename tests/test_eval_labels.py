@@ -292,6 +292,104 @@ def test_version_specific_inventory_and_unregistered_inventory(sealed_six, tmp_p
         create_labels(tmp_path / "unregistered", root, altered)
 
 
+@pytest.fixture
+def audited_six(sealed_six, tmp_path, monkeypatch):
+    from score2abc.score_eval_source import NOTE_FIELDS, note_events_sha256
+
+    root, _, inventory = sealed_six
+    manifest = _read_fixture_json(root / "manifest.json")
+    for work in manifest["works"]:
+        name = next(key for key in eval_labels.WORK_LIMITS if f"_{key}_" in work["slug"])
+        path = f"inputs/{work['slug']}/source.pdf"
+        data = f"%PDF-1.4 synthetic {name}".encode()
+        target = root / path
+        target.parent.mkdir(parents=True)
+        target.write_bytes(data)
+        work["source_pdf_path"] = path
+        manifest["files"][path] = {"sha256": _sha(data), "size": len(data)}
+        note_bar = {
+            "notes": [
+                {"onset_ticks": i * 384, "duration_ticks": 384, "pitch_midi": pitch}
+                for i, pitch in enumerate([60, 62, 64])
+            ]
+        }
+        inventory["works"][name]["source_audit"] = {
+            "status": "partial_model_assisted_visual_audit",
+            "auditor_kind": "model_assisted_visual_audit",
+            "human_approved_audit": False,
+            "source_pdf_sha256": _sha(data),
+            "total_source_measures": eval_labels.WORK_LIMITS[name][1],
+            "ticks_per_quarter": 384,
+            "selection_policy": "Synthetic test audit; no real source claim.",
+            "measures": [
+                {
+                    "source_bar": 1,
+                    "edition_bar": 1,
+                    "source_location": {"page": 1, "system": 1, "measure": 1},
+                    "dimensions": ["notes"],
+                    "note_fields": list(NOTE_FIELDS),
+                    "note_events_sha256": note_events_sha256(note_bar),
+                    "expected_noteheads": 3,
+                    "audit_note": "Synthetic test note mask.",
+                }
+            ],
+        }
+    payload = _json(manifest)
+    (root / "manifest.json").write_bytes(payload)
+    (root / "manifest.sha256").write_text(_sha(payload) + "\n")
+    inventory["reference_manifest_sha256"] = _sha(payload)
+    inventory["label_set"] = "reviewed_six_v3"
+    inventory["editorial_rubric"] = {"status": "requires_musical_adjudication"}
+    path = tmp_path / "inventory_v3.json"
+    path.write_bytes(_json(inventory))
+    monkeypatch.setitem(eval_labels.KNOWN_INVENTORIES, "reviewed_six_v3", path)
+    return root, path, inventory
+
+
+def _read_fixture_json(path):
+    return json.loads(path.read_text())
+
+
+def test_v3_audit_is_partial_pinned_and_not_new_human_approval(audited_six, tmp_path):
+    root, path, _ = audited_six
+    labels = create_labels(tmp_path / "v3", root, path)
+    assert verify_labels(tmp_path / "v3", root) == labels
+    assert labels["source_metric_policy"] == "explicit_partial_model_assisted_visual_audit"
+    assert all(work["source_metric_eligible_measures"] == [1] for work in labels["works"])
+    assert all(work["source_audit"]["human_approved_audit"] is False for work in labels["works"])
+    assert all(work["review_state"] == "reviewed" for work in labels["works"])
+    pdf = root / labels["works"][0]["source_audit"]["source_pdf_path"]
+    pdf.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="frozen evidence hash mismatch"):
+        verify_labels(tmp_path / "v3", root)
+
+
+def test_v3_duplicate_and_editorial_overlap_rejected(audited_six, tmp_path):
+    root, _, inventory = audited_six
+    changed = tmp_path / "changed_v3.json"
+    rows = inventory["works"]["atardecer"]["source_audit"]["measures"]
+    rows.append(dict(rows[0]))
+    changed.write_bytes(_json(inventory))
+    with pytest.raises(ValueError, match="duplicate audited"):
+        build_labels(root, changed)
+    rows.pop()
+    rows[0].update(source_bar=4, edition_bar=4)
+    rows[0]["source_location"]["measure"] = 4
+    changed.write_bytes(_json(inventory))
+    with pytest.raises(ValueError, match="editorial note/duration exclusion"):
+        build_labels(root, changed)
+
+
+def test_v3_source_map_mismatch_rejected(audited_six, tmp_path):
+    root, _, inventory = audited_six
+    row = inventory["works"]["aviador"]["source_audit"]["measures"][0]
+    row.update(source_bar=29, edition_bar=29)
+    changed = tmp_path / "bad_mapping.json"
+    changed.write_bytes(_json(inventory))
+    with pytest.raises(ValueError, match="source-to-edition map"):
+        build_labels(root, changed)
+
+
 @pytest.mark.skipif(not REAL_FROZEN.exists(), reason="local frozen six-score fixture absent")
 def test_real_aviador_history_when_local_fixture_available() -> None:
     from score2abc.score_eval_abc import normalize_abc

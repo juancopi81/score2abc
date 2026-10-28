@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 V1_INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v1.json")
-INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v2.json")
+V2_INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v2.json")
+INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v3.json")
 KNOWN_INVENTORIES = {
     "reviewed_six_v1": V1_INVENTORY_PATH,
-    "reviewed_six_v2": INVENTORY_PATH,
+    "reviewed_six_v2": V2_INVENTORY_PATH,
+    "reviewed_six_v3": INVENTORY_PATH,
 }
 WORK_LIMITS = {
     "amalia": (7, 48, 48),
@@ -86,6 +89,93 @@ def _location(location: dict | None, *, max_system: int | None, max_bar: int | N
         raise ValueError(f"invalid location fields: {location}")
 
 
+def _source_audit(
+    audit: dict,
+    *,
+    frozen_root: Path,
+    reference: dict,
+    frozen_work: dict,
+    limits: tuple,
+    mapping: dict | None,
+    exclusions: list,
+    decisions: dict,
+) -> dict:
+    """Validate an explicit partial audit without promoting unmentioned material."""
+    from score2abc.score_eval_source import NOTE_FIELDS
+
+    max_system, source_count, edition_count = limits
+    source_path = frozen_work["source_pdf_path"]
+    source_sha = _check_file(frozen_root, reference, source_path)
+    if (
+        audit.get("status") != "partial_model_assisted_visual_audit"
+        or audit.get("auditor_kind") != "model_assisted_visual_audit"
+        or audit.get("source_pdf_sha256") != source_sha
+        or audit.get("total_source_measures") != source_count
+        or audit.get("ticks_per_quarter") != 384
+        or audit.get("human_approved_audit") is not False
+        or not audit.get("selection_policy")
+    ):
+        raise ValueError("Invalid source-audit provenance or scope")
+    rows = audit.get("measures")
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("Source audit needs explicitly inspected measures")
+    sources, editions = set(), set()
+    for row in rows:
+        src, edition = row.get("source_bar"), row.get("edition_bar")
+        if (
+            type(src) is not int
+            or type(edition) is not int
+            or not 1 <= src <= source_count
+            or not 1 <= edition <= edition_count
+            or src in sources
+            or edition in editions
+        ):
+            raise ValueError("Invalid or duplicate audited source/edition bar")
+        sources.add(src)
+        editions.add(edition)
+        expected_edition = mapping["source_to_edition_bar"].get(str(src)) if mapping else src
+        if edition != expected_edition:
+            raise ValueError("Audited bar conflicts with source-to-edition map")
+        loc = row.get("source_location", {})
+        if set(loc) != {"page", "system", "measure"} or loc["page"] != 1:
+            raise ValueError("Invalid audited PDF location")
+        _location(
+            {"system": loc["system"], "measure": loc["measure"]},
+            max_system=max_system or 9,
+            max_bar=source_count,
+        )
+        if (
+            row.get("dimensions") != ["notes"]
+            or row.get("note_fields") != list(NOTE_FIELDS)
+            or not re.fullmatch(r"[0-9a-f]{64}", row.get("note_events_sha256", ""))
+            or type(row.get("expected_noteheads")) is not int
+            or row["expected_noteheads"] < 1
+            or not row.get("audit_note")
+        ):
+            raise ValueError("Invalid audited note mask")
+        for exclusion in exclusions:
+            # An editorial rest can move every subsequent note onset in the bar.
+            # This whole-bar mask cannot certify those offsets independently.
+            if not set(exclusion["dimensions"]) & {"notes", "duration", "rests"}:
+                continue
+            span = exclusion.get("bar_range", [])
+            overlaps = edition in exclusion.get("bars", []) or (
+                bool(span) and span[0] <= edition <= span[1]
+            )
+            for decision_id in exclusion.get("decision_ids", []):
+                target = decisions[decision_id]["edition_location"]
+                if target:
+                    overlaps |= target.get("bar") == edition or target == {
+                        "system": loc["system"],
+                        "measure": loc["measure"],
+                    }
+                    if "bar_range" in target:
+                        overlaps |= target["bar_range"][0] <= edition <= target["bar_range"][1]
+            if overlaps:
+                raise ValueError("Source audit overlaps a known editorial note/duration exclusion")
+    return {**audit, "source_pdf_path": source_path}
+
+
 def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> dict:
     """Validate the hand-authored inventory against frozen bytes and build labels."""
     frozen_root = Path(frozen_root)
@@ -105,6 +195,9 @@ def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> di
         "confidence_semantics": "not_assessed; evidence status is not a human approval grade",
         "works": [],
     }
+    if inventory.get("label_set") == "reviewed_six_v3":
+        output["source_metric_policy"] = "explicit_partial_model_assisted_visual_audit"
+        output["editorial_rubric"] = inventory["editorial_rubric"]
     for frozen_work in reference["works"]:
         slug = frozen_work["slug"]
         key = next((name for name in WORK_LIMITS if f"_{name}_" in slug), None)
@@ -203,21 +296,38 @@ def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> di
                 "evidence_path": path,
                 "evidence_sha256": mapping_sha,
             }
-        output["works"].append(
-            {
-                "slug": slug,
-                "title": frozen_work["title"],
-                "review_revision": frozen_work["revision"],
-                "review_state": frozen_work["review_state"],
-                "abc_sha256": abc_sha,
-                "review_sha256": review_sha,
-                "coverage": "decision_level_only; unmentioned bars pending source audit",
-                "source_metric_eligible_measures": [],
-                "source_to_edition_mapping": mapping,
-                "decisions": decisions,
-                "source_metric_exclusions": exclusions,
-            }
-        )
+        work_output = {
+            "slug": slug,
+            "title": frozen_work["title"],
+            "review_revision": frozen_work["revision"],
+            "review_state": frozen_work["review_state"],
+            "abc_sha256": abc_sha,
+            "review_sha256": review_sha,
+            "coverage": "decision_level_only; unmentioned bars pending source audit",
+            "source_metric_eligible_measures": [],
+            "source_to_edition_mapping": mapping,
+            "decisions": decisions,
+            "source_metric_exclusions": exclusions,
+        }
+        if inventory.get("label_set") == "reviewed_six_v3":
+            audit = _source_audit(
+                work_inventory["source_audit"],
+                frozen_root=frozen_root,
+                reference=reference,
+                frozen_work=frozen_work,
+                limits=WORK_LIMITS[key],
+                mapping=mapping,
+                exclusions=exclusions,
+                decisions=decision_by_id,
+            )
+            work_output["source_audit"] = audit
+            work_output["source_metric_eligible_measures"] = sorted(
+                row["edition_bar"] for row in audit["measures"]
+            )
+            work_output["coverage"] = (
+                "partial_model_assisted_visual_audit; unlisted regions remain unscored"
+            )
+        output["works"].append(work_output)
     return output
 
 
@@ -258,14 +368,14 @@ def verify_labels(root: Path, frozen_root: Path, inventory_path: Path | None = N
         raise ValueError("versioned inventory checksum mismatch")
     inventory_copy = root / "inventory.json"
     expected_files = {"manifest.json", "manifest.sha256"}
-    if label_set == "reviewed_six_v2":
+    if label_set != "reviewed_six_v1":
         expected_files.add("inventory.json")
         if _sha256(inventory_copy) != saved["inventory_sha256"]:
             raise ValueError("sidecar inventory checksum mismatch")
     if {path.name for path in root.iterdir()} != expected_files:
         raise ValueError("unexpected sidecar files")
     expected = build_labels(
-        frozen_root, inventory_copy if label_set == "reviewed_six_v2" else canonical_inventory
+        frozen_root, inventory_copy if label_set != "reviewed_six_v1" else canonical_inventory
     )
     if saved != expected:
         raise ValueError("label sidecar differs from pinned inventory or references")
