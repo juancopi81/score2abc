@@ -306,7 +306,7 @@ def _reference_decisions(case: dict) -> str:
         elif isinstance(location, dict) and "bar" in location:
             location_text = f'{prefix} bar {location["bar"]}'
         elif isinstance(location, dict) and "bar_range" in location:
-            location_text = f'{prefix} bars ' + "–".join(map(str, location["bar_range"]))
+            location_text = f"{prefix} bars " + "–".join(map(str, location["bar_range"]))
         else:
             location_text = "Score-level decision"
         evidence = decision.get("evidence", [])
