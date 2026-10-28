@@ -14,8 +14,14 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import quote
 
 RATE_METRICS = {
-    "source_note_f1": ("Source notes", "Note F1 against source-supported labels"),
-    "edition_note_f1": ("Edition notes", "Note F1 against the reviewed performing edition"),
+    "source_note_f1": (
+        "Source notes",
+        "F1 for exact pitch, onset, duration and tie matches within audited source bars",
+    ),
+    "edition_note_f1": (
+        "Edition notes",
+        "F1 for exact pitch, onset, duration and tie matches against the reviewed edition",
+    ),
     "edition_exact_bar_rate": (
         "Exact bars",
         "Exact notation bar agreement with the reviewed edition",
@@ -319,7 +325,7 @@ def _model_summary(model: dict, cases: list[dict]) -> str:
         )
 
     return f"""<article><h3>{_text(model['label'])}{_configuration_detail(model)}</h3><dl>
-      <dt>Completed attempts</dt><dd>{sum(r['status'] == 'complete' for r in results)}/{len(cases)}</dd>
+      <dt>Structurally complete drafts</dt><dd>{sum(r['status'] == 'complete' for r in results)}/{len(cases)}</dd>
       <dt>Source note F1, mean</dt><dd>{mean('source_note_f1')}</dd>
       <dt>Edition note F1, mean</dt><dd>{mean('edition_note_f1')}</dd>
       <dt>Exact edition form routes</dt><dd>{mean('form_exact_match')}</dd>
@@ -425,6 +431,47 @@ def _paired_deltas(models: list[dict], cases: list[dict]) -> str:
     )
 
 
+def _source_finding(models: list[dict], cases: list[dict]) -> tuple[str, str] | None:
+    """Describe a fully paired measured dimension without choosing a production winner."""
+    if len(models) < 2:
+        return None
+    for case in cases:
+        outcomes = [case["results"][model["id"]] for model in models]
+        if any(outcome.get("metrics", {}).get("source_note_f1") is None for outcome in outcomes):
+            return None
+        coverage = {
+            (
+                outcome.get("coverage", {}).get("source_scored_measures"),
+                outcome.get("coverage", {}).get("source_expected_noteheads"),
+            )
+            for outcome in outcomes
+        }
+        if len(coverage) != 1 or next(iter(coverage))[0] in (None, 0):
+            return None
+    means = [
+        (
+            sum(case["results"][model["id"]]["metrics"]["source_note_f1"] for case in cases)
+            / len(cases),
+            model["label"],
+        )
+        for model in models
+    ]
+    highest = max(mean for mean, _ in means)
+    leaders = [label for mean, label in means if math.isclose(mean, highest, abs_tol=1e-12)]
+    verdict = (
+        f"{leaders[0]} has the highest agreement on the audited notes."
+        if len(leaders) == 1
+        else "The highest audited-note agreement is tied."
+    )
+    measured = "; ".join(f"{label}: {mean:.0%}" for mean, label in means)
+    basis = (
+        f"Mean note F1 across {len(cases)} paired pieces: {measured}. "
+        "This covers the audited subset and includes partial drafts. "
+        "Editorial acceptance and run-to-run reliability remain separate questions."
+    )
+    return _text(verdict), _text(basis)
+
+
 def _reference_decisions(case: dict) -> str:
     decisions = case.get("reference_decisions", [])
     if not decisions:
@@ -522,6 +569,8 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
     if synthetic:
         verdict = "Synthetic grader demonstration; no model comparison result."
         basis = "The values below exercise the report pipeline. They are not Astra or Terra score-reading results."
+    elif not winner and (finding := _source_finding(models, cases)):
+        verdict, basis = finding
     rows = []
     for case, model, result in results:
         metrics = result.get("metrics", {})
@@ -634,7 +683,7 @@ def render_comparison_dashboard(report_path: Path, output: Path) -> str:
 <div class="config-list">{configuration_list}</div>
 {overview}
 {_paired_deltas(models, cases)}
-<section aria-labelledby="matrix-heading"><div class="section-head"><h2 id="matrix-heading">{item_label}-by-{item_label.lower()} comparison</h2><p>— means unmeasured. Completeness shows bars aligned and meter validity separately.</p></div>
+<section aria-labelledby="matrix-heading"><div class="section-head"><h2 id="matrix-heading">{item_label}-by-{item_label.lower()} comparison</h2><p>— means unmeasured. Completeness shows bars aligned and meter validity separately. Complete means a structurally valid draft, not musical approval.</p></div>
 <div class="table-scroll" role="region" aria-label="{model_label} comparison table" tabindex="0"><table><thead><tr><th scope="col">{item_label}</th><th scope="col">{model_label}</th><th scope="col">Run</th>{columns}<th scope="col">Review</th><th scope="col">Cost</th><th scope="col">Time</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
 <p class="below">Source notes measure only the audited subset of readable notation; coverage appears with each score. A model-assisted source audit is not a new musician approval. Edition notes, chords and routes measure agreement with your reviewed edition, including its reconstructions. A different coherent route can still be musically acceptable. F1 balances precision and recall. Review time is recorded human effort; cost and runtime appear only when measured. Failed and partial attempts stay visible.</p></section>
 <section aria-labelledby="definitions-heading"><div class="section-head"><h2 id="definitions-heading">How to read the measures</h2></div><div class="summary-grid">{metric_guide}</div></section>

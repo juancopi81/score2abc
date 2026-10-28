@@ -312,3 +312,20 @@ def test_token_usage_keeps_missing_attempts_and_does_not_double_count_cached(tmp
     report["cases"][0]["results"]["astra"]["usage"][0]["input_tokens"] = -1
     with pytest.raises(ValueError, match="invalid input_tokens"):
         _render(tmp_path, report)
+
+
+def test_fully_paired_source_finding_is_scoped_and_keeps_editorial_pending(tmp_path: Path):
+    report = _versioned_report()
+    for case in report["cases"]:
+        for model, value in (("astra", 0.8), ("terra", 0.6)):
+            case["results"][model] = {
+                "status": "partial",
+                "metrics": {"source_note_f1": value, "editorial_acceptance": None},
+                "coverage": {"source_scored_measures": 5, "source_expected_noteheads": 20},
+            }
+    html = _render(tmp_path, report)
+    assert "GPT-6 Astra has the highest agreement on the audited notes" in html
+    assert "Mean note F1 across 6 paired pieces: GPT-6 Astra: 80%; GPT-6 Terra: 60%" in html
+    assert "Editorial acceptance and run-to-run reliability remain separate questions" in html
+    report["cases"][0]["results"]["terra"]["metrics"]["source_note_f1"] = None
+    assert "Insufficient measured evidence" in _render(tmp_path, report)
