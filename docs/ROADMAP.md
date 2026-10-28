@@ -152,6 +152,8 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [ ] Align preserved human corrections to source measures with source/editorial decision labels before evaluation or training promotion.
 - [x] Freeze the six reviewed editions with exact PDFs, ABC/JSON, all surviving history and referenced decision evidence; verify file hashes, history chains and a separately restored local backup. See `docs/CHECKPOINT_20261028.md`.
 - [x] Generate a verified offline HTML reference-readiness dashboard with six expandable records, preserved source/export links and explicit unmeasured comparison status. See `docs/EVALUATION_PLAN.md`.
+- [x] Extract 30 source/editorial decisions into hash-pinned, versioned label sidecars. V2 resolves two stale Aviador notes using later human revisions; source-supported whole-bar labels remain pending. See `docs/EVAL_REFERENCE_LABELS.md`.
+- [x] Add an offline complete-score grader, PDF-only task preparation, a bounded validation/repair hook, six synthetic grader controls and a paired model-comparison HTML dashboard. Keep unrun results and unmeasured source/editorial/cost values explicit. See `docs/EVAL_HARNESS_V1.md`.
 - [ ] Build complete-score eval v1 with source/editorial labels, semantic notation and form metrics, bounded PDF-only agent runs and an Astra–Terra comparison dashboard. Then freeze the harness for fresh-score tests.
 - [ ] Human usability check and timed three-score pilot, including full-score correction and validated export.
 

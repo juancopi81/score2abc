@@ -2,10 +2,17 @@
 
 ## Current status and local commands
 
-The October 28 checkpoint and six-reference freeze are complete; see the
-[checkpoint receipt](CHECKPOINT_20261028.md). The HTML reference-readiness page is
-generated and browser-checked. Source/editorial annotation, musical grading,
-agent-run isolation and the model comparison remain to be implemented.
+PR #13 is merged. The October 28 checkpoint and six-reference freeze are complete;
+see the [checkpoint receipt](CHECKPOINT_20261028.md). PR #14 contains that foundation
+and is synchronized with main. The next change adds a 30-decision provenance
+inventory, an offline musical grader, bounded validation/repair hooks and the
+six-piece Astra–Terra comparison dashboard. See [the harness guide](EVAL_HARNESS_V1.md).
+
+No new model comparison has run. Source-supported event labels and editorial
+acceptance still need adjudication; every whole-source-bar eligibility list remains
+empty. Current numeric grading measures agreement with the reviewed performing
+edition, separately from structural validity. Enforced agent-run isolation and
+provider execution remain the next implementation step.
 
 Verify the existing snapshot; **do not recreate or overwrite it**:
 
@@ -149,3 +156,10 @@ record. Show failures and coverage alongside successes.
 
 The initial reference-readiness page is only the first layer. It must clearly say
 that no comparison has run. A polished readiness page does not complete eval v1.
+
+The model comparison now lives at `out/eval/comparison/index.html`. Its six pieces
+each have Astra and Terra rows for source notes, edition notes, chords, form,
+structural checks, editorial acceptance, human review effort, cost and runtime.
+It starts with twelve explicit `not_run` outcomes. A separate synthetic grader
+demonstration uses fixture names instead of model names and never contributes to
+the model comparison. Neither page replaces the immutable reference snapshot.
