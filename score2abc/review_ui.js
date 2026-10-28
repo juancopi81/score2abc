@@ -4,7 +4,8 @@ const $ = id => document.getElementById(id);
 const desk = {data: null, work: null, dirty: false, rendering: null, audio: null,
   oscillators: [], audioEvents: [], chordEvents: [], symbols: [], reviewMs: 0, lastTick: Date.now(),
   lastAction: Date.now(), renderTimer: null, loading: false,
-  visualEvents: [], playbackFrame: null, playbackStart: 0, playbackEnd: 0, playbackRevision: 0,
+  visualEvents: [], runningVisualEvents: [], selectedSourceIndex: null,
+  playbackFrame: null, playbackStart: 0, playbackEnd: 0, playbackRevision: 0,
   highlighted: new Set(), followIndex: null, playing: false, playbackValid: false,
   scoreBpm: 120, tempoOverride: null, playbackRate: 1};
 
@@ -23,13 +24,41 @@ async function api(path, options = {}) {
 function workPath() { return `/api/work/${encodeURIComponent(desk.work.slug)}`; }
 function canRender() { return typeof abc2svg !== "undefined" && desk.data?.renderer_available; }
 
+function updatePlaybackControls() {
+  const disabled = !desk.playbackValid || desk.loading || desk.playing ||
+    $("bpm").getAttribute("aria-invalid") === "true";
+  $("play").disabled = disabled;
+  $("play-from-here").disabled = disabled || !Number.isInteger(desk.selectedSourceIndex) ||
+    !desk.visualEvents.some(event => event.index === desk.selectedSourceIndex);
+}
+
+function clearPlaybackSelection() {
+  desk.selectedSourceIndex = null;
+  $("notation").querySelectorAll(".selected").forEach(node => node.classList.remove("selected"));
+}
+
+function revealEditorSelection(editor, start) {
+  const computed = window.getComputedStyle(editor), probe = document.createElement("textarea");
+  for (const property of ["font", "lineHeight", "letterSpacing", "padding", "border", "boxSizing",
+    "tabSize", "whiteSpace", "overflowWrap", "wordBreak"]) probe.style[property] = computed[property];
+  Object.assign(probe.style, {position: "fixed", visibility: "hidden", top: "0", left: "0",
+    width: `${editor.getBoundingClientRect().width}px`, height: "0", minHeight: "0", maxHeight: "none",
+    resize: "none", overflowY: editor.scrollHeight > editor.clientHeight ? "scroll" : "hidden"});
+  probe.wrap = editor.wrap;
+  probe.value = editor.value.slice(0, start + 1);
+  document.body.appendChild(probe);
+  const caret = probe.scrollHeight - parseFloat(computed.paddingBottom) - parseFloat(computed.lineHeight) / 2;
+  probe.remove();
+  editor.scrollTop = Math.max(0, caret - editor.clientHeight / 2);
+}
+
 function setBusy(busy) {
   desk.loading = busy;
   for (const id of ["abc", "unresolved", "review-notes", "save", "bpm", "reset-tempo"]) $(id).disabled = busy || !desk.work;
   if (busy) {
     clearTimeout(desk.renderTimer);
     stopPlayback();
-    for (const id of ["approve", "play", "download"]) $(id).disabled = true;
+    for (const id of ["approve", "play", "play-from-here", "download"]) $(id).disabled = true;
   } else renderNotation();
 }
 
@@ -56,6 +85,7 @@ function renderLibrary() {
 function setDirty() {
   if (!desk.work) return;
   desk.playbackValid = false;
+  clearPlaybackSelection();
   stopPlayback();
   $("play").disabled = true;
   desk.dirty = true;
@@ -101,6 +131,7 @@ async function loadWork(slug) {
   try {
     message("Opening melody…");
     const work = await api(`/api/work/${encodeURIComponent(slug)}`);
+    clearPlaybackSelection();
     desk.work = work; desk.dirty = false; desk.reviewMs = 0; desk.lastTick = Date.now();
     desk.scoreBpm = 120; desk.tempoOverride = null;
     try {
@@ -149,7 +180,8 @@ function renderNotation() {
   desk.playbackValid = false;
   stopPlayback(); desk.audioEvents = []; desk.chordEvents = []; desk.visualEvents = []; desk.symbols = [];
   $("notation").replaceChildren(); $("validation").replaceChildren();
-  $("approve").disabled = true; $("download").disabled = true; $("play").disabled = true;
+  $("approve").disabled = true; $("download").disabled = true;
+  $("play").disabled = true; $("play-from-here").disabled = true;
   if (!canRender()) {
     $("notation").textContent = "Preview requires the local ABC renderer."; return;
   }
@@ -177,17 +209,18 @@ function renderNotation() {
       },
       get_abcmodel: (first, voices) => {
         desk.scoreBpm = ReviewPlayback.initialBpm(first, abc2svg.C);
-        playbackWarning ||= ReviewPlayback.repeatWarning(first, abc2svg.C);
+        playbackWarning ||= ReviewPlayback.playbackWarning(first, abc2svg.C);
         for (let symbol = first; symbol; symbol = symbol.ts_next) {
           if (symbol.type === abc2svg.C.NOTE) notes += symbol.notes.length;
         }
         if (!playbackWarning && typeof ToAudio !== "undefined") {
-          const audio = new ToAudio(); audio.add(first, voices);
-          desk.audioEvents.push(...Array.from(audio.clear() || []).map(event => Array.from(event)));
+          desk.audioEvents.push(...ReviewPlayback.audioEvents(ToAudio, first, voices, abc2svg.C));
         }
       }
     });
-    abc.tosvg("layout", `%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
+    // Number written bars continuously across endings without changing the source text.
+    // Keep fonts local: the separate playback parsers replace abc2svg's shared stylesheet.
+    abc.tosvg("layout", `%%fullsvg review\n%%partsbox true\n%%measurenb 0\n%%contbarnb true\n%%pagewidth ${Math.max(320, $("notation").clientWidth - 34)}px\n%%leftmargin 8px\n%%rightmargin 8px\n`);
     abc.tosvg("review", text);
     if (!errors.length && !playbackWarning && typeof ToAudio !== "undefined") {
       desk.visualEvents = ReviewPlayback.writtenEvents(abc2svg.Abc, ToAudio, abc2svg.C, text);
@@ -225,8 +258,12 @@ function renderNotation() {
   }
   $("approve").disabled = errors.length > 0 || !notes || hasUnresolved;
   desk.playbackValid = errors.length === 0 && !playbackWarning && desk.audioEvents.some(event => event[2] >= 0 && event[3] > 0 && event[5] > 0);
-  $("play").disabled = !desk.playbackValid;
   showTempo();
+  const selected = [...$("notation").querySelectorAll(".score-hit")].filter(hit =>
+    ["note", "rest"].includes(hit.dataset.type) && Number(hit.dataset.start) === desk.selectedSourceIndex);
+  if (!selected.length) desk.selectedSourceIndex = null;
+  selected.forEach(hit => hit.classList.add("selected"));
+  updatePlaybackControls();
   $("download").disabled = desk.dirty || desk.work.revision < 1 || !desk.work.validation?.valid;
 }
 
@@ -240,7 +277,8 @@ async function save(reviewState = "draft") {
     }, body: JSON.stringify({revision: desk.work.revision, abc: $("abc").value,
       unresolved: $("unresolved").value.split("\n").map(line => line.trim()).filter(Boolean),
       review_notes: $("review-notes").value,
-      review_state: reviewState, review_ms: Math.round(desk.reviewMs)})});
+      review_state: reviewState, review_ms: Math.round(desk.reviewMs),
+      reported_actor: "human"})});
     desk.work = work; desk.dirty = false; desk.reviewMs = 0;
     const listed = desk.data.works.find(item => item.slug === work.slug);
     listed.review_state = work.review_state; listed.has_draft = true;
@@ -269,7 +307,7 @@ function changeTempo(reset = false) {
   stopPlayback();
   const bpm = reset ? desk.scoreBpm : Number($("bpm").value);
   if (!Number.isFinite(bpm) || bpm < Number($("bpm").min) || bpm > Number($("bpm").max)) {
-    $("bpm").setAttribute("aria-invalid", "true"); $("play").disabled = true;
+    $("bpm").setAttribute("aria-invalid", "true"); updatePlaybackControls();
     message(`Choose a BPM from ${$("bpm").min} to ${$("bpm").max}.`, true); return;
   }
   desk.tempoOverride = reset ? null : bpm;
@@ -278,12 +316,18 @@ function changeTempo(reset = false) {
     else localStorage.setItem(tempoKey(), String(bpm));
   } catch (_) {}
   showTempo();
-  $("play").disabled = !desk.playbackValid;
-  message(`Playback tempo: ${bpm} BPM. Press Play to restart.`);
+  updatePlaybackControls();
+  message(`Playback tempo: ${bpm} BPM. Press Play or Play from here to restart.`);
 }
 
-async function play() {
+async function play(fromHere = false) {
   if (!desk.playbackValid || desk.loading || $("bpm").getAttribute("aria-invalid") === "true") return;
+  const streams = fromHere ? ReviewPlayback.fromSelection(desk.audioEvents, desk.chordEvents,
+    desk.visualEvents, desk.selectedSourceIndex) : {
+    audioEvents: desk.audioEvents, chordEvents: desk.chordEvents, visualEvents: desk.visualEvents};
+  if (!streams) {
+    message("Click a note or rest visited by the playback route, then press Play from here."); return;
+  }
   stopPlayback();
   const revision = desk.playbackRevision;
   const Context = window.AudioContext || window.webkitAudioContext;
@@ -295,14 +339,14 @@ async function play() {
     desk.playbackRate = rate;
     const base = desk.audio.currentTime + .1;
     let last = 0;
-    for (const event of desk.audioEvents) {
+    for (const event of streams.audioEvents) {
       const [, time, instrument, pitch, duration, volume] = event;
       if (instrument < 0 || pitch <= 0 || volume <= 0 || duration <= 0) continue;
       if (![time, pitch, duration].every(Number.isFinite) || time > 1800) continue;
       scheduleTone(pitch, base + time / rate, Math.min(duration, 60) / rate, .075, "triangle");
       last = Math.max(last, time + Math.min(duration, 60));
     }
-    for (const chord of desk.chordEvents) {
+    for (const chord of streams.chordEvents) {
       if (![chord.start, chord.duration].every(Number.isFinite) || chord.start < 0 ||
           chord.start > 1800 || chord.duration <= 0) continue;
       const pitches = [...new Set(chord.pitches)].filter(pitch => Number.isFinite(pitch) && pitch > 0 && pitch < 128);
@@ -313,11 +357,12 @@ async function play() {
       }
       last = Math.max(last, chord.start + duration);
     }
-    for (const event of desk.visualEvents) last = Math.max(last, event.end);
+    for (const event of streams.visualEvents) last = Math.max(last, event.end);
+    desk.runningVisualEvents = streams.visualEvents;
     desk.playbackStart = base; desk.playbackEnd = base + last / rate; desk.playing = true;
     desk.playbackFrame = requestAnimationFrame(followPlayback);
-    $("stop").disabled = false; $("play").disabled = true;
-    message(`Playing at ${desk.tempoOverride ?? desk.scoreBpm} BPM${desk.chordEvents.length ? " with quiet chord accompaniment" : ""}.`);
+    $("stop").disabled = false; updatePlaybackControls();
+    message(`Playing ${fromHere ? "from the selection " : ""}at ${desk.tempoOverride ?? desk.scoreBpm} BPM${streams.chordEvents.length ? " with quiet chord accompaniment" : ""}.`);
   } catch (error) { stopPlayback(); message(error.message, true); }
 }
 
@@ -344,7 +389,7 @@ function followPlayback() {
   if (desk.audio.currentTime >= desk.playbackEnd + .025) {
     stopPlayback(); return;
   }
-  const active = ReviewPlayback.activeAt(desk.visualEvents, (desk.audio.currentTime - desk.playbackStart) * desk.playbackRate);
+  const active = ReviewPlayback.activeAt(desk.runningVisualEvents, (desk.audio.currentTime - desk.playbackStart) * desk.playbackRate);
   const indices = new Set(active.map(event => event.index));
   if (indices.size !== desk.highlighted.size || [...indices].some(index => !desk.highlighted.has(index))) {
     for (const hit of $("notation").querySelectorAll(".score-hit")) {
@@ -369,13 +414,13 @@ function followPlayback() {
 }
 
 function stopPlayback() {
-  desk.playbackRevision++; desk.playing = false;
+  desk.playbackRevision++; desk.playing = false; desk.runningVisualEvents = [];
   cancelAnimationFrame(desk.playbackFrame);
   desk.highlighted.clear(); desk.followIndex = null;
   $("notation").querySelectorAll(".playing").forEach(node => node.classList.remove("playing"));
   for (const oscillator of desk.oscillators) { try { oscillator.stop(); } catch (_) {} }
   desk.oscillators = []; $("stop").disabled = true;
-  $("play").disabled = !desk.playbackValid || desk.loading || $("bpm").getAttribute("aria-invalid") === "true";
+  updatePlaybackControls();
 }
 
 function updateTime() {
@@ -408,15 +453,25 @@ $("source-select").addEventListener("change", changeSource);
 $("zoom").addEventListener("input", () => { $("source-image").style.width = `${$("zoom").value}%`; });
 $("save").onclick = () => save("draft");
 $("approve").onclick = () => save("reviewed");
-$("play").onclick = play; $("stop").onclick = stopPlayback;
+$("play").onclick = () => play(); $("play-from-here").onclick = () => play(true);
+$("stop").onclick = stopPlayback;
 $("bpm").addEventListener("input", () => changeTempo());
 $("reset-tempo").onclick = () => changeTempo(true);
 $("download").onclick = () => { if (!desk.dirty) location.href = `${workPath()}/export.abc`; };
 $("notation").onclick = event => {
+  if (desk.loading) return;
   const hit = event.target.closest(".score-hit"); if (!hit) return;
-  $("notation").querySelectorAll(".selected").forEach(node => node.classList.remove("selected"));
-  hit.classList.add("selected"); $("abc").focus();
-  $("abc").setSelectionRange(Number(hit.dataset.start), Number(hit.dataset.end));
+  stopPlayback(); clearPlaybackSelection();
+  if (["note", "rest"].includes(hit.dataset.type)) desk.selectedSourceIndex = Number(hit.dataset.start);
+  hit.classList.add("selected");
+  const editor = $("abc"), pageX = window.scrollX, pageY = window.scrollY;
+  editor.setSelectionRange(Number(hit.dataset.start), Number(hit.dataset.end));
+  editor.focus({preventScroll: true});
+  revealEditorSelection(editor, Number(hit.dataset.start));
+  window.scrollTo(pageX, pageY);
+  updatePlaybackControls();
+  message(desk.selectedSourceIndex === null ? "Bar selected in the editor. Click a note or rest to choose a playback start." :
+    "Playback start selected. Press Play from here to start at its first performed visit.");
 };
 window.addEventListener("resize", () => {
   clearTimeout(desk.renderTimer); desk.renderTimer = setTimeout(renderNotation, 300);

@@ -17,7 +17,7 @@
     <label class="sr-only" for="search">Find a melody</label>
     <input id="search" type="search" placeholder="Find a melody…" autocomplete="off">
     <nav id="works" aria-label="Melodies"></nav>
-    <footer class="library-footer"><span id="library-count"></span><p>One melody at a time.<br>Every correction preserved.</p></footer>
+    <footer class="library-footer"><span id="library-count"></span><p>One melody at a time.<br>Your saved draft stays here.</p></footer>
   </aside>
   <main>
     <header class="work-header">
@@ -33,10 +33,10 @@
           <p class="panel-caption" id="source-caption">Use the full page to check the key, meter, and surrounding phrases.</p>
         </section>
         <section class="panel notation-panel" aria-labelledby="notation-heading">
-          <div class="panel-heading"><h2 id="notation-heading"><span class="step">02</span> Transcription</h2><div class="panel-tools"><button id="play" disabled>▶ Play</button><button id="stop" disabled>Stop</button><button id="download" disabled>Download ABC</button></div></div>
+          <div class="panel-heading"><h2 id="notation-heading"><span class="step">02</span> Transcription</h2><div class="panel-tools"><button id="play" title="Play from the beginning" disabled>▶ Play</button><button id="play-from-here" title="Start at the selected note or rest's first performed visit, then follow the remaining route." aria-describedby="playback-help" disabled>▶ Play from here</button><button id="stop" disabled>Stop</button><button id="download" disabled>Download ABC</button></div></div>
           <div class="tempo-controls"><label for="bpm">Tempo ♩ =</label><input id="bpm" type="number" min="20" max="400" step="1" value="120" aria-label="Playback BPM" aria-describedby="tempo-help" disabled><span>BPM</span><button id="reset-tempo" disabled>Score tempo</button><span id="tempo-help">Listening speed only · change, then Play.</span></div>
           <div id="notation" tabindex="0" aria-label="Rendered transcription"><p class="empty">Your transcription will appear here.</p></div>
-          <p class="panel-caption playback-caption"><span>Click a note or rest to find it in the editor. Playback uses a simple reference tone.</span><label><input id="follow-playback" type="checkbox" checked> Follow playback</label></p>
+          <p class="panel-caption playback-caption"><span id="playback-help">Click a note or rest to find its ABC, then Play from here. Repeats start at the first performed visit. Playback uses a simple reference tone.</span><label><input id="follow-playback" type="checkbox" checked> Follow playback</label></p>
         </section>
       </div>
       <aside class="editing" aria-label="Transcription editor">

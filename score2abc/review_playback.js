@@ -20,8 +20,129 @@ const ReviewPlayback = (() => {
   }
 
   function requireSafeRepeat(first, constants) {
-    const warning = repeatWarning(first, constants);
+    const warning = playbackWarning(first, constants);
     if (warning) throw new Error(warning);
+  }
+
+  function partPlan(first, constants) {
+    if (!first.parts) return null;
+    const fail = reason => { throw new Error(`Playback is disabled: ${reason} You can still edit and save.`); };
+    const order = first.parts.replace(/\s/g, "");
+    if (!/^[A-Z]{1,128}$/.test(order)) fail("Use at most 128 single-letter section names in the P: order.");
+    const sections = [], names = new Set();
+    let end = 0;
+    for (let s = first; s; s = s.ts_next) {
+      if ([constants.NOTE, constants.REST].includes(s.type)) end = Math.max(end, s.time + s.dur);
+      if (!s.part) continue;
+      const name = s.part.text.trim();
+      if (!/^[A-Z]$/.test(name) || names.has(name)) fail("Each section needs a unique single-letter P: label.");
+      names.add(name); sections.push({name, start: s.time});
+    }
+    if (!sections.length || sections[0].start !== 0) fail("Label the first section at the start of the music.");
+    for (let i = 0; i < sections.length; i++) {
+      sections[i].end = sections[i + 1]?.start ?? end;
+      if (sections[i].end <= sections[i].start) fail("Each section must contain music.");
+    }
+    if ([...order].some(name => !names.has(name))) fail("The P: order refers to a missing section label.");
+    return {order, sections};
+  }
+
+  function playbackWarning(first, constants) {
+    try {
+      if (partPlan(first, constants)) return null;
+    } catch (error) { return error.message; }
+    return repeatWarning(first, constants);
+  }
+
+  function fillMissingTieIds(first, constants) {
+    // This abc2svg build links tied heads but leaves b40 unset. ToAudio uses
+    // b40 to find each continuation, so unset chord heads all match one head.
+    for (let symbol = first; symbol; symbol = symbol.ts_next) {
+      if (symbol.type !== constants.NOTE) continue;
+      for (const note of symbol.notes) {
+        if (!note.tie_ty || !note.tie_e || note.tie_s) continue;
+        const chain = [], seen = new Set();
+        let head = note;
+        while (head && !seen.has(head)) {
+          chain.push(head); seen.add(head); head = head.tie_e;
+        }
+        if (head) continue; // Leave an invalid cyclic tie to the renderer.
+        const existing = new Set(chain.map(item => item.b40).filter(id => id != null));
+        if (existing.size > 1) continue; // Keep conflicting supplied identities intact.
+        const id = existing.size ? existing.values().next().value : Symbol("tie");
+        for (const item of chain) if (item.b40 == null) item.b40 = id;
+      }
+    }
+  }
+
+  function audioEvents(Audio, first, voices, constants) {
+    requireSafeRepeat(first, constants);
+    const plan = partPlan(first, constants), times = new Map();
+    for (let s = first; s; s = s.ts_next) {
+      if (Number.isInteger(s.istart)) times.set(s.istart, s.time);
+    }
+    fillMissingTieIds(first, constants);
+    const audio = new Audio(), bars = [];
+    try {
+      if (plan) for (let s = first; s; s = s.ts_next) {
+        if (s.type !== constants.BAR) continue;
+        bars.push([s, Object.getOwnPropertyDescriptor(s, "bar_type"),
+          Object.getOwnPropertyDescriptor(s, "text")]);
+        // P: owns the route; convert every written ending once, without local jumps.
+        s.bar_type = "|"; s.text = "";
+      }
+      audio.add(first, voices);
+    } finally {
+      // The parser engraves after this callback, including when conversion fails.
+      for (const [s, barType, text] of bars) {
+        if (barType) Object.defineProperty(s, "bar_type", barType);
+        else delete s.bar_type;
+        if (text) Object.defineProperty(s, "text", text);
+        else delete s.text;
+      }
+    }
+    const raw = Array.from(audio.clear() || [], event => Array.from(event));
+    if (!plan) return raw;
+    // Reorder audio occurrences, retaining original source offsets for score following.
+    // MIDI pitches already include each section's written key/accidental state.
+    const timed = raw.filter(e => times.has(e[0]) && e[2] >= 0 && e[4] > 0);
+    const rendered = new Map();
+    for (const section of plan.sections) {
+      const music = timed.filter(e => times.get(e[0]) >= section.start && times.get(e[0]) < section.end);
+      if (!music.length || Math.min(...music.map(e => times.get(e[0]))) !== section.start) {
+        throw new Error("Playback is disabled: each section must begin with a note or rest.");
+      }
+      const start = Math.min(...music.map(e => e[1]));
+      const next = timed.filter(e => times.get(e[0]) >= section.end);
+      const end = next.length ? Math.min(...next.map(e => e[1])) : Math.max(...music.map(e => e[1] + e[4]));
+      if (music.some(e => e[1] + e[4] > end + .0001)) {
+        throw new Error("Playback is disabled: a held note crosses a section boundary. Check the tie or section label.");
+      }
+      const events = raw.filter(e => {
+        const time = times.get(e[0]);
+        return time >= section.start && (time < section.end ||
+          (time === section.end && e[3] === 0 && e[4] === 0)); // Closing bar markers.
+      });
+      rendered.set(section.name, {events, start, writtenEnd: section.end, duration: end - start});
+    }
+    const result = raw.filter(e => !times.has(e[0])), duration = [...plan.order]
+      .reduce((total, name) => total + rendered.get(name).duration, 0);
+    if (!Number.isFinite(duration) || duration <= 0 || duration > 1800) {
+      throw new Error("Playback is disabled: the section order exceeds the 30-minute playback limit.");
+    }
+    let offset = 0;
+    for (const name of plan.order) {
+      const section = rendered.get(name);
+      for (const event of section.events) {
+        const copy = [...event];
+        // A closing marker and the final note's end can round differently in ToAudio.
+        copy[1] = times.get(event[0]) === section.writtenEnd ? offset + section.duration :
+          offset + event[1] - section.start;
+        result.push(copy);
+      }
+      offset += section.duration;
+    }
+    return result;
   }
 
   function initialBpm(first, constants) {
@@ -56,6 +177,57 @@ const ReviewPlayback = (() => {
     return events.filter(event => event.start <= seconds && seconds < event.end);
   }
 
+  function fromSelection(audioEvents, chordEvents, visualEvents, sourceIndex) {
+    if (!Number.isInteger(sourceIndex) || sourceIndex < 0 ||
+        ![audioEvents, chordEvents, visualEvents].every(Array.isArray)) return null;
+    const validVisual = event => event && Number.isInteger(event.index) && event.index >= 0 &&
+      [event.start, event.end].every(Number.isFinite) && event.start >= 0 &&
+      event.start <= 1800 && event.end > event.start;
+    // One written symbol can occur several times. A selection always starts at
+    // its first performed visit and keeps the existing route's complete suffix.
+    const start = visualEvents.reduce((first, event) => validVisual(event) &&
+      event.index === sourceIndex ? Math.min(first, event.start) : first, Infinity);
+    if (!Number.isFinite(start)) return null;
+    const audio = [];
+    for (const event of audioEvents) {
+      if (!Array.isArray(event)) continue;
+      const [index, time, instrument, pitch, duration, volume] = event;
+      if (![index, time, instrument, pitch, duration, volume].every(Number.isFinite) ||
+          !Number.isInteger(index) || index < 0 || time < 0 || time > 1800 ||
+          instrument < 0 || duration <= 0 ||
+          !((pitch > 0 && volume > 0) || (pitch === 0 && volume === 0))) continue;
+      // Apply the player's hold limit before clipping, so a selection cannot
+      // extend an already capped note or retrigger each written tie continuation.
+      const end = time + Math.min(duration, 60);
+      if (end <= start) continue;
+      const copy = [...event], onset = Math.max(time, start);
+      copy[1] = onset - start; copy[4] = end - onset;
+      audio.push(copy);
+    }
+    const chords = [];
+    for (const event of chordEvents) {
+      if (!event || ![event.start, event.duration].every(Number.isFinite) ||
+          event.start < 0 || event.start > 1800 || event.duration <= 0 ||
+          !Array.isArray(event.pitches) || !event.pitches.some(pitch =>
+            Number.isFinite(pitch) && pitch > 0 && pitch < 128)) continue;
+      // Accompaniment is already bar-limited; never infer a chord in a gap.
+      const end = event.start + Math.min(event.duration, 1800 - event.start);
+      if (end <= start) continue;
+      const onset = Math.max(event.start, start);
+      chords.push({...event, pitches: [...event.pitches], start: onset - start,
+        duration: end - onset});
+    }
+    const visual = visualEvents.filter(event => validVisual(event) && event.end > start)
+      .map(event => ({...event, start: Math.max(event.start, start) - start, end: event.end - start}));
+    // start is an original score-clock offset. end is the rebased remaining
+    // duration, including final rests; every returned stream uses seconds from 0.
+    const end = Math.max(
+      audio.reduce((last, event) => Math.max(last, event[1] + event[4]), 0),
+      chords.reduce((last, event) => Math.max(last, event.start + event.duration), 0),
+      visual.reduce((last, event) => Math.max(last, event.end), 0));
+    return {audioEvents: audio, chordEvents: chords, visualEvents: visual, start, end};
+  }
+
   function writtenEvents(Abc, Audio, constants, text) {
     let events = [];
     // Parse a separate display model: audio keeps its ties, while the cursor moves
@@ -72,9 +244,7 @@ const ReviewPlayback = (() => {
             delete note.ti2;
           }
         }
-        const audio = new Audio();
-        audio.add(first, voices);
-        events.push(...Array.from(audio.clear() || [], event => Array.from(event)));
+        events.push(...audioEvents(Audio, first, voices, constants));
       }
     });
     parser.tosvg("playback-follow", text);
@@ -143,10 +313,9 @@ const ReviewPlayback = (() => {
             delete note.tie_ty; delete note.ti2;
           }
         }
-        const audio = new Audio(); let raw;
+        let raw;
         try {
-          audio.add(first, voices);
-          raw = Array.from(audio.clear() || [], event => Array.from(event));
+          raw = audioEvents(Audio, first, voices, constants);
         } finally {
           // The parser continues engraving after this callback; remove timing-only symbols.
           for (const marker of markers) {
@@ -192,7 +361,7 @@ const ReviewPlayback = (() => {
     return {events: result, warnings: [...warnings]};
   }
 
-  return {initialBpm, repeatWarning, timeline, activeAt, writtenEvents, accompaniment};
+  return {initialBpm, repeatWarning, playbackWarning, audioEvents, timeline, activeAt, fromSelection, writtenEvents, accompaniment};
 })();
 
 if (typeof module === "object") module.exports = ReviewPlayback;
