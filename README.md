@@ -7,6 +7,30 @@ The collection inventory and current delivery plan are in
 contains 95 identifiable works; automatic whole-score transcription remains
 experimental.
 
+## Evaluation status
+
+The complete-score benchmark is in preparation. Six musician-reviewed performing
+editions are frozen, 30 editorial decisions have evidence labels, and the offline
+grader and comparison dashboard are implemented. **The new six-piece Astra–Terra
+comparison has not run; no full-score accuracy or model winner is claimed.**
+Source-supported event labels and isolated execution are still pending.
+
+Earlier, narrower experiments provide useful evidence:
+
+| Experiment | Observed result | Scope |
+| --- | --- | --- |
+| [Astra, original PDF, Extra High](docs/ASTRA_BENCHMARK.md) — 2026-09-09 | 7/7 exact bars versus 1/7 for the frozen automatic pipeline | One Aviador passage, one Astra attempt; not collection-wide accuracy. The report also documents a context-isolation erratum for its separate cropped-input arm. |
+| [Sol, High calibration](docs/SOL_CALIBRATION.md) — 2026-09-22 | 1/14 completely matching bars | Two consumed passages, compared with saved reviewed ABC under a different protocol; not a matched full-score model comparison. |
+
+These results are historical and must not be pooled into the new benchmark.
+See the [evaluation plan](docs/EVALUATION_PLAN.md),
+[grader guide](docs/EVAL_HARNESS_V1.md), and
+[proposed comparison/versioning design](docs/EVAL_VERSIONING.md).
+On a machine with the local artifacts, open `out/eval/comparison/index.html`.
+The synthetic grader demonstration is separate from model results. Source PDFs,
+review histories and generated reports remain excluded from Git; published
+summaries should link to reproducibility metadata without redistributing them.
+
 ## Usage (uv)
 
 Run the CLI through uv:
