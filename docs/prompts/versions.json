@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "current_review_instructions": "assisted_review_v2",
+  "selection": "Explicit composed task; historical packets are unchanged.",
+  "versions": [
+    {
+      "id": "assisted_review_v1",
+      "file": "assisted_review_v1.txt",
+      "sha256": "1970095f5e2ca826373b7aa2767086ae0ee01037d6218f47d7a139d6816a87c5",
+      "status": "preserved historical instructions",
+      "origin_task": "out/eval/reproduction/astra_api_fixed_output_20261029_v2/author_tasks/aviador_s8_review.txt",
+      "origin_task_sha256": "b0308d08ac2ad25545acacf5e8c484220238f9556d33c08fcf67755f9c36b476",
+      "extraction": "Generic middle three paragraphs; source scope and time allowance excluded."
+    },
+    {
+      "id": "assisted_review_v2",
+      "file": "assisted_review_v2.txt",
+      "sha256": "fa98e62164fba222d497038601c100bf1814b8830475681b6b8d86a7576b2912",
+      "created_date": "2026-10-29",
+      "status": "development; no model run yet",
+      "parent": "assisted_review_v1",
+      "changes": [
+        "Compare ambiguous accidental shapes against neighboring source examples.",
+        "Use musical context inside supplied PDF as secondary support, never as proof of ink.",
+        "Distinguish source evidence, editorial inference, alternatives and uncertainty."
+      ],
+      "applicable_backends": [
+        "api",
+        "subscription"
+      ]
+    }
+  ]
+}

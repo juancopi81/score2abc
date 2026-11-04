@@ -3,7 +3,9 @@
 The pilot approved on 2026-10-28 reproduces the earlier visual-reading workflow
 before another model comparison. It runs Aviador system 8 first and advances to
 the complete Rumichaca manuscript only after a preregistered gate passes. Terra
-and the full six-piece comparison are deferred until these findings are reported.
+and the full six-piece comparison were deferred until these findings were reported.
+The subsequent bounded comparison is recorded in
+[Assisted Astra–Terra comparison](ASSISTED_MODEL_COMPARISON.md).
 
 ## What is being reproduced
 

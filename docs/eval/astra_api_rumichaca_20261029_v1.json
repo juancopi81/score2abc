@@ -1,0 +1,720 @@
+{
+  "schema_version": 1,
+  "kind": "astra_api_full_score_pilot_report",
+  "experiment_id": "astra_api_rumichaca_20261029_v1",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "review_instructions_version": "assisted_review_v2",
+  "resources": {
+    "initial": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.9528766457225348,
+      "cached_input_tokens": 2022454,
+      "conservative_estimate_usd": "7.894254",
+      "input_tokens": 2122472,
+      "output_tokens": 67427,
+      "seconds": 1572.0644876250008
+    },
+    "reviewed": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.9416592961927034,
+      "cached_input_tokens": 957143,
+      "conservative_estimate_usd": "4.095043",
+      "input_tokens": 1016443,
+      "output_tokens": 33108,
+      "seconds": 767.7330337919993
+    }
+  },
+  "conservative_estimate_usd": "11.989297",
+  "actual_billed_usd": null,
+  "traces": {
+    "initial": {
+      "draft_checkpoints": 4,
+      "generation_requests": 53,
+      "source_crops": 47
+    },
+    "reviewed": {
+      "draft_checkpoints": 3,
+      "generation_requests": 34,
+      "source_crops": 30
+    }
+  },
+  "limitations": [
+    "Consumed development score, not unseen generalization.",
+    "Review v2 differs from the subscription baseline review v1; not a pure API transport comparison.",
+    "Source note labels cover only nine bars; edition agreement includes editorial choices."
+  ],
+  "live_reviews_unchanged": 13,
+  "report_sha256": "bf5abd3818fb1013526e2a00ff697eda0ced34eb55487600d12d600c295f98fa",
+  "stages": {
+    "initial": {
+      "status": "partial",
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.43243243243243246,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.13432835820895522,
+        "edition_note_f1": 0.5128205128205128,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": false,
+        "human_review_minutes": null,
+        "meter_valid_rate": 0.29850746268656714,
+        "source_note_f1": 0.46153846153846156
+      },
+      "coverage": {
+        "alignment_columns": 67,
+        "candidate_measures": 67,
+        "exact_measures": 9,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 67,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 12,
+        "source_predicted_noteheads": 16,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 16,
+          "predicted": 29
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 100,
+          "predicted": 196
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 2,
+          "predicted": 3
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "execution_status": "complete",
+      "validation": {
+        "counts": {
+          "chord_labels": 29,
+          "measures": 67,
+          "noteheads": 196,
+          "performed_measures": 132,
+          "rests": 3
+        },
+        "issues": [
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 2,
+            "observed_ticks": 960,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 3,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 4,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 5,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 6,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 7,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 9,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 10,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 11,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 12,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 13,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 14,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 15,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 16,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 21,
+            "observed_ticks": 1536,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 23,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 28,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 29,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 32,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 33,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 39,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 40,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 41,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 42,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 43,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 44,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 46,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 47,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 48,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 49,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 50,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 51,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 53,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 54,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 55,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 56,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 57,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 58,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 59,
+            "observed_ticks": 1536,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 60,
+            "observed_ticks": 384,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 61,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 62,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 63,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 64,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 65,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 66,
+            "observed_ticks": 576,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 67,
+            "observed_ticks": 576,
+            "partial_reason": null
+          }
+        ],
+        "route_status": "resolved"
+      }
+    },
+    "reviewed": {
+      "status": "partial",
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.43243243243243246,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.2222222222222222,
+        "edition_note_f1": 0.8020565552699229,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": true,
+        "human_review_minutes": null,
+        "meter_valid_rate": 0.9333333333333333,
+        "source_note_f1": 0.6944444444444444
+      },
+      "coverage": {
+        "alignment_columns": 45,
+        "candidate_measures": 45,
+        "exact_measures": 10,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 45,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 25,
+        "source_predicted_noteheads": 36,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 16,
+          "predicted": 29
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 156,
+          "predicted": 195
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 2,
+          "predicted": 4
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "execution_status": "complete",
+      "validation": {
+        "counts": {
+          "chord_labels": 29,
+          "measures": 45,
+          "noteheads": 195,
+          "performed_measures": 132,
+          "rests": 4
+        },
+        "issues": [
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 2,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 16,
+            "observed_ticks": 768,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 44,
+            "observed_ticks": 1536,
+            "partial_reason": null
+          }
+        ],
+        "route_status": "resolved"
+      }
+    }
+  },
+  "subscription_baseline": {
+    "initial": {
+      "status": "complete",
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.7027027027027027,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.4444444444444444,
+        "edition_note_f1": 0.8814432989690721,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": false,
+        "human_review_minutes": null,
+        "meter_valid_rate": 1.0,
+        "source_note_f1": 0.9722222222222222
+      },
+      "coverage": {
+        "alignment_columns": 45,
+        "candidate_measures": 45,
+        "exact_measures": 20,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 45,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 35,
+        "source_predicted_noteheads": 36,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 26,
+          "predicted": 29
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 171,
+          "predicted": 194
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 2,
+          "predicted": 4
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "execution_status": "complete",
+      "validation": {
+        "counts": {
+          "chord_labels": 29,
+          "measures": 45,
+          "noteheads": 194,
+          "performed_measures": 88,
+          "rests": 4
+        },
+        "issues": [],
+        "route_status": "resolved"
+      }
+    },
+    "reviewed": {
+      "status": "complete",
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.7027027027027027,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.5111111111111111,
+        "edition_note_f1": 0.9354005167958657,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": false,
+        "human_review_minutes": null,
+        "meter_valid_rate": 1.0,
+        "source_note_f1": 0.9722222222222222
+      },
+      "coverage": {
+        "alignment_columns": 45,
+        "candidate_measures": 45,
+        "exact_measures": 23,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 45,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 35,
+        "source_predicted_noteheads": 36,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 26,
+          "predicted": 29
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 181,
+          "predicted": 193
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 2,
+          "predicted": 4
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "execution_status": "complete",
+      "validation": {
+        "counts": {
+          "chord_labels": 29,
+          "measures": 45,
+          "noteheads": 193,
+          "performed_measures": 117,
+          "rests": 4
+        },
+        "issues": [],
+        "route_status": "resolved"
+      }
+    }
+  },
+  "recommendation": "Pause scaling; inspect saved traces offline before proposing a versioned completion policy."
+}

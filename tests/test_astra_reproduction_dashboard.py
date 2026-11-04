@@ -204,6 +204,52 @@ def test_known_usage_is_partial_and_escaped_local_evidence_links_work(tmp_path):
     assert "<script" not in html and "<img " not in html
 
 
+@pytest.mark.parametrize("predecessor_first", [False, True])
+def test_primary_plan_excludes_explicit_pinned_predecessor_regardless_of_order(
+    tmp_path, predecessor_first
+):
+    report = report_fixture(tmp_path)
+    predecessor = {
+        "path": str(tmp_path / "baseline" / "evaluation_plan.json"),
+        "sha256": "b" * 64,
+    }
+    report["baseline_predecessor"] = {"plan": predecessor}
+    report["pins"].insert(0 if predecessor_first else len(report["pins"]), predecessor)
+    html = render_dashboard(save_report(tmp_path, report), tmp_path / "index.html")
+    assert f'Plan SHA256: <code>{"a" * 64}</code>' in html
+    assert f'Plan SHA256: <code>{"b" * 64}</code>' not in html
+
+
+@pytest.mark.parametrize(
+    "mutation", ["no_identity", "wrong_hash", "missing_pin", "multiple_primary", "no_primary"]
+)
+def test_primary_plan_remains_fail_closed_when_predecessor_or_selection_is_ambiguous(
+    tmp_path, mutation
+):
+    report = report_fixture(tmp_path)
+    predecessor = {
+        "path": str(tmp_path / "baseline" / "evaluation_plan.json"),
+        "sha256": "b" * 64,
+    }
+    report["pins"].append(dict(predecessor))
+    report["baseline_predecessor"] = {"plan": predecessor}
+    if mutation == "no_identity":
+        del report["baseline_predecessor"]
+        report["pins"][-1]["sha256"] = "a" * 64  # Equal bytes do not identify the primary path.
+    elif mutation == "wrong_hash":
+        predecessor["sha256"] = "c" * 64
+    elif mutation == "missing_pin":
+        report["pins"].pop()
+    elif mutation == "multiple_primary":
+        report["pins"].append(
+            {"path": str(tmp_path / "other" / "evaluation_plan.json"), "sha256": "a" * 64}
+        )
+    else:
+        report["pins"].pop(0)
+    with pytest.raises(ValueError):
+        render_dashboard(save_report(tmp_path, report), tmp_path / "index.html")
+
+
 def test_exact_edition_bar_denominator_penalizes_extra_candidate_bar(tmp_path):
     aviador_path = save_report(tmp_path, report_fixture(tmp_path))
     report = report_fixture(tmp_path, "rumichaca_full")

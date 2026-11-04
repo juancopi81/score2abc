@@ -38,6 +38,29 @@ STAGES = ("initial", "reviewed")
 WORKFLOW = "adaptive_source_inspection_author_then_independent_reader_v1"
 SEAL_KIND = "astra_assisted_workflow_submission_seal"
 SEAL_STATUS = "both_stages_frozen_before_reference_scoring"
+LEGACY_PLAN_KIND = "astra_assisted_workflow_reproduction_plan"
+COMPARISON_PLAN_KIND = "matched_assisted_workflow_comparison_plan"
+COMPARISON_POLICY = {
+    "target_selection": "both_preregistered_targets_regardless_of_aviador_outcome",
+    "rumichaca_prerequisite": "baseline_predecessor_frozen_before_comparison",
+}
+COMPARISON_MODELS = {"gpt-6-astra", "gpt-6.1-terra"}
+
+
+def _completed_report(report: dict) -> bool:
+    """Execution completion is independent of musical validity or accuracy."""
+    return (
+        report.get("schema_version") == 1
+        and report.get("both_stages_verified_before_reference_content") is True
+        and set(report.get("stages", {})) == set(STAGES)
+        and all(
+            lane.get("runtime", {}).get("status") == "complete"
+            and lane["runtime"].get("returncode") == 0
+            and lane["runtime"].get("complete") is True
+            and lane.get("completion_claim", True) is True
+            for lane in report["stages"].values()
+        )
+    )
 
 
 def sha(path: Path) -> str:
@@ -65,17 +88,96 @@ def verify_pin(root: Path, record: dict, label: str) -> Path:
     return path
 
 
+def _verify_comparison_predecessor(plan: dict, root: Path, started_at: str) -> list[dict]:
+    """Pin the original Astra baseline without opening musical reference content."""
+    predecessor = plan.get("baseline_predecessor", {})
+    baseline_path = verify_pin(root, predecessor.get("plan"), "Astra baseline plan")
+    baseline = read_json(baseline_path)
+    if (
+        baseline.get("kind") != LEGACY_PLAN_KIND
+        or baseline.get("status") != "preregistered_before_new_author_inference"
+        or baseline.get("model") != "gpt-6-astra"
+        or baseline.get("reasoning_effort") != plan["reasoning_effort"]
+        or baseline.get("workflow_id") != WORKFLOW
+        or baseline.get("source_policy") != "supplied_pdf_only"
+        or baseline.get("stages") != list(STAGES)
+        or baseline.get("evidence_kind") != plan.get("evidence_kind")
+        or baseline.get("stage_protocol", {}).get("deadline_seconds")
+        != plan["stage_protocol"]["deadline_seconds"]
+    ):
+        raise ValueError("Comparison must preserve the original Astra workflow and allowances")
+    contracts = {
+        "aviador_s8": (
+            "slug",
+            "system_index",
+            "source_pdf",
+            "grading_only_expected_measure_indices",
+            "historical_reference_pins",
+            "historical_protocol",
+            "advance_gate",
+            "unsupported_scope",
+        ),
+        "rumichaca_full": ("slug", "source_pdf", "frozen_reference", "labels"),
+    }
+    if set(plan.get("targets", {})) != set(contracts):
+        raise ValueError("Comparison must preregister both targets")
+    for target, keys in contracts.items():
+        if any(
+            key not in baseline.get("targets", {}).get(target, {})
+            or plan["targets"][target].get(key) != baseline["targets"][target][key]
+            for key in keys
+        ):
+            raise ValueError("Comparison source/scoring contracts differ from the Astra baseline")
+    reports = predecessor.get("reports", {})
+    if set(reports) != set(contracts):
+        raise ValueError("Comparison requires both original Astra baseline reports")
+    records = [pin(baseline_path)]
+    for target, record in reports.items():
+        path = verify_pin(root, record, f"Astra {target} baseline report")
+        report = read_json(path)
+        if (
+            report.get("kind") != "astra_assisted_workflow_reproduction_report"
+            or report.get("target_id") != target
+            or report.get("workflow_id") != WORKFLOW
+            or report.get("model") != "gpt-6-astra"
+            or report.get("reasoning_effort") != plan["reasoning_effort"]
+            or report.get("evidence_kind") != plan.get("evidence_kind")
+            or not _completed_report(report)
+            or not any(p.get("sha256") == sha(baseline_path) for p in report.get("pins", []))
+            or datetime.fromisoformat(report["created_at"]) > datetime.fromisoformat(started_at)
+        ):
+            raise ValueError("Original completed Astra reports must precede comparison inference")
+        implementations = report.get("implementations", {})
+        for name in (
+            "historical_scorer",
+            "historical_adapter",
+            "abc_normalizer",
+            "abc_parser",
+            "complete_score_grader",
+            "source_grader",
+        ):
+            implementation = verify_pin(ROOT, implementations.get(name), f"baseline {name}")
+            records.append(pin(implementation))
+        if implementations.get("renderer") != renderer_identity():
+            raise ValueError("Comparison renderer differs from the original Astra baseline")
+        records.append(pin(path))
+    return records
+
+
 def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dict, list[dict]]:
     """Verify both drafts and all source/workflow artifacts before any reference read."""
     plan, seal = read_json(plan_path), read_json(seal_path)
+    comparison = plan.get("kind") == COMPARISON_PLAN_KIND
     if (
-        plan.get("kind") != "astra_assisted_workflow_reproduction_plan"
+        plan.get("kind") not in {LEGACY_PLAN_KIND, COMPARISON_PLAN_KIND}
         or plan.get("status") != "preregistered_before_new_author_inference"
         or plan.get("workflow_id") != WORKFLOW
-        or plan.get("model") != "gpt-6-astra"
+        or plan.get("model") not in (COMPARISON_MODELS if comparison else {"gpt-6-astra"})
         or plan.get("reasoning_effort") != "xhigh"
         or plan.get("source_policy") != "supplied_pdf_only"
         or plan.get("stages") != list(STAGES)
+        or (comparison and plan.get("comparison_policy") != COMPARISON_POLICY)
+        or (not comparison and "comparison_policy" in plan)
     ):
         raise ValueError("Unsupported preregistered workflow plan")
     if (
@@ -195,7 +297,13 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
             raise ValueError("Decisions must be an array of objects")
         paths[stage]["provenance_data"] = provenance
         paths[stage]["decisions_data"] = decisions
-    if seal["target_id"] == "rumichaca_full":
+    if comparison:
+        records.extend(
+            _verify_comparison_predecessor(
+                plan, plan_path.parent, paths["initial"]["provenance_data"]["started_at"]
+            )
+        )
+    if seal["target_id"] == "rumichaca_full" and not comparison:
         prerequisite_path = verify_pin(
             root, seal.get("prerequisite_evaluation"), "Aviador gate report"
         )
@@ -204,6 +312,8 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
             prerequisite.get("kind") != "astra_assisted_workflow_reproduction_report"
             or prerequisite.get("target_id") != "aviador_s8"
             or prerequisite.get("workflow_id") != WORKFLOW
+            or prerequisite.get("model") != plan["model"]
+            or prerequisite.get("reasoning_effort") != plan["reasoning_effort"]
             or prerequisite.get("evidence_kind")
             != seal.get("evidence_kind", plan.get("evidence_kind"))
             or prerequisite.get("gate", {}).get("advance_to_rumichaca") is not True
@@ -574,6 +684,11 @@ def evaluate(
             "No reference feedback or adaptive retry is permitted after scoring either stage.",
         ],
     }
+    if plan["kind"] == COMPARISON_PLAN_KIND:
+        report.update(
+            comparison_policy=plan["comparison_policy"],
+            baseline_predecessor=plan["baseline_predecessor"],
+        )
     output_dir.mkdir(parents=True)
     (output_dir / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     return report

@@ -94,7 +94,8 @@ def test_event_audit_rejects_unknown_tools(tmp_path):
         runner.verify_events(p)
 
 
-def test_initial_context_rejects_extra_instructions(tmp_path, monkeypatch):
+@pytest.mark.parametrize("model", runner.SUPPORTED_MODELS)
+def test_initial_context_rejects_extra_instructions(tmp_path, monkeypatch, model):
     (tmp_path / "prompt.txt").write_text("Source-only task")
     (tmp_path / "overview.png").write_bytes(b"png")
     wrapper = [{"type": "namespace", "name": "functions", "tools": []}]
@@ -117,7 +118,7 @@ def test_initial_context_rejects_extra_instructions(tmp_path, monkeypatch):
         {"type": "input_text", "text": "Source-only task"},
     ]
     payload = {
-        "model": runner.MODEL,
+        "model": model,
         "reasoning": {"effort": runner.EFFORT},
         "store": False,
         "input": [
@@ -127,10 +128,67 @@ def test_initial_context_rejects_extra_instructions(tmp_path, monkeypatch):
             user,
         ],
     }
-    runner.verify_audit_request(payload, tmp_path, {"prompt_sha256": "x"})
+    metadata = {"model": model, "reasoning_effort": runner.EFFORT, "prompt_sha256": "x"}
+    assert runner.verify_audit_request(payload, tmp_path, metadata)["model"] == model
+    payload["model"] = next(item for item in runner.SUPPORTED_MODELS if item != model)
+    with pytest.raises(ValueError, match="model or effort"):
+        runner.verify_audit_request(payload, tmp_path, metadata)
+    payload["model"] = model
     payload["input"][2]["content"][0]["text"] += "\nLeaked reference hints"
     with pytest.raises(ValueError, match="developer"):
-        runner.verify_audit_request(payload, tmp_path, {"prompt_sha256": "x"})
+        runner.verify_audit_request(payload, tmp_path, metadata)
+
+
+def test_model_selection_changes_only_cli_model_argument(tmp_path):
+    metadata = {
+        "model": runner.MODEL,
+        "reasoning_effort": runner.EFFORT,
+        "catalog_overrides": {"tool_mode": "code_mode_only"},
+        "python": "/python",
+        "base_runtime": {"codex_path": "/codex"},
+    }
+    astra = runner.command(tmp_path, metadata)
+    terra = runner.command(tmp_path, {**metadata, "model": "gpt-6.1-terra"})
+    changed = [
+        index for index, (left, right) in enumerate(zip(astra, terra, strict=True)) if left != right
+    ]
+    assert changed == [astra.index("--model") + 1]
+    assert terra[changed[0]] == "gpt-6.1-terra"
+    assert 'forced_login_method="chatgpt"' in terra
+    assert 'model_reasoning_effort="xhigh"' in terra
+
+
+@pytest.mark.parametrize("model,effort", [("gpt-unknown", "xhigh"), ("gpt-6.1-terra", "low")])
+def test_rejects_unregistered_model_or_different_effort(model, effort):
+    with pytest.raises(ValueError, match="only Astra or Terra at xhigh"):
+        runner.verify_model_selection({"model": model, "reasoning_effort": effort})
+
+
+@pytest.mark.parametrize("model", runner.SUPPORTED_MODELS)
+def test_reader_binds_author_source_model_effort_and_workflow(model):
+    provenance = {
+        "source_pdf_sha256": "source-hash",
+        "model": model,
+        "reasoning_effort": runner.EFFORT,
+        "workflow_id": runner.WORKFLOW_ID,
+        "stage": "initial",
+        "status": "complete",
+        "returncode": 0,
+        "reference_access": False,
+    }
+    runner.verify_initial_author(provenance, "source-hash", model)
+    for key, wrong in {
+        "source_pdf_sha256": "different-source",
+        "model": next(item for item in runner.SUPPORTED_MODELS if item != model),
+        "reasoning_effort": "low",
+        "workflow_id": "different-workflow",
+        "stage": "reviewed",
+        "status": "partial",
+        "returncode": 1,
+        "reference_access": True,
+    }.items():
+        with pytest.raises(ValueError, match="matching source/model/effort/workflow"):
+            runner.verify_initial_author({**provenance, key: wrong}, "source-hash", model)
 
 
 def test_subscription_environment_does_not_forward_api_credentials(monkeypatch):
@@ -138,3 +196,61 @@ def test_subscription_environment_does_not_forward_api_credentials(monkeypatch):
     monkeypatch.setenv("OPENAI_BASE_URL", "https://synthetic.invalid")
     assert "OPENAI_API_KEY" not in runner.legacy._environment()
     assert "OPENAI_BASE_URL" not in runner.legacy._environment()
+
+
+@pytest.mark.parametrize("explicit", [False, True])
+def test_preparation_verifies_selected_runtime_before_reading_source(
+    tmp_path, monkeypatch, explicit
+):
+    selected = tmp_path / "new-runtime" if explicit else runner.legacy.RUNTIME_ROOT
+
+    def reject_changed_runtime(root):
+        assert root == selected
+        raise ValueError("changed binary")
+
+    monkeypatch.setattr(runner.legacy, "verify_runtime", reject_changed_runtime)
+    with pytest.raises(ValueError, match="changed binary"):
+        runner.prepare(
+            tmp_path / "absent.pdf",
+            tmp_path / "absent-prompt.txt",
+            tmp_path / "packet",
+            "initial",
+            3600,
+            model="gpt-6.1-terra",
+            runtime_dir=selected if explicit else None,
+        )
+    assert not (tmp_path / "packet").exists()
+
+
+def test_partial_author_review_is_explicit_and_rejects_runtime_failures():
+    p = {
+        "source_pdf_sha256": "source",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "xhigh",
+        "workflow_id": runner.WORKFLOW_ID,
+        "stage": "initial",
+        "status": "partial",
+        "returncode": 0,
+        "reference_access": False,
+        "completed_turn": True,
+        "complete": False,
+        "quarantined": False,
+        "timed_out": False,
+        "error": None,
+    }
+    with pytest.raises(ValueError):
+        runner.verify_initial_author(p, "source", "gpt-6.1-terra")
+    runner.verify_initial_author(p, "source", "gpt-6.1-terra", allow_partial=True)
+    for key, value in {
+        "returncode": -9,
+        "completed_turn": False,
+        "quarantined": True,
+        "timed_out": True,
+        "error": "broken pipe",
+        "reference_access": True,
+        "model": "gpt-6-astra",
+    }.items():
+        with pytest.raises(ValueError):
+            runner.verify_initial_author(
+                {**p, key: value}, "source", "gpt-6.1-terra", allow_partial=True
+            )

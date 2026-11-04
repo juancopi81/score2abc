@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "kind": "human_source_and_editorial_adjudication",
+  "recorded_at": "2026-10-29T23:13:39.507548+00:00",
+  "slug": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo",
+  "adjudicator": "Juan Carlos (user)",
+  "source_pdf_sha256": "1b752c57fa5b330f430ab23db1beaa581f4b06bfadd1d0b5f3e94121dc037b24",
+  "source_image": {
+    "sha256": "b9510feaae86860c458c2399a2586e792e151d30f956ff2b113557394417cf59",
+    "scope": "Annotated low-note crop for musical row 7 bar 3 (global bar 44).",
+    "availability": "Private local image; not distributed."
+  },
+  "decisions": [
+    {
+      "id": "RU-HUMAN-20261029-02",
+      "global_measure": 2,
+      "musical_row": 1,
+      "row_measure": 2,
+      "classification": "human_confirmed_source_reading",
+      "adopted_abc_fragment": "^F A2 G e2",
+      "unit_note_length": "1/8",
+      "user_confirmation": "There is no rest; opening repeat bars/dots are followed by the accidental. Global bar 10 has the same rhythm, notes and chord.",
+      "evidence_origin": "supplied_pdf",
+      "context_comparison": {
+        "global_measure": 10,
+        "role": "Supporting within-PDF comparison, not a rule that repeated phrases must be identical."
+      },
+      "assessment": "Delete the experimental extra rest in a future corrected candidate; preserve original API result. Existing human edition already agrees."
+    },
+    {
+      "id": "RU-HUMAN-20261029-16",
+      "global_measure": 16,
+      "musical_row": 3,
+      "row_measure": 1,
+      "classification": "externally_supported_editorial_reconstruction",
+      "adopted_abc_fragment": "D2 ^C4",
+      "unit_note_length": "1/8",
+      "user_confirmation": "The leading D was seen in the linked YouTube rendition. The preceding F-E descent toward C-sharp also suggests D; a rest followed by a half note is not a pattern the user sees elsewhere.",
+      "evidence_origin": [
+        "external_video_reported_by_user",
+        "within_pdf_melodic_context"
+      ],
+      "external_source": {
+        "url": "https://www.youtube.com/watch?v=tuZOnugjJic",
+        "timestamp_seconds": null,
+        "verification": "User attribution recorded. Web retrieval failed; assistant has not independently verified the video passage."
+      },
+      "assessment": "D quarter is a well-supported musical hypothesis from context, not uniquely entailed by the PDF. A different justified complete reconstruction need not be a source-reading error. Retain the accepted edition, exclude this inferred note from PDF-only source accuracy.",
+      "prior_label": "RU-02 source basis was unresolved; this sidecar records the newly supplied external provenance without altering V3 labels."
+    },
+    {
+      "id": "RU-HUMAN-20261029-44",
+      "global_measure": 44,
+      "musical_row": 7,
+      "row_measure": 3,
+      "classification": "human_confirmed_source_reading",
+      "adopted_abc_fragment": "D _D C E G B",
+      "unit_note_length": "1/8",
+      "key_context": "one flat",
+      "user_confirmation": "This is one melodic line, not reconstruction. The first two noteheads have no ledger line through them; the next C does.",
+      "evidence_origin": [
+        "supplied_pdf",
+        "user_annotated_crop"
+      ],
+      "assessment": "Relative staff position, lack of ledger through the first two heads, the flat beside the second and the explicit ledger through the third support D-D-flat-C. Missing ledger alone would not prove pitch in a damaged scan; the surrounding geometry matters. The earlier speculative held-C overlay is not the preferred interpretation. The ledger argument alone does not independently certify every duration.",
+      "prior_metric_scope": "Bar 44 is excluded from the current nine-bar source metric. Any expanded source label set must be separately versioned and applied to archived outputs alike."
+    }
+  ],
+  "runtime_verified": {
+    "save_draft": "Deterministic meter feedback exists for every saved draft.",
+    "completion": "API complete currently requires complete_claimed and normalized.valid, not absence/disposition of meter warnings.",
+    "review_v2": "Already instructs consideration of local harmony, voice leading, and repeated/parallel passages using only the supplied PDF."
+  },
+  "regression_plan_status": "Recommendation for alignment; no runtime or prompt changes in this turn.",
+  "proposed_regression_plan": [
+    "Keep the successful subscription harness/version pinned and selectable; develop the new policy as an opt-in candidate.",
+    "For each code change, replay saved drafts through deterministic validation for both execution paths without model calls; test corrections, true pickups, documented exceptions, stale decisions, overlays and warning retention.",
+    "Version source labels separately. Regrade both old output sets under a new label version without rerunning transcription; never overwrite the original reported metrics.",
+    "Bundle justified changes before a small paid candidate test. Include clear-control passages as well as known errors; record that these cases are consumed development evidence.",
+    "Before adopting the candidate for subscription production, run a small fresh subscription regression check on the bundled version. Archived replay cannot establish how a model responds to changed feedback.",
+    "Reserve full-score and broader-suite fresh runs for promotion or major changes; use an untouched score to assess generalization. Repeat live trials if a close or noisy result would change the decision."
+  ],
+  "limits": "No guarantee of unchanged live model behavior from deterministic replay alone. The new completion policy must not force arbitrary rest padding or treat all speculative exceptions as resolved musical truth.",
+  "preservation": {
+    "original_api_report_sha256": "bf5abd3818fb1013526e2a00ff697eda0ced34eb55487600d12d600c295f98fa",
+    "original_scores_changed": false,
+    "frozen_labels_changed": false,
+    "prompts_changed": false,
+    "new_paid_model_calls": 0
+  },
+  "publication": {
+    "kind": "sanitized_public_copy",
+    "source_record": "docs/eval/rumichaca_human_adjudication_20261029.json",
+    "source_record_sha256": "434f960bc5a1abe16277bd0584bb7f30d1a83acb124cd3587151d491491cafba",
+    "redactions": [
+      "source_image.path"
+    ],
+    "scope": "Only the personal filesystem path was removed; historical evidence and the original record remain unchanged."
+  }
+}

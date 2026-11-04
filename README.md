@@ -16,43 +16,72 @@ V3 labels audit 67/312 source bars (268 noteheads) and preserve 30 documented
 editorial decisions. This partial model-assisted audit is distinct from agreement
 with the complete reviewed editions.
 
-The isolated Codex runner uses ChatGPT subscription authentication, with no model
-tools, PDF-derived images, bounded validation/repair and retained attempt records.
-Both Astra and Terra pass its synthetic image-and-repair canaries. The first
-versioned six-piece comparison ran on 2026-10-28, with one trial per piece and
-configuration, a 15-minute deadline per call and up to two repair passes:
+The latest [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
+uses adaptive PDF inspection, draft validation and an independent same-model
+reader, all through ChatGPT subscription authentication. Initial and reviewed
+outputs are retained separately; no reference answers reach the readers.
 
-| Configuration | Returned drafts | Audited-source note F1 | Edition note F1 |
-| --- | --- | ---: | ---: |
-| Astra, `xhigh` | 0; all 6 calls timed out | Unmeasured | Unmeasured |
-| Terra, `xhigh` | 3 structurally complete, 3 partial | 0.239 | 0.265 |
-
-F1 requires exact pitch, onset, duration and tie matches. Values are per-piece
-means, including partial drafts; the source audit covers only 67/312 bars.
-**The musical comparison remains incomplete, and no model winner is claimed.**
-This fixed-image, tool-free harness differs from the assisted drafting workflow
-used for the reviewed collection. See the [per-piece findings and next
-experiments](docs/EVAL_COMPARISON_20261028.md) and [portable metrics/version
-identities](docs/eval/astra_terra_20261028_v1.json).
-Subscription token usage is recorded when reported; USD cost remains unknown.
-
-A separate [source-inspection reproduction pilot](docs/ASTRA_BASELINE_REPRODUCTION.md)
-restored adaptive PDF crops, notation checks and a fresh independent Astra reader:
-
-| Target | Initial AI draft | After independent AI review |
+| After independent AI review | Astra, `xhigh` | Terra, `xhigh` |
 | --- | ---: | ---: |
-| Aviador's seven bars, exact note/rest matches | 6/7 | 7/7 |
-| Rumichaca, note F1 against the complete performing edition | 0.881 | 0.935 |
+| Aviador exact note/rest bars | 7/7 | 2/7 |
+| Rumichaca edition note F1 | 0.9354 | 0.6313 |
+| Rumichaca audited-source note F1, nine bars only | 0.9722 | 0.5823 |
+| Rumichaca written bars | 45/45 | 45/45 |
 
-Rumichaca returned all 45 bars in both stages. Its separate nine-bar source audit
-matched 35/36 note events in both; this does not measure whole-score source
-accuracy. Chord-event agreement was 0.703 and the performance routes differed
-from the approved edition. The [findings](docs/ASTRA_BASELINE_REPRODUCTION.md)
-explain harmony-repeat encoding and editorial form choices. Total model-run time
-was 14m 46s for Aviador and 57m 43s for Rumichaca, including independent review.
-These results use a different harness and longer stage limits; no Terra run was
-made under it. [Portable metrics and provenance](docs/eval/astra_workflow_reproduction_20261028_v1.json)
-remain separate from the tool-free cohort above.
+Terra's Rumichaca author stopped with 17 bars; its independent reader completed
+45. Its Aviador review worsened the initial 4/7 exact bars to 2/7. Astra remains
+the stronger baseline in these development cases. Terra used fewer output tokens
+and less model-run time, but this does not establish lower cost per acceptable
+score. Neither Rumichaca route exactly matched the adopted edition.
+
+Aviador's conditions match. Rumichaca has two disclosed changes: the installed
+Codex runtime updated overnight, and the reader was explicitly allowed to review
+a partial author draft. The earlier interrupted attempt is retained separately.
+Rumichaca is therefore descriptive evidence, not a clean model-only comparison.
+Its literal exact-bar metric also requires identical meter labels: Terra's `6/8`
+versus the edition's `3/4` yields 0 exact edition bars despite 17 bars with
+identical note events. Note F1 is unaffected by that meter-label mismatch.
+[Detailed findings](docs/ASSISTED_MODEL_COMPARISON.md) and
+[portable metrics](docs/eval/assisted_astra_terra_20261029_v1.json) retain these limits.
+
+The separate [Astra reproduction pilot](docs/ASTRA_BASELINE_REPRODUCTION.md)
+established the assisted baseline. An earlier fixed-image, tool-free six-piece
+experiment used 15-minute call deadlines: all six Astra calls timed out, while
+Terra returned three structurally complete and three partial drafts (mean edition
+note F1 0.265). That workflow differs from assisted drafting; its results remain
+[separately versioned](docs/EVAL_COMPARISON_20261028.md) and must not be pooled with
+the table above. Subscription token usage is recorded; USD cost remains unknown.
+
+A later [Astra API pilot](docs/API_WORKFLOW_PILOT.md) tested the same seven-bar
+source workflow with native API tools. The completed fresh pair removed dollar-driven
+truncation and both stages completed normally, but still matched **6/7 bars**,
+compared with subscription **7/7 after review**. It retained two pitch differences.
+The conservative estimate is **$3.37**, not a verified invoice. The earlier
+interrupted $3.86 pilot remains separate.
+The [reusable command](docs/ASSISTED_EXECUTION.md) now selects API or subscription
+explicitly; [portable v2 metrics](docs/eval/astra_api_fixed_output_20261029_v2.json)
+record the completed run, and [v1 metrics](docs/eval/astra_api_aviador_20261029_v1.json)
+preserve the earlier interruption and diagnostic-review amendment.
+
+Following human confirmation of the sharp, a **reviewer-only replay with v2
+instructions reached 7/7**, correcting the two pitches without changing the other
+six bars. It reused the saved API author draft and kept the same tools and
+20-minute review limit. The review took 5m26s, used 12,565 output tokens and
+92.4% cached input, with a conservative estimate of **$1.66** (actual per-run
+billing unverified). This is a consumed regression result, not a fresh author/reader
+pair or proof of general improvement.
+[Reviewer-only metrics](docs/eval/astra_api_review_context_20261029_v3.json) and
+[versioned instructions](docs/prompts/README.md) preserve the comparison.
+
+The subsequent [Rumichaca API pilot](docs/API_RUMICHACA_PILOT.md) completed a fresh
+author and independent v2 review in **39 minutes**. Review restored **45 written
+bars** and matched the adopted **132-bar playback route**, but edition note F1
+was **80.2% versus 93.5%** for the saved subscription result, with three meter
+warnings remaining. Nine-bar audited-source F1 was **69.4% versus 97.2%**.
+The conservative estimate is **$11.99**, actual billing unverified. Traces and
+[portable metrics](docs/eval/astra_api_rumichaca_20261029_v1.json) are preserved;
+scaling remains paused for offline diagnosis. Review versions differ, so this
+is not a pure API-versus-subscription comparison.
 
 Earlier, narrower experiments provide useful evidence:
 

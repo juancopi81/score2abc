@@ -36,6 +36,8 @@ from scripts.experiments import astra_source_tools as source_tools  # noqa: E402
 
 WORKFLOW_ID = "adaptive_source_inspection_author_then_independent_reader_v1"
 MODEL = "gpt-6-astra"
+SUPPORTED_MODELS = (MODEL, "gpt-6.1-terra")
+COMPLETION_POLICIES = ("completion_gate_v1",)
 EFFORT = "xhigh"
 # Inspected native CLI wrapper and deferred registry, not arbitrary trusted audit output.
 WRAPPER_SHA256 = "77ed314824ff66b17122eee21259267e5266b302e6fbe2caa8e6e14a00ce9eec"
@@ -91,6 +93,135 @@ def verify_seal(root: Path, kind: str) -> dict:
     return value
 
 
+def verify_model_selection(metadata: dict) -> None:
+    if metadata.get("model") not in SUPPORTED_MODELS or metadata.get("reasoning_effort") != EFFORT:
+        raise ValueError("This comparison supports only Astra or Terra at xhigh")
+
+
+def selected_source_tools(completion_policy: str | None = None):
+    """Select only a fixed trusted implementation; omission preserves the original tools."""
+    if completion_policy is None:
+        return source_tools
+    if completion_policy not in COMPLETION_POLICIES:
+        raise ValueError("Unsupported completion policy")
+    from scripts.experiments import astra_source_tools_gated
+
+    return astra_source_tools_gated
+
+
+def source_tool_files(completion_policy: str | None = None) -> dict[str, Path]:
+    selected_source_tools(completion_policy)
+    files = {"astra_source_tools.py": Path(source_tools.__file__)}
+    if completion_policy is not None:
+        for name in ("astra_source_tools_gated.py", "completion_gate.py"):
+            files[name] = Path(__file__).with_name(name)
+    return files
+
+
+def verify_source_bundle(bundle: Path, metadata: dict):
+    policy = metadata.get("completion_policy")
+    if policy is None and (
+        "completion_policy_sha256" in metadata
+        or any(
+            (bundle / name).exists()
+            for name in ("astra_source_tools_gated.py", "completion_gate.py")
+        )
+    ):
+        raise ValueError("Packet completion policy marker is missing")
+    selected = selected_source_tools(policy)
+    expected_files = source_tool_files(policy)
+    if any(
+        not (bundle / name).is_file() or sha((bundle / name).read_bytes()) != sha(path.read_bytes())
+        for name, path in expected_files.items()
+    ) or (
+        metadata.get("tools_sha256") != sha(encoded(selected.TOOLS))
+        or metadata.get("server_instructions_sha256") != sha(selected.SERVER_INSTRUCTIONS.encode())
+    ):
+        raise ValueError("Packet trusted tools changed")
+    if policy is not None and metadata.get("completion_policy_sha256") != sha(
+        expected_files["completion_gate.py"].read_bytes()
+    ):
+        raise ValueError("Packet completion policy changed")
+    config = json.loads((bundle / "tool_config.json").read_text())
+    if config.get("completion_policy") != policy:
+        raise ValueError("Packet completion policy differs from source configuration")
+    return selected
+
+
+def checkpoint_completion(selected: Path | None, metadata: dict) -> tuple[bool, dict]:
+    """Recompute the opt-in gate; never trust a saved readiness flag."""
+    policy = metadata.get("completion_policy")
+    selected_source_tools(policy)
+    if policy is not None:
+        from scripts.experiments import completion_gate
+
+        try:
+            result = (
+                completion_gate.evaluate_checkpoint(selected)
+                if selected is not None
+                else {"policy_version": policy, "completion_ready": False, "status": "no_draft"}
+            )
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            # Deadline-interrupted evidence must not lose an otherwise saved draft.
+            result = {
+                "policy_version": policy,
+                "completion_ready": False,
+                "status": "invalid_checkpoint_evidence",
+                "resolution_errors": ["Checkpoint validation failed: " + type(exc).__name__],
+            }
+        return result.get("completion_ready") is True, {
+            "completion_policy": policy,
+            "completion_policy_sha256": metadata["completion_policy_sha256"],
+            "completion_gate": result,
+        }
+    if selected is None:
+        return False, {}
+    checkpoint = json.loads((selected / "checkpoint.json").read_text())
+    normalized = json.loads((selected / "normalized.json").read_text())
+    return checkpoint["complete_claimed"] and normalized.get("valid") is True, {}
+
+
+def verify_initial_author(
+    provenance: dict,
+    source_sha256: str,
+    model: str,
+    *,
+    allow_partial: bool = False,
+    completion_policy: str | None = None,
+) -> None:
+    selected_source_tools(completion_policy)
+    if provenance.get("completion_policy") != completion_policy:
+        raise ValueError("Reader requires a matching author completion policy")
+    if completion_policy is not None and provenance.get("completion_policy_sha256") != sha(
+        source_tool_files(completion_policy)["completion_gate.py"].read_bytes()
+    ):
+        raise ValueError("Reader requires an unchanged author completion policy implementation")
+    expected = {
+        "source_pdf_sha256": source_sha256,
+        "model": model,
+        "reasoning_effort": EFFORT,
+        "workflow_id": WORKFLOW_ID,
+        "stage": "initial",
+        "status": (
+            "partial" if allow_partial and provenance.get("status") == "partial" else "complete"
+        ),
+        "returncode": 0,
+        "reference_access": False,
+    }
+    if any(provenance.get(key) != value for key, value in expected.items()):
+        raise ValueError(
+            "Reader requires a successful matching source/model/effort/workflow author"
+        )
+    if provenance.get("status") == "partial" and (
+        provenance.get("completed_turn") is not True
+        or provenance.get("complete") is not False
+        or provenance.get("quarantined") is not False
+        or provenance.get("timed_out") is not False
+        or provenance.get("error") is not None
+    ):
+        raise ValueError("Partial-author review requires a cleanly completed, non-quarantined turn")
+
+
 def prepare(
     pdf: Path,
     prompt_file: Path,
@@ -99,14 +230,23 @@ def prepare(
     limit_seconds: int,
     initial_run: Path | None = None,
     tool_mode: str = "code_mode_only",
+    model: str = MODEL,
+    runtime_dir: Path | None = None,
+    allow_partial_author: bool = False,
+    completion_policy: str | None = None,
 ) -> dict:
+    selected_tools = selected_source_tools(completion_policy)
+    verify_model_selection({"model": model, "reasoning_effort": EFFORT})
     if stage not in ("initial", "reviewed") or not 60 <= limit_seconds <= 3600:
         raise ValueError("Unsupported stage or author allowance")
     if tool_mode != "code_mode_only":
         raise ValueError("Unsupported tool mode")
     if (stage == "reviewed") != (initial_run is not None):
         raise ValueError("Reviewed stages require a sealed initial run")
-    runtime = legacy.verify_runtime()
+    if allow_partial_author and stage != "reviewed":
+        raise ValueError("Partial-author eligibility applies only to independent review")
+    runtime_root = legacy.RUNTIME_ROOT if runtime_dir is None else Path(runtime_dir).resolve()
+    runtime = legacy.verify_runtime(runtime_root)
     source = pdf.read_bytes()
     if not source.startswith(b"%PDF") or len(source) > 50_000_000:
         raise ValueError("Expected a bounded source PDF")
@@ -115,13 +255,13 @@ def prepare(
     if initial_run:
         verify_seal(initial_run, "astra_reproduction_stage")
         provenance = json.loads((initial_run / "stage_provenance.json").read_text())
-        if (
-            provenance.get("source_pdf_sha256") != sha(source)
-            or provenance.get("stage") != "initial"
-            or provenance.get("status") != "complete"
-            or provenance.get("returncode") != 0
-        ):
-            raise ValueError("Reader source differs from initial author stage")
+        verify_initial_author(
+            provenance,
+            sha(source),
+            model,
+            allow_partial=allow_partial_author,
+            completion_policy=completion_policy,
+        )
         initial_abc = (initial_run / "score.abc").read_text()
         initial_decisions = json.loads((initial_run / "decisions.json").read_text())
         initial_hash = sha(initial_abc.encode())
@@ -136,7 +276,8 @@ def prepare(
     (bundle / "source.pdf").write_bytes(source)
     (bundle / "prompt.txt").write_text(prompt)
     (bundle / "base.txt").write_text(BASE)
-    shutil.copyfile(Path(source_tools.__file__), bundle / "astra_source_tools.py")
+    for name, path in source_tool_files(completion_policy).items():
+        shutil.copyfile(path, bundle / name)
     shutil.copyfile(
         Path(__file__).with_name("astra_source_bridge.py"), bundle / "astra_source_bridge.py"
     )
@@ -166,11 +307,15 @@ def prepare(
         "node": str(Path(node).resolve()),
         "pdftoppm": str(Path(runtime["poppler_path"]).resolve()),
     }
+    if completion_policy is not None:
+        tool_config["completion_policy"] = completion_policy
     write(bundle / "tool_config.json", tool_config)
-    catalog = json.loads((legacy.RUNTIME_ROOT / "source_catalog.json").read_text())
-    models = [m for m in catalog["models"] if m["slug"] == MODEL]
+    catalog = json.loads((runtime_root / "source_catalog.json").read_text())
+    models = [m for m in catalog["models"] if m["slug"] == model]
     if len(models) != 1:
-        raise ValueError("Astra missing from installed source model catalog")
+        raise ValueError("Selected model missing from installed source model catalog")
+    if EFFORT not in {item["effort"] for item in models[0]["supported_reasoning_levels"]}:
+        raise ValueError("Selected model does not advertise xhigh support")
     catalog_override = {
         "tool_mode": tool_mode,
         "multi_agent_version": "none",
@@ -204,7 +349,7 @@ def prepare(
         "schema_version": 1,
         "workflow_id": WORKFLOW_ID,
         "stage": stage,
-        "model": MODEL,
+        "model": model,
         "reasoning_effort": EFFORT,
         "limit_seconds": limit_seconds,
         "source_pdf_sha256": sha(source),
@@ -223,8 +368,8 @@ def prepare(
         "registry_sha256": REGISTRY_SHA256,
         "catalog_overrides": catalog_override,
         "native_tool_mode": models[0].get("tool_mode"),
-        "tools_sha256": sha(encoded(source_tools.TOOLS)),
-        "server_instructions_sha256": sha(source_tools.SERVER_INSTRUCTIONS.encode()),
+        "tools_sha256": sha(encoded(selected_tools.TOOLS)),
+        "server_instructions_sha256": sha(selected_tools.SERVER_INSTRUCTIONS.encode()),
         "implementation": {
             str(Path(__file__).relative_to(REPO)): sha(Path(__file__).read_bytes()),
             "score2abc/score_eval_runner.py": sha(Path(legacy.__file__).read_bytes()),
@@ -232,6 +377,13 @@ def prepare(
     }
     host_wrapper = Path(runtime["codex_path"]).with_name("codex-code-mode-host")
     metadata["host_binary_files"] = {str(host_wrapper): sha(host_wrapper.read_bytes())}
+    if allow_partial_author:
+        metadata["allow_partial_author"] = True
+    if completion_policy is not None:
+        metadata["completion_policy"] = completion_policy
+        metadata["completion_policy_sha256"] = sha(
+            source_tool_files(completion_policy)["completion_gate.py"].read_bytes()
+        )
     write(output / "preparation.json", metadata)
     seal(output, "astra_reproduction_input")
     return metadata
@@ -249,6 +401,12 @@ def server_policy(workspace: Path) -> str:
 @contextlib.contextmanager
 def mcp_broker(workspace: Path, metadata: dict):
     """Relay fixed MCP JSON to a separately sandboxed no-network source process."""
+    selected_source_tools(metadata.get("completion_policy"))
+    tool_filename = (
+        "astra_source_tools_gated.py"
+        if metadata.get("completion_policy")
+        else "astra_source_tools.py"
+    )
     artifacts = workspace / "artifacts"
     artifacts.mkdir(exist_ok=True)
     with (artifacts / "mcp_server_stderr.txt").open("w") as errors:
@@ -258,7 +416,7 @@ def mcp_broker(workspace: Path, metadata: dict):
                 "-p",
                 server_policy(workspace),
                 metadata["python"],
-                str(workspace / "astra_source_tools.py"),
+                str(workspace / tool_filename),
                 str(workspace),
             ],
             cwd=workspace,
@@ -327,12 +485,13 @@ def mcp_broker(workspace: Path, metadata: dict):
 
 
 def controls(workspace: Path, metadata: dict) -> dict:
+    verify_model_selection(metadata)
     result = {key: value for key, value in legacy.CONTROLS.items() if key != "mcp_servers"}
     result.update(
         {
             "features.code_mode_host": metadata["catalog_overrides"]["tool_mode"]
             == "code_mode_only",
-            "model_reasoning_effort": EFFORT,
+            "model_reasoning_effort": metadata["reasoning_effort"],
             "model_instructions_file": str(workspace / "base.txt"),
             "model_catalog_json": str(workspace / "model_catalog.json"),
             "mcp_servers.source.command": metadata["python"],
@@ -381,7 +540,7 @@ def command(workspace: Path, metadata: dict, audit_url: str | None = None) -> li
         "--cd",
         str(workspace),
         "--model",
-        MODEL,
+        metadata["model"],
         "--json",
         "--output-last-message",
         str(workspace / "last.txt"),
@@ -394,6 +553,7 @@ def command(workspace: Path, metadata: dict, audit_url: str | None = None) -> li
 def copy_workspace(packet: Path, workspace: Path) -> dict:
     verify_seal(packet, "astra_reproduction_input")
     metadata = json.loads((packet / "preparation.json").read_text())
+    verify_source_bundle(packet / "bundle", metadata)
     for name, expected in metadata["implementation"].items():
         if sha((REPO / name).read_bytes()) != expected:
             raise ValueError("Prepared runner implementation changed")
@@ -511,11 +671,9 @@ def run(packet: Path, output: Path, audit_dir: Path) -> dict:
     if returncode and error is None:
         error = f"CLI exited {returncode}"
     checkpoints = sorted(output.glob("artifacts/drafts/draft_*/checkpoint.json"))
-    selected, complete = checkpoints[-1].parent if checkpoints else None, False
+    selected = checkpoints[-1].parent if checkpoints else None
+    complete, completion_provenance = checkpoint_completion(selected, metadata)
     if selected:
-        checkpoint = json.loads((selected / "checkpoint.json").read_text())
-        normalized = json.loads((selected / "normalized.json").read_text())
-        complete = checkpoint["complete_claimed"] and normalized.get("valid") is True
         shutil.copyfile(selected / "score.abc", output / "score.abc")
         shutil.copyfile(selected / "decisions.json", output / "decisions.json")
     provenance = {
@@ -558,6 +716,7 @@ def run(packet: Path, output: Path, audit_dir: Path) -> dict:
             "cost_usd": None,
             "human_review_minutes": None,
             **execution,
+            **completion_provenance,
         }
     )
     write(output / "stage_provenance.json", provenance)
@@ -684,6 +843,13 @@ def audit_packet(packet: Path, output: Path) -> dict:
             )
             if not feedback["valid"] or feedback["issues"]:
                 raise ValueError("Copied notation parser did not validate synthetic control")
+            if metadata.get("completion_policy") is not None:
+                ready, gate_provenance = checkpoint_completion(
+                    workspace / "artifacts/drafts/draft_001", metadata
+                )
+                if not ready:
+                    raise ValueError("Completion gate did not accept the synthetic control")
+                audit.update(gate_provenance)
             mirror(workspace, output)
             audit.update(
                 {
@@ -710,7 +876,11 @@ def stage_status(complete: bool, has_draft: bool, returncode: int, timed_out: bo
 
 
 def verify_audit_request(payload: dict, workspace: Path, metadata: dict) -> dict:
-    if payload.get("model") != MODEL or payload.get("reasoning", {}).get("effort") != EFFORT:
+    verify_model_selection(metadata)
+    if (
+        payload.get("model") != metadata["model"]
+        or payload.get("reasoning", {}).get("effort") != metadata["reasoning_effort"]
+    ):
         raise ValueError("Unexpected model or effort")
     if (
         payload.get("tools")
@@ -756,8 +926,8 @@ def verify_audit_request(payload: dict, workspace: Path, metadata: dict) -> dict
     if image_hash != sha((workspace / "overview.png").read_bytes()):
         raise ValueError("Overview changed in transport")
     return {
-        "model": MODEL,
-        "reasoning_effort": EFFORT,
+        "model": metadata["model"],
+        "reasoning_effort": metadata["reasoning_effort"],
         "input_image_sha256": image_hash,
         "prompt_sha256": metadata["prompt_sha256"],
         "wrapper_sha256": WRAPPER_SHA256,
@@ -776,6 +946,10 @@ def main() -> None:
     prep.add_argument("--stage", choices=("initial", "reviewed"), default="initial")
     prep.add_argument("--limit-seconds", type=int, default=1800)
     prep.add_argument("--initial-run", type=Path)
+    prep.add_argument("--model", choices=SUPPORTED_MODELS, default=MODEL)
+    prep.add_argument("--runtime-dir", type=Path)
+    prep.add_argument("--allow-partial-author", action="store_true")
+    prep.add_argument("--completion-policy", choices=COMPLETION_POLICIES)
     prep.add_argument("--tool-mode", choices=("code_mode_only", "direct"), default="code_mode_only")
     audit_parser = commands.add_parser("audit")
     audit_parser.add_argument("packet", type=Path)
@@ -794,6 +968,10 @@ def main() -> None:
             args.limit_seconds,
             args.initial_run,
             args.tool_mode,
+            args.model,
+            args.runtime_dir,
+            args.allow_partial_author,
+            args.completion_policy,
         )
     elif args.action == "audit":
         result = audit_packet(args.packet, args.output)

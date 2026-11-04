@@ -149,14 +149,20 @@ def _artifact_path(report: dict, record: dict) -> Path:
 
 
 def _plan_hash(report: dict) -> str:
-    hashes = {
-        pin["sha256"]
+    plans = {
+        (_local_path(pin["path"]), pin["sha256"])
         for pin in report.get("pins", [])
         if Path(pin["path"]).name == "evaluation_plan.json"
     }
-    if len(hashes) != 1:
+    predecessor = report.get("baseline_predecessor", {}).get("plan")
+    if predecessor is not None:
+        identity = (_artifact_path(report, predecessor), predecessor["sha256"])
+        if identity not in plans:
+            raise ValueError("Baseline predecessor must identify a pinned evaluation plan")
+        plans.remove(identity)
+    if len(plans) != 1:
         raise ValueError("Report must identify one evaluation plan")
-    return hashes.pop()
+    return plans.pop()[1]
 
 
 def _percent(value: object) -> str:

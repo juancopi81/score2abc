@@ -428,3 +428,203 @@ def test_real_abc_adapter_matches_synthetic_polyphonic_notes_and_rests():
     for row in [*rows, *expected]:
         row["notes"].sort(key=lambda n: (n["onset_beats"], n["pitch_midi"]))
     assert rows == expected
+
+
+def _repin_plan(args, plan):
+    """Update synthetic protocol pins after an intentional fixture mutation."""
+    _write(args[0], plan)
+    seal = json.loads(args[1].read_text())
+    execution_path = Path(seal["execution_contract"]["path"])
+    execution = json.loads(execution_path.read_text())
+    execution["plan_sha256"] = evaluator.sha(args[0])
+    _write(execution_path, execution)
+    seal.update(
+        plan_sha256=evaluator.sha(args[0]), execution_contract=evaluator.pin(execution_path)
+    )
+    _write(args[1], seal)
+
+
+def _repin_stage(args, stage, changes):
+    seal = json.loads(args[1].read_text())
+    original = seal["stages"][stage]["provenance"]
+    path = Path(original["path"])
+    provenance = json.loads(path.read_text())
+    provenance.update(changes)
+    _write(path, provenance)
+    replacement = evaluator.pin(path)
+    seal["artifacts"] = [replacement if item == original else item for item in seal["artifacts"]]
+    seal["stages"][stage]["provenance"] = replacement
+    _write(args[1], seal)
+
+
+def _comparison_fixture(
+    tmp_path, monkeypatch, target="aviador_s8", initial="good", reviewed="good"
+):
+    baseline_root = tmp_path / "baseline"
+    baseline_root.mkdir()
+    baseline_args = _full_score_fixture(baseline_root, monkeypatch)
+    baseline_report = evaluator.evaluate(*baseline_args)
+    baseline_plan = json.loads(baseline_args[0].read_text())
+    comparison_root = tmp_path / "comparison"
+    comparison_root.mkdir()
+    args = _fixture(comparison_root, monkeypatch, initial=initial, reviewed=reviewed)
+    plan = json.loads(args[0].read_text())
+    plan.update(
+        kind=evaluator.COMPARISON_PLAN_KIND,
+        model="gpt-6.1-terra",
+        comparison_policy=dict(evaluator.COMPARISON_POLICY),
+        targets=baseline_plan["targets"],
+        baseline_predecessor={
+            "plan": evaluator.pin(baseline_args[0]),
+            "reports": {
+                "aviador_s8": evaluator.pin(baseline_args[0].parent / "evaluation/report.json"),
+                "rumichaca_full": evaluator.pin(baseline_args[2] / "report.json"),
+            },
+        },
+    )
+    _repin_plan(args, plan)
+    seal = json.loads(args[1].read_text())
+    seal["target_id"] = target
+    _write(args[1], seal)
+    start = datetime.fromisoformat(baseline_report["created_at"]) + timedelta(seconds=1)
+    for stage in evaluator.STAGES:
+        _repin_stage(
+            args,
+            stage,
+            {
+                "model": "gpt-6.1-terra",
+                "deadline_seconds": plan["stage_protocol"]["deadline_seconds"][target][stage],
+                "started_at": start.isoformat(),
+                "finished_at": (start + timedelta(seconds=1)).isoformat(),
+            },
+        )
+    return args
+
+
+def test_matched_comparison_preserves_historical_scorer_and_descriptive_gate(tmp_path, monkeypatch):
+    args = _comparison_fixture(tmp_path, monkeypatch, initial="wrong", reviewed="wrong")
+    report = evaluator.evaluate(*args)
+    assert report["model"] == "gpt-6.1-terra"
+    assert report["reasoning_effort"] == "xhigh"
+    assert report["comparison_policy"] == evaluator.COMPARISON_POLICY
+    assert report["baseline_predecessor"] == json.loads(args[0].read_text())["baseline_predecessor"]
+    assert report["gate"]["advance_to_rumichaca"] is False
+    assert report["gate"]["initial_runtime_success"] is True
+    assert report["gate"]["reviewed_runtime_success"] is True
+    assert report["stages"]["reviewed"]["metrics"]["summary"]["exact_measures"] == 6
+    assert report["stages"]["reviewed"]["metrics"]["summary"]["note_f1"] == 0.875
+    assert report["baseline"]["historical_summary_reproduced"] is True
+
+
+def test_matched_full_score_has_no_terra_aviador_outcome_prerequisite(tmp_path, monkeypatch):
+    args = _comparison_fixture(tmp_path, monkeypatch, target="rumichaca_full")
+    assert "prerequisite_evaluation" not in json.loads(args[1].read_text())
+    # No Terra Aviador run/report exists. Its failure or low accuracy cannot select this case out.
+    report = evaluator.evaluate(*args)
+    assert report["target_id"] == "rumichaca_full"
+    assert report["model"] == "gpt-6.1-terra"
+    assert report["gate"] is None
+    assert report["comparison_policy"]["target_selection"].endswith("regardless_of_aviador_outcome")
+    assert all(lane["metrics"]["edition_note_f1"] == 1 for lane in report["stages"].values())
+
+
+def test_comparison_timeout_keeps_failure_evidence_without_changing_target_selection(
+    tmp_path, monkeypatch
+):
+    args = _comparison_fixture(tmp_path, monkeypatch)
+    _repin_stage(args, "initial", {"status": "failed", "returncode": 124, "complete": False})
+    report = evaluator.evaluate(*args)
+    assert report["gate"]["advance_to_rumichaca"] is False
+    assert report["gate"]["initial_runtime_success"] is False
+    assert report["stages"]["initial"]["runtime"]["status"] == "failed"
+    assert report["comparison_policy"] == evaluator.COMPARISON_POLICY
+
+
+def test_legacy_full_score_still_requires_a_passing_aviador_gate(tmp_path, monkeypatch):
+    args = _full_score_fixture(tmp_path, monkeypatch)
+    seal = json.loads(args[1].read_text())
+    path = Path(seal["prerequisite_evaluation"]["path"])
+    prerequisite = json.loads(path.read_text())
+    prerequisite["gate"]["advance_to_rumichaca"] = False
+    _write(path, prerequisite)
+    seal["prerequisite_evaluation"] = evaluator.pin(path)
+    _write(args[1], seal)
+    monkeypatch.setattr(evaluator, "verify_freeze", lambda _: pytest.fail("reference opened early"))
+    with pytest.raises(ValueError, match="requires a passing Aviador"):
+        evaluator.evaluate(*args)
+
+
+@pytest.mark.parametrize("field,value", [("model", "gpt-6-astra"), ("reasoning_effort", "high")])
+@pytest.mark.parametrize("stage", evaluator.STAGES)
+def test_comparison_requires_each_stage_to_match_planned_identity(
+    tmp_path, monkeypatch, field, value, stage
+):
+    args = _comparison_fixture(tmp_path, monkeypatch)
+    _repin_stage(args, stage, {field: value})
+    with pytest.raises(ValueError, match="provenance differs"):
+        evaluator.evaluate(*args, truth_loader=lambda _: pytest.fail("truth opened early"))
+    assert not args[2].exists()
+
+
+@pytest.mark.parametrize("change", ["model", "policy"])
+def test_legacy_astra_plan_does_not_opt_into_comparison_implicitly(tmp_path, monkeypatch, change):
+    args = _fixture(tmp_path, monkeypatch)
+    plan = json.loads(args[0].read_text())
+    if change == "model":
+        plan["model"] = "gpt-6.1-terra"
+    else:
+        plan["comparison_policy"] = dict(evaluator.COMPARISON_POLICY)
+    _repin_plan(args, plan)
+    with pytest.raises(ValueError, match="Unsupported preregistered workflow plan"):
+        evaluator.evaluate(*args, truth_loader=lambda _: pytest.fail("truth opened early"))
+
+
+@pytest.mark.parametrize(
+    "mutation,match",
+    [
+        ("missing_policy", "Unsupported preregistered"),
+        ("wrong_policy", "Unsupported preregistered"),
+        ("missing_baseline", "Astra baseline plan"),
+        ("missing_baseline_report", "both original Astra"),
+        ("changed_source", "source/scoring contracts"),
+        ("changed_grading", "source/scoring contracts"),
+        ("changed_baseline_file", "baseline report hash mismatch"),
+        ("changed_grader_pin", "baseline complete_score_grader hash mismatch"),
+        ("baseline_after_inference", "must precede comparison"),
+    ],
+)
+def test_comparison_rejects_changed_policy_or_baseline_before_reference_content(
+    tmp_path, monkeypatch, mutation, match
+):
+    args = _comparison_fixture(tmp_path, monkeypatch, target="rumichaca_full")
+    plan = json.loads(args[0].read_text())
+    if mutation == "missing_policy":
+        del plan["comparison_policy"]
+    elif mutation == "wrong_policy":
+        plan["comparison_policy"]["target_selection"] = "only_when_accuracy_passes"
+    elif mutation == "missing_baseline":
+        del plan["baseline_predecessor"]
+    elif mutation == "missing_baseline_report":
+        del plan["baseline_predecessor"]["reports"]["rumichaca_full"]
+    elif mutation == "changed_source":
+        plan["targets"]["aviador_s8"]["source_pdf"]["sha256"] = "b" * 64
+    elif mutation == "changed_grading":
+        plan["targets"]["rumichaca_full"]["labels"]["sha256"] = "b" * 64
+    else:
+        record = plan["baseline_predecessor"]["reports"]["rumichaca_full"]
+        path = Path(record["path"])
+        baseline = json.loads(path.read_text())
+        if mutation == "changed_baseline_file":
+            baseline["model"] = "different-model"
+        elif mutation == "changed_grader_pin":
+            baseline["implementations"]["complete_score_grader"]["sha256"] = "b" * 64
+        else:
+            baseline["created_at"] = "2099-01-01T00:00:00+00:00"
+        _write(path, baseline)
+        if mutation != "changed_baseline_file":
+            plan["baseline_predecessor"]["reports"]["rumichaca_full"] = evaluator.pin(path)
+    _repin_plan(args, plan)
+    monkeypatch.setattr(evaluator, "verify_freeze", lambda _: pytest.fail("reference opened early"))
+    with pytest.raises(ValueError, match=match):
+        evaluator.evaluate(*args)
+    assert not args[2].exists()
