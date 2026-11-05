@@ -2,6 +2,13 @@
 
 This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-28, six works are musician-reviewed: Amalia, Atardecer, Aviador, Carrizal, Coqueteos and Rumichaca. Their saved editions and available histories are preserved; the shared engraving convention is `docs/FORM_NOTATION.md`. Aviador now includes musician-approved editorial additions and form choices, which must remain distinguishable from source readings. See `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
+2026-11-05 production update: the six approved editions remain byte-identical.
+Seven pending drafts received independent source/form audits, and Adentro
+veteranos, Albores de junio and Baby join the queue as independently audited
+drafts. The desk now has six approvals and ten drafts. Entusiasmo's terminal
+cluster remains a source-completeness blocker; all musical uncertainties remain
+explicit. See [subscription sprint delivery](SUBSCRIPTION_SPRINT_20261105.md).
+
 2026-09-09 update: the fresh-context Astra comparison on consumed Aviador system 8
 reached `7/7` exact measures from the original PDF and `4/7` from historical crops,
 against the frozen pipeline's `1/7`. The next recommended experiment is a broader
@@ -40,6 +47,7 @@ Goal: make accuracy measurable on the 10-PDF dataset.
 - [x] Add a “compare vs ground truth” script/report.
 - [x] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
 - [x] Verify the complete collection's explicit page catalog and prepare create-once local source packets with source/output hashes, preserved multi-page works and missing-row accounting. The supplied book yields 95 work inputs on 96 pages; this is source coverage, not transcription completion.
+- [x] Add an offline, hash-bound source-bar coverage and performed-route checker with explicit return-copy/editorial mappings and final-stop comparison. Saved regressions preserve the six reference routes and detect both known Rumichaca form failures. Mapping checks do not certify source reading or alter the runtime completion gate. See `docs/SCORE_COVERAGE_FORM.md`.
 
 Done when: you can run an evaluation command that produces a numeric report for the dataset.
 
