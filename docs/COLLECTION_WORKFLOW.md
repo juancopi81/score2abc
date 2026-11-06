@@ -3,7 +3,13 @@
 Goal: finish the 100-melody collection through assisted transcription and human
 musical review. A complete, source-checked score is the unit of delivery.
 
-Current review checkpoint — October 28, 2026: **six** scores are musician-reviewed:
+Current review checkpoint — November 6, 2026: **seven** scores are musician-reviewed,
+including Gato’e Fique revision 14; nine drafts remain. The
+[November 6 checkpoint](CHECKPOINT_20261106.md) records Gato's separate sealed
+reference, the verified seven-score backup and the grace-note playback fix.
+Estrella del Caribe is next for human review.
+
+Previous checkpoint — October 28, 2026: **six** scores were musician-reviewed:
 Amalia (revision 24), Atardecer (18), Aviador (18), Carrizal (5), Coqueteos (15)
 and Rumichaca (10). All six have valid notation, zero unresolved questions and
 verified available revision histories. Seven other saved scores were drafts at
@@ -15,8 +21,8 @@ separate data backup and the evaluation boundary.
 November 5 preparation: the [subscription sprint](SUBSCRIPTION_SPRINT_20261105.md)
 adds a second source/form pass to the seven pending drafts, with exact prior
 versions preserved, plus three independently audited new drafts: Adentro
-veteranos, Albores de junio and Baby. The live queue is now **six reviewed and
-ten drafts**, with no new human approvals. Its local handoff dashboard is
+veteranos, Albores de junio and Baby. At that delivery, the queue contained
+**six reviewed and ten drafts**, with no new human approvals. Its local handoff dashboard is
 `out/collection/subscription_sprint_20261105_v1/index.html`. The independent
 [coverage/form checker](SCORE_COVERAGE_FORM.md) tests declared bar identities and
 the complete performed route; a passing declared map does not resolve missing

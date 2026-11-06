@@ -162,8 +162,22 @@ def _put_bytes(root: Path, relative: str, data: bytes, files: dict) -> None:
     files[relative] = {"sha256": _digest(data), "size": len(data)}
 
 
-def freeze_references(out_dir: Path, destination: Path) -> dict:
-    """Freeze all six editions without writing to the live review tree."""
+def _catalog_numbers(numbers: list[int] | tuple[int, ...]) -> tuple[int, ...]:
+    if (
+        not isinstance(numbers, (list, tuple))
+        or not numbers
+        or any(type(number) is not int or number < 1 for number in numbers)
+        or len(set(numbers)) != len(numbers)
+    ):
+        raise FreezeError("Catalog numbers must be distinct positive integers")
+    return tuple(numbers)
+
+
+def freeze_references(
+    out_dir: Path, destination: Path, *, catalog_numbers: tuple[int, ...] | None = None
+) -> dict:
+    """Freeze selected editions; preserve the original six-score default and schema."""
+    selected = _catalog_numbers(REFERENCE_NUMBERS if catalog_numbers is None else catalog_numbers)
     out_dir = Path(out_dir).resolve()
     repo_root = out_dir.parent
     destination = _canonical(Path(destination))
@@ -177,7 +191,7 @@ def freeze_references(out_dir: Path, destination: Path) -> dict:
     destination.parent.mkdir(parents=True, exist_ok=True)
     source_records = _source_records(out_dir)
     work_slugs = []
-    for number in REFERENCE_NUMBERS:
+    for number in selected:
         candidates = [s for s in app.works if s.startswith(f"jaime-llanos_{number}_")]
         if len(candidates) != 1:
             raise FreezeError(f"Expected one manifest work for catalog number {number}")
@@ -306,7 +320,7 @@ def freeze_references(out_dir: Path, destination: Path) -> dict:
         if _read_regular(out_dir / "manifest.jsonl") != manifest_before:
             raise FreezeError("Source manifest changed while freezing")
         manifest = {
-            "schema_version": 1,
+            "schema_version": 1 if catalog_numbers is None else 2,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "edition_status": "consumed_reviewed_editorial_editions",
             "source_fidelity_ground_truth": False,
@@ -320,6 +334,8 @@ def freeze_references(out_dir: Path, destination: Path) -> dict:
             "works": works,
             "files": files,
         }
+        if catalog_numbers is not None:
+            manifest["catalog_numbers"] = list(selected)
         manifest_bytes = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         (temp / "manifest.json").write_bytes(manifest_bytes)
         (temp / "manifest.sha256").write_text(_digest(manifest_bytes) + "\n", encoding="ascii")
@@ -339,8 +355,19 @@ def verify_freeze(root: Path, out_dir: Path | None = None) -> dict:
     if seal != _digest(manifest_bytes) + "\n":
         raise FreezeError("Freeze manifest seal changed")
     manifest = json.loads(manifest_bytes)
-    if manifest.get("schema_version") != 1 or not isinstance(manifest.get("files"), dict):
+    schema = manifest.get("schema_version")
+    if (
+        type(schema) is not int
+        or schema not in (1, 2)
+        or not isinstance(manifest.get("files"), dict)
+    ):
         raise FreezeError("Unsupported freeze manifest")
+    if schema == 1:
+        if "catalog_numbers" in manifest:
+            raise FreezeError("Legacy freeze cannot override reference catalog identity")
+        selected = REFERENCE_NUMBERS
+    else:
+        selected = _catalog_numbers(manifest.get("catalog_numbers"))
     if (
         manifest.get("edition_status") != "consumed_reviewed_editorial_editions"
         or manifest.get("heldout") is not False
@@ -350,15 +377,19 @@ def verify_freeze(root: Path, out_dir: Path | None = None) -> dict:
     ):
         raise FreezeError("Invalid freeze evidence status")
     works = manifest.get("works")
-    if not isinstance(works, list) or len(works) != len(REFERENCE_NUMBERS):
-        raise FreezeError("Freeze must contain exactly six references")
+    if not isinstance(works, list) or len(works) != len(selected):
+        raise FreezeError(
+            "Freeze must contain exactly six references"
+            if schema == 1
+            else "Freeze must contain exactly the selected references"
+        )
     slugs = [work["slug"] for work in works]
 
     def has_one(number: int) -> bool:
         pattern = rf"jaime-llanos_{number}_[A-Za-z0-9_-]+"
         return sum(bool(re.fullmatch(pattern, slug)) for slug in slugs) == 1
 
-    if len(set(slugs)) != len(slugs) or not all(has_one(n) for n in REFERENCE_NUMBERS):
+    if len(set(slugs)) != len(slugs) or not all(has_one(n) for n in selected):
         raise FreezeError("Freeze reference catalog identity changed")
     listed = set(manifest["files"])
     actual = {

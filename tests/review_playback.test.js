@@ -340,6 +340,52 @@ test('section order owns repeated bars and both endings, including the final ret
   assert.deepEqual(chords.warnings, []);
 });
 
+test('section routes repeat inner grace notes only with their owning section', {skip: !renderer}, () => {
+  const text = 'X:1\nP:AABAB\nM:3/4\nL:1/8\nQ:1/4=120\nK:C\n' +
+    '[P:A] C6 | [P:B] z c {/e}d2 c2 |]\n';
+  const grace = text.indexOf('e}'), streams = performance(text);
+  assert.deepEqual(streams.audioEvents.filter(event => event[0] === grace)
+    .map(event => [event[1], event[3], event[4]]), [[3.375, 76, .125], [6.375, 76, .125]]);
+  assert.deepEqual(streams.visualEvents.filter(event => event.index === grace),
+    [{index: grace, start: 3.375, end: 3.5}, {index: grace, start: 6.375, end: 6.5}]);
+  assert.deepEqual(streams.audioEvents.filter(event => event[0] === text.indexOf('C6'))
+    .map(event => [event[1], event[4]]), [[0, 1.5], [1.5, 1.5], [4.5, 1.5]]);
+  assert.equal(streams.visualEvents.at(-1).end, 7.5);
+  // An omitted section must not leak its grace notes into the performed route.
+  const omitted = text.replace('P:AABAB', 'P:AA');
+  assert.deepEqual(sound(omitted).map(event => [event[1], event[3], event[4]]),
+    [[0, 60, 1.5], [1.5, 60, 1.5]]);
+});
+
+test('grace groups at piece and section starts keep their order and full section duration', {skip: !renderer}, () => {
+  const text = 'X:1\nP:AABAB\nM:3/4\nL:1/8\nQ:1/4=120\nK:C\n' +
+    '[P:A] {cd}C6 | [P:B] {ef}d6 |]\n';
+  const sections = {
+    A: [[text.indexOf('cd}'), 0, 72, .25], [text.indexOf('d}C'), .25, 74, .25],
+      [text.indexOf('C6'), .5, 60, 1]],
+    B: [[text.indexOf('ef}'), 0, 76, .25], [text.indexOf('f}d'), .25, 77, .25],
+      [text.indexOf('d6'), .5, 74, 1]],
+  };
+  const expected = [...'AABAB'].flatMap((name, visit) => sections[name]
+    .map(([index, start, pitch, duration]) => [index, visit * 1.5 + start, pitch, duration]));
+  assert.deepEqual(sound(text).map(event => [event[0], event[1], event[3], event[4]]), expected);
+  const context = engine();
+  assert.deepEqual(playback.writtenEvents(context.abc2svg.Abc, context.ToAudio, context.abc2svg.C, text),
+    expected.map(([index, start, , duration]) => ({index, start, end: start + duration})));
+});
+
+test('grace playback without a part order remains identical to native conversion', {skip: !renderer}, () => {
+  const prefix = 'X:1\nM:3/4\nL:1/8\nQ:1/4=120\nK:C\n';
+  for (const body of ['{cd}C6 | z c {/e}d2 c2 |]', '|: z c {/e}d2 c2 :|']) {
+    const text = prefix + body, context = engine(); let native;
+    new context.abc2svg.Abc({img_out() {}, get_abcmodel(first, voices) {
+      const audio = new context.ToAudio(); audio.add(first, voices);
+      native = Array.from(audio.clear(), event => Array.from(event));
+    }}).tosvg('native-grace', text);
+    assert.deepEqual(sound(text), native.filter(event => event[2] >= 0 && event[3] > 0 && event[5] > 0));
+  }
+});
+
 test('fractional-tempo section returns retain full-bar chords across a combined repeat boundary', {skip: !renderer}, () => {
   const text = 'X:1\nP:IABABI\nM:3/4\nL:1/4\nQ:1/4=60\nK:C\n' +
     'P:I\n"F"C3 |:\nP:A\nQ:1/4=190\n"Dm"D3 :|:\nP:B\n"G"E3 | "C"F3 :|\n';

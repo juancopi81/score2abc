@@ -1,0 +1,3968 @@
+{
+  "schema_version": 1,
+  "reference_name": "reviewed_six_20261028_v1",
+  "reference_manifest_sha256": "ad1995ca51050202770f8ceeb6fc6fe03ee2d622cbbf042b5ad84e3ca27f722f",
+  "works": {
+    "amalia": {
+      "decisions": [
+        {
+          "id": "AM-01",
+          "category": "source_correction",
+          "source_location": {
+            "system": 2,
+            "measure": 4
+          },
+          "edition_location": {
+            "system": 2,
+            "measure": 4
+          },
+          "adopted_choice": "Dotted-half G after a faint augmentation dot was confirmed in the manuscript.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "S2, m4: confirmed a faint augmentation dot in the manuscript. Changed the G from a half note to a dotted half note"
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "AM-02",
+          "category": "editorial_reconstruction",
+          "source_location": {
+            "system": 5,
+            "measure": 8
+          },
+          "edition_location": {
+            "system": 5,
+            "measure": 8
+          },
+          "adopted_choice": "Dotted-half D by musical context; the dot is unclear in the scan.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "system 5, measure 8 uses a dotted-half D accepted by Juan as a reconstruction from musical context, with the dot unclear in the scan"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AM-03",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "AA–BB–CC–A–B–CC; A systems 1–2, B 3–4, C 5–7. Manuscript returns remain ambiguous.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The accepted editorial performance order is AA–BB–CC–A–B–CC"
+            }
+          ],
+          "evidence_origin": "external_recording"
+        },
+        {
+          "id": "AM-04",
+          "category": "source_correction",
+          "source_location": {
+            "system": 1,
+            "measure": 8
+          },
+          "edition_location": {
+            "system": 1,
+            "measure": 8
+          },
+          "adopted_choice": "Final note A5 instead of C6 after manuscript check.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "S1, m8: final note should be A5 rather than C6. Corrected in ABC after checking the manuscript."
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "AM-05",
+          "category": "source_correction",
+          "source_location": {
+            "system": 5,
+            "measure": 4
+          },
+          "edition_location": {
+            "system": 5,
+            "measure": 4
+          },
+          "adopted_choice": "Augmentation dot on F-sharp half note accepted after review.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The dot is correct here."
+            }
+          ],
+          "evidence_origin": "pdf"
+        }
+      ],
+      "exclusions": [
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "AM-02"
+          ],
+          "dimensions": [
+            "duration"
+          ],
+          "reason": "Contextual dotted-half duration is not secure source ink."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "AM-03"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "Recording-informed route is editorial."
+        }
+      ],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "b39782d1f60d79e51128e52dd3fdfc960f9d80752fc87b4278fb6d9b8386444a",
+        "total_source_measures": 48,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 1,
+            "edition_bar": 1,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "da9cbe872c864abcce16ce4e76c3890df9d5406c824a75490b010bb2bce0561a",
+            "expected_noteheads": 5,
+            "audit_note": "Opening eighth-rest figure and C-sharp turn visible."
+          },
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "a80c71e0004649b33e6fa9dc3817815334c0e56bdcd8b82aec965ad11419223c",
+            "expected_noteheads": 6,
+            "audit_note": "Six eighth notes; C-sharp turn visible."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ac7345dbdb5b1ba8faf747d891a03d9d5439ed85b07314da4fe56e6f54d3a944",
+            "expected_noteheads": 6,
+            "audit_note": "Six eighth notes; final D-sharp visible."
+          },
+          {
+            "source_bar": 4,
+            "edition_bar": 4,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e9bf2a845cfac2a2da5a581b1e76bf67919c084a5929e3243cae4b1a113bfe7b",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half E visible."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5c87ed83745c0d33f72d89f785cb5f29e6316879a477b12a99efbf7321a525f7",
+            "expected_noteheads": 5,
+            "audit_note": "High G turn with F-sharp and final A visible."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ecb50496c2f03e3108564a8e24a7d2d28ad35e17de819160cb8474a3ec71ae64",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half B-flat visible under initial one-flat signature."
+          },
+          {
+            "source_bar": 7,
+            "edition_bar": 7,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "b07ec49b955a715bb0d55ec78d6b59369c980d60133ad78b09ddf530c30bcd27",
+            "expected_noteheads": 5,
+            "audit_note": "E/F turn and final G visible."
+          },
+          {
+            "source_bar": 8,
+            "edition_bar": 8,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "9ddc88606d15317e9f6649a0df21028fbc1fdb345cdc8d01e9b009190a0189cf",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half A, matching the saved human source correction."
+          },
+          {
+            "source_bar": 9,
+            "edition_bar": 9,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "da9cbe872c864abcce16ce4e76c3890df9d5406c824a75490b010bb2bce0561a",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: An eighth rest precedes A4, D5, C-sharp5, D5, E5. All five filled heads have eighth-note flags/beams; onsets are 192, 384, 576, 768, 960. The C-sharp/D arc is a slur between different pitches. Reviewer: Five single eighth-note heads A4, D5, C-sharp5, D5, E5. All durations are 192 ticks at 192, 384, 576, 768, 960. The arc over C-sharp/D is a slur across distinct pitches."
+          },
+          {
+            "source_bar": 16,
+            "edition_bar": 16,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "54cda1d1c613ecdd7eab607f018d7705c5a94d39344125cbc2e09507cb08538d",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: Three D5 heads: quarter at 0, eighth after the visible eighth rest at 576, quarter at 768. The horizontal mark above the middle head is articulation, not an additional duration or tie. Reviewer: D5 quarter at 0; D5 flagged eighth at 576 after the visible eighth rest; D5 quarter at 768. Tenuto/articulation strokes above the notes do not change written durations."
+          },
+          {
+            "source_bar": 19,
+            "edition_bar": 19,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5767a1dbdbc8bd591730fba2e7183891a05d806291aab251b48bafbc7fce9708",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighth-note heads E5, C-sharp5, F5, E5, E5, C-sharp5 at 0, 192, 384, 576, 768, 960. No overlay or extra head is present. Reviewer: Six beamed eighths E5, C-sharp5, F5, E5, E5, C-sharp5 at onsets 0 through 960, all 192 ticks. One head per onset."
+          },
+          {
+            "source_bar": 23,
+            "edition_bar": 23,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "39e0bf3e784f63cb45aa42982f1b9a22dd0739da21de84a81bf294b8400a9ab3",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Five heads: incoming tied B-flat5 eighth, G5 eighth, B-flat5 quarter, A5 eighth, G-sharp5 eighth. The first head ends the preceding written tie; no head starts a new tie. Reviewer: Incoming tied B-flat5 eighth at 0 and G5 eighth at 192 share a beam; B-flat5 quarter at 384; A5/G-sharp5 beamed eighths at 768/960. Five heads, only the first with tie_end=true; no outgoing ties."
+          },
+          {
+            "source_bar": 26,
+            "edition_bar": 26,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "a0d87cf4794633192d5dea53ec412889b80effa0d623f3cacca0f173e8c5e6fc",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six eighth heads F5, E5, E5, C-sharp5, F5, E5, with consecutive 192-tick onsets and durations. All six heads are visible. Reviewer: Six eighths F5, E5, E5, C-sharp5, F5, E5 at 0,192,384,576,768,960. The first four share a beam and final two form a beamed pair, all 192 ticks."
+          },
+          {
+            "source_bar": 30,
+            "edition_bar": 30,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "43f17a1ff78d1d583f07bda0990907540190113c3dcbe4a9367d50a4e7a0baed",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: Visible eighth rest, G5 eighth, B-flat5 dotted quarter with a separate clear augmentation dot, and A5 eighth. This supports onsets 192, 384, 960 and durations 192, 576, 192. Reviewer: G5 flagged eighth starts at 192; B-flat5 dotted quarter starts at 384 and lasts 576; A5 flagged eighth at 960. Three heads. The dot is distinct from the surrounding slur and staff ink."
+          },
+          {
+            "source_bar": 33,
+            "edition_bar": 33,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ac12592d43ce10c95558c9773bcd7564196c27ced68b8e09de97082df0dc365d",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: After an eighth rest there are F-sharp5 eighth, F-sharp5 eighth, F-sharp5 quarter, G5 eighth. Four separate filled heads and flags/unflagged quarter stem match the reference. Reviewer: After the eighth rest: F-sharp5 eighth at 192, F-sharp5 eighth at 384, F-sharp5 quarter at 576, G5 eighth at 960. Four heads with independent flags on the eighths; no dots or ties extend them."
+          },
+          {
+            "source_bar": 37,
+            "edition_bar": 37,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5717666813492078ddb8500b5b6eccfd036801874f451f495228014f6295d49d",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: After an eighth rest: D5 eighth, D5 eighth, D5 quarter, E5 eighth. Four visible heads support the exact reference onsets and durations. Reviewer: D5 eighths at 192 and 384, D5 quarter at 576, E5 eighth at 960. Four single heads; the first three repeat the same staff position as separate attacks."
+          },
+          {
+            "source_bar": 41,
+            "edition_bar": 41,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "c99b6c38174ecdbf4f075b2a8d8677827fb3477a601b19c4b6918bf45c824d8a",
+            "expected_noteheads": 3,
+            "audit_note": "Eighth B then A-sharp and B quarters under two-sharp section context."
+          },
+          {
+            "source_bar": 42,
+            "edition_bar": 42,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e058dd6110625092d44e319675dfbb44113e5861c30de9549c2f10d275cbf205",
+            "expected_noteheads": 6,
+            "audit_note": "Paired descending eighths E, D, C-sharp."
+          },
+          {
+            "source_bar": 43,
+            "edition_bar": 43,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "c5dece044e27dd5c94060aaed743f24e88be8fec6964f577e1d4e63e1cd0b5be",
+            "expected_noteheads": 4,
+            "audit_note": "B and G eighths, dotted-quarter F-sharp, E eighth."
+          },
+          {
+            "source_bar": 44,
+            "edition_bar": 44,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "8586cd15251e5d77058f58e0f679a5dc063574150f1251243db9cb3639ef7530",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half A tied into the next measure."
+          },
+          {
+            "source_bar": 45,
+            "edition_bar": 45,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "6a121c8ecafeb35732940fe9908c0088aff0cdc6f9da67a87f06f65fba7571d9",
+            "expected_noteheads": 6,
+            "audit_note": "Incoming tied A then F-sharp, B, B, A, A eighths."
+          },
+          {
+            "source_bar": 46,
+            "edition_bar": 46,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "12a8a035e9f1d8cd2436abe5f8276ad12db74ee4dd9d5d78f70cffc380761dbe",
+            "expected_noteheads": 6,
+            "audit_note": "G, G, C-sharp, C-sharp, B, B eighths."
+          },
+          {
+            "source_bar": 47,
+            "edition_bar": 47,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "270d7441850371cbae26c0790da8a922e03e3e30517563a3d99fdfdcf6ceea96",
+            "expected_noteheads": 6,
+            "audit_note": "A, F-sharp, F-sharp, A, A, E eighths."
+          },
+          {
+            "source_bar": 48,
+            "edition_bar": 48,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "54cda1d1c613ecdd7eab607f018d7705c5a94d39344125cbc2e09507cb08538d",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: The short final source row contains D5 quarter, an eighth rest, D5 eighth, D5 quarter. Three heads and their stem/flag patterns support 0/384, 576/192, 768/384; tenuto marks do not alter written durations. Reviewer: D5 quarter at 0, D5 flagged eighth at 576, D5 quarter at 768. Three heads. The horizontal marks above the last two are articulations, not augmentation dots or tie arcs."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "System5 measure8 contextual duration remains excluded."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_amalia_aviador",
+            "audit4_coqueteos_rumichaca"
+          ],
+          "reference_abc_sha256": "9798e43d8e6ed65502345213ea4d3fe8e7fa359ba9f73085430dc7b7d351a315",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "d4f8d3499b438a17997f6ad2534811dd29b9068a043e9a3a1796aee966b33ab6",
+          "author_sha256": "52ceefad91fa59b4ba0195bed324ef954406df6c7d67d16f3f5237579b498562",
+          "reviewer_sha256": "ee7be3055766921312cb037ca6d9c22be6b10907b244164416535a6974dcf635",
+          "selected_bars": [
+            9,
+            12,
+            16,
+            19,
+            23,
+            26,
+            30,
+            33,
+            37,
+            48
+          ],
+          "accepted_bars": [
+            9,
+            16,
+            19,
+            23,
+            26,
+            30,
+            33,
+            37,
+            48
+          ],
+          "rejected": [
+            {
+              "edition_bar": 12,
+              "reasons": [
+                "author: ambiguous",
+                "reviewer: ambiguous"
+              ]
+            }
+          ],
+          "human_approved_audit": false
+        }
+      }
+    },
+    "atardecer": {
+      "decisions": [
+        {
+          "id": "AT-01",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "147 performed visits: intro once; A1/A2; B1/B2; later A returns use S7M2 before Coda; final stop at S9M6.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The selected route visits 147 bars and ends at written bar 54"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AT-02",
+          "category": "editorial_reconstruction",
+          "source_location": {
+            "system": 1,
+            "measure": 4
+          },
+          "edition_location": {
+            "system": 1,
+            "measure": 4
+          },
+          "adopted_choice": "Opening G–B–D–F–G arpeggio with G7 accompaniment, adopted using a recording; source ink not independently recertified.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "Opening arpeggio: Juan adopted the G–B–D–F–G voicing using the recording cited below."
+            }
+          ],
+          "evidence_origin": "external_recording"
+        },
+        {
+          "id": "AT-03",
+          "category": "human_clarified_rhythm",
+          "source_location": {
+            "system": 7,
+            "measure": 2
+          },
+          "edition_location": {
+            "system": 7,
+            "measure": 2
+          },
+          "adopted_choice": "Eighth, eighth rest, dotted-quarter octave, eighth octave; C6 then C5/C6 octaves.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "S7M2 resolved by Juan: eighth note, eighth rest, dotted-quarter octave, eighth-note octave."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AT-04",
+          "category": "editorial_tempo",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "Quarter = 60 for Lento intro and 190 from A; numeric marks are performance choices.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The slow introduction value is a coordinator starting choice; Juan requested approximately 190 for A."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        }
+      ],
+      "exclusions": [
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "AT-01"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "Selected route is editorial."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "AT-02"
+          ],
+          "dimensions": [
+            "notes",
+            "chords"
+          ],
+          "reason": "Recording-informed arpeggio and G7 label are editorial."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "AT-04"
+          ],
+          "dimensions": [
+            "tempo"
+          ],
+          "reason": "Numeric tempi are performance choices."
+        }
+      ],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "429790b781629edb50895143a4189b389e8521c6bbd526a84acc016de0735088",
+        "total_source_measures": 57,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 1,
+            "edition_bar": 1,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "48671cb1f348eb8dfc7e47abc4505ae3a4d1aacfd00b7393a825f9dad74bf971",
+            "expected_noteheads": 7,
+            "audit_note": "Upper G quarter and four eighths over independent dotted-half E/C hold."
+          },
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "170d5108367964775d1fdcb8249b546442c8dce0bd1033249c003a9ed4ac051d",
+            "expected_noteheads": 7,
+            "audit_note": "Upper C quarter and four eighths over independent dotted-half A/E hold."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "33e5f8688e45e40eed889d88dd9af16004fdf4cc3813192ba31a115bfe6d717b",
+            "expected_noteheads": 8,
+            "audit_note": "Upper A quarter and four eighths over independent dotted-half A/C/F hold."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "26ce109900daaa1a0a1daf94f40a20be6587e3a85637133e60a35966fc69561c",
+            "expected_noteheads": 10,
+            "audit_note": "Four-note opening quarter chord, two dyad eighths, final dyad quarter."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "68aec42487b3d37d813dfbb5f4b3d051bdb39edf981257e5d5b4df5915fc63f8",
+            "expected_noteheads": 10,
+            "audit_note": "Four-note opening quarter chord, two dyad eighths, final dyad quarter."
+          },
+          {
+            "source_bar": 7,
+            "edition_bar": 7,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "83f7a8c1ad9bedaa856c69bc4eb043a843b1e8853913dfc19ce87ebd51516833",
+            "expected_noteheads": 9,
+            "audit_note": "Two source-only readers agree. Author: Nine heads: D4/A4/D5 quarter chord; F4/A4 eighth dyad; E4/G4 eighth dyad; D4/F4 quarter dyad. Both final heads have distinct curves into the same pitches at the next bar opening; both outgoing tie flags are true. No incoming ties or accidentals. Reviewer: At onset 0 the upper A4/D5 and separate D4 are quarters. At 384 the upper A4 and lower F4 are eighths; at 576 upper G4 and lower E4 are eighths. D4/F4 quarters at 768 start the two written cross-bar ties. All nine heads are visible; the lower voice is not inferred from the upper line."
+          },
+          {
+            "source_bar": 13,
+            "edition_bar": 13,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "26ce109900daaa1a0a1daf94f40a20be6587e3a85637133e60a35966fc69561c",
+            "expected_noteheads": 10,
+            "audit_note": "Two source-only readers agree. Author: Ten heads: G4/C5/E5/G5 quarter stack, C5/E5 eighths, G4/D5 eighths, E4/C5 quarter. The shared stems and middle two-group beam establish durations. All heads are visible and no tie endpoints are drawn. Reviewer: The initial quarter stack contains G4/C5/E5/G5. It is followed by C5/E5 eighths, G4/D5 eighths, and E4/C5 quarters. Four initial heads and each later pair can be distinguished; the middle dyads share an eighth beam."
+          },
+          {
+            "source_bar": 18,
+            "edition_bar": 18,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "9b72284bb059ad4636fd16b59634baad38e42e6aa619426318f1c7c4d799a190",
+            "expected_noteheads": 7,
+            "audit_note": "Two source-only readers agree. Author: Seven heads: F4/B4/F5 quarter stack followed by beamed B4, C5, D5, B4 eighths. B remains natural. No tie starts or ends. Reviewer: A quarter triad F4/B4/F5 is followed by four beamed eighth heads B4, C5, D5, B4. Three stacked initial heads and all four single heads are visible."
+          },
+          {
+            "source_bar": 24,
+            "edition_bar": 24,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "58ceb7851e42cd5054e300a152795f1f6f66c13a85c00d32c5345b30af61aa46",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six heads under one eighth-note beam: E4 G4 D5 G4 E4 C5. The long curve is a phrase slur over different pitches; no ties. Reviewer: Six source eighths E4, G4, D5, G4, E4, C5 on one beam. The staff-bottom E4 heads, rising D5, returning G4 and final C5 are individually visible. The next bar uses a repeat symbol; this selected bar itself is fully written."
+          },
+          {
+            "source_bar": 29,
+            "edition_bar": 29,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "05d30ccd46b3c1f1b3feb0face1c69400392c3c6b07e0fc8fd3dc75062c48497",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighth heads: D5 C5 G4 C5 F5 E5. Single melody, no overlay, no tie endpoints. Reviewer: Six eighths D5, C5, G4, C5, F5, E5 at consecutive 192-tick onsets. All six filled heads share the visible beam."
+          },
+          {
+            "source_bar": 35,
+            "edition_bar": 35,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "010e1550b248532c9cc3acbfe0135cb650d3ea280be3dca06f8dc4ee17cff61b",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighths: D4 F4 C5 F4 D4 B4. Low D heads sit below the staff without a C ledger; B4 is on the middle line. No extra heads or ties. Reviewer: Six beamed eighths D4, F4, C5, F4, D4, B4. The two below-staff D4 heads and upper C5/B4 heads are explicit, with no overlay."
+          },
+          {
+            "source_bar": 40,
+            "edition_bar": 40,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "b3d2afe4513a87e9e71dd85dafbf28d89a09034d974c6e141d0e619aa01d4959",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Four high heads: C6 quarter, Eb6/C6 beamed eighth pair, Bb5 quarter. Ledger counts distinguish C6 (two), Eb6 (three), and the final Bb5 above one ledger; the last head is detached from the stem by the manuscript pen gap but has no C6 ledger. The first and last stems are unbeamed quarter strokes. No ties. Reviewer: C6 quarter, E-flat6 eighth, C6 eighth, B-flat5 quarter. Ledger positions distinguish the four high heads; only the middle pair is beamed. All durations are written values, without performance stretch."
+          },
+          {
+            "source_bar": 46,
+            "edition_bar": 46,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "99427c4be4b108665593a1ff1b69420e12b7dcf7615764fd690aeebeae4e218d",
+            "expected_noteheads": 2,
+            "audit_note": "Two source-only readers agree. Author: Two heads: a clearly open F5 half-note head followed by the smaller filled/slashed Eb5 quarter head. No dot or tie; durations are 768 and 384 ticks. Reviewer: A clearly hollow F5 half note followed by a filled E-flat5 quarter. Two heads support onset/duration pairs 0/768 and 768/384."
+          },
+          {
+            "source_bar": 57,
+            "edition_bar": 57,
+            "source_location": {
+              "page": 1,
+              "system": 10,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "50e07a0cc78507b6f120763cb1382dd6733fada643d0b63b604017bb51a7fcef",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Eighth rest, flagged G4 eighth, then beamed A-natural4, B-natural4, C5, E-natural5 eighths. The outlined accidental strokes have no separate note stems and are not extra heads. No ties or additional melody in the following calligraphic navigation mark. Reviewer: An eighth rest followed by G4, A-natural4, B-natural4, C5 and E-natural5, each an eighth. Five independent heads are present, the first flagged and the later four beamed. The final calligraphic staff contains no added note."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "Opening arpeggio bar4 remains editorial and excluded. Other systems were not note-by-note audited."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_atardecer_carrizal",
+            "audit4_amalia_aviador"
+          ],
+          "reference_abc_sha256": "1c3fa7729783a64273090151258f6db0a3c4e41e15c1662a7d459619f18ee917",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "56696b6c8cc8046b99754401f09961c6eb074ec15dd16654290bb4e83fb30365",
+          "author_sha256": "2e1712325afa2d5367473722fb6b994e245eb3640a4cd291e3bbd4847cbfdf17",
+          "reviewer_sha256": "adf544876e8d176f12d29aa7af4dd578b88e152847b0a72cef2cbd6c743318ac",
+          "selected_bars": [
+            7,
+            13,
+            18,
+            24,
+            29,
+            35,
+            40,
+            46,
+            51,
+            57
+          ],
+          "accepted_bars": [
+            7,
+            13,
+            18,
+            24,
+            29,
+            35,
+            40,
+            46,
+            57
+          ],
+          "rejected": [
+            {
+              "edition_bar": 51,
+              "reasons": [
+                "reviewer: ambiguous"
+              ]
+            }
+          ],
+          "human_approved_audit": false
+        }
+      }
+    },
+    "aviador": {
+      "decisions": [
+        {
+          "id": "AV-01",
+          "category": "editorial_reconstruction",
+          "source_location": {
+            "bar": 1
+          },
+          "edition_location": {
+            "bar": 1
+          },
+          "adopted_choice": "Opening eighth rest before five retained eighth notes; rest is not visible in the manuscript.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "This is an editorial completion requested for the playable edition; the rest is not claimed as visible in the manuscript."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AV-02",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "A → A → B → A → Trío → Trío; B has two written variations and is played once through; 112 performed visits after two inserted bars.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "There are still 64 written bars and 112 performed visits"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AV-03",
+          "category": "editorial_composition",
+          "source_location": null,
+          "edition_location": {
+            "bar": 29
+          },
+          "adopted_choice": "Inserted E7 cadence bar with quarter rest, G#/B quarter dyad, eighth rest, G#/E eighth dyad.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "New bar 29 uses a quarter rest, G#/B quarter dyad, eighth rest, and G#/E eighth dyad."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "AV-04",
+          "category": "editorial_composition",
+          "source_location": null,
+          "edition_location": {
+            "bar": 45
+          },
+          "adopted_choice": "Inserted D→E7 bar with quarter rest, F#5–D5 quarter dyad, G#5–D5 quarter dyad. The current reviewed ABC uses D5; earlier model prose proposed D6.",
+          "status": "supported_by_current_abc_and_history",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The upper D6 from bar 44's final dyad is rearticulated in both new dyads"
+            },
+            {
+              "kind": "history",
+              "revision": 15,
+              "quote": "\"D\"\"^Añadido editorial\"z [^fd'] \"E7\"[^gd']"
+            },
+            {
+              "kind": "history",
+              "revision": 16,
+              "quote": "\"E7\"\"^Añadido editorial\"z [d^f] [d^g]"
+            },
+            {
+              "kind": "history",
+              "revision": 17,
+              "quote": "\"D\"\"^Añadido editorial\"z [d^f] \"E7\"[d^g]"
+            },
+            {
+              "kind": "abc",
+              "quote": "\"D\"\"^Añadido editorial\"z [d^f] \"E7\"[d^g]"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment",
+          "superseded_model_prose": "Earlier model handoff claimed D6 rearticulation from bar 44, but human revision 16 changed both dyads to D5; revisions 17 and 18 retained D5.",
+          "superseded_by_human_revisions": [
+            16,
+            17,
+            18
+          ]
+        },
+        {
+          "id": "AV-05",
+          "category": "editorial_harmonization",
+          "source_location": {
+            "bar_range": [
+              47,
+              62
+            ]
+          },
+          "edition_location": {
+            "bar_range": [
+              49,
+              64
+            ]
+          },
+          "adopted_choice": "Fifteen explicit editorial Trío chord symbols on edition bars 50–64; first Trío bar 49 has no chord symbol in the current reviewed ABC. The source has no written Trío chord symbols.",
+          "status": "supported_by_current_abc_and_history",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The Trío has no written chord symbols."
+            },
+            {
+              "kind": "history",
+              "revision": 15,
+              "quote": "\"Gm\"\"^Trío (cifrado editorial)\"z/2"
+            },
+            {
+              "kind": "history",
+              "revision": 16,
+              "quote": "\"^Trío (cifrado editorial)\"z/2"
+            },
+            {
+              "kind": "abc",
+              "quote": "\"^Trío (cifrado editorial)\"z/2"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment",
+          "superseded_model_prose": "Earlier model handoff said all 16 Trío bars were labeled, but human revision 16 removed the Gm at edition bar 49; revisions 17 and 18 retained the omission.",
+          "superseded_by_human_revisions": [
+            16,
+            17,
+            18
+          ]
+        },
+        {
+          "id": "AV-06",
+          "category": "editorial_harmonization",
+          "source_location": {
+            "bar_range": [
+              44,
+              45
+            ]
+          },
+          "edition_location": {
+            "bar_range": [
+              46,
+              47
+            ]
+          },
+          "adopted_choice": "Explicit A7 and D labels added to existing closing bars.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "packet",
+              "packet": "aviador_B_cadence_20261028_v1",
+              "quote": "added_harmony_on_existing_source_bars"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        }
+      ],
+      "exclusions": [
+        {
+          "scope": "edition_bar",
+          "bars": [
+            29,
+            45
+          ],
+          "reason": "Inserted editorial composition with no source bar.",
+          "dimensions": [
+            "notes",
+            "rests",
+            "chords",
+            "duration"
+          ]
+        },
+        {
+          "scope": "event",
+          "bars": [
+            1
+          ],
+          "event": "opening_eighth_rest",
+          "reason": "Rest is an editorial completion, not visible source ink.",
+          "dimensions": [
+            "rests",
+            "duration"
+          ]
+        },
+        {
+          "scope": "chord",
+          "bar_range": [
+            50,
+            64
+          ],
+          "reason": "Trío chord symbols are editorial harmonization.",
+          "dimensions": [
+            "chords"
+          ]
+        },
+        {
+          "scope": "chord",
+          "bars": [
+            46,
+            47
+          ],
+          "reason": "Explicit closing harmony labels are editorial.",
+          "dimensions": [
+            "chords"
+          ]
+        }
+      ],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "d0a43e928b472addbb9036a475966cf41a7d5b5820e4a936917f87ec4d43b1a2",
+        "total_source_measures": 62,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "24224b4ee9a9bf5576908bbc195005d038c85f6a20332168b2dca0f536be306e",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "75ade28de9b3042df0e7488ffbdd40e89b161f4602c87834d9129e033711352f",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 4,
+            "edition_bar": 4,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "bb3f3f896bd7dbde229538a96ab3c495c2ca59efca0f9b185e92ac5e4d397a38",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "a387ca8d71204e9a918fb51bdf79a51649f533fb50458c5188a61f79523af3c4",
+            "expected_noteheads": 5,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "c96467d522f7b4f403daba0bf0e4cf4b6cf73e3f55cd86633ed5ed1cd753eff8",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 7,
+            "edition_bar": 7,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "72dfacb7bd1958a32a00fc336b45355ff286b20038dd90f51dbb0bf207938800",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 8,
+            "edition_bar": 8,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "669ebae3d9e6c54bc1581578b9b83e825c7a02571119ce191514b94a7a8b1f97",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 9,
+            "edition_bar": 9,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e6fd2433ee3a8d125a9b410f3476e185957aeb0d693ef2f7379fbdb023bd554d",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 10,
+            "edition_bar": 10,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "534ba29a35562abe00c8101b689215e8eece95162b42289f95ec7430e011a05b",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 11,
+            "edition_bar": 11,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "dee74494c0cf4a264a70ce132d15f6dd6f446dbb9d159b566a5cfa7f914092e2",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 12,
+            "edition_bar": 12,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "0b3220250b05e518422d92d024d0002b471a18d37638f4d63ba79529f6615f0a",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 13,
+            "edition_bar": 13,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "0053e30c00d976cd48ba10e6004dfcbfe8bebb188805dd8bd86168765e05bdea",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 14,
+            "edition_bar": 14,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "0fc78b46540d4f276d66d3925420e063940d0b474b9fdf7619a0e8a1a7bf5bc5",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 15,
+            "edition_bar": 15,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ad1946ce3d89954c6ffecb6cf94645bcb5540a4eadab115e3130117b744df7c9",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 16,
+            "edition_bar": 16,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "54cda1d1c613ecdd7eab607f018d7705c5a94d39344125cbc2e09507cb08538d",
+            "expected_noteheads": 3,
+            "audit_note": "Visible noteheads, rhythm stems/dots and local accidentals checked against the complete system; no editorial opening rest or inserted cadence included."
+          },
+          {
+            "source_bar": 17,
+            "edition_bar": 17,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 9
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "95385d18c576138496d9ab64a397a262d7d38e2647119c6a3943ace3045cc738",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest, F-sharp4/A4 quarter dyad, eighth rest, F-sharp4/B4 eighth dyad. Both heads of each shared stem are visible; the last stem has an eighth flag. Reviewer: F-sharp4/A4 quarter dyad at 384; F-sharp4/B4 flagged eighth dyad at 960. Four heads. The lower F-sharp is carried by the new key signature."
+          },
+          {
+            "source_bar": 22,
+            "edition_bar": 22,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "79d62069cd77e7fe2d00fb03eeeb9dbd2f5989a17435993c6aafa45d18c2d42e",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest followed by two unflagged quarter dyads, G4/C-sharp5 then G4/D5. Four heads are visible, with no overlay or extra note. Reviewer: G4/C-sharp5 quarter dyad at 384 and G4/D5 quarter dyad at 768. Four heads, with repeated G4 remaining a separate attack."
+          },
+          {
+            "source_bar": 27,
+            "edition_bar": 27,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "0d42cb457a261a0cc05f410c33037424f13c7075553209f1f7978e92bc217b8f",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest, G4/B-flat4 quarter dyad, eighth rest, G4/D5 eighth dyad. Both lower G4 heads and the upper B-flat4/D5 heads are visible. Reviewer: G4/B-flat4 quarter dyad at 384; G4/D5 flagged eighth dyad at 960. Four heads; the flat belongs to the upper B4, not the lower G4."
+          },
+          {
+            "source_bar": 32,
+            "edition_bar": 33,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "38b825d9e4f0a091c6cab93d090a7f69f5746f6ca4e38f7c9e251a5fb6984b7d",
+            "expected_noteheads": 8,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest then four beamed eighth dyads: F-sharp5/A5 repeated three times and F-sharp5/C-sharp6. Eight distinct heads are visible. Dots above the beam groups are articulation, not augmentation. Reviewer: Three F-sharp5/A5 eighth dyads at 384,576,768, then F-sharp5/C-sharp6 eighth dyad at 960. Eight heads, four 192-tick onsets. Lower F-sharp5 remains present under every upper head."
+          },
+          {
+            "source_bar": 37,
+            "edition_bar": 38,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "7c83f785492d7032ce7b8b7784ae10d2044d884aa85949735fc363639f63847f",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest followed by G5/C-sharp6 quarter dyad and G5/D6 quarter dyad. Ledger positions and four heads are visible; stems have no eighth beams or flags. Reviewer: G5/C-sharp6 quarter dyad at 384, then G5/D6 quarter dyad at 768. Four heads. Ledger-line placement distinguishes C-sharp6 from the higher D6."
+          },
+          {
+            "source_bar": 42,
+            "edition_bar": 43,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "df14e2d332d46768e48a2f9989242ac377471eaad4f60d61ca4a0feaa3e6f875",
+            "expected_noteheads": 8,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest and four beamed G5/B5 eighth dyads. The manuscript varies the shape of the last lower head, but its position remains G5; all eight heads and common beam rhythm are visible. Reviewer: Four G5/B5 eighth dyads at 384,576,768,960: eight visible heads. The beam and articulation dots do not imply dotted durations."
+          },
+          {
+            "source_bar": 47,
+            "edition_bar": 49,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "6a942f698e5a310867de47952655cf5cc2705f347ffdde35abaa110f171e0a58",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Visible eighth rest followed by G5, F5, D5, C5, A4, each an eighth. The five heads have an initial eighth flag then a continuous four-note beam. Reviewer: Five eighths G5, F5, D5, C5, A4 at 192,384,576,768,960. First is independently flagged; the last four share a beam. No extra lower voice."
+          },
+          {
+            "source_bar": 52,
+            "edition_bar": 54,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "022c449d8b8361ec1a37d0684737bfb1dd6a2df480674a4c4f63c2e13cdfdaeb",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: G4 eighth, F4 eighth, E-natural4 eighth, E-flat4 eighth, C4 quarter. The first four share a beam; the final ledger-line C4 has an unflagged stem. Reviewer: G4, F4, E-natural4, E-flat4 form four beamed eighths at 0,192,384,576. C4 is a plain quarter on its ledger line at 768. Five heads."
+          },
+          {
+            "source_bar": 57,
+            "edition_bar": 59,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e9328f9c4bb6d42a75c402ca182c45e0b8cde1a1f1584cbcadf74f133e04cdbe",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Eighth rest, D4 eighth, G4 eighth, B-flat4 eighth, D5 eighth, B-flat4 eighth. Five filled heads and flag/beam rhythm support the exact pitches and 192-tick spacing. Reviewer: D4 flagged eighth at 192, followed by beamed G4, B-flat4, D5, B-flat4 eighths at 384,576,768,960. Five heads; the final B-flat is on the same staff position as the third head."
+          },
+          {
+            "source_bar": 62,
+            "edition_bar": 64,
+            "source_location": {
+              "page": 1,
+              "system": 9,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "09f3a5452e4388702aba3abed529bc1c533cb2592bb4640058f401080283959e",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: Final physical bar: D4 quarter, eighth rest, D4 eighth, D4 quarter. Three low D4 heads are clear, with an eighth flag only on the middle note. Reviewer: Three D4 heads below the staff: quarter at 0, eighth at 576, quarter at 768. Repeated notes are separate attacks; all written durations and the intervening rest are visible."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "Opening bar1 has an editorial rest and shifted note onsets; omitted as a whole bar. Inserted cadence bars29/45 and editorial harmony remain excluded."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_amalia_aviador",
+            "audit4_coqueteos_rumichaca"
+          ],
+          "reference_abc_sha256": "1e7f205c7c5eecf3063c840bdedf952c218b39010722c005f64679a5ba47c638",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "491864ad7e834a450f4447d884b9ac661bbf6e7d3d03ae78326601230a987213",
+          "author_sha256": "56b7c86ad675cc5599375630f8bb611c865501c1a516512d0617afe285b44526",
+          "reviewer_sha256": "a81a2a83e1f08b77a22a4325d2a1be8476537a02168f00198a6d5f6e335390f3",
+          "selected_bars": [
+            17,
+            22,
+            27,
+            33,
+            38,
+            43,
+            49,
+            54,
+            59,
+            64
+          ],
+          "accepted_bars": [
+            17,
+            22,
+            27,
+            33,
+            38,
+            43,
+            49,
+            54,
+            59,
+            64
+          ],
+          "rejected": [],
+          "human_approved_audit": false
+        }
+      }
+    },
+    "carrizal": {
+      "decisions": [
+        {
+          "id": "CA-01",
+          "category": "source_correction",
+          "source_location": {
+            "system": 2,
+            "measure": 2
+          },
+          "edition_location": {
+            "system": 2,
+            "measure": 2
+          },
+          "adopted_choice": "Final damaged head read as A rather than provisional B-flat4 or independent C5.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "it looks to me that it's a A and I put that in the ABC notation"
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "CA-02",
+          "category": "source_confirmation",
+          "source_location": {
+            "system": 4,
+            "measure": 2
+          },
+          "edition_location": {
+            "system": 4,
+            "measure": 2
+          },
+          "adopted_choice": "Second note B-flat4, correcting an earlier partial A4 reference.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "This is a B-flat! So looks good to me."
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "CA-03",
+          "category": "source_confirmation",
+          "source_location": {
+            "system": 4,
+            "measure": 1
+          },
+          "edition_location": {
+            "system": 4,
+            "measure": 1
+          },
+          "adopted_choice": "C-natural5 tie crosses into the first eighth of system 4 measure 2.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "It is! Looks good to me."
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "CA-04",
+          "category": "source_correction",
+          "source_location": {
+            "system": 7,
+            "measure": 5
+          },
+          "edition_location": {
+            "system": 7,
+            "measure": 5
+          },
+          "adopted_choice": "Final event B quarter.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "I changed it for B, it is a quarter note."
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "CA-05",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "Native AA–BB–CC repeat route without invented endings or D.C.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "Native AA–BB–CC playback is unchanged, with no invented endings or D.C. route."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        }
+      ],
+      "exclusions": [],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "8e1ef3b31cf455b709a18a853f71f618d015e9a2e898708fcaf81c5ecc96977a",
+        "total_source_measures": 48,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 1,
+            "edition_bar": 1,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "981726f5250a73e78e3a5638a64674c1cb597ed1fa47e1f3db5a4b6d0275ae34",
+            "expected_noteheads": 5,
+            "audit_note": "Initial one-flat signature and G-sharp turn visible."
+          },
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "2aa9a68fa713f3feabc4f95794750726dd8ee0c68cc90df4af07f144c5b18b2b",
+            "expected_noteheads": 3,
+            "audit_note": "F, E and D quarters."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "b5f5ce8ff95c1baff1276428868046b373b9768d3a3855e11f3c805a74e220c3",
+            "expected_noteheads": 3,
+            "audit_note": "A quarter, dotted-quarter B-flat, F eighth."
+          },
+          {
+            "source_bar": 4,
+            "edition_bar": 4,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "17915038fc39a4bfc554b505fdfcc994905bffc60b5d80d35fcf2e655873941b",
+            "expected_noteheads": 4,
+            "audit_note": "A quarter, G/F eighths, E quarter."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "981726f5250a73e78e3a5638a64674c1cb597ed1fa47e1f3db5a4b6d0275ae34",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Eighth rest then flagged A4 eighth and four beamed eighths Bb4 A4 G#4 A4. Five heads, including the sharped G; all written values are 192 ticks. Reviewer: Eighth rest then A4, B-flat4, A4, G-sharp4, A4, all eighths. Five heads are visible with the first flagged and the remaining four beamed. Fingering marks above the row are not extra notes."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "1b9cff19990b8f3bebdf896646f633b7be2c0436878baf75fc64ad498657bd51",
+            "expected_noteheads": 3,
+            "audit_note": "G, E and C-sharp quarters."
+          },
+          {
+            "source_bar": 7,
+            "edition_bar": 7,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "8f237fd806f70e0f9f56b11c1c2dc81cd38cead498e85b03562bf071f42b8e14",
+            "expected_noteheads": 3,
+            "audit_note": "A quarter, dotted-quarter G, E eighth."
+          },
+          {
+            "source_bar": 15,
+            "edition_bar": 15,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "0d82c27b96ba3fc78d312c9abd027117130d0cc663a9b410c6374d44049695b9",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six descending beamed eighths C#5 Bb4 A4 G4 F4 E4. All six heads and the single beam are visible. Finger numerals and long phrase slur are not note events or ties. Reviewer: Six beamed eighths C-sharp5, B-flat4, A4, G4, F4, E4, with descending visible staff positions. Numerals above the phrase are fingerings, not tuplet brackets or extra events."
+          },
+          {
+            "source_bar": 18,
+            "edition_bar": 18,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "1377bc2c42a2a2265619c3afe041239bf6ea6116edb08622cb4f50b1bba72688",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: Three unflagged quarter heads: C#5 E5 C#5. The last C has no cancellation and keeps the local sharp. No chord heads, dots or ties. Reviewer: Three unflagged quarter heads C-sharp5, E5, C-sharp5. The repeated C shares the same staff position as the first and inherits its accidental."
+          },
+          {
+            "source_bar": 22,
+            "edition_bar": 22,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "f3a370b3a31807c85a9aec14eeda3bcc3fd85da501ef80e323670ce71406c362",
+            "expected_noteheads": 1,
+            "audit_note": "Explicit C-natural dotted half with outgoing tie."
+          },
+          {
+            "source_bar": 23,
+            "edition_bar": 23,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "d05520acd8350266722b93953409675620059218f12479e7faf0043720876118",
+            "expected_noteheads": 6,
+            "audit_note": "Incoming tied C then B-flat, C, B-flat, G, G-sharp eighths."
+          },
+          {
+            "source_bar": 24,
+            "edition_bar": 24,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e79cacd8bbaaac159638b0768eb71bf7c9748bb0cf259c7952c2fb055d44bfe5",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half A."
+          },
+          {
+            "source_bar": 25,
+            "edition_bar": 25,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "981726f5250a73e78e3a5638a64674c1cb597ed1fa47e1f3db5a4b6d0275ae34",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Eighth rest and five eighth heads A4 Bb4 A4 G#4 A4. First note flagged, final four share a beam. The arc over the sequence is a slur; there are no ties. Reviewer: Eighth rest then five eighths A4, B-flat4, A4, G-sharp4, A4. The flag, four-note beam and all five filled heads are visible."
+          },
+          {
+            "source_bar": 26,
+            "edition_bar": 26,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "142fa785ab446cb2c8fe16dda30c8e652f8aed679c38077b80522e0828d04ffc",
+            "expected_noteheads": 2,
+            "audit_note": "C-sharp half and terminal A eighth; intervening rest excluded from note metric."
+          },
+          {
+            "source_bar": 27,
+            "edition_bar": 27,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ebe3a946f6fe73a52116ef840589e3a122413ea29e4fd20e20b298f721f70dff",
+            "expected_noteheads": 2,
+            "audit_note": "E half and terminal A eighth; intervening rest excluded from note metric."
+          },
+          {
+            "source_bar": 28,
+            "edition_bar": 28,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "bfce7f149c222a57aefabecd13022d9ea32336c751065e02f2cc92a85c83d68b",
+            "expected_noteheads": 1,
+            "audit_note": "F-sharp dotted half."
+          },
+          {
+            "source_bar": 29,
+            "edition_bar": 29,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "184fe9f7800851a1e2724bf322602fd6fa18bbb13c25ee245fc6d6329829ff8d",
+            "expected_noteheads": 2,
+            "audit_note": "E and D quarters after quarter rest; rest itself excluded from metric."
+          },
+          {
+            "source_bar": 33,
+            "edition_bar": 33,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "dffbf92ba2120087a99eb9a667cd4d26ca54a2162193141d3acaa59c0286db22",
+            "expected_noteheads": 2,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest, then two separate D5 quarter heads with plain stems. No beam, augmentation dot, accidental or tie joining the repeated D notes. Reviewer: Quarter rest followed by two D5 quarters. Both heads have separate unflagged stems and no augmentation or tie marks."
+          },
+          {
+            "source_bar": 37,
+            "edition_bar": 37,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "f77cf7206c29d1884ad01a63d7c4602e2e3240a91c7da0a46a11ae1e1cc2b67b",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Quarter rest followed by four ascending beamed eighth heads G4 A4 Bb4 C5. The upper curve is a phrase slur; no tie endpoints. Reviewer: Quarter rest followed by four beamed eighths G4, A4, B-flat4, C5, starting at 384 and then 192 ticks apart. Four ascending heads are visible."
+          },
+          {
+            "source_bar": 40,
+            "edition_bar": 40,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "315be956577b561b5f86361e533a334d444f6fdc682d493e2625de8aa9f1af24",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Five heads: F4 F4 F4 D4 eighths sharing one beam, then F4 quarter with a separate unflagged stem. The short D-to-F arc joins different pitches and is a slur. No tie fields. Reviewer: Three F4 eighths, one D4 eighth and an F4 quarter. The first four stems share a beam; the final F4 is unflagged. All five heads are visible."
+          },
+          {
+            "source_bar": 44,
+            "edition_bar": 44,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "66145fcde3a2394368d04bbf6304d78868cba30591b15298714a760243210394",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: A4 quarter, beamed E-natural4/G4 eighths, then F#4 quarter. Four heads; the broad curve is a slur over changing notes. No ties or dots. Reviewer: A4 quarter, E-natural4 eighth, G4 eighth, F-sharp4 quarter. The middle pair shares a beam; first/last stems are unflagged."
+          },
+          {
+            "source_bar": 48,
+            "edition_bar": 48,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5a395c93090e39b0214405b9ce8ac89bd041c82ae01a5da94c33310ab01d3d12",
+            "expected_noteheads": 7,
+            "audit_note": "Two source-only readers agree. Author: D4 quarter, eighth rest, then F#4/A4/D5 three-head eighth chord and the same three-head quarter chord. Seven heads total. First chord has a flag; final chord has no flag or tie. Final repeat dots are not augmentation dots. Reviewer: D4 quarter, eighth rest, F-sharp4/A4/D5 eighth triad, F-sharp4/A4/D5 quarter triad. Three stacked heads are distinct on each chord. The first chord has an eighth flag; the second has the unflagged quarter stem and compact handwritten heads, consistent with the visible cadence handwriting elsewhere on the page."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "System1 measure5 and system4 measure4 accidental glyphs were not independently resolved in this audit; omitted conservatively."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_atardecer_carrizal",
+            "audit4_amalia_aviador"
+          ],
+          "reference_abc_sha256": "45d0ed3de0b22252975d994991387dff69579da8024981b641d2a678b1f4b20a",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "99efe0d960c11ff28234cfd62c42a8125f00078ea458cdfad5e7d2162834a478",
+          "author_sha256": "04ce95d9b884f5796191d72373314dcadbc226fdc07150162b8dc18c936524e9",
+          "reviewer_sha256": "45307987c7e768ef13665b6acf58eac1625ac5bb5fa26afa5c077508103ee7d0",
+          "selected_bars": [
+            5,
+            11,
+            15,
+            18,
+            25,
+            33,
+            37,
+            40,
+            44,
+            48
+          ],
+          "accepted_bars": [
+            5,
+            15,
+            18,
+            25,
+            33,
+            37,
+            40,
+            44,
+            48
+          ],
+          "rejected": [
+            {
+              "edition_bar": 11,
+              "reasons": [
+                "reviewer: ambiguous"
+              ]
+            }
+          ],
+          "human_approved_audit": false
+        }
+      }
+    },
+    "coqueteos": {
+      "decisions": [
+        {
+          "id": "CO-01",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "A first ending returns to A; A second ending leads to B; B first ending repeats B; B second ending leads back to A. Lead-ins are skipped when destination is C.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "These lead-ins must be skipped when the destination is C."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "CO-02",
+          "category": "performance_form",
+          "source_location": {
+            "system": 3,
+            "measure": 4
+          },
+          "edition_location": {
+            "system": 3,
+            "measure": 4
+          },
+          "adopted_choice": "After returned A reaches S3M4, skip both A endings and enter C at S7M1.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "Skip both A endings and jump directly to C's entry at system 7, measure 1."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "CO-03",
+          "category": "performance_form",
+          "source_location": {
+            "system": 9,
+            "measure": 4
+          },
+          "edition_location": {
+            "system": 9,
+            "measure": 4
+          },
+          "adopted_choice": "Final D.C. goes A second ending into B, skips both B endings into C, and stops at S9M4 before final casilla.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "Finish at system 9, measure 4, before the final casilla."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "CO-04",
+          "category": "duration_basis_unknown",
+          "source_location": {
+            "system": 8,
+            "measure": 5
+          },
+          "edition_location": {
+            "system": 8,
+            "measure": 5
+          },
+          "adopted_choice": "Saved B5-quarter annotation is present, but its source-versus-editorial basis is unstated.",
+          "status": "needs_adjudication",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The B5-quarter annotation now matches the saved music; its source-versus-editorial basis remains unstated."
+            }
+          ],
+          "evidence_origin": "unclear"
+        }
+      ],
+      "exclusions": [
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "CO-01"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "Destination-specific route is editorial."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "CO-02"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "Destination-specific route is editorial."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "CO-03"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "Destination-specific route is editorial."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "CO-04"
+          ],
+          "dimensions": [
+            "duration"
+          ],
+          "reason": "S8M5 duration basis is unstated."
+        }
+      ],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "8a38d441d43c3bf4a0990c316e2ef06f67995b71d13455a76b4bb3055476989f",
+        "total_source_measures": 52,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 1,
+            "edition_bar": 1,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ab70247810c210a17220fc237e980b249649fe5e3431f3635f9e971e4be6b0cf",
+            "expected_noteheads": 5,
+            "audit_note": "Opening descending A5/F5/D5 figure after A4 eighth."
+          },
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ba0d5b84e5ea1bc4ea29a96fe09535bb94f607c66d07a6f91030b32ee3e0fa58",
+            "expected_noteheads": 6,
+            "audit_note": "Chromatic lower figure with explicit C-sharp and terminal D-sharp."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5a783dd93a3ada77e2176cf240f3922874875fcc4219f01daa6e2ff941c4a2a8",
+            "expected_noteheads": 6,
+            "audit_note": "Chromatic ascent with explicit F-sharp and G-sharp."
+          },
+          {
+            "source_bar": 4,
+            "edition_bar": 4,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "21730c4e2b9b449b0659535e65b93afc6ae8c782b9895a3492228382336f7494",
+            "expected_noteheads": 1,
+            "audit_note": "Dotted-half B-flat under initial one-flat signature."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "83a4b7684aa9010d5a8851ea7dca2014fe4c2d463c907fd2dd6e21f323af1889",
+            "expected_noteheads": 5,
+            "audit_note": "Descending G5/E5/C-sharp5 figure after A4 eighth."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "b765d0cc76846825e4816815a427995a787d340e9208fe641e85d566c90f76e8",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six single, beamed eighth-note heads: G4, E4, C-sharp4, A3, G-sharp3, A3. Each is 192 ticks at 0, 192, 384, 576, 768 and 960; no added head or tie. Reviewer: Six eighth heads under the shared beam: G4 E4 C#4 A3 G#3 A3. Low ledger counts distinguish C4 and A3; the G# head is below the A3 ledger. The large arc is a phrase slur, not a tie."
+          },
+          {
+            "source_bar": 10,
+            "edition_bar": 10,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ba0d5b84e5ea1bc4ea29a96fe09535bb94f607c66d07a6f91030b32ee3e0fa58",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighths F4, E4, D4, C-sharp4, D4, D-sharp4, with six 192-tick durations beginning at 0 through 960. One head per onset. Reviewer: Six beamed eighth heads: F4 E4 D4 C#4 D4 D#4. The first F is before the descending E/D pair; the small C ledger and final D sharp are visible. No overlay or ties."
+          },
+          {
+            "source_bar": 19,
+            "edition_bar": 19,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e05c06692cbec2aeb3be80fb17c16c3d9e0a7abce65576c7fca8fc056bea3bfb",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: The first stem carries two open half-note heads D5/F5 at onset 0, duration 768. The second carries C5/E5 quarters at 768, duration 384; two outgoing tie curves continue those pitches into the next row. Four heads total. Reviewer: Four heads: open D5/F5 half-note dyad, then C5/E5 quarter dyad. Both final heads tie to the next system first dyad. No incoming tie on the opening half notes."
+          },
+          {
+            "source_bar": 24,
+            "edition_bar": 24,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e397ac106dc920b67213c405959e13544948ae0a9221852957c986f8841b2427",
+            "expected_noteheads": 8,
+            "audit_note": "Two source-only readers agree. Author: Four dyad onsets: G4/B-flat4 quarter at 0 with incoming ties; C5/E5 quarter at 384; B-flat4/D5 eighth at 768; A4/C5 eighth at 960. Eight heads. No outgoing tie. Reviewer: Eight heads in four dyads: incoming-tied G4/Bb4 quarter; C5/E5 quarter; beamed Bb4/D5 and A4/C5 eighth dyads. Both incoming flags true only on the first dyad; no outgoing ties."
+          },
+          {
+            "source_bar": 28,
+            "edition_bar": 28,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "bdf29ca008fa1e702e0c97c96c35653fe43bb949fb45a60f74f1823b66e45f35",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: Opening C-sharp4/E4 quarter dyad at 0 ends the prior ties. A separate C-sharp5 quarter starts at 384, followed by B-flat4 and A4 eighths at 768 and 960. Five heads. The high arc groups the final three notes as a slur. Reviewer: Five heads: tied-in C#4/E4 quarter dyad; C#5 quarter; beamed Bb4 and A4 eighths. Both first-head incoming ties are visible; no other tie endpoints."
+          },
+          {
+            "source_bar": 33,
+            "edition_bar": 33,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "c5f85f30fde1c10f527f68ddcdac3908222514af0799de93ddaf3cceb29b24f7",
+            "expected_noteheads": 7,
+            "audit_note": "Two source-only readers agree. Author: D4 quarter at 0, then an eighth rest; three-head F4/A4/D5 eighth chord at 576 and the same three-head quarter chord at 768. Seven source heads; chord stems share the written durations and neither chord is tied. Reviewer: D4 quarter, eighth rest, three-head F4/A4/D5 eighth chord and matching quarter chord. Seven heads total. First chord has a flag, final chord has no flag; no ties."
+          },
+          {
+            "source_bar": 37,
+            "edition_bar": 37,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "f27071cb9f3b5f6f903aabc0f88726fc6d4b60c6b999a586a54a1eab12b70320",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: C-sharp5 quarter at 0, B4 eighth at 384, C-sharp5 eighth at 576, and B4 quarter at 768. Four single heads with no tie endpoints. Reviewer: C#5 quarter, beamed B4/C#5 eighths, B4 quarter. Four heads with no local accidental changes. The short arc spans B/C# and is a slur, not a tie."
+          },
+          {
+            "source_bar": 42,
+            "edition_bar": 42,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "2e32c9091a904960f54ec09da936faf8a93074bc6d2904774152deace85411ad",
+            "expected_noteheads": 5,
+            "audit_note": "D/E eighths, C-sharp quarter, B/C-sharp eighths in two-sharp section."
+          },
+          {
+            "source_bar": 43,
+            "edition_bar": 43,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "1c085e372a12674b433deb44aa3571f353a8e464ad369abe317ec48179038552",
+            "expected_noteheads": 4,
+            "audit_note": "B quarter, A/B eighths, A quarter."
+          },
+          {
+            "source_bar": 44,
+            "edition_bar": 44,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5a77949fa54bc5ff08809b513d86ea6617188cee0d25d0601d9f4e109c052181",
+            "expected_noteheads": 5,
+            "audit_note": "Rest then descending B5/A5/F-sharp5/D5/B4 eighths."
+          },
+          {
+            "source_bar": 45,
+            "edition_bar": 45,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "3257d7c50450aa55593a96ab3d9ec2e8160ab1845ada29475f63a4a2df7f95f8",
+            "expected_noteheads": 4,
+            "audit_note": "Explicit C-natural quarter, B/C-natural eighths, B quarter."
+          },
+          {
+            "source_bar": 47,
+            "edition_bar": 47,
+            "source_location": {
+              "page": 1,
+              "system": 8,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "6940785d4af835a42646094f42547bd72090ae7434150c7b6753208d13f962f6",
+            "expected_noteheads": 4,
+            "audit_note": "A5 quarter, G5/A5 eighths, G5 quarter."
+          },
+          {
+            "source_bar": 48,
+            "edition_bar": 48,
+            "source_location": {
+              "page": 1,
+              "system": 9,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "b1cbc9947a7174fd06c11e51f0409a2a23b39c0723e58868d95293502815d67c",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: B-flat4 and D5 are beamed eighths at 0 and 192; A5 is an isolated quarter at 384; G5/A5 are beamed eighths at 768/960. Five heads. The phrase arcs join distinct pitches and do not create ties. Reviewer: Five heads: beamed Bb4/D5 eighths, ledger A5 quarter, beamed G5/A5 eighths. No missing companion heads or augmentation dots; no ties."
+          },
+          {
+            "source_bar": 52,
+            "edition_bar": 52,
+            "source_location": {
+              "page": 1,
+              "system": 9,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5a77949fa54bc5ff08809b513d86ea6617188cee0d25d0601d9f4e109c052181",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: After the rest at 0, five eighth-note heads B5, A5, F-sharp5, D5 and B4 begin at 192, 384, 576, 768 and 960. The first flagged eighth and following beam group each support 192 ticks; the overhead arc is a phrase slur. Reviewer: Eighth rest, flagged B5 eighth, then beamed A5 F#5 D5 B4 eighths. Five descending heads, with first B above the A ledger. No ties; repeat dots are separate from note durations."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "System8 measure5 (edition46) duration basis remains unresolved; omitted."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_coqueteos_rumichaca",
+            "audit4_atardecer_carrizal"
+          ],
+          "reference_abc_sha256": "353caa58aea0beb288043d10c6708ed0bf521548ee5c3591734b6e3fe3046687",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "c5261d4dbb9d551b6e9c0a1ad83f243df3e8f5bcb6ff5dd2d52b221740ffd426",
+          "author_sha256": "b70f70346ce3aa84d87992fa9f86bd2fe10c5cb49e18e9910c610c08f460aec0",
+          "reviewer_sha256": "da00f37f152c7eb6d0a9b4f7f417d5ed08daa26e554ae6d12ed8416b6a3e3090",
+          "selected_bars": [
+            6,
+            10,
+            15,
+            19,
+            24,
+            28,
+            33,
+            37,
+            48,
+            52
+          ],
+          "accepted_bars": [
+            6,
+            10,
+            19,
+            24,
+            28,
+            33,
+            37,
+            48,
+            52
+          ],
+          "rejected": [
+            {
+              "edition_bar": 15,
+              "reasons": [
+                "author: ambiguous"
+              ]
+            }
+          ],
+          "human_approved_audit": false
+        }
+      }
+    },
+    "rumichaca": {
+      "decisions": [
+        {
+          "id": "RU-01",
+          "category": "editorial_reconstruction",
+          "source_location": {
+            "system": 2,
+            "measure": 1
+          },
+          "edition_location": {
+            "system": 2,
+            "measure": 1
+          },
+          "adopted_choice": "Opening rest added though not visible in the PDF.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "S2M1 added rest here, not visible in the PDF"
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "RU-02",
+          "category": "editorial_reconstruction",
+          "source_location": {
+            "system": 3,
+            "measure": 1
+          },
+          "edition_location": {
+            "system": 3,
+            "measure": 1
+          },
+          "adopted_choice": "Human changed notes not visible in PDF; exact source basis remains unestablished.",
+          "status": "needs_adjudication",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "S3M1 changed notes, not visible in PDF"
+            }
+          ],
+          "evidence_origin": "unclear"
+        },
+        {
+          "id": "RU-03",
+          "category": "performance_form",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "Intro; A endings 1 and 2; B twice from R5M2; D.C. includes intro, A second ending, B once, stop R7M4. Intro-inclusive D.C. remains provisional against unreadable suffix.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "The unreadable D.C. suffix remains a source uncertainty, with the same provisional introduction-inclusive reading for your audition."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "RU-04",
+          "category": "uncertain_source_harmony",
+          "source_location": {
+            "system": 7,
+            "measure": 1
+          },
+          "edition_location": {
+            "system": 7,
+            "measure": 1
+          },
+          "adopted_choice": "Fdim7 adopted; contiguous F7 dim. inscription could also indicate diminuendo.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "Juan approved Fdim7 at R7m1."
+            }
+          ],
+          "evidence_origin": "pdf"
+        },
+        {
+          "id": "RU-05",
+          "category": "editorial_tempo",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "Main quarter = 190; intro and marked fermatas quarter = 60. Numeric tempi are listening choices.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "These are chosen listening tempos, not manuscript metronome marks."
+            }
+          ],
+          "evidence_origin": "human_musical_judgment"
+        },
+        {
+          "id": "RU-06",
+          "category": "source_harmony_display",
+          "source_location": null,
+          "edition_location": null,
+          "adopted_choice": "Fifteen explicit percent harmony marks show expanded chord symbols; unmarked bars do not inherit chords.",
+          "status": "supported_by_review_notes",
+          "evidence": [
+            {
+              "kind": "review",
+              "quote": "An unmarked bar does not inherit a chord; R5m1 remains without accompaniment."
+            }
+          ],
+          "evidence_origin": "pdf"
+        }
+      ],
+      "exclusions": [
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "RU-01"
+          ],
+          "dimensions": [
+            "rests"
+          ],
+          "reason": "Rest is not visible in the PDF."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "RU-02"
+          ],
+          "dimensions": [
+            "notes"
+          ],
+          "reason": "Changed notes are not visible in the PDF and source basis is unresolved."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "RU-03"
+          ],
+          "dimensions": [
+            "form"
+          ],
+          "reason": "D.C. suffix remains unreadable; intro-inclusive return is provisional."
+        },
+        {
+          "scope": "decision",
+          "decision_ids": [
+            "RU-05"
+          ],
+          "dimensions": [
+            "tempo"
+          ],
+          "reason": "Numeric tempi are editorial listening choices."
+        }
+      ],
+      "source_audit": {
+        "status": "partial_model_assisted_visual_audit",
+        "auditor_kind": "model_assisted_visual_audit",
+        "auditor_model": "not_independently_recorded",
+        "human_approved_audit": false,
+        "audit_date": "2026-10-28",
+        "source_pdf_sha256": "1b752c57fa5b330f430ab23db1beaa581f4b06bfadd1d0b5f3e94121dc037b24",
+        "total_source_measures": 45,
+        "ticks_per_quarter": 384,
+        "selection_policy": "Original v3 masks retained; v4 uses ten preselected additional bars per work. Both readers must support all note fields. Rejected bars are not replaced.",
+        "visual_method": "Original v3 audit plus two separate source-only readers using full PDF context and local closeups. Reader identity and original reports are hash-bound below.",
+        "pending": [
+          "Unlisted bars remain unscored. Prior v3 pending notes are historical, not v4 masks."
+        ],
+        "measures": [
+          {
+            "source_bar": 1,
+            "edition_bar": 1,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "19c15188312f52f888d106f9e73b1aa75894f42896f9ba1ffa099515488741ba",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: Four single heads: A4 and B-flat4 quarters (0/384 ticks), followed by beamed A4/G4 eighths (768/960). Each note has a fermata; those marks are excluded from written durations. Reviewer: A4 and Bb4 are unflagged quarter notes; A4/G4 form a beamed eighth pair. Fermatas are above all four heads and do not alter the written durations. No ties."
+          },
+          {
+            "source_bar": 2,
+            "edition_bar": 2,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "8a335dd42d629d496a96378e2ffd89751d7ad50798fd0757b1df0b5f4810253f",
+            "expected_noteheads": 4,
+            "audit_note": "Explicit F-sharp eighth, A quarter, G eighth, E quarter."
+          },
+          {
+            "source_bar": 3,
+            "edition_bar": 3,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "08d45a3461e9e55cf4e0458ab5f203a8521a819410be1c65ee1a60574233d75f",
+            "expected_noteheads": 4,
+            "audit_note": "Explicit C-sharp quarter, A quarter, G/F eighths."
+          },
+          {
+            "source_bar": 4,
+            "edition_bar": 4,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "458fb81bfc5e0f51d0c7ec0ca0c5c2bc8db82b623ae96d938802a03044a11cef",
+            "expected_noteheads": 3,
+            "audit_note": "E eighth, G quarter, dotted-quarter F."
+          },
+          {
+            "source_bar": 5,
+            "edition_bar": 5,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "80b6b2282de14880b4a86b24c42d79c5007ba0bb435c9877aba46aa79b5f7026",
+            "expected_noteheads": 4,
+            "audit_note": "E/F quarters followed by E/F eighths."
+          },
+          {
+            "source_bar": 6,
+            "edition_bar": 6,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 6
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "fd932fc688bd3619e0b9bd24adb7f824125ceb2e62324d77afafe1a4d84918cf",
+            "expected_noteheads": 3,
+            "audit_note": "Explicit F-sharp eighth after rest, then two G quarters."
+          },
+          {
+            "source_bar": 7,
+            "edition_bar": 7,
+            "source_location": {
+              "page": 1,
+              "system": 1,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "ccb82c26372b90019759fe6664635a37b73e01fc22471b546bd93e9ec4a927ff",
+            "expected_noteheads": 4,
+            "audit_note": "Explicit F-sharp and G quarters, F-sharp/G eighths; accidental carries within bar."
+          },
+          {
+            "source_bar": 12,
+            "edition_bar": 12,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "e71c0d1794ce928a7a0766f33302611bc3bf08607b097c0257138eb6e0b34707",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: E4 eighth at 0, G4 quarter at 192, F4 eighth at 576, and F5 quarter at 768. The two eighths have independent flags; the final F is on the upper staff line, one octave above the earlier F. Reviewer: Four source heads: flagged E4 eighth, G4 quarter, flagged F4 eighth, F5 quarter. The low F head is small but visible on its flagged stem; the final high head is on the top staff line. No overlay or ties."
+          },
+          {
+            "source_bar": 15,
+            "edition_bar": 15,
+            "source_location": {
+              "page": 1,
+              "system": 2,
+              "measure": 8
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "aa1b06e99a1287c05395d97ee785294e5df28a0f9f2a0da80b8717faf5eb1e9f",
+            "expected_noteheads": 4,
+            "audit_note": "Two source-only readers agree. Author: D4 quarter at 0; F4 eighth at 384; a new F4 quarter at 576; E4 eighth at 960. Four heads, with the first D4 below the staff and the final E4 on its bottom line. Reviewer: D4 quarter below staff, F4 eighth with flag, separate F4 quarter, E4 eighth with flag. Four heads with written onsets 0,384,576,960 and no tie fields."
+          },
+          {
+            "source_bar": 20,
+            "edition_bar": 20,
+            "source_location": {
+              "page": 1,
+              "system": 3,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "c79f47018a63361214dd0ad3cdd138fb305d06e549738f08419b5be564d88d07",
+            "expected_noteheads": 3,
+            "audit_note": "Two source-only readers agree. Author: B-natural4 flagged eighth at 0; D5 quarter at 192; C-sharp5 dotted quarter at 576. The single augmentation dot supports 576 written ticks; the fermata above does not lengthen the scored duration. Reviewer: B-natural4 flagged eighth, D5 quarter, dotted-quarter C#5. The augmentation dot is to the right of C#, separate from the fermata above it. Fermata stretch is not added to the 576-tick duration."
+          },
+          {
+            "source_bar": 24,
+            "edition_bar": 24,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "207c3b954e50cb809809c58c6c874eba9fc6c48d83eb090ab212ae7718ba0811",
+            "expected_noteheads": 5,
+            "audit_note": "Two source-only readers agree. Author: A4 flagged eighth at 0; G4 quarter at 192; F4 flagged eighth at 576; E4/F4 beamed eighths at 768/960. Five single heads. Reviewer: Flagged A4 eighth, G4 quarter, flagged F4 eighth, beamed E4/F4 eighth pair. Five distinct heads and no chord overlays or ties."
+          },
+          {
+            "source_bar": 27,
+            "edition_bar": 27,
+            "source_location": {
+              "page": 1,
+              "system": 4,
+              "measure": 5
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "7df46a7657c1e7e7ad0feeff796963fc1be6019bcc6f8c5f089347287cfb95e7",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighths E4, F4, G4, F-sharp4, G4, B-flat4, at successive 192-tick onsets from 0 through 960. No extra head on any stem. Reviewer: Six eighth heads under the shared beam: E4 F4 G4 F#4 G4 Bb4. Sharp is visibly attached to the fourth note, with all six stem/head positions distinguishable."
+          },
+          {
+            "source_bar": 31,
+            "edition_bar": 31,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "9b781d057f67fa8656ada345107c9dab9d07dbeeb0abcc3f8889b962275fd9d8",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six eighths under one beam: D5, E5, C5, A4, B-flat4, C5. Each has duration 192, at onsets 0 through 960. The downward long line below is the beam, not a tie. Reviewer: Six beamed eighths D5 E5 C5 A4 Bb4 C5. The tall interior stroke is a stem, not a barline or extra note. No multiplicity or ties."
+          },
+          {
+            "source_bar": 35,
+            "edition_bar": 35,
+            "source_location": {
+              "page": 1,
+              "system": 5,
+              "measure": 7
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "5c7eb7b91774f3145f4e9c9f593c61ab0f476e5036ad02f667eb53ba1fce4e60",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Six beamed eighths C5, D5, B-flat4, G4, A4, B-flat4, at 0, 192, 384, 576, 768 and 960. One head per stem; all durations 192. Reviewer: Six beamed eighth heads C5 D5 Bb4 G4 A4 Bb4. All are single notes. The lower G and the last A/Bb steps are distinct; no tie flags."
+          },
+          {
+            "source_bar": 38,
+            "edition_bar": 38,
+            "source_location": {
+              "page": 1,
+              "system": 6,
+              "measure": 3
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "3675ed7e7262f7008f9465224d13f0155fb9c08abf551929b3fdc27e1252e8b5",
+            "expected_noteheads": 6,
+            "audit_note": "Two source-only readers agree. Author: Ascending beamed eighths A4, B-flat4, C5, D5, E5, F5. Six 192-tick durations at 0 through 960; top F5 is on the upper staff line. Reviewer: Six ascending beamed eighth heads A4 Bb4 C5 D5 E5 F5. The single continuous beam and six stems establish the rhythm; no overlays or ties."
+          },
+          {
+            "source_bar": 42,
+            "edition_bar": 42,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 1
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "dfe9a45f185e678de5a200630ccb310f456e62e7918c813e6063bf29306fdf00",
+            "expected_noteheads": 6,
+            "audit_note": "F/E/G/F/D eighths followed by explicit B-natural eighth."
+          },
+          {
+            "source_bar": 43,
+            "edition_bar": 43,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 2
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "176c62d983c839ac7694cf07b8615fd9ec56fe4c417a6735521cfb9f0fd0b8f6",
+            "expected_noteheads": 5,
+            "audit_note": "Explicit G-sharp eighth, D quarter, C/A/F eighths."
+          },
+          {
+            "source_bar": 45,
+            "edition_bar": 45,
+            "source_location": {
+              "page": 1,
+              "system": 7,
+              "measure": 4
+            },
+            "dimensions": [
+              "notes"
+            ],
+            "note_fields": [
+              "onset_ticks",
+              "duration_ticks",
+              "pitch_midi",
+              "tie_start",
+              "tie_end"
+            ],
+            "note_events_sha256": "458fb81bfc5e0f51d0c7ec0ca0c5c2bc8db82b623ae96d938802a03044a11cef",
+            "expected_noteheads": 3,
+            "audit_note": "E eighth, G quarter, dotted-quarter F; D.C. route is excluded."
+          }
+        ],
+        "v3_metadata": {
+          "selection_policy": "Purposeful readable systems and later accidental/tie regions selected before seeing new Astra/Terra outputs. Includes polyphonic intro holds and cross-bar ties; not random or representative of the full collection. Only explicitly listed note fields are scored.",
+          "visual_method": "Full PDF page rendered with pdftoppm at160dpi, then complete-system crops inspected. Reference edition compared with visible source. Key context inspected on the full page. No recordings used.",
+          "pending": [
+            "Opening B accidental context is not independently resolved here; bar1 omitted. Bar44 also omitted from this bounded audit. Nonvisible edits in rows2/3 remain excluded."
+          ]
+        },
+        "expansion_v4": {
+          "reader_agents": [
+            "audit4_coqueteos_rumichaca",
+            "audit4_atardecer_carrizal"
+          ],
+          "reference_abc_sha256": "c37aaa1e54aab10e8761bee876fabc61879e033ffa5dd05dfeef83e25cdd6b44",
+          "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+          "packet_sha256": "1ca4610d5c1edc276fd0f413d0aa197a724830692a12e407c2008633acad615b",
+          "author_sha256": "7b81a5da084d794e6d85d17b3c8f14a6f4504f8b825611801bc4f54fa48e5495",
+          "reviewer_sha256": "28b408eea153f48e5d90ed6e4bb248454d331726f7562af1c039b44b14c41ed6",
+          "selected_bars": [
+            1,
+            12,
+            15,
+            20,
+            24,
+            27,
+            31,
+            35,
+            38,
+            44
+          ],
+          "accepted_bars": [
+            1,
+            12,
+            15,
+            20,
+            24,
+            27,
+            31,
+            35,
+            38
+          ],
+          "rejected": [
+            {
+              "edition_bar": 44,
+              "reasons": [
+                "reviewer: ambiguous"
+              ]
+            }
+          ],
+          "human_approved_audit": false
+        }
+      }
+    }
+  },
+  "label_set": "reviewed_six_v4",
+  "editorial_rubric": {
+    "version": "editorial_rubric_v1",
+    "status": "requires_musical_adjudication",
+    "automatic_acceptance": false,
+    "grades": [
+      "acceptable",
+      "acceptable_alternative",
+      "needs_revision",
+      "not_assessable"
+    ],
+    "criteria": [
+      {
+        "id": "source_preservation",
+        "question": "Does the edition preserve legible PDF evidence and identify every departure?"
+      },
+      {
+        "id": "completion",
+        "question": "Is there a complete playable choice, with no placeholder asking the reviewer to compose the missing material?"
+      },
+      {
+        "id": "minimal_reconstruction",
+        "question": "Does each completion make the smallest musically defensible change supported by this PDF?"
+      },
+      {
+        "id": "coherent_form",
+        "question": "Is the complete route finite, consistent with readable directions, and musically connected through destination-appropriate endings?"
+      },
+      {
+        "id": "decision_transparency",
+        "question": "Are uncertain locations, the adopted choice, reasons and meaningful alternatives recorded?"
+      }
+    ],
+    "alternative_policy": "Evaluate a whole coherent reconstruction or route. Agreement with one approved edition is descriptive, not the only acceptable answer. No new alternative receives approval automatically.",
+    "source_policy": "PDF only. Historical recording-informed edition decisions are excluded from source-note truth.",
+    "adjudication_record_fields": [
+      "run_id",
+      "decision_id",
+      "criterion",
+      "grade",
+      "reason",
+      "reviewer",
+      "reviewed_at"
+    ]
+  },
+  "source_audit_evidence_sha256": "1113bf93107adfc89bfe522e5c1a0a558b999dd4fd064c512115dc32f27f2424"
+}

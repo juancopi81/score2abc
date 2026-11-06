@@ -12,9 +12,12 @@ experimental.
 Six musician-reviewed performing editions are frozen. The configurable harness
 pins data, labels, grader, authoring tools and model settings independently;
 the dashboard compares any configured set under one compatible version group.
-V3 labels audit 67/312 source bars (268 noteheads) and preserve 30 documented
-editorial decisions. This partial model-assisted audit is distinct from agreement
-with the complete reviewed editions.
+The [v4 source-note audit](docs/SOURCE_NOTE_AUDIT_V4.md) expands coverage from
+67 to 122/312 source bars (547 noteheads), preserving 30 editorial decisions.
+Two readers accepted 55 of 60 additional selections; five ambiguous bars remain
+unscored. This is partial model-assisted evidence, distinct from complete-edition
+agreement or new human approval. V3 remains the default for existing workflows;
+the offline v4 regrade preserves all prior reports and uses no new API calls.
 
 The latest [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
 uses adaptive PDF inspection, draft validation and an independent same-model
@@ -25,8 +28,13 @@ outputs are retained separately; no reference answers reach the readers.
 | --- | ---: | ---: |
 | Aviador exact note/rest bars | 7/7 | 2/7 |
 | Rumichaca edition note F1 | 0.9354 | 0.6313 |
-| Rumichaca audited-source note F1, nine bars only | 0.9722 | 0.5823 |
+| Rumichaca audited-source note F1, 18 bars (v4) | 0.9875 | 0.6071 |
 | Rumichaca written bars | 45/45 | 45/45 |
+
+The table uses v4 for Rumichaca source notes; original v3 values remain in the
+[historical report](docs/ASSISTED_MODEL_COMPARISON.md). The same expanded mask
+scores the saved gated API output at 87.5% and the earlier API output at 77.5%.
+These systems have different generation conditions.
 
 Terra's Rumichaca author stopped with 17 bars; its independent reader completed
 45. Its Aviador review worsened the initial 4/7 exact bars to 2/7. Astra remains

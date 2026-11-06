@@ -80,6 +80,11 @@ const ReviewPlayback = (() => {
     const plan = partPlan(first, constants), times = new Map();
     for (let s = first; s; s = s.ts_next) {
       if (Number.isInteger(s.istart)) times.set(s.istart, s.time);
+      // ToAudio emits grace children by their own source offsets. Keep them in
+      // their parent's written section before conversion adjusts grace timing.
+      if (s.type === constants.GRACE) for (let grace = s.extra; grace; grace = grace.next) {
+        if (Number.isInteger(grace.istart)) times.set(grace.istart, s.time);
+      }
     }
     fillMissingTieIds(first, constants);
     const audio = new Audio(), bars = [];

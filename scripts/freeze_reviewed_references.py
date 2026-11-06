@@ -1,4 +1,4 @@
-"""Freeze or verify six consumed reviewed score references."""
+"""Freeze or verify consumed reviewed editions; default to the original six."""
 
 from __future__ import annotations
 
@@ -15,6 +15,12 @@ def main() -> None:
     create = sub.add_parser("freeze", help="create one immutable snapshot")
     create.add_argument("out_dir", type=Path)
     create.add_argument("destination", type=Path)
+    create.add_argument(
+        "--catalog-number",
+        type=int,
+        action="append",
+        help="freeze only these catalog numbers (repeatable); uses the version-2 manifest",
+    )
     verify = sub.add_parser("verify", help="verify a snapshot without changing it")
     verify.add_argument("destination", type=Path)
     verify.add_argument(
@@ -22,7 +28,11 @@ def main() -> None:
     )
     args = parser.parse_args()
     manifest = (
-        freeze_references(args.out_dir, args.destination)
+        freeze_references(
+            args.out_dir,
+            args.destination,
+            catalog_numbers=tuple(args.catalog_number) if args.catalog_number is not None else None,
+        )
         if args.command == "freeze"
         else verify_freeze(args.destination, args.out_dir)
     )
