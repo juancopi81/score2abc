@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "kind": "offline_source_label_expansion",
+  "date": "2026-11-06",
+  "api_calls": 0,
+  "historical_metrics_reproduced": true,
+  "versions": {
+    "prior_labels": {
+      "path": "out/eval/labels/reviewed_six_v3/manifest.json",
+      "sha256": "78fdfc98b28d0572d67e3050167fb6acad2f17923aaaf45a1119e648f09bdb28"
+    },
+    "expanded_labels": {
+      "path": "out/eval/labels/reviewed_six_v4/manifest.json",
+      "sha256": "b4af678aa6e2cb0f93c4f54cfa0fe1be00146ed3c983ac192d57dc2ba60c0900"
+    },
+    "reference": {
+      "path": "out/eval/references/reviewed_six_20261028_v1/manifest.json",
+      "sha256": "ad1995ca51050202770f8ceeb6fc6fe03ee2d622cbbf042b5ad84e3ca27f722f"
+    },
+    "implementations": [
+      {
+        "path": "score2abc/score_eval.py",
+        "sha256": "96703d6a726c41ad25dc73e4e76b0b7d384b86f51716e9aaecf02f1e1cd748f3"
+      },
+      {
+        "path": "score2abc/score_eval_abc.py",
+        "sha256": "c4561a535d2e516b378e68c55ae7aad48e37dc998ed12d813b5c54da66ffb815"
+      },
+      {
+        "path": "score2abc/score_eval_parse.js",
+        "sha256": "bfc49282690be54a68d551ffd70dadca10f0aff9ee514adf356770a0727abec5"
+      },
+      {
+        "path": "score2abc/score_eval_source.py",
+        "sha256": "fba651e5ac81c3f67ebb58ef112e22a247ab2580e021676edea235663ef6091c"
+      },
+      {
+        "path": "score2abc/source_note_audit.py",
+        "sha256": "a459dca31bc28af556861ae775d67d4efa4005f6d748dd57116bbffb92e87711"
+      },
+      {
+        "path": "scripts/regrade_source_audit.py",
+        "sha256": "264b9062463cf717c824f83105de45082a5c056e6741d9f03bb88f4834b07b23"
+      }
+    ]
+  },
+  "audit": {
+    "plan_sha256": "a221aad80937643b46259bdb57b2f9e3ab8ba1c6bb2a823d702b9aa3dc41bc2d",
+    "works": {
+      "amalia": {
+        "previous_bars": 15,
+        "accepted_bars": [
+          9,
+          16,
+          19,
+          23,
+          26,
+          30,
+          33,
+          37,
+          48
+        ],
+        "rejected": [
+          {
+            "edition_bar": 12,
+            "reasons": [
+              "author: ambiguous",
+              "reviewer: ambiguous"
+            ]
+          }
+        ],
+        "total_bars": 24
+      },
+      "atardecer": {
+        "previous_bars": 5,
+        "accepted_bars": [
+          7,
+          13,
+          18,
+          24,
+          29,
+          35,
+          40,
+          46,
+          57
+        ],
+        "rejected": [
+          {
+            "edition_bar": 51,
+            "reasons": [
+              "reviewer: ambiguous"
+            ]
+          }
+        ],
+        "total_bars": 14
+      },
+      "aviador": {
+        "previous_bars": 15,
+        "accepted_bars": [
+          17,
+          22,
+          27,
+          33,
+          38,
+          43,
+          49,
+          54,
+          59,
+          64
+        ],
+        "rejected": [],
+        "total_bars": 25
+      },
+      "carrizal": {
+        "previous_bars": 13,
+        "accepted_bars": [
+          5,
+          15,
+          18,
+          25,
+          33,
+          37,
+          40,
+          44,
+          48
+        ],
+        "rejected": [
+          {
+            "edition_bar": 11,
+            "reasons": [
+              "reviewer: ambiguous"
+            ]
+          }
+        ],
+        "total_bars": 22
+      },
+      "coqueteos": {
+        "previous_bars": 10,
+        "accepted_bars": [
+          6,
+          10,
+          19,
+          24,
+          28,
+          33,
+          37,
+          48,
+          52
+        ],
+        "rejected": [
+          {
+            "edition_bar": 15,
+            "reasons": [
+              "author: ambiguous"
+            ]
+          }
+        ],
+        "total_bars": 19
+      },
+      "rumichaca": {
+        "previous_bars": 9,
+        "accepted_bars": [
+          1,
+          12,
+          15,
+          20,
+          24,
+          27,
+          31,
+          35,
+          38
+        ],
+        "rejected": [
+          {
+            "edition_bar": 44,
+            "reasons": [
+              "reviewer: ambiguous"
+            ]
+          }
+        ],
+        "total_bars": 18
+      }
+    },
+    "scope": "consumed_model_assisted"
+  },
+  "source_bars": 122,
+  "source_total_bars": 312,
+  "source_noteheads": 547,
+  "results": [
+    {
+      "id": "rumichaca_full/initial",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "assisted-subscription-v1",
+      "stage": "initial",
+      "status": "complete",
+      "abc_sha256": "8fec9ab9f18a74c525322fa64a8d32833aeeff7957c053a936b3b61a1114df99",
+      "source_v3": 0.9722222222222222,
+      "source_v4": 0.9,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 80,
+        "source_matched_noteheads": 72
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.8814432989690721,
+        "edition_exact_bar_rate": 0.4444444444444444,
+        "chord_f1": 0.7027027027027027,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 45
+    },
+    {
+      "id": "rumichaca_full/reviewed",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "assisted-subscription-v1",
+      "stage": "reviewed",
+      "status": "complete",
+      "abc_sha256": "a3531e23d909d9da508a4b0ef033997d81c2830e0b71d326afcbd3634dfcddd5",
+      "source_v3": 0.9722222222222222,
+      "source_v4": 0.9875,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 80,
+        "source_matched_noteheads": 79
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.9354005167958657,
+        "edition_exact_bar_rate": 0.5111111111111111,
+        "chord_f1": 0.7027027027027027,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 45
+    },
+    {
+      "id": "rumichaca_20261029_v1/initial",
+      "work": "rumichaca",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "assisted-subscription-v1 (retry)",
+      "stage": "initial",
+      "status": "partial",
+      "abc_sha256": "f7ef5bb4e2d000e01e7780ee1a68ad3487d21b8b561a0f1fc16d4e107628fc2b",
+      "source_v3": 0.56,
+      "source_v4": 0.4642857142857143,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 6,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 32,
+        "source_matched_noteheads": 26
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.45161290322580644,
+        "edition_exact_bar_rate": 0.0,
+        "chord_f1": 0.25925925925925924,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 0.37777777777777777,
+        "form_exact_match": false
+      },
+      "candidate_measures": 17
+    },
+    {
+      "id": "rumichaca_20261029_v1/reviewed",
+      "work": "rumichaca",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "assisted-subscription-v1 (retry)",
+      "stage": "reviewed",
+      "status": "complete",
+      "abc_sha256": "f2cbb4f06367aa9024197249e5ac68d8f83856a6846a4d1a61cfe0172907278e",
+      "source_v3": 0.5822784810126582,
+      "source_v4": 0.6071428571428571,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 88,
+        "source_matched_noteheads": 51
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.6313131313131313,
+        "edition_exact_bar_rate": 0.0,
+        "chord_f1": 0.6301369863013698,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 45
+    },
+    {
+      "id": "astra_api_rumichaca_20261029_v1/initial",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra API + review v2",
+      "cohort": "api-review-v2",
+      "stage": "initial",
+      "status": "partial",
+      "abc_sha256": "970de6195ade1d1bfcce5b53739b2b0d38c88768e25116e62b5034680e6ab2d1",
+      "source_v3": 0.46153846153846156,
+      "source_v4": 0.592,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 45,
+        "source_matched_noteheads": 37
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.5128205128205128,
+        "edition_exact_bar_rate": 0.13432835820895522,
+        "chord_f1": 0.43243243243243246,
+        "meter_valid_rate": 0.29850746268656714,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 67
+    },
+    {
+      "id": "astra_api_rumichaca_20261029_v1/reviewed",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra API + review v2",
+      "cohort": "api-review-v2",
+      "stage": "reviewed",
+      "status": "partial",
+      "abc_sha256": "b65ea89a3ed0ac97887d65a82627ab2480474ff8f0ee22abf4c09ccd0b66d16c",
+      "source_v3": 0.6944444444444444,
+      "source_v4": 0.775,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 80,
+        "source_matched_noteheads": 62
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.8020565552699229,
+        "edition_exact_bar_rate": 0.2222222222222222,
+        "chord_f1": 0.43243243243243246,
+        "meter_valid_rate": 0.9333333333333333,
+        "bar_coverage": 1.0,
+        "form_exact_match": true
+      },
+      "candidate_measures": 45
+    },
+    {
+      "id": "astra_api_rumichaca_gate_20261029_v1/initial",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra API + completion gate",
+      "cohort": "api-completion-gate-v1",
+      "stage": "initial",
+      "status": "partial",
+      "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+      "source_v3": 0.5609756097560976,
+      "source_v4": 0.7209302325581395,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 92,
+        "source_matched_noteheads": 62
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.6101694915254238,
+        "edition_exact_bar_rate": 0.16216216216216217,
+        "chord_f1": 0.5765765765765766,
+        "meter_valid_rate": 0.9594594594594594,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 74
+    },
+    {
+      "id": "astra_api_rumichaca_gate_20261029_v1/reviewed",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra API + completion gate",
+      "cohort": "api-completion-gate-v1",
+      "stage": "reviewed",
+      "status": "partial",
+      "abc_sha256": "def39a87b261469612b42b2fd51a58d4b4bbeb7e4cd7aeb67400c14e16392a13",
+      "source_v3": 0.8333333333333334,
+      "source_v4": 0.875,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 80,
+        "source_matched_noteheads": 70
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.8814432989690721,
+        "edition_exact_bar_rate": 0.4666666666666667,
+        "chord_f1": 0.7441860465116279,
+        "meter_valid_rate": 0.9777777777777777,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 45
+    },
+    {
+      "id": "jaime-llanos_10_atardecer_pasillo_carlos-vieco__astra__trial1",
+      "work": "atardecer",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_10_atardecer_pasillo_carlos-vieco__terra__trial1",
+      "work": "atardecer",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "complete",
+      "abc_sha256": "1e99919690582748a8ae08b56492ff952b77532d5a47095614908c06d6a1fe73",
+      "source_v3": 0.2597402597402597,
+      "source_v4": 0.33519553072625696,
+      "source_coverage_v4": {
+        "source_scored_measures": 14,
+        "source_eligible_measures": 14,
+        "source_total_measures": 57,
+        "source_matched_measures": 14,
+        "source_expected_noteheads": 97,
+        "source_predicted_noteheads": 82,
+        "source_matched_noteheads": 30
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.3520710059171598,
+        "edition_exact_bar_rate": 0.08823529411764706,
+        "chord_f1": 0.6567164179104478,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 68
+    },
+    {
+      "id": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia__astra__trial1",
+      "work": "aviador",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_12_aviador_pasillo_fulgencio-garcia__terra__trial1",
+      "work": "aviador",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "partial",
+      "abc_sha256": "dd3b1163f83c91b9ba2ecfc5898caaa21be33ed2bd81d538b0832a0aff7b557b",
+      "source_v3": 0.0,
+      "source_v4": 0.0,
+      "source_coverage_v4": {
+        "source_scored_measures": 25,
+        "source_eligible_measures": 25,
+        "source_total_measures": 62,
+        "source_matched_measures": 0,
+        "source_expected_noteheads": 97,
+        "source_predicted_noteheads": 0,
+        "source_matched_noteheads": 0
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.05223880597014925,
+        "edition_exact_bar_rate": 0.0,
+        "chord_f1": 0.0,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 0.03125,
+        "form_exact_match": false
+      },
+      "candidate_measures": 2
+    },
+    {
+      "id": "jaime-llanos_19_carrizal_pasillo_emilio-murillo__astra__trial1",
+      "work": "carrizal",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_19_carrizal_pasillo_emilio-murillo__terra__trial1",
+      "work": "carrizal",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "complete",
+      "abc_sha256": "8250bffe7401e92763020f4d1ccc997a2f10eaa91aad56b05fa88ae7f0271cc2",
+      "source_v3": 0.13793103448275862,
+      "source_v4": 0.17391304347826086,
+      "source_coverage_v4": {
+        "source_scored_measures": 22,
+        "source_eligible_measures": 22,
+        "source_total_measures": 48,
+        "source_matched_measures": 22,
+        "source_expected_noteheads": 77,
+        "source_predicted_noteheads": 84,
+        "source_matched_noteheads": 14
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.16990291262135923,
+        "edition_exact_bar_rate": 0.019230769230769232,
+        "chord_f1": 0.4444444444444444,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 52
+    },
+    {
+      "id": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia__astra__trial1",
+      "work": "coqueteos",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_22_coqueteos_pasillo_fulgencio-garcia__terra__trial1",
+      "work": "coqueteos",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "partial",
+      "abc_sha256": "85924e148dfa919aef5b748b8d9750842b82a4685a05438ec5f0327a398149ad",
+      "source_v3": 0.2857142857142857,
+      "source_v4": 0.2541436464088398,
+      "source_coverage_v4": {
+        "source_scored_measures": 19,
+        "source_eligible_measures": 19,
+        "source_total_measures": 52,
+        "source_matched_measures": 19,
+        "source_expected_noteheads": 95,
+        "source_predicted_noteheads": 86,
+        "source_matched_noteheads": 23
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.266384778012685,
+        "edition_exact_bar_rate": 0.08928571428571429,
+        "chord_f1": 0.6428571428571429,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 0.9807692307692307,
+        "form_exact_match": false
+      },
+      "candidate_measures": 55
+    },
+    {
+      "id": "jaime-llanos_6_amalia_pasillo_joaquin-ariza__astra__trial1",
+      "work": "amalia",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_6_amalia_pasillo_joaquin-ariza__terra__trial1",
+      "work": "amalia",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "complete",
+      "abc_sha256": "930c542ba8829652621a5670984cf1782a8c117013e131ac5aa9d938aff779ee",
+      "source_v3": 0.3387096774193548,
+      "source_v4": 0.35294117647058826,
+      "source_coverage_v4": {
+        "source_scored_measures": 24,
+        "source_eligible_measures": 24,
+        "source_total_measures": 48,
+        "source_matched_measures": 24,
+        "source_expected_noteheads": 101,
+        "source_predicted_noteheads": 103,
+        "source_matched_noteheads": 36
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.3333333333333333,
+        "edition_exact_bar_rate": 0.10416666666666667,
+        "chord_f1": 0.8135593220338984,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 48
+    },
+    {
+      "id": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo__astra__trial1",
+      "work": "rumichaca",
+      "model": "gpt-6-astra",
+      "label": "Astra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "failed",
+      "abc_sha256": null
+    },
+    {
+      "id": "jaime-llanos_86_rumichaca_bambuco_emilio-murillo__terra__trial1",
+      "work": "rumichaca",
+      "model": "gpt-6.1-terra",
+      "label": "Terra subscription",
+      "cohort": "tool-free-900s-v1",
+      "stage": "terminal",
+      "status": "partial",
+      "abc_sha256": "470748fa624b2070d60edef3f6e0d44eb846eb317a6c5e44c95d8233c63b119a",
+      "source_v3": 0.410958904109589,
+      "source_v4": 0.5063291139240507,
+      "source_coverage_v4": {
+        "source_scored_measures": 18,
+        "source_eligible_measures": 18,
+        "source_total_measures": 45,
+        "source_matched_measures": 18,
+        "source_expected_noteheads": 80,
+        "source_predicted_noteheads": 78,
+        "source_matched_noteheads": 40
+      },
+      "edition_metrics": {
+        "edition_note_f1": 0.41379310344827586,
+        "edition_exact_bar_rate": 0.0,
+        "chord_f1": 0.5135135135135135,
+        "meter_valid_rate": 1.0,
+        "bar_coverage": 1.0,
+        "form_exact_match": false
+      },
+      "candidate_measures": 51
+    }
+  ],
+  "limitations": [
+    "Partial model-assisted consumed audit, not new human certification or unseen-score accuracy.",
+    "Original67 bars retained without re-audit; 55 of60 newly selected bars accepted.",
+    "Different generation conditions remain separate; regrading does not fix runtime/review-policy confounds.",
+    "Only source labels change; candidate bytes and numerical grader are unchanged.",
+    "Form agreement is with the adopted edition, not proof of a uniquely correct route."
+  ]
+}

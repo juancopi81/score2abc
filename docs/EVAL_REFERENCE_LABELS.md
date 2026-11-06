@@ -1,5 +1,8 @@
 # Reviewed six: evidence labels v3
 
+Later explicit opt-in version: [v4 expansion and offline regrading](SOURCE_NOTE_AUDIT_V4.md)
+covers 122/312 bars. This document preserves the original v3 contract and results.
+
 The later [source-identity mapping sprint](REVIEWED_SOURCE_MAPS.md) maps all written
 bar identities and approved routes. It does not expand the V3 source-note mask or
 alter any labels, frozen scores or prior model metrics described here.

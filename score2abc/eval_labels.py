@@ -10,10 +10,12 @@ from pathlib import Path
 V1_INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v1.json")
 V2_INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v2.json")
 INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v3.json")
+V4_INVENTORY_PATH = Path(__file__).with_name("eval_labels_reviewed_six_v4.json")
 KNOWN_INVENTORIES = {
     "reviewed_six_v1": V1_INVENTORY_PATH,
     "reviewed_six_v2": V2_INVENTORY_PATH,
     "reviewed_six_v3": INVENTORY_PATH,
+    "reviewed_six_v4": V4_INVENTORY_PATH,
 }
 WORK_LIMITS = {
     "amalia": (7, 48, 48),
@@ -117,6 +119,10 @@ def _source_audit(
     ):
         raise ValueError("Invalid source-audit provenance or scope")
     rows = audit.get("measures")
+    if audit.get("expansion_v4", {}).get("reference_abc_sha256", frozen_work["abc_sha256"]) != (
+        frozen_work["abc_sha256"]
+    ):
+        raise ValueError("Expanded audit references a different ABC")
     if not isinstance(rows, list) or not rows:
         raise ValueError("Source audit needs explicitly inspected measures")
     sources, editions = set(), set()
@@ -180,6 +186,10 @@ def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> di
     """Validate the hand-authored inventory against frozen bytes and build labels."""
     frozen_root = Path(frozen_root)
     inventory = _read_json(Path(inventory_path))
+    if inventory.get("label_set") == "reviewed_six_v4":
+        from score2abc.source_note_audit import verify_expansion
+
+        verify_expansion(inventory)
     if inventory["schema_version"] != 1 or set(inventory["works"]) != set(WORK_LIMITS):
         raise ValueError("unsupported or incomplete label inventory")
     reference = _check_frozen(frozen_root, inventory["reference_manifest_sha256"])
@@ -195,7 +205,7 @@ def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> di
         "confidence_semantics": "not_assessed; evidence status is not a human approval grade",
         "works": [],
     }
-    if inventory.get("label_set") == "reviewed_six_v3":
+    if inventory.get("label_set") in {"reviewed_six_v3", "reviewed_six_v4"}:
         output["source_metric_policy"] = "explicit_partial_model_assisted_visual_audit"
         output["editorial_rubric"] = inventory["editorial_rubric"]
     for frozen_work in reference["works"]:
@@ -309,7 +319,7 @@ def build_labels(frozen_root: Path, inventory_path: Path = INVENTORY_PATH) -> di
             "decisions": decisions,
             "source_metric_exclusions": exclusions,
         }
-        if inventory.get("label_set") == "reviewed_six_v3":
+        if inventory.get("label_set") in {"reviewed_six_v3", "reviewed_six_v4"}:
             audit = _source_audit(
                 work_inventory["source_audit"],
                 frozen_root=frozen_root,

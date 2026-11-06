@@ -8,7 +8,9 @@ and the October 28 reference freeze remain unchanged.
 
 This accounts for 312 source identities and 314 written edition bars. It does
 **not** expand source-note truth: [labels v3](EVAL_REFERENCE_LABELS.md) still cover
-67/312 bars and 268 noteheads. A mapped source bar can contain an accepted
+67/312 bars and 268 noteheads at the mapping checkpoint. The later
+[v4 note audit](SOURCE_NOTE_AUDIT_V4.md) expands that separate label set to 122/312
+bars; it does not change these maps. A mapped source bar can contain an accepted
 reconstruction. These consumed references are not heldout accuracy evidence.
 
 ## What is recorded
