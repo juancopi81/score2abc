@@ -116,9 +116,10 @@ instructions and their defaults are unchanged.
 ## Checkpoint and next action
 
 Branch: `codex/source-note-audit-v4`, based on merged PR #17. Code, evidence
-inventory, portable results and documentation are saved locally; no new PR or
-push is included in this task. The user continues Gato’e Fique review. Further
-API generation awaits discussion of these findings.
+inventory, portable results and documentation ship with the
+[November 6 checkpoint](CHECKPOINT_20261106.md). Gato’e Fique is now reviewed and
+frozen separately; Estrella del Caribe is the next human review. Further API
+generation awaits discussion of these findings.
 
 Validation: 1,353 tests passed, three skipped; 17 new focused integrity tests
 passed. Ruff, Black and the rendered dashboard pass. All 1,025 pre-pinned

@@ -17,11 +17,13 @@ def _reseal(frozen: Path, manifest: dict) -> None:
     (frozen / "manifest.sha256").write_text(_sha(data) + "\n")
 
 
-def _fixture(tmp_path: Path) -> tuple[Path, Path]:
+def _fixture(
+    tmp_path: Path, numbers: tuple[int, ...] = (6, 10, 12, 19, 22, 86)
+) -> tuple[Path, Path]:
     out = tmp_path / "out"
     out.mkdir()
     lines = []
-    for number in (6, 10, 12, 19, 22, 86):
+    for number in numbers:
         slug = f"jaime-llanos_{number}_test"
         work = out / slug
         overrides = work / "overrides"
@@ -231,3 +233,53 @@ def test_nested_context_symlink_is_reported_as_omitted(tmp_path: Path) -> None:
     manifest = freeze_references(out, frozen)
     omissions = manifest["works"][0]["omitted_context_references"]
     assert "unsafe: out/collection/decision/linked_dir" in omissions
+
+
+def test_selected_new_reference_is_portable_without_changing_legacy_default(tmp_path: Path) -> None:
+    out, legacy = _fixture(tmp_path, (6, 10, 12, 19, 22, 86, 49))
+    freeze_references(out, legacy)
+    prior = {p: p.read_bytes() for p in legacy.rglob("*") if p.is_file()}
+    frozen = tmp_path / "gato"
+    selected = freeze_references(out, frozen, catalog_numbers=(49,))
+    assert selected["schema_version"] == 2 and selected["catalog_numbers"] == [49]
+    assert [w["slug"] for w in selected["works"]] == ["jaime-llanos_49_test"]
+    assert selected["works"][0]["history_revisions"] == [1, 2]
+    assert verify_freeze(frozen, out) == selected
+    assert verify_freeze(legacy)["schema_version"] == 1
+    assert prior == {p: p.read_bytes() for p in legacy.rglob("*") if p.is_file()}
+    with pytest.raises(FreezeError, match="already exists"):
+        freeze_references(out, frozen, catalog_numbers=(49,))
+    selected["catalog_numbers"] = [6]
+    _reseal(frozen, selected)
+    with pytest.raises(FreezeError, match="catalog identity"):
+        verify_freeze(frozen)
+
+
+@pytest.mark.parametrize("numbers", [(), (49, 49), (0,), (-1,), (True,), (49.0,), ("49",)])
+def test_invalid_selection_is_rejected_before_publication(tmp_path: Path, numbers) -> None:
+    out, frozen = _fixture(tmp_path)
+    with pytest.raises(FreezeError, match="distinct positive integers"):
+        freeze_references(out, frozen, catalog_numbers=numbers)
+    assert not frozen.exists()
+
+
+def test_selected_freeze_requires_reviewed_score_and_pinned_catalog(tmp_path: Path) -> None:
+    out, frozen = _fixture(tmp_path, (49,))
+    review_path = out / "jaime-llanos_49_test/overrides/review.json"
+    review = json.loads(review_path.read_text())
+    review_path.write_text(json.dumps({**review, "review_state": "draft"}))
+    with pytest.raises(FreezeError, match="completed edition"):
+        freeze_references(out, frozen, catalog_numbers=(49,))
+    assert not frozen.exists()
+    review_path.write_text(json.dumps(review))
+    manifest = freeze_references(out, frozen, catalog_numbers=(49,))
+    for invalid in [None, [], [49, 49], [True], [49.0]]:
+        manifest["catalog_numbers"] = invalid
+        _reseal(frozen, manifest)
+        with pytest.raises(FreezeError, match="distinct positive integers"):
+            verify_freeze(frozen)
+    manifest["schema_version"] = 1
+    manifest["catalog_numbers"] = [49]
+    _reseal(frozen, manifest)
+    with pytest.raises(FreezeError, match="Legacy freeze cannot override"):
+        verify_freeze(frozen)
