@@ -1,5 +1,12 @@
 # Roadmap
 
+2026-11-06 production batch: Celina, Blanca Inés and Barbatuscas now have complete
+Astra subscription drafts, separate full-manuscript reviews and verified
+coverage/form/playback/persistence. The desk has seven reviewed works and twelve
+drafts (19 total). All 78 earlier review/history files, including Estrella, remain
+unchanged. Continue Estrella, then Celina, Blanca Inés and Barbatuscas. See
+[the new batch and review guide](COLLECTION_BATCH_20261106.md).
+
 2026-11-06 checkpoint: Gato is the seventh musician-reviewed edition and now has
 a separate two-reader source-note mask (36/42 bars, 191 heads) plus 23 preserved
 decisions. Its adopted 112-bar route passes a separate coverage/form check.
@@ -159,6 +166,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Show pending saved drafts separately from reviewed works and use verified manuscript-numbered context images when supplied.
 - [x] Deliver five complete Astra-assisted drafts after Sol calibration: Coqueteos, Gato'e fique, Chispazo, Sobre el Humo and La Chata. All 41 musical rows are represented; with unchanged Rumichaca, six drafts await human review. Source questions, provenance and review instructions are in `docs/COLLECTION_BATCH_20260922.md`; none is promoted to canonical truth.
 - [x] Add a second five-score review batch: Acuata, Amalia, Atardecer, Entusiasmo and Estrella del Caribe. All 49 source rows are available; unresolved terminal glyphs and voice details remain explicit questions. Source audits and render/playback/persistence checks pass. The queue has eleven pending drafts and two reviewed scores, with all eight earlier review records preserved. See `docs/COLLECTION_BATCH_20261003.md`; no canonical or training promotion.
+- [x] Add Celina, Blanca Inés and Barbatuscas through three Astra subscription authors and three fresh independent readers. Cover all 25 musical rows, preserve explicit source/editorial decisions, verify executable form and exact review-history persistence, and leave all existing reviews untouched. See `docs/COLLECTION_BATCH_20261106.md`; human approval remains pending.
 - [x] Apply the Amalia-informed editorial protocol to Coqueteos, Atardecer and Rumichaca: separate source/proposal ABCs, complete source reads, independent audits, corrected phrasing/voice encoding, explicit uncertain repairs, and revision-checked delivery. All three remain drafts; the current collection has ten pending drafts and three reviewed scores. See `docs/EDITORIAL_BATCH_20261022.md`.
 - [x] Complete one further bounded editorial batch: Gato'e Fique, Chispazo and La Chata, with source/proposal separation, independent audits, retained disagreements and guarded draft delivery. Fix missing renderer tie identities that caused six audible chord-note reattacks across Coqueteos and La Chata; all twelve source/proposal variants pass post-fix checks. Larger-batch decisions await musician feedback, not model agreement alone.
 - [x] Prefer supplied MusicXML harmonies over OCR, show melody/chord origins separately, and restore legacy chord labels through an explicit revision-checked operation that preserves accidental edits and backs up the original draft.
