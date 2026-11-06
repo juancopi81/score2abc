@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "astra_api_transport_pilot_summary",
+  "experiment_id": "astra_api_workflow_20261029_v1",
+  "target": "aviador_system_8_seven_bars",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "source_policy": "supplied_pdf_only",
+  "evidence_kind": "consumed_development_workflow_reproduction",
+  "clean_reproduction": false,
+  "advance_to_rumichaca": false,
+  "actual_api_billed_usd": null,
+  "conservative_api_estimate_usd": "3.855968",
+  "authorized_total_usd": "5",
+  "systems": {
+    "subscription": {
+      "report_path": "out/eval/reproduction/astra_workflow_20261028_v1/aviador_s8/evaluation/report.json",
+      "report_sha256": "de9a5fa33c4cbb3be2a67f2d466580809337cb2c07f82fb297cf774a71664c92",
+      "stages": {
+        "initial": {
+          "execution_status": "complete",
+          "completion_claim": true,
+          "exact_bars": 6,
+          "strict_note_f1": 0.933333,
+          "rest_f1": 1.0,
+          "validation": {
+            "abc_valid": true,
+            "all_declared_meter_bars_valid": true,
+            "complete_measure_coverage": true,
+            "errors": [],
+            "event_geometry_errors": [],
+            "expected_measures": 7,
+            "headline_metrics_valid": true,
+            "submitted_measures": 7
+          },
+          "elapsed_seconds": 423.8523220420029,
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 177152,
+            "input_tokens": 217126,
+            "output_tokens": 9720,
+            "reasoning_output_tokens": 6568
+          },
+          "conservative_estimate_usd": null,
+          "error": null
+        },
+        "reviewed": {
+          "execution_status": "complete",
+          "completion_claim": true,
+          "exact_bars": 7,
+          "strict_note_f1": 1.0,
+          "rest_f1": 1.0,
+          "validation": {
+            "abc_valid": true,
+            "all_declared_meter_bars_valid": true,
+            "complete_measure_coverage": true,
+            "errors": [],
+            "event_geometry_errors": [],
+            "expected_measures": 7,
+            "headline_metrics_valid": true,
+            "submitted_measures": 7
+          },
+          "elapsed_seconds": 461.9373877909966,
+          "usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 181120,
+            "input_tokens": 197828,
+            "output_tokens": 10559,
+            "reasoning_output_tokens": 6773
+          },
+          "conservative_estimate_usd": null,
+          "error": null
+        }
+      }
+    },
+    "api": {
+      "report_path": "out/eval/reproduction/astra_api_workflow_20261029_v1/aviador_s8/evaluation/report.json",
+      "report_sha256": "2370a5596ccb3b345b86962799adeba07feadd66d1edb13344fd4a629e0afd42",
+      "stages": {
+        "initial": {
+          "execution_status": "partial",
+          "completion_claim": false,
+          "exact_bars": 6,
+          "strict_note_f1": 0.933333,
+          "rest_f1": 1.0,
+          "validation": {
+            "abc_valid": true,
+            "all_declared_meter_bars_valid": true,
+            "complete_measure_coverage": true,
+            "errors": [],
+            "event_geometry_errors": [],
+            "expected_measures": 7,
+            "headline_metrics_valid": true,
+            "submitted_measures": 7
+          },
+          "elapsed_seconds": 480.0341943330004,
+          "usage": {
+            "input_tokens": 467394,
+            "input_tokens_details": {
+              "cached_tokens": 434226
+            },
+            "output_tokens": 19524,
+            "output_tokens_details": {
+              "reasoning_tokens": 15664
+            },
+            "total_tokens": 486918
+          },
+          "conservative_estimate_usd": "2.239626",
+          "error": "Response did not complete; no continuation retry"
+        },
+        "reviewed": {
+          "execution_status": "complete",
+          "completion_claim": true,
+          "exact_bars": 6,
+          "strict_note_f1": 0.933333,
+          "rest_f1": 1.0,
+          "validation": {
+            "abc_valid": true,
+            "all_declared_meter_bars_valid": true,
+            "complete_measure_coverage": true,
+            "errors": [],
+            "event_geometry_errors": [],
+            "expected_measures": 7,
+            "headline_metrics_valid": true,
+            "submitted_measures": 7
+          },
+          "elapsed_seconds": 308.7928847089988,
+          "usage": {
+            "input_tokens": 278276,
+            "input_tokens_details": {
+              "cached_tokens": 250992
+            },
+            "output_tokens": 13665,
+            "output_tokens_details": {
+              "reasoning_tokens": 7975
+            },
+            "total_tokens": 291941
+          },
+          "conservative_estimate_usd": "1.616342",
+          "error": null
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Native function orchestration differs from Codex code-mode wrapper.",
+    "API author final response was capped at 1424 output tokens by budget reservation; valid saved checkpoint remains incomplete.",
+    "Diagnostic reader of the incomplete checkpoint was declared before review and scoring; no author retry.",
+    "API final score retains two F4 readings instead of reference F-sharp4 in the last bar.",
+    "One consumed example. No quality, latency or cost superiority claim.",
+    "Ties, slurs, chord symbols, form and engraving unscored."
+  ],
+  "protocol_evidence": {
+    "partial_checkpoint_review_amendment.json": "5207201672efcb5d6c306745416a4af048235608b27aa92af98dacfb08e07a5a",
+    "protocol_match_audit.json": "bf4a289609184542b3b812761a47be84501e45ba9ce4fd7a6d9b106e93c11a38",
+    "comparison_manifest.json": "5a4478016031ea1197b8133d96e76da9e94caf5681472fc5aa81e89762f3acc8"
+  }
+}

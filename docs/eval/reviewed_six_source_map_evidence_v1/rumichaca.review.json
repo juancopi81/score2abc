@@ -1,0 +1,781 @@
+{
+  "schema_version": 1,
+  "work": "rumichaca",
+  "reviewer_role": "separate_reader",
+  "scope": "Consumed source identity mapping and approved route verification; not a note accuracy audit or new human approval",
+  "reviewed_author_sha256": "787095abcd75043c8fdf5df192fe3e15ad620c6a167ad47888415844375026ea",
+  "reviewed_author_markdown_sha256": "a66c2ead999495cbeb19be170becddeab899edd80edc21a87fb64f0c33440c30",
+  "source_pdf_sha256": "1b752c57fa5b330f430ab23db1beaa581f4b06bfadd1d0b5f3e94121dc037b24",
+  "abc_sha256": "c37aaa1e54aab10e8761bee876fabc61879e033ffa5dd05dfeef83e25cdd6b44",
+  "review_status": "agree",
+  "agreement": true,
+  "all_rows_inspected": true,
+  "independence": "Inspected the supplied full source page and separately generated reviewer row crops for all seven musical rows before opening map.author.json. Derived row counts and route from source boundaries, approved ABC and preserved human form notes; then compared the author map and normalized route.",
+  "counts": {
+    "source_rows": 7,
+    "source_bars": 45,
+    "written_bars": 45,
+    "primary_assignments": 45,
+    "return_copies": 0,
+    "editorial_insertions": 0,
+    "performed_visits": 132
+  },
+  "source_row_checks": [
+    {
+      "page": 1,
+      "system": 1,
+      "independent_source_count": 7,
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "source_ids": [
+        "p1:s01:m01",
+        "p1:s01:m02",
+        "p1:s01:m03",
+        "p1:s01:m04",
+        "p1:s01:m05",
+        "p1:s01:m06",
+        "p1:s01:m07"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Four-fermata introductory span before repeat, then six separately barred melody spans. Percent signs sit below distinct melody bars, including a within-bar move to C7."
+    },
+    {
+      "page": 1,
+      "system": 2,
+      "independent_source_count": 8,
+      "written_bars": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "source_ids": [
+        "p1:s02:m01",
+        "p1:s02:m02",
+        "p1:s02:m03",
+        "p1:s02:m04",
+        "p1:s02:m05",
+        "p1:s02:m06",
+        "p1:s02:m07",
+        "p1:s02:m08"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Eight separately barred spans. Opening F span exists despite nonvisible reconstructed rest. Percent marks beneath bars 2,4,6,8 do not replace their melody."
+    },
+    {
+      "page": 1,
+      "system": 3,
+      "independent_source_count": 7,
+      "written_bars": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "source_ids": [
+        "p1:s03:m01",
+        "p1:s03:m02",
+        "p1:s03:m03",
+        "p1:s03:m04",
+        "p1:s03:m05",
+        "p1:s03:m06",
+        "p1:s03:m07"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Seven spans, starting with the short low-ledger region. Damaged/reconstructed notes in the first span and weak final dot in the third do not erase boundaries. Fermatas occur in later spans."
+    },
+    {
+      "page": 1,
+      "system": 4,
+      "independent_source_count": 6,
+      "written_bars": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "source_ids": [
+        "p1:s04:m01",
+        "p1:s04:m02",
+        "p1:s04:m03",
+        "p1:s04:m04",
+        "p1:s04:m05",
+        "p1:s04:m06"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Six spans: opening ambiguous accidental/rest area, then repeated moving contours and final cadence. No extra span results from editorial C-sharp/rest resolution."
+    },
+    {
+      "page": 1,
+      "system": 5,
+      "independent_source_count": 7,
+      "written_bars": [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "source_ids": [
+        "p1:s05:m01",
+        "p1:s05:m02",
+        "p1:s05:m03",
+        "p1:s05:m04",
+        "p1:s05:m05",
+        "p1:s05:m06",
+        "p1:s05:m07"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Seven spans. First ending is one bar, followed by six-note ascending second-ending/B lead-in, then five further bars. Shared repeat includes the lead-in on B repeat. Loose bracket extent does not add or remove bars."
+    },
+    {
+      "page": 1,
+      "system": 6,
+      "independent_source_count": 6,
+      "written_bars": [
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ],
+      "source_ids": [
+        "p1:s06:m01",
+        "p1:s06:m02",
+        "p1:s06:m03",
+        "p1:s06:m04",
+        "p1:s06:m05",
+        "p1:s06:m06"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Six spans, each with written melody; percentage marks are harmonic continuation. High-register cadence ends the row before blank ruling."
+    },
+    {
+      "page": 1,
+      "system": 7,
+      "independent_source_count": 4,
+      "written_bars": [
+        42,
+        43,
+        44,
+        45
+      ],
+      "source_ids": [
+        "p1:s07:m01",
+        "p1:s07:m02",
+        "p1:s07:m03",
+        "p1:s07:m04"
+      ],
+      "all_bars_inspected": true,
+      "agrees_with_author": true,
+      "evidence": "Four musical spans, ending with F cadence/closing repeat. Following D.C. lettering is navigation, and lower ruled rows contain a signature/empty space, not additional music."
+    }
+  ],
+  "source_bar_checks": [
+    {
+      "source_bar_id": "p1:s01:m01",
+      "written_bar": 1,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m02",
+      "written_bar": 2,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m03",
+      "written_bar": 3,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m04",
+      "written_bar": 4,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m05",
+      "written_bar": 5,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m06",
+      "written_bar": 6,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s01:m07",
+      "written_bar": 7,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m01",
+      "written_bar": 8,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m02",
+      "written_bar": 9,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m03",
+      "written_bar": 10,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m04",
+      "written_bar": 11,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m05",
+      "written_bar": 12,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m06",
+      "written_bar": 13,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m07",
+      "written_bar": 14,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s02:m08",
+      "written_bar": 15,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m01",
+      "written_bar": 16,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m02",
+      "written_bar": 17,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m03",
+      "written_bar": 18,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m04",
+      "written_bar": 19,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m05",
+      "written_bar": 20,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m06",
+      "written_bar": 21,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s03:m07",
+      "written_bar": 22,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m01",
+      "written_bar": 23,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m02",
+      "written_bar": 24,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m03",
+      "written_bar": 25,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m04",
+      "written_bar": 26,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m05",
+      "written_bar": 27,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s04:m06",
+      "written_bar": 28,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m01",
+      "written_bar": 29,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m02",
+      "written_bar": 30,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m03",
+      "written_bar": 31,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m04",
+      "written_bar": 32,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m05",
+      "written_bar": 33,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m06",
+      "written_bar": 34,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s05:m07",
+      "written_bar": 35,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m01",
+      "written_bar": 36,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m02",
+      "written_bar": 37,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m03",
+      "written_bar": 38,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m04",
+      "written_bar": 39,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m05",
+      "written_bar": 40,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s06:m06",
+      "written_bar": 41,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s07:m01",
+      "written_bar": 42,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s07:m02",
+      "written_bar": 43,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s07:m03",
+      "written_bar": 44,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    },
+    {
+      "source_bar_id": "p1:s07:m04",
+      "written_bar": 45,
+      "visual_identity_checked": true,
+      "assignment_checked": true,
+      "agrees_with_author": true
+    }
+  ],
+  "route_segment_checks": [
+    {
+      "author_label": "Introduction",
+      "independently_expected_written_bars": [
+        1
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "A first pass",
+      "independently_expected_written_bars": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "A first ending",
+      "independently_expected_written_bars": [
+        29
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "A second pass",
+      "independently_expected_written_bars": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "A second ending and B lead-in",
+      "independently_expected_written_bars": [
+        30
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "B body first pass",
+      "independently_expected_written_bars": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "B repeat lead-in",
+      "independently_expected_written_bars": [
+        30
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "B body repeat",
+      "independently_expected_written_bars": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "D.C. introduction",
+      "independently_expected_written_bars": [
+        1
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "D.C. A without repeat",
+      "independently_expected_written_bars": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "D.C. second ending and B lead-in",
+      "independently_expected_written_bars": [
+        30
+      ],
+      "agrees_with_author": true
+    },
+    {
+      "author_label": "D.C. B body and stop",
+      "independently_expected_written_bars": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ],
+      "agrees_with_author": true
+    }
+  ],
+  "route_verification": {
+    "independent_part_spans": "I=1; A=2-28; E=29; B=30; C=31-45",
+    "independent_part_order": "IAEABCBCIABC",
+    "normalization_matches_independent_route": true,
+    "final_written_bar": 45,
+    "final_source_bar_id": "p1:s07:m04",
+    "final_stop_checked": true,
+    "evidence": "The approved route plays intro, A first ending, A second ending into B, B repeated from its lead-in, then intro-inclusive D.C. through A second ending and B once. No second D.C. loop. Source suffix remains unclear; saved human This works approval establishes the edition route."
+  },
+  "editorial_source_checks": [
+    {
+      "topic": "Within-bar reconstructions",
+      "agreement": true,
+      "evidence": "Author correctly preserves R2M1 added rest and R3M1 changed notes as human reconstructions within primary source bars 8 and 16; they are not editorial inserted bars."
+    },
+    {
+      "topic": "Weak source durations and chromatic readings",
+      "agreement": true,
+      "evidence": "Weak R3M3 final dot, R4M1 C-sharp/rest and R7M3 low chromatic correction remain accepted edition readings rather than independently source-certified notes."
+    },
+    {
+      "topic": "Harmony percent signs",
+      "agreement": true,
+      "evidence": "The fifteen below-staff percent-like marks occur with their own written melodies. They repeat harmony, not complete musical bars; all identities remain primary."
+    },
+    {
+      "topic": "Fdim7, key and tempo",
+      "agreement": true,
+      "evidence": "These approved choices are recorded separately from source certainty. Their exact pitch/harmony correctness is outside the current identity review."
+    },
+    {
+      "topic": "Intro and second ending",
+      "agreement": true,
+      "evidence": "Both occupy visible musical bars. The shared second-ending lead-in at bar 30 remains in the B repeat and final D.C.; its bracket ambiguity is not used to rewrite the adopted route."
+    }
+  ],
+  "disagreements": [],
+  "unresolved_mapping_questions": [],
+  "visual_audit": {
+    "all_rows_inspected": true,
+    "images": [
+      "page-1.png",
+      "reviewer_crops/row-01.png",
+      "reviewer_crops/row-02.png",
+      "reviewer_crops/row-03.png",
+      "reviewer_crops/row-04.png",
+      "reviewer_crops/row-05.png",
+      "reviewer_crops/row-06.png",
+      "reviewer_crops/row-07.png"
+    ],
+    "limitations": [
+      "Separate model visual review on consumed material, not new human approval.",
+      "No complete per-note source accuracy claim.",
+      "Approximate author pixel locators are navigation aids, not calibrated crop-boundary ground truth.",
+      "Source D.C. suffix and some note reconstructions remain uncertain while the accepted edition is preserved."
+    ]
+  },
+  "mapping_review_pass": true,
+  "form_review_pass": true
+}

@@ -6,10 +6,21 @@ musical review. A complete, source-checked score is the unit of delivery.
 Current review checkpoint — October 28, 2026: **six** scores are musician-reviewed:
 Amalia (revision 24), Atardecer (18), Aviador (18), Carrizal (5), Coqueteos (15)
 and Rumichaca (10). All six have valid notation, zero unresolved questions and
-verified available revision histories. Seven other saved scores remain drafts.
+verified available revision histories. Seven other saved scores were drafts at
+that checkpoint.
 The [shared form convention](FORM_NOTATION.md) applies to future delivery.
 The [October 28 checkpoint](CHECKPOINT_20261028.md) records exact revisions,
 separate data backup and the evaluation boundary.
+
+November 5 preparation: the [subscription sprint](SUBSCRIPTION_SPRINT_20261105.md)
+adds a second source/form pass to the seven pending drafts, with exact prior
+versions preserved, plus three independently audited new drafts: Adentro
+veteranos, Albores de junio and Baby. The live queue is now **six reviewed and
+ten drafts**, with no new human approvals. Its local handoff dashboard is
+`out/collection/subscription_sprint_20261105_v1/index.html`. The independent
+[coverage/form checker](SCORE_COVERAGE_FORM.md) tests declared bar identities and
+the complete performed route; a passing declared map does not resolve missing
+or ambiguous manuscript ink.
 
 Aviador's latest approval includes Juan's chosen `AABACC` route, an editorial
 opening rest, Trío harmony and two added B cadence bars. These are accepted

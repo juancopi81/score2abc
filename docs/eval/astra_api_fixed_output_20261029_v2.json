@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "kind": "astra_api_fixed_output_pilot_summary",
+  "experiment_id": "astra_api_fixed_output_20261029_v2",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "target": "aviador_system_8_seven_bars",
+  "source_policy": "supplied_pdf_only",
+  "spending_policy": "fixed_output_no_dollar_cap",
+  "max_output_tokens_per_response": 25000,
+  "author_seconds": 1800,
+  "reader_seconds": 1200,
+  "reference_feedback": false,
+  "both_stages_completed": true,
+  "musical_reproduction_pass": false,
+  "report_sha256": "97173ca3dfa9d88236113d130b8cf75577a93a45d4d738539a12b3b2c17eedac",
+  "complete": true,
+  "conservative_estimate_usd": "3.372103",
+  "actual_billed_usd": null,
+  "automatic_retries": 0,
+  "gate": {
+    "initial_usable_complete": true,
+    "initial_runtime_success": true,
+    "reviewed_runtime_success": true,
+    "reviewed_completion_claim": true,
+    "initial_met_final_quality_threshold": false,
+    "reviewed_met_final_quality_threshold": false,
+    "advance_to_rumichaca": false,
+    "independent_review_made_gate_pass": false,
+    "exact_historical_reproduction_initial_only": false,
+    "threshold": {
+      "exact_measures_min": 6,
+      "strict_note_f1_min": 0.95
+    },
+    "blocking_reasons": [
+      "Reviewed output does not meet the predeclared historical event threshold."
+    ]
+  },
+  "stages": {
+    "initial": {
+      "status": "complete",
+      "exact_bars": 6,
+      "note_f1": 0.933333,
+      "seconds": 422.96342766700036,
+      "usage": {
+        "input_tokens": 458135,
+        "input_tokens_details": {
+          "cached_tokens": 426092
+        },
+        "output_tokens": 17176,
+        "output_tokens_details": {
+          "reasoning_tokens": 13604
+        },
+        "total_tokens": 475311
+      }
+    },
+    "reviewed": {
+      "status": "complete",
+      "exact_bars": 6,
+      "note_f1": 0.933333,
+      "seconds": 225.1849101250009,
+      "usage": {
+        "input_tokens": 208434,
+        "input_tokens_details": {
+          "cached_tokens": 185536
+        },
+        "output_tokens": 10563,
+        "output_tokens_details": {
+          "reasoning_tokens": 5356
+        },
+        "total_tokens": 218997
+      }
+    }
+  },
+  "limitations": [
+    "Single consumed development case; not a causal API-versus-subscription quality comparison.",
+    "Native function calling differs from Codex code-mode MCP.",
+    "Two F4 readings remain instead of reference F-sharp4 in system bar7 notes3and6.",
+    "Invoice cost unverified. All timing and rests match; ties, chord symbols and form unscored."
+  ]
+}

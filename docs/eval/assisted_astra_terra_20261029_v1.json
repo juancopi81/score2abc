@@ -1,0 +1,450 @@
+{
+  "comparison_id": "assisted_astra_terra_20261029_v1",
+  "compatibility": {
+    "audit_sha256": "ef6bf5058074cbba248bd973d6b77e04382a7afcde3b65b1e555a4af73e910c9",
+    "explanation": "Aviador matched; resumed Rumichaca has a Codex runtime update and explicit partial-author review eligibility.",
+    "matched_checks": 17,
+    "mismatches": [
+      {
+        "case": "rumichaca_full",
+        "dimension": "tools",
+        "stage": "initial"
+      },
+      {
+        "case": "rumichaca_full",
+        "dimension": "tools",
+        "stage": "reviewed"
+      },
+      {
+        "case": "rumichaca_full",
+        "dimension": "limits",
+        "stage": "reviewed"
+      }
+    ],
+    "total_checks": 20
+  },
+  "evidence_kind": "consumed_development",
+  "interpretation": {
+    "cost_usd": null,
+    "meter_caveat": "Terra encoded 6/8; the edition uses 3/4. Literal meter mismatch prevents every exact-edition-bar match; note F1 is unaffected.",
+    "recommendation": "Keep Astra as the transcription baseline. Do not scale Terra or infer monetary savings from a faster but less accurate result.",
+    "rumichaca_reviewed_terra_exact_edition_bars": 0,
+    "rumichaca_reviewed_terra_meter_only_mismatch_bars": 7,
+    "rumichaca_reviewed_terra_note_exact_bars": 17,
+    "source_audit_coverage": "Rumichaca: 9/45 bars, using a partial model-assisted source audit; not whole-score source accuracy.",
+    "trial_scope": "One scored author/reader pair per model and target; the separate interrupted attempt is disclosed. No unseen-score generalization or uncertainty estimate.",
+    "usage_subsets": "Cached input is part of input; reasoning output is part of output. Pair totals exclude the interrupted attempt, whose usage is unknown."
+  },
+  "kind": "assisted_model_comparison_portable_summary",
+  "models": [
+    {
+      "cases": {
+        "aviador_s8": {
+          "pair_elapsed_seconds": 885.7897098329995,
+          "pair_reported_usage": {
+            "cached_input_tokens": 358272,
+            "input_tokens": 414954,
+            "output_tokens": 20279,
+            "reasoning_output_tokens": 13341
+          },
+          "report_sha256": "de9a5fa33c4cbb3be2a67f2d466580809337cb2c07f82fb297cf774a71664c92",
+          "stages": {
+            "initial": {
+              "completion_claim": true,
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 423.8523220420029,
+              "metrics": {
+                "exact_measure_rate": 0.857143,
+                "exact_measures": 6,
+                "note_f1": 0.933333,
+                "note_precision": 0.933333,
+                "note_recall": 0.933333,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 0.933333,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 177152,
+                "input_tokens": 217126,
+                "output_tokens": 9720,
+                "reasoning_output_tokens": 6568
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 2,
+              "score_status": "complete",
+              "source_inspections": 25
+            },
+            "reviewed": {
+              "completion_claim": true,
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 461.9373877909966,
+              "metrics": {
+                "exact_measure_rate": 1.0,
+                "exact_measures": 7,
+                "note_f1": 1.0,
+                "note_precision": 1.0,
+                "note_recall": 1.0,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 1.0,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 181120,
+                "input_tokens": 197828,
+                "output_tokens": 10559,
+                "reasoning_output_tokens": 6773
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 23
+            }
+          }
+        },
+        "rumichaca_full": {
+          "pair_elapsed_seconds": 3462.6356358740013,
+          "pair_reported_usage": {
+            "cached_input_tokens": 2591744,
+            "input_tokens": 2692701,
+            "output_tokens": 76382,
+            "reasoning_output_tokens": 59196
+          },
+          "report_sha256": "2c22475ef8e84df1bd0e73e0d559f9274d906026953f8050f0cccb264bc09fb9",
+          "stages": {
+            "initial": {
+              "completion_claim": true,
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 45,
+                "exact_measures": 20,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 35,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 2426.2683402910043,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.7027027027027027,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.4444444444444444,
+                "edition_note_f1": 0.8814432989690721,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.9722222222222222
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 1847680,
+                "input_tokens": 1891630,
+                "output_tokens": 52964,
+                "reasoning_output_tokens": 43173
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 10,
+              "score_status": "complete",
+              "source_inspections": 66
+            },
+            "reviewed": {
+              "completion_claim": true,
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 45,
+                "exact_measures": 23,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 35,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 1036.367295582997,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.7027027027027027,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.5111111111111111,
+                "edition_note_f1": 0.9354005167958657,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.9722222222222222
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 744064,
+                "input_tokens": 801071,
+                "output_tokens": 23418,
+                "reasoning_output_tokens": 16023
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 5,
+              "score_status": "complete",
+              "source_inspections": 51
+            }
+          }
+        }
+      },
+      "id": "astra",
+      "reasoning_effort": "xhigh",
+      "requested_model": "gpt-6-astra",
+      "resolved_model_revision": null
+    },
+    {
+      "cases": {
+        "aviador_s8": {
+          "pair_elapsed_seconds": 293.3117332910042,
+          "pair_reported_usage": {
+            "cached_input_tokens": 412928,
+            "input_tokens": 461566,
+            "output_tokens": 18562,
+            "reasoning_output_tokens": 12290
+          },
+          "report_sha256": "c4777cc92b811cd1f170aca27e56775489ade8e7cceef8e054503847b2a9a05f",
+          "stages": {
+            "initial": {
+              "completion_claim": true,
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 186.86688320800022,
+              "metrics": {
+                "exact_measure_rate": 0.571429,
+                "exact_measures": 4,
+                "note_f1": 0.754098,
+                "note_precision": 0.741935,
+                "note_recall": 0.766667,
+                "ordered_duration_accuracy": 0.870968,
+                "ordered_onset_accuracy": 0.806452,
+                "ordered_pitch_accuracy": 0.870968,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 247296,
+                "input_tokens": 275487,
+                "output_tokens": 12186,
+                "reasoning_output_tokens": 9008
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 17
+            },
+            "reviewed": {
+              "completion_claim": true,
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 106.44485008300398,
+              "metrics": {
+                "exact_measure_rate": 0.285714,
+                "exact_measures": 2,
+                "note_f1": 0.655738,
+                "note_precision": 0.645161,
+                "note_recall": 0.666667,
+                "ordered_duration_accuracy": 0.870968,
+                "ordered_onset_accuracy": 0.806452,
+                "ordered_pitch_accuracy": 0.774194,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 165632,
+                "input_tokens": 186079,
+                "output_tokens": 6376,
+                "reasoning_output_tokens": 3282
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 11
+            }
+          }
+        },
+        "rumichaca_full": {
+          "pair_elapsed_seconds": 370.664289542,
+          "pair_reported_usage": {
+            "cached_input_tokens": 388608,
+            "input_tokens": 458011,
+            "output_tokens": 19116,
+            "reasoning_output_tokens": 12970
+          },
+          "report_sha256": "a1bbf1cd9c272595ba2099edb9c59f8a69378ce43bef23719710f33ec6b1569e",
+          "stages": {
+            "initial": {
+              "completion_claim": false,
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 17,
+                "exact_measures": 0,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 17,
+                "paired_measures": 17,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 3,
+                "source_matched_noteheads": 14,
+                "source_predicted_noteheads": 14,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 134.80625416700013,
+              "metrics": {
+                "bar_coverage": 0.37777777777777777,
+                "chord_f1": 0.25925925925925924,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.0,
+                "edition_note_f1": 0.45161290322580644,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.56
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 114176,
+                "input_tokens": 150188,
+                "output_tokens": 6585,
+                "reasoning_output_tokens": 4709
+              },
+              "runtime_status": "partial",
+              "saved_drafts": 2,
+              "score_status": "partial",
+              "source_inspections": 24
+            },
+            "reviewed": {
+              "completion_claim": true,
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 45,
+                "exact_measures": 0,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 23,
+                "source_predicted_noteheads": 43,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 235.85803537499987,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.6301369863013698,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.0,
+                "edition_note_f1": 0.6313131313131313,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.5822784810126582
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 274432,
+                "input_tokens": 307823,
+                "output_tokens": 12531,
+                "reasoning_output_tokens": 8261
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 15
+            }
+          }
+        }
+      },
+      "id": "terra",
+      "reasoning_effort": "xhigh",
+      "requested_model": "gpt-6.1-terra",
+      "resolved_model_revision": null
+    }
+  ],
+  "prior_interrupted_terra_rumichaca": {
+    "elapsed_seconds": 123.71975245799695,
+    "quality_scored": false,
+    "reason": "Execution ended with broken pipe during user interruption/subscription exhaustion; not a transcription-quality result.",
+    "returncode": -9,
+    "timed_out": false,
+    "usage": null
+  },
+  "schema_version": 1
+}

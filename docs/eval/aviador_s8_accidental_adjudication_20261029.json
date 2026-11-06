@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "aviador_s8_m7_accidental_human_confirmation_20261029",
+  "recorded_at": "2026-10-29T17:08:10.449447+00:00",
+  "adjudicator": "Juan Carlos (user, musician)",
+  "status": "human_confirmed_source_reading",
+  "source_pdf_sha256": "d0a43e928b472addbb9036a475966cf41a7d5b5820e4a936917f87ec4d43b1a2",
+  "location": {
+    "system": 8,
+    "measure_in_system": 7,
+    "global_measure": 59,
+    "direct_symbol_before_note": 3,
+    "same_pitch_later_note": 6
+  },
+  "confirmation": {
+    "written_accidental": "sharp",
+    "third_note": "F-sharp4",
+    "sixth_note": "F-sharp4",
+    "sixth_note_basis": "Same-measure accidental carry; no intervening cancellation.",
+    "not_editorial_reconstruction": true
+  },
+  "user_quote": "To me, it is clearly a ♯, so the subscription is right. I do understand the confusion, because it is a little blurry and overlaps with the lines in the system, but yeah a sharp and not a natural.",
+  "context_note": "User additionally suggested D-major dominant context in G minor as supporting musical evidence. This contextual suggestion is separate from the direct visual confirmation and is not supplied to inference.",
+  "api_result": {
+    "initial_abc_sha256": "e0f5f6cfc391c4ce043629be9bbea34d4817ad8c1003674b49cd2d87a9983e54",
+    "reviewed_abc_sha256": "27863e398069391474aa1915ae6135148d0db602eaa5c460da999d7394f8a1f9",
+    "report_sha256": "97173ca3dfa9d88236113d130b8cf75577a93a45d4d738539a12b3b2c17eedac",
+    "adopted_accidental": "natural",
+    "unchanged_exact_bars": 6,
+    "total_bars": 7
+  },
+  "subscription_result": {
+    "reviewed_abc_sha256": "79148494ef08f60d18331d30d91b3788f7258cd138444ee0e71dbca780746d25",
+    "report_sha256": "de9a5fa33c4cbb3be2a67f2d466580809337cb2c07f82fb297cf774a71664c92",
+    "adopted_accidental": "sharp",
+    "unchanged_exact_bars": 7,
+    "total_bars": 7
+  },
+  "reference_action": "Confirmation only; existing F-sharp reference, frozen reports and live review drafts remain unchanged.",
+  "inference_access": false,
+  "use": "Development diagnosis and human adjudication; never append to model tasks."
+}

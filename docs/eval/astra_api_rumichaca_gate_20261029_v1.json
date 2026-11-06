@@ -1,0 +1,3900 @@
+{
+  "actual_billed_usd": null,
+  "both_stages_verified_before_reference_content": true,
+  "completion_policy": "completion_gate_v1",
+  "completion_policy_sha256": "fb30bb6a9a045c098407f09feed40a4c95646fc29a57a354380da133c4240194",
+  "conservative_estimate_usd": "15.031401",
+  "created_at": "2026-10-30T00:26:09.498392+00:00",
+  "experiment_id": "astra_api_rumichaca_gate_20261029_v1",
+  "experimental_change": "Opt-in completion gate plus its tool schema/instructions and final-status enforcement; source PDF, tasks, review v2, model, deadlines, pricing and numerical graders held fixed.",
+  "kind": "astra_api_completion_gate_pilot_report",
+  "limitations": [
+    "Consumed development score, not unseen generalization.",
+    "Review v2 differs from the subscription baseline review v1; not a pure API transport comparison.",
+    "Source note labels cover only nine bars; edition agreement includes editorial choices.",
+    "One fresh paired sample per API harness; stochastic variation prevents causal attribution to the gate alone."
+  ],
+  "live_reviews_unchanged": 13,
+  "model": "gpt-6-astra",
+  "pair_complete": true,
+  "reasoning_effort": "xhigh",
+  "report_sha256": "384a34390ad14c0341f06a8af6ba82f8749b9b2c45d657cfdb80f51f86e7bb63",
+  "resources": {
+    "initial": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.9454704588034823,
+      "cached_input_tokens": 1851546,
+      "conservative_estimate_usd": "8.314271",
+      "input_tokens": 1958333,
+      "output_tokens": 75861,
+      "seconds": 1403.0187682089963
+    },
+    "reviewed": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.9395181016946198,
+      "cached_input_tokens": 1724555,
+      "conservative_estimate_usd": "6.717130",
+      "input_tokens": 1835574,
+      "output_tokens": 44342,
+      "seconds": 911.6307537079992
+    }
+  },
+  "review_instructions_version": "assisted_review_v2",
+  "review_not_run": false,
+  "schema_version": 1,
+  "scorer": "unchanged complete-score-v2 plus reviewed_six_v3 audited source subset",
+  "stages": {
+    "initial": {
+      "alignment": [
+        {
+          "candidate": 1,
+          "reference": 1
+        },
+        {
+          "candidate": 2,
+          "reference": 2
+        },
+        {
+          "candidate": 3,
+          "reference": 3
+        },
+        {
+          "candidate": 4,
+          "reference": 4
+        },
+        {
+          "candidate": 5,
+          "reference": 5
+        },
+        {
+          "candidate": 6,
+          "reference": 6
+        },
+        {
+          "candidate": 7,
+          "reference": 7
+        },
+        {
+          "candidate": 8,
+          "reference": 8
+        },
+        {
+          "candidate": 9,
+          "reference": 9
+        },
+        {
+          "candidate": 10,
+          "reference": 10
+        },
+        {
+          "candidate": 11,
+          "reference": 11
+        },
+        {
+          "candidate": 12,
+          "reference": 12
+        },
+        {
+          "candidate": 13,
+          "reference": 13
+        },
+        {
+          "candidate": 14,
+          "reference": 14
+        },
+        {
+          "candidate": 15,
+          "reference": 15
+        },
+        {
+          "candidate": 16,
+          "reference": 16
+        },
+        {
+          "candidate": 17,
+          "reference": 17
+        },
+        {
+          "candidate": 18,
+          "reference": 18
+        },
+        {
+          "candidate": 19,
+          "reference": 19
+        },
+        {
+          "candidate": 20,
+          "reference": 20
+        },
+        {
+          "candidate": 21,
+          "reference": 21
+        },
+        {
+          "candidate": 22,
+          "reference": 22
+        },
+        {
+          "candidate": 23,
+          "reference": 23
+        },
+        {
+          "candidate": 24,
+          "reference": 24
+        },
+        {
+          "candidate": 25,
+          "reference": 25
+        },
+        {
+          "candidate": 26,
+          "reference": 26
+        },
+        {
+          "candidate": 27,
+          "reference": 27
+        },
+        {
+          "candidate": 28,
+          "reference": 28
+        },
+        {
+          "candidate": 29,
+          "reference": 29
+        },
+        {
+          "candidate": 30,
+          "reference": 30
+        },
+        {
+          "candidate": 31,
+          "reference": 31
+        },
+        {
+          "candidate": 32,
+          "reference": 32
+        },
+        {
+          "candidate": 33,
+          "reference": 33
+        },
+        {
+          "candidate": 34,
+          "reference": 34
+        },
+        {
+          "candidate": 35,
+          "reference": 35
+        },
+        {
+          "candidate": 36,
+          "reference": 36
+        },
+        {
+          "candidate": 37,
+          "reference": 37
+        },
+        {
+          "candidate": 38,
+          "reference": 38
+        },
+        {
+          "candidate": 39,
+          "reference": 39
+        },
+        {
+          "candidate": 40,
+          "reference": 40
+        },
+        {
+          "candidate": 41,
+          "reference": 41
+        },
+        {
+          "candidate": 42,
+          "reference": 42
+        },
+        {
+          "candidate": 43,
+          "reference": 43
+        },
+        {
+          "candidate": 44,
+          "reference": 44
+        },
+        {
+          "candidate": 45,
+          "reference": 45
+        },
+        {
+          "candidate": 46,
+          "reference": null
+        },
+        {
+          "candidate": 47,
+          "reference": null
+        },
+        {
+          "candidate": 48,
+          "reference": null
+        },
+        {
+          "candidate": 49,
+          "reference": null
+        },
+        {
+          "candidate": 50,
+          "reference": null
+        },
+        {
+          "candidate": 51,
+          "reference": null
+        },
+        {
+          "candidate": 52,
+          "reference": null
+        },
+        {
+          "candidate": 53,
+          "reference": null
+        },
+        {
+          "candidate": 54,
+          "reference": null
+        },
+        {
+          "candidate": 55,
+          "reference": null
+        },
+        {
+          "candidate": 56,
+          "reference": null
+        },
+        {
+          "candidate": 57,
+          "reference": null
+        },
+        {
+          "candidate": 58,
+          "reference": null
+        },
+        {
+          "candidate": 59,
+          "reference": null
+        },
+        {
+          "candidate": 60,
+          "reference": null
+        },
+        {
+          "candidate": 61,
+          "reference": null
+        },
+        {
+          "candidate": 62,
+          "reference": null
+        },
+        {
+          "candidate": 63,
+          "reference": null
+        },
+        {
+          "candidate": 64,
+          "reference": null
+        },
+        {
+          "candidate": 65,
+          "reference": null
+        },
+        {
+          "candidate": 66,
+          "reference": null
+        },
+        {
+          "candidate": 67,
+          "reference": null
+        },
+        {
+          "candidate": 68,
+          "reference": null
+        },
+        {
+          "candidate": 69,
+          "reference": null
+        },
+        {
+          "candidate": 70,
+          "reference": null
+        },
+        {
+          "candidate": 71,
+          "reference": null
+        },
+        {
+          "candidate": 72,
+          "reference": null
+        },
+        {
+          "candidate": 73,
+          "reference": null
+        },
+        {
+          "candidate": 74,
+          "reference": null
+        }
+      ],
+      "completion_gate": {
+        "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+        "accepted_source_exceptions": [
+          {
+            "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+            "resolution": {
+              "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+              "adopted_choice": "Preserve G4 eighth followed by A4 dotted half, seven eighth-note units within the source's 3/4 bar boundaries.",
+              "category": "source_irregular_meter",
+              "inspection_call": 37,
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "location": "Page 1, musical row 2, first source bar; ABC m8.",
+              "reason": "Inspection 37 shows a full-size flagged G and a hollow following A with a dot. The analogous flagged-note/dotted-hollow-note pattern was also inspected in row 6 (inspection 40). No extra barline or unequivocal grace slash supports shortening or relocating the first note, so the literal overfull reading is retained rather than padding or deleting duration.",
+              "uncertainty": "High: the initial G might be an unmeasured grace, or the overlapping stems might indicate separate voices with uncertain alignment. The exception records the adopted literal duration, not certainty that the composer's intention was an irregular meter."
+            },
+            "source_inspection": {
+              "crop": [
+                0.08,
+                0.202,
+                0.148,
+                0.265
+              ],
+              "dpi": 320,
+              "page": 1,
+              "path": "inspections/inspect_037.png",
+              "pixel_box": [
+                217,
+                711,
+                403,
+                933
+              ],
+              "returned_pixels": [
+                186,
+                222
+              ],
+              "sha256": "de023cf516a1c224f8ce9848450ef572edef4a0e860ee7df1d74bf9f8dfe0e6f",
+              "source_pixels": [
+                2720,
+                3520
+              ]
+            }
+          },
+          {
+            "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+            "resolution": {
+              "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+              "adopted_choice": "Preserve A5 eighth followed by A5 dotted half, seven eighth-note units; treat the subsequent p-like sign as a dynamic.",
+              "category": "source_irregular_meter",
+              "inspection_call": 40,
+              "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+              "location": "Page 1, musical row 6, final source bar; ABC m41.",
+              "reason": "Inspection 40 shows the first note's flag and the second note's hollow head and duration dot at the same ledger level. Nearby row-6 bars and the row-2 parallel were checked. Reducing the half note to a quarter or inserting an invented rest would change the visible reading; retain the manuscript bar boundary and overfull duration.",
+              "uncertainty": "Moderate to high: a grace-note reading, simultaneous voices, or a rest-like reading of the p-shaped mark remains possible. The retained seven-eighth bar is the explicit best-effort source reading."
+            },
+            "source_inspection": {
+              "crop": [
+                0.683,
+                0.545,
+                0.838,
+                0.634
+              ],
+              "dpi": 320,
+              "page": 1,
+              "path": "inspections/inspect_040.png",
+              "pixel_box": [
+                1857,
+                1918,
+                2280,
+                2232
+              ],
+              "returned_pixels": [
+                423,
+                314
+              ],
+              "sha256": "211b0011c3c00e43e925a00befe0557f57e1c46a673e4cba957a23b43d7a92ac",
+              "source_pixels": [
+                2720,
+                3520
+              ]
+            }
+          },
+          {
+            "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+            "resolution": {
+              "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+              "adopted_choice": "Repeat the same G4 eighth plus A4 dotted half reading as source m8; do not regularize the duration on the D.C. return.",
+              "category": "source_irregular_meter",
+              "inspection_call": 37,
+              "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+              "location": "ABC m53, editorial D.C. realization copying page 1 row 2 first bar, source m8.",
+              "reason": "This is an expressly labeled copy of the source bar inspected in call 37, not a new manuscript measure. Its seven-eighth duration must remain identical to m8 so the explicit performance realization preserves the chosen source reading.",
+              "uncertainty": "Identical to source m8: grace-note and separate-voice interpretations remain alternatives, but the written-out return consistently retains the adopted literal reading."
+            },
+            "source_inspection": {
+              "crop": [
+                0.08,
+                0.202,
+                0.148,
+                0.265
+              ],
+              "dpi": 320,
+              "page": 1,
+              "path": "inspections/inspect_037.png",
+              "pixel_box": [
+                217,
+                711,
+                403,
+                933
+              ],
+              "returned_pixels": [
+                186,
+                222
+              ],
+              "sha256": "de023cf516a1c224f8ce9848450ef572edef4a0e860ee7df1d74bf9f8dfe0e6f",
+              "source_pixels": [
+                2720,
+                3520
+              ]
+            }
+          }
+        ],
+        "complete_claimed": true,
+        "completion_ready": true,
+        "issues": [
+          {
+            "detail": "Inspect the source; do not pad rests automatically.",
+            "expected_ticks": 1152,
+            "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+            "kind": "meter",
+            "measure": 8,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect the source; do not pad rests automatically.",
+            "expected_ticks": 1152,
+            "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+            "kind": "meter",
+            "measure": 41,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect the source; do not pad rests automatically.",
+            "expected_ticks": 1152,
+            "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+            "kind": "meter",
+            "measure": 53,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          }
+        ],
+        "musical_accuracy": "not_measured_by_completion_gate",
+        "next_action": "Ready for the next workflow stage; musical review remains necessary.",
+        "policy_version": "completion_gate_v1",
+        "resolution_errors": [],
+        "source_coverage": "not_measured_by_completion_gate",
+        "status": "ready_with_source_exceptions",
+        "unresolved_issues": []
+      },
+      "coverage": {
+        "alignment_columns": 74,
+        "candidate_measures": 74,
+        "exact_measures": 12,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 74,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 23,
+        "source_predicted_noteheads": 46,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "decisions": [
+        {
+          "adopted_choice": "Rumichaca, attributed on the page to Emilio Murillo. The faint genre word is provisionally Bambuco.",
+          "alternatives": [
+            "Leave the genre word unread rather than asserting Bambuco."
+          ],
+          "category": "visible_reading",
+          "id": "D01",
+          "location": "page 1, heading",
+          "reason": "Title and composer are legible; inspection 48 supplies the best view of the faint upper word.",
+          "uncertainty": "Low for title/composer; high for genre."
+        },
+        {
+          "adopted_choice": "Treble clef, one-flat signature represented by K:F, M:3/4, L:1/8. Introduction A B-flat A G, quarter-quarter-eighth-eighth with four fermatas; no additional introductory pickup inferred.",
+          "alternatives": [
+            "The first two opening heads may lie one staff step lower."
+          ],
+          "category": "context_inference",
+          "id": "D02",
+          "location": "opening signature and introduction",
+          "reason": "Visible signature and the prevailing six-eighth-note measures establish the context.",
+          "uncertainty": "Moderate for the stylized clef and first two elongated noteheads."
+        },
+        {
+          "adopted_choice": "Source r1=m1-7; r2=m8-15; r3=m16-22; r4=m23-28; r5=m29-35; r6=m36-41; r7=m42-45. The next staff contains closing text only. ABC m46 copies source m1 and m47-74 copy source m2-29 for the explicit D.C.",
+          "alternatives": [],
+          "category": "coverage_map",
+          "id": "D03",
+          "location": "all source rows and editorial return",
+          "reason": "Covers all seven musical rows while retaining source bar boundaries. Added realization bars are separately identified, not passed off as source music.",
+          "uncertainty": "Low for row coverage; some elongated internal stems are difficult."
+        },
+        {
+          "adopted_choice": "Read the hollow lower pair as a sustained E4/G4 dyad, dotted half, beneath the moving line.",
+          "alternatives": [
+            "An elongated accidental rather than two sustained notes.",
+            "Undotted half-note dyad with an unnotated final voice-silence."
+          ],
+          "category": "visible_reading",
+          "id": "D04",
+          "location": "source m2, m7, m10; corresponding return copies",
+          "reason": "The close views in inspections 6 and 41 place the open heads on the E and G staff lines, not in the D/F spaces. The same dyad also fits the visibly labeled A7 and C7 contexts without changing the written melody.",
+          "uncertainty": "Moderate to high; the dots and part of the stems are faint."
+        },
+        {
+          "adopted_choice": "Retain independently stemmed half notes in the specifically marked bars: A4, G4, A4, B-flat4 and A4.",
+          "alternatives": [
+            "Some sustained heads may be adjacent staff steps rather than unisons with the moving part."
+          ],
+          "category": "visible_reading",
+          "id": "D05",
+          "location": "source m3-6, m9, m11",
+          "reason": "Long independent stems coexist with the moving melody; later repeated scale figures corroborate this texture.",
+          "uncertainty": "High for the pitch and precise alignment in m4; moderate elsewhere."
+        },
+        {
+          "adopted_choice": "Retain subsidiary half notes C5, C5, F5, B-flat4, B-flat4, C5, C5, C6, G5, C5, C4 and F4, respectively, entering after the first quarter beat. x2 is invisible synchronization, not an extra audible rest.",
+          "alternatives": [
+            "Lower F4/G4 readings in the scale figures were considered but fit the stem/head alignment less well.",
+            "Some subsidiary entries may be an eighth earlier or later."
+          ],
+          "category": "visible_reading",
+          "id": "D06",
+          "location": "source m30-32, m34-35, m38-40, m42-45",
+          "reason": "Opposing stems occur at the corresponding melody attacks. The unison-at-entry/held-note texture is the best-supported reading; the low C in m44 has an open ledger-line head. Inspection 46 isolates the difficult paired stems.",
+          "uncertainty": "Moderate to high, especially m40, m42 and m45 where heads merge with lines or beams."
+        },
+        {
+          "adopted_choice": "Retain G4 eighth followed by A4 dotted half, totaling seven eighths.",
+          "alternatives": [
+            "G as an unmeasured grace note.",
+            "Two voices: a short upper G/B-flat gesture and a lower A half note with uncertain alignment."
+          ],
+          "category": "visible_reading",
+          "id": "D07",
+          "location": "source m8, row 2 first bar; editorial copy m53",
+          "reason": "Inspection 37 shows the flagged G and hollow dotted following head. Do not shorten it merely to regularize the meter.",
+          "uncertainty": "High."
+        },
+        {
+          "adopted_choice": "A5 eighth followed by A5 dotted half, seven eighths; the following p-like mark is treated as a piano direction.",
+          "alternatives": [
+            "Initial A as a grace note.",
+            "Following mark as a rest rather than piano.",
+            "The two A notes may be simultaneous independent voices."
+          ],
+          "category": "visible_reading",
+          "id": "D08",
+          "location": "source m41, row 6 last bar",
+          "reason": "Inspection 40 shows the notes at the same ledger level, the second hollow and dotted. The following sign has no clear ledger or pitched head.",
+          "uncertainty": "Moderate to high."
+        },
+        {
+          "adopted_choice": "C5 natural in m3, C-sharp5 in m11; do not force the parallel passages to agree.",
+          "alternatives": [
+            "C-sharp in both measures.",
+            "A sustained lower dyad rather than an accidental at the first attack."
+          ],
+          "category": "visible_reading",
+          "id": "D09",
+          "location": "source m3 and m11",
+          "reason": "The first sign is less clearly crossed than the second; retain a best-effort chromatic variant.",
+          "uncertainty": "High for m3."
+        },
+        {
+          "adopted_choice": "m9 G B-flat A G; m13 D5 A4 F4 E4.",
+          "alternatives": [],
+          "category": "visible_reading",
+          "id": "D10",
+          "location": "source m9 and m13",
+          "reason": "Inspections 45 and 38 clarify the noteheads against the staff lines.",
+          "uncertainty": "Low to moderate."
+        },
+        {
+          "adopted_choice": "Quarter rest, E4 half note, piano marking.",
+          "alternatives": [
+            "A low ledger-line half note if the p-like loop is musical rather than dynamic."
+          ],
+          "category": "visible_reading",
+          "id": "D11",
+          "location": "source m16",
+          "reason": "Inspection 18 shows a rest-like sign and a stem ending at the bottom staff line; the large lower loop is read as p.",
+          "uncertainty": "Moderate."
+        },
+        {
+          "adopted_choice": "Retain the m18 dotted quarter, B naturals/C sharps in m19-20, and E5 A5 F5 E5 in m21 with fermatas on A and F.",
+          "alternatives": [
+            "G5 instead of A5 in m21.",
+            "Last fermata applies jointly to the final eighth-note pair."
+          ],
+          "category": "visible_reading",
+          "id": "D12",
+          "location": "source m18-22",
+          "reason": "Inspection 39 shows the dot; inspections 31 and 20 clarify accidentals and fermatas.",
+          "uncertainty": "Moderate for the high A and its faint ledger."
+        },
+        {
+          "adopted_choice": "Explicit C natural/B-flat in m23 and F-sharp in both E-F-G / F-sharp-G-B figures. No lower accompaniment added in these unmarked bars.",
+          "alternatives": [],
+          "category": "visible_reading",
+          "id": "D13",
+          "location": "source m23-28",
+          "reason": "Preserve the visible cancellation and crossed accidentals rather than normalize to a conventional progression.",
+          "uncertainty": "Moderate for the low chromatic note, placed in the F space."
+        },
+        {
+          "adopted_choice": "Transcribe literal chords; expand a percent-like harmony ditto to the preceding chord. In mixed bars attach A7 near its written position.",
+          "alternatives": [],
+          "category": "editorial_representation",
+          "id": "D14",
+          "location": "all chord symbols and harmony ditto marks",
+          "reason": "Retains harmonic directions without adding accompaniment.",
+          "uncertainty": "Low for F, Dm, Gm, A7, C7, D7 and E7; high for m42's suffix."
+        },
+        {
+          "adopted_choice": "Literal F7dim, not silently normalized.",
+          "alternatives": [
+            "F#dim.",
+            "F7 with a diminished-quality qualifier."
+          ],
+          "category": "visible_reading",
+          "id": "D15",
+          "location": "source m42 chord",
+          "reason": "The inscription resembles F, a 7-like sign, and dim.",
+          "uncertainty": "High."
+        },
+        {
+          "adopted_choice": "Principal section B: m2-28; first ending m29 returns to m2; second pass skips m29 and enters C at m30.",
+          "alternatives": [
+            "The 2 labels the larger second section rather than a local ending; the adopted entry remains the same."
+          ],
+          "category": "form_interpretation",
+          "id": "D16",
+          "location": "row 5 ending brackets",
+          "reason": "Bracket 1 covers the cadence before the repeat; 2 begins the following material.",
+          "uncertainty": "Moderate concerning the second bracket's extent."
+        },
+        {
+          "adopted_choice": "Repeat C (m30-45) once, supplying an editorial left repeat at m30. Then one D.C.: m1-29 without further repeats, stopping at ending 1. Finite source-measure route: 1; 2-29; 2-28; 30-45; 30-45; 1-29; STOP.",
+          "alternatives": [
+            "Final repeat returns to the original left repeat at m2.",
+            "D.C. calls for both numbered sections again.",
+            "The lower continuation refers to a second segno rather than a second section."
+          ],
+          "category": "form_interpretation",
+          "id": "D17",
+          "location": "closing repeat and D.C.",
+          "reason": "The final backward repeat lacks an unambiguous new left-repeat partner. This interpretation gives both that repeat and the D.C.-like direction a finite role.",
+          "uncertainty": "High; an adopted interpretation, not a claim that the wording is fully legible."
+        },
+        {
+          "adopted_choice": "Retain D.C. ... and provisional continuation y 2a Seg. [uncertain] as text.",
+          "alternatives": [
+            "D.C. 1a y 2a Seg.",
+            "A different abbreviation involving Seg."
+          ],
+          "category": "visible_reading",
+          "id": "D18",
+          "location": "closing handwriting on rows 7-8",
+          "reason": "Inspections 27, 28 and 42 show D.C.-like capitals, a conjunction-like lower glyph, and a line resembling 2a Seg.; no further pitched music is present.",
+          "uncertainty": "High."
+        },
+        {
+          "adopted_choice": "Ordinary repeats/endings for the initial traversal, followed by a labeled 29-bar written-out D.C. return. No header P: order. Deterministic route count is 117 performed bars.",
+          "alternatives": [
+            "A separate expanded playback score, avoided to keep one self-contained tune."
+          ],
+          "category": "editorial_representation",
+          "id": "D19",
+          "location": "executable ABC representation",
+          "reason": "A header part order would replay the technical first ending on the second B pass. The written return makes the adopted route finite without creating extra part letters for endings.",
+          "uncertainty": "Low for execution, conditional on the form interpretation."
+        }
+      ],
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 32,
+          "predicted": 66
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 162,
+          "predicted": 337
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 1,
+          "predicted": 7
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.5765765765765766,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.16216216216216217,
+        "edition_note_f1": 0.6101694915254238,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": false,
+        "human_review_minutes": null,
+        "meter_valid_rate": 0.9594594594594594,
+        "source_note_f1": 0.5609756097560976
+      },
+      "mismatches": [
+        {
+          "candidate_measure": 1,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 1
+        },
+        {
+          "candidate_measure": 2,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 2
+        },
+        {
+          "candidate_measure": 3,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 3
+        },
+        {
+          "candidate_measure": 4,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 4
+        },
+        {
+          "candidate_measure": 5,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 5
+        },
+        {
+          "candidate_measure": 6,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 6
+        },
+        {
+          "candidate_measure": 7,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 7
+        },
+        {
+          "candidate_measure": 8,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 8
+        },
+        {
+          "candidate_measure": 9,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 9
+        },
+        {
+          "candidate_measure": 10,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 10
+        },
+        {
+          "candidate_measure": 11,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 11
+        },
+        {
+          "candidate_measure": 12,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 12
+        },
+        {
+          "candidate_measure": 14,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 14
+        },
+        {
+          "candidate_measure": 15,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 15
+        },
+        {
+          "candidate_measure": 16,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 16
+        },
+        {
+          "candidate_measure": 20,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 20
+        },
+        {
+          "candidate_measure": 21,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 21
+        },
+        {
+          "candidate_measure": 23,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 23
+        },
+        {
+          "candidate_measure": 25,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 25
+        },
+        {
+          "candidate_measure": 27,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 27
+        },
+        {
+          "candidate_measure": 30,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 30
+        },
+        {
+          "candidate_measure": 31,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 31
+        },
+        {
+          "candidate_measure": 32,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 32
+        },
+        {
+          "candidate_measure": 34,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 34
+        },
+        {
+          "candidate_measure": 35,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 35
+        },
+        {
+          "candidate_measure": 38,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 38
+        },
+        {
+          "candidate_measure": 39,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 39
+        },
+        {
+          "candidate_measure": 40,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 40
+        },
+        {
+          "candidate_measure": 41,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 41
+        },
+        {
+          "candidate_measure": 42,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 42
+        },
+        {
+          "candidate_measure": 43,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 43
+        },
+        {
+          "candidate_measure": 44,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 44
+        },
+        {
+          "candidate_measure": 45,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 45
+        },
+        {
+          "candidate_measure": 46,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 47,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 48,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 49,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 50,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 51,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 52,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 53,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 54,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 55,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 56,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 57,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 58,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 59,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 60,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 61,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 62,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 63,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 64,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 65,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 66,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 67,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 68,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 69,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 70,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 71,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 72,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 73,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "candidate_measure": 74,
+          "detail": "Extra bar relative to the reviewed edition.",
+          "kind": "extra",
+          "measure": null
+        },
+        {
+          "detail": "Performed bar/ending route differs from the selected edition.",
+          "kind": "form",
+          "measure": null
+        },
+        {
+          "candidate_measure": 2,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 2,
+          "source_bar": 2,
+          "source_location": {
+            "measure": 2,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 3,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 3,
+          "source_bar": 3,
+          "source_location": {
+            "measure": 3,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 4,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 4,
+          "source_bar": 4,
+          "source_location": {
+            "measure": 4,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 5,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 5,
+          "source_bar": 5,
+          "source_location": {
+            "measure": 5,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 6,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 6,
+          "source_bar": 6,
+          "source_location": {
+            "measure": 6,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 7,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 7,
+          "source_bar": 7,
+          "source_location": {
+            "measure": 7,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 42,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 42,
+          "source_bar": 42,
+          "source_location": {
+            "measure": 1,
+            "page": 1,
+            "system": 7
+          }
+        },
+        {
+          "candidate_measure": 43,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 43,
+          "source_bar": 43,
+          "source_location": {
+            "measure": 2,
+            "page": 1,
+            "system": 7
+          }
+        },
+        {
+          "candidate_measure": 45,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 45,
+          "source_bar": 45,
+          "source_location": {
+            "measure": 4,
+            "page": 1,
+            "system": 7
+          }
+        }
+      ],
+      "runtime": {
+        "api_adapter_sha256": "3f13b87a3bfbe61d5d0bd7122efb0d9ba3d408998e6b1c13538738a26b5dfa38",
+        "auth_mode": "openai_api",
+        "billing": {
+          "budget_usd": null,
+          "charged_or_reserved_usd": "8.314271",
+          "cost_basis": "conservative_estimate_not_invoice",
+          "cost_estimate_usd": "8.314271",
+          "cost_scope": "stage",
+          "cost_usd": null,
+          "entries": [
+            {
+              "cached_input_tokens": 0,
+              "charged_usd": "0.103025",
+              "input_tokens": 4077,
+              "input_tokens_counted": 4077,
+              "max_output_tokens": 25000,
+              "output_tokens": 22,
+              "request": 1,
+              "reserved_usd": "1.351925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 4074,
+              "charged_usd": "0.085174",
+              "input_tokens": 7072,
+              "input_tokens_counted": 7072,
+              "max_output_tokens": 25000,
+              "output_tokens": 123,
+              "request": 2,
+              "reserved_usd": "1.4268",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 7069,
+              "charged_usd": "0.012769",
+              "input_tokens": 7217,
+              "input_tokens_counted": 7217,
+              "max_output_tokens": 25000,
+              "output_tokens": 40,
+              "request": 3,
+              "reserved_usd": "1.430425",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 7214,
+              "charged_usd": "0.035014",
+              "input_tokens": 8156,
+              "input_tokens_counted": 8156,
+              "max_output_tokens": 25000,
+              "output_tokens": 85,
+              "request": 4,
+              "reserved_usd": "1.4539",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 8153,
+              "charged_usd": "0.045953",
+              "input_tokens": 8783,
+              "input_tokens_counted": 8783,
+              "max_output_tokens": 25000,
+              "output_tokens": 441,
+              "request": 5,
+              "reserved_usd": "1.469575",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 8780,
+              "charged_usd": "0.03853",
+              "input_tokens": 9800,
+              "input_tokens_counted": 9800,
+              "max_output_tokens": 25000,
+              "output_tokens": 85,
+              "request": 6,
+              "reserved_usd": "1.495",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 9797,
+              "charged_usd": "0.034547",
+              "input_tokens": 10197,
+              "input_tokens_counted": 10197,
+              "max_output_tokens": 25000,
+              "output_tokens": 295,
+              "request": 7,
+              "reserved_usd": "1.504925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 10194,
+              "charged_usd": "0.061744",
+              "input_tokens": 11312,
+              "input_tokens_counted": 11312,
+              "max_output_tokens": 25000,
+              "output_tokens": 472,
+              "request": 8,
+              "reserved_usd": "1.5328",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 11309,
+              "charged_usd": "0.087934",
+              "input_tokens": 12222,
+              "input_tokens_counted": 12222,
+              "max_output_tokens": 25000,
+              "output_tokens": 1076,
+              "request": 9,
+              "reserved_usd": "1.55555",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 12219,
+              "charged_usd": "0.103844",
+              "input_tokens": 14198,
+              "input_tokens_counted": 14198,
+              "max_output_tokens": 25000,
+              "output_tokens": 843,
+              "request": 10,
+              "reserved_usd": "1.60495",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 14195,
+              "charged_usd": "0.053395",
+              "input_tokens": 15437,
+              "input_tokens_counted": 15437,
+              "max_output_tokens": 25000,
+              "output_tokens": 163,
+              "request": 11,
+              "reserved_usd": "1.635925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 15434,
+              "charged_usd": "0.048959",
+              "input_tokens": 16427,
+              "input_tokens_counted": 16427,
+              "max_output_tokens": 25000,
+              "output_tokens": 174,
+              "request": 12,
+              "reserved_usd": "1.660675",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 16424,
+              "charged_usd": "0.073774",
+              "input_tokens": 16854,
+              "input_tokens_counted": 16854,
+              "max_output_tokens": 25000,
+              "output_tokens": 932,
+              "request": 13,
+              "reserved_usd": "1.67135",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 16851,
+              "charged_usd": "0.074326",
+              "input_tokens": 18606,
+              "input_tokens_counted": 18606,
+              "max_output_tokens": 25000,
+              "output_tokens": 272,
+              "request": 14,
+              "reserved_usd": "1.71515",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 18603,
+              "charged_usd": "0.065703",
+              "input_tokens": 19371,
+              "input_tokens_counted": 19371,
+              "max_output_tokens": 25000,
+              "output_tokens": 558,
+              "request": 15,
+              "reserved_usd": "1.734275",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 19368,
+              "charged_usd": "0.067018",
+              "input_tokens": 20104,
+              "input_tokens_counted": 20104,
+              "max_output_tokens": 25000,
+              "output_tokens": 585,
+              "request": 16,
+              "reserved_usd": "1.7526",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 20101,
+              "charged_usd": "0.073676",
+              "input_tokens": 21060,
+              "input_tokens_counted": 21060,
+              "max_output_tokens": 25000,
+              "output_tokens": 592,
+              "request": 17,
+              "reserved_usd": "1.7765",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 21057,
+              "charged_usd": "0.069907",
+              "input_tokens": 21967,
+              "input_tokens_counted": 21967,
+              "max_output_tokens": 25000,
+              "output_tokens": 522,
+              "request": 18,
+              "reserved_usd": "1.799175",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 21964,
+              "charged_usd": "0.085939",
+              "input_tokens": 22813,
+              "input_tokens_counted": 22813,
+              "max_output_tokens": 25000,
+              "output_tokens": 855,
+              "request": 19,
+              "reserved_usd": "1.820325",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 22810,
+              "charged_usd": "0.066935",
+              "input_tokens": 24037,
+              "input_tokens_counted": 24037,
+              "max_output_tokens": 25000,
+              "output_tokens": 269,
+              "request": 20,
+              "reserved_usd": "1.850925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 24034,
+              "charged_usd": "0.101259",
+              "input_tokens": 24611,
+              "input_tokens_counted": 24611,
+              "max_output_tokens": 25000,
+              "output_tokens": 1256,
+              "request": 21,
+              "reserved_usd": "1.865275",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 24608,
+              "charged_usd": "0.112583",
+              "input_tokens": 26297,
+              "input_tokens_counted": 26297,
+              "max_output_tokens": 25000,
+              "output_tokens": 915,
+              "request": 22,
+              "reserved_usd": "1.907425",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 26294,
+              "charged_usd": "0.081319",
+              "input_tokens": 28035,
+              "input_tokens_counted": 28035,
+              "max_output_tokens": 25000,
+              "output_tokens": 230,
+              "request": 23,
+              "reserved_usd": "1.950875",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 28032,
+              "charged_usd": "0.056557",
+              "input_tokens": 28705,
+              "input_tokens_counted": 28705,
+              "max_output_tokens": 25000,
+              "output_tokens": 234,
+              "request": 24,
+              "reserved_usd": "1.967625",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 28702,
+              "charged_usd": "0.082227",
+              "input_tokens": 29283,
+              "input_tokens_counted": 29283,
+              "max_output_tokens": 25000,
+              "output_tokens": 780,
+              "request": 25,
+              "reserved_usd": "1.982075",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 29280,
+              "charged_usd": "0.133505",
+              "input_tokens": 30261,
+              "input_tokens_counted": 30261,
+              "max_output_tokens": 25000,
+              "output_tokens": 1594,
+              "request": 26,
+              "reserved_usd": "2.006525",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 30258,
+              "charged_usd": "0.096283",
+              "input_tokens": 32677,
+              "input_tokens_counted": 32677,
+              "max_output_tokens": 25000,
+              "output_tokens": 111,
+              "request": 27,
+              "reserved_usd": "2.066925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 32674,
+              "charged_usd": "0.057624",
+              "input_tokens": 33272,
+              "input_tokens_counted": 33272,
+              "max_output_tokens": 25000,
+              "output_tokens": 200,
+              "request": 28,
+              "reserved_usd": "2.0818",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 33269,
+              "charged_usd": "0.113319",
+              "input_tokens": 33849,
+              "input_tokens_counted": 33849,
+              "max_output_tokens": 25000,
+              "output_tokens": 1311,
+              "request": 29,
+              "reserved_usd": "2.096225",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 33846,
+              "charged_usd": "0.260746",
+              "input_tokens": 35460,
+              "input_tokens_counted": 35460,
+              "max_output_tokens": 25000,
+              "output_tokens": 3731,
+              "request": 30,
+              "reserved_usd": "2.1365",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 35457,
+              "charged_usd": "0.212307",
+              "input_tokens": 39551,
+              "input_tokens_counted": 39551,
+              "max_output_tokens": 25000,
+              "output_tokens": 1490,
+              "request": 31,
+              "reserved_usd": "2.238775",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 39548,
+              "charged_usd": "0.128898",
+              "input_tokens": 41484,
+              "input_tokens_counted": 41484,
+              "max_output_tokens": 25000,
+              "output_tokens": 819,
+              "request": 32,
+              "reserved_usd": "2.2871",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 41481,
+              "charged_usd": "0.106706",
+              "input_tokens": 42766,
+              "input_tokens_counted": 42766,
+              "max_output_tokens": 25000,
+              "output_tokens": 662,
+              "request": 33,
+              "reserved_usd": "2.31915",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 42763,
+              "charged_usd": "0.102588",
+              "input_tokens": 43820,
+              "input_tokens_counted": 43820,
+              "max_output_tokens": 25000,
+              "output_tokens": 668,
+              "request": 34,
+              "reserved_usd": "2.3455",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 43817,
+              "charged_usd": "0.261367",
+              "input_tokens": 44941,
+              "input_tokens_counted": 44941,
+              "max_output_tokens": 25000,
+              "output_tokens": 3789,
+              "request": 35,
+              "reserved_usd": "2.373525",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 44938,
+              "charged_usd": "0.187763",
+              "input_tokens": 49379,
+              "input_tokens_counted": 49379,
+              "max_output_tokens": 25000,
+              "output_tokens": 636,
+              "request": 36,
+              "reserved_usd": "2.484475",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 49376,
+              "charged_usd": "0.342526",
+              "input_tokens": 50432,
+              "input_tokens_counted": 50432,
+              "max_output_tokens": 25000,
+              "output_tokens": 5335,
+              "request": 37,
+              "reserved_usd": "2.5108",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 50429,
+              "charged_usd": "0.297204",
+              "input_tokens": 55958,
+              "input_tokens_counted": 55958,
+              "max_output_tokens": 25000,
+              "output_tokens": 2171,
+              "request": 38,
+              "reserved_usd": "2.64895",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 55955,
+              "charged_usd": "0.15308",
+              "input_tokens": 58388,
+              "input_tokens_counted": 58388,
+              "max_output_tokens": 25000,
+              "output_tokens": 726,
+              "request": 39,
+              "reserved_usd": "2.7097",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 58385,
+              "charged_usd": "0.142435",
+              "input_tokens": 59389,
+              "input_tokens_counted": 59389,
+              "max_output_tokens": 25000,
+              "output_tokens": 1179,
+              "request": 40,
+              "reserved_usd": "2.734725",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 59386,
+              "charged_usd": "0.156111",
+              "input_tokens": 60883,
+              "input_tokens_counted": 60883,
+              "max_output_tokens": 25000,
+              "output_tokens": 1186,
+              "request": 41,
+              "reserved_usd": "2.772075",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 60880,
+              "charged_usd": "0.21403",
+              "input_tokens": 62328,
+              "input_tokens_counted": 62328,
+              "max_output_tokens": 25000,
+              "output_tokens": 2339,
+              "request": 42,
+              "reserved_usd": "2.8082",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 62325,
+              "charged_usd": "0.443475",
+              "input_tokens": 64961,
+              "input_tokens_counted": 64961,
+              "max_output_tokens": 25000,
+              "output_tokens": 6305,
+              "request": 43,
+              "reserved_usd": "2.874025",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 64958,
+              "charged_usd": "0.330983",
+              "input_tokens": 72569,
+              "input_tokens_counted": 72569,
+              "max_output_tokens": 25000,
+              "output_tokens": 1515,
+              "request": 44,
+              "reserved_usd": "3.064225",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 72566,
+              "charged_usd": "0.267416",
+              "input_tokens": 74946,
+              "input_tokens_counted": 74946,
+              "max_output_tokens": 25000,
+              "output_tokens": 2707,
+              "request": 45,
+              "reserved_usd": "3.12365",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 74943,
+              "charged_usd": "0.224993",
+              "input_tokens": 77879,
+              "input_tokens_counted": 77879,
+              "max_output_tokens": 25000,
+              "output_tokens": 1533,
+              "request": 46,
+              "reserved_usd": "3.196975",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 77876,
+              "charged_usd": "0.569401",
+              "input_tokens": 79581,
+              "input_tokens_counted": 79581,
+              "max_output_tokens": 25000,
+              "output_tokens": 8978,
+              "request": 47,
+              "reserved_usd": "3.239525",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 79578,
+              "charged_usd": "0.393803",
+              "input_tokens": 89681,
+              "input_tokens_counted": 89681,
+              "max_output_tokens": 25000,
+              "output_tokens": 1233,
+              "request": 48,
+              "reserved_usd": "3.492025",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 89678,
+              "charged_usd": "0.478778",
+              "input_tokens": 91230,
+              "input_tokens_counted": 91230,
+              "max_output_tokens": 25000,
+              "output_tokens": 7006,
+              "request": 49,
+              "reserved_usd": "3.53075",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 91227,
+              "charged_usd": "0.548602",
+              "input_tokens": 99370,
+              "input_tokens_counted": 99370,
+              "max_output_tokens": 25000,
+              "output_tokens": 5076,
+              "request": 50,
+              "reserved_usd": "3.73425",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 99367,
+              "charged_usd": "0.368217",
+              "input_tokens": 106637,
+              "input_tokens_counted": 106637,
+              "max_output_tokens": 25000,
+              "output_tokens": 1742,
+              "request": 51,
+              "reserved_usd": "3.915925",
+              "status": "usage_reconciled_conservative"
+            }
+          ],
+          "limit_usd": null,
+          "pricing": {
+            "cache_write_per_million_usd": "25",
+            "cached_input_per_million_usd": "1",
+            "input_per_million_usd": "10",
+            "max_input_tokens": 272000,
+            "model": "gpt-6-astra",
+            "output_per_million_usd": "50",
+            "source_url": "https://developers.openai.com/api/docs/pricing",
+            "verified_at": "2026-10-29"
+          },
+          "remaining_usd": null,
+          "schema_version": 1,
+          "spending_policy": "fixed_output_no_dollar_cap"
+        },
+        "budget_exhausted": false,
+        "budget_usd": null,
+        "catalog_overrides": null,
+        "complete": true,
+        "completed_turn": true,
+        "completion_gate": {
+          "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+          "accepted_source_exceptions": [
+            {
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "resolution": {
+                "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+                "adopted_choice": "Preserve G4 eighth followed by A4 dotted half, seven eighth-note units within the source's 3/4 bar boundaries.",
+                "category": "source_irregular_meter",
+                "inspection_call": 37,
+                "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+                "location": "Page 1, musical row 2, first source bar; ABC m8.",
+                "reason": "Inspection 37 shows a full-size flagged G and a hollow following A with a dot. The analogous flagged-note/dotted-hollow-note pattern was also inspected in row 6 (inspection 40). No extra barline or unequivocal grace slash supports shortening or relocating the first note, so the literal overfull reading is retained rather than padding or deleting duration.",
+                "uncertainty": "High: the initial G might be an unmeasured grace, or the overlapping stems might indicate separate voices with uncertain alignment. The exception records the adopted literal duration, not certainty that the composer's intention was an irregular meter."
+              },
+              "source_inspection": {
+                "crop": [
+                  0.08,
+                  0.202,
+                  0.148,
+                  0.265
+                ],
+                "dpi": 320,
+                "page": 1,
+                "path": "inspections/inspect_037.png",
+                "pixel_box": [
+                  217,
+                  711,
+                  403,
+                  933
+                ],
+                "returned_pixels": [
+                  186,
+                  222
+                ],
+                "sha256": "de023cf516a1c224f8ce9848450ef572edef4a0e860ee7df1d74bf9f8dfe0e6f",
+                "source_pixels": [
+                  2720,
+                  3520
+                ]
+              }
+            },
+            {
+              "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+              "resolution": {
+                "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+                "adopted_choice": "Preserve A5 eighth followed by A5 dotted half, seven eighth-note units; treat the subsequent p-like sign as a dynamic.",
+                "category": "source_irregular_meter",
+                "inspection_call": 40,
+                "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+                "location": "Page 1, musical row 6, final source bar; ABC m41.",
+                "reason": "Inspection 40 shows the first note's flag and the second note's hollow head and duration dot at the same ledger level. Nearby row-6 bars and the row-2 parallel were checked. Reducing the half note to a quarter or inserting an invented rest would change the visible reading; retain the manuscript bar boundary and overfull duration.",
+                "uncertainty": "Moderate to high: a grace-note reading, simultaneous voices, or a rest-like reading of the p-shaped mark remains possible. The retained seven-eighth bar is the explicit best-effort source reading."
+              },
+              "source_inspection": {
+                "crop": [
+                  0.683,
+                  0.545,
+                  0.838,
+                  0.634
+                ],
+                "dpi": 320,
+                "page": 1,
+                "path": "inspections/inspect_040.png",
+                "pixel_box": [
+                  1857,
+                  1918,
+                  2280,
+                  2232
+                ],
+                "returned_pixels": [
+                  423,
+                  314
+                ],
+                "sha256": "211b0011c3c00e43e925a00befe0557f57e1c46a673e4cba957a23b43d7a92ac",
+                "source_pixels": [
+                  2720,
+                  3520
+                ]
+              }
+            },
+            {
+              "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+              "resolution": {
+                "abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+                "adopted_choice": "Repeat the same G4 eighth plus A4 dotted half reading as source m8; do not regularize the duration on the D.C. return.",
+                "category": "source_irregular_meter",
+                "inspection_call": 37,
+                "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+                "location": "ABC m53, editorial D.C. realization copying page 1 row 2 first bar, source m8.",
+                "reason": "This is an expressly labeled copy of the source bar inspected in call 37, not a new manuscript measure. Its seven-eighth duration must remain identical to m8 so the explicit performance realization preserves the chosen source reading.",
+                "uncertainty": "Identical to source m8: grace-note and separate-voice interpretations remain alternatives, but the written-out return consistently retains the adopted literal reading."
+              },
+              "source_inspection": {
+                "crop": [
+                  0.08,
+                  0.202,
+                  0.148,
+                  0.265
+                ],
+                "dpi": 320,
+                "page": 1,
+                "path": "inspections/inspect_037.png",
+                "pixel_box": [
+                  217,
+                  711,
+                  403,
+                  933
+                ],
+                "returned_pixels": [
+                  186,
+                  222
+                ],
+                "sha256": "de023cf516a1c224f8ce9848450ef572edef4a0e860ee7df1d74bf9f8dfe0e6f",
+                "source_pixels": [
+                  2720,
+                  3520
+                ]
+              }
+            }
+          ],
+          "complete_claimed": true,
+          "completion_ready": true,
+          "issues": [
+            {
+              "detail": "Inspect the source; do not pad rests automatically.",
+              "expected_ticks": 1152,
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "kind": "meter",
+              "measure": 8,
+              "observed_ticks": 1344,
+              "partial_reason": null
+            },
+            {
+              "detail": "Inspect the source; do not pad rests automatically.",
+              "expected_ticks": 1152,
+              "issue_id": "2f6690dc98e028d8eaabbc14bd1ef77b7f472c4d112c9ca61fab0763ee29956a",
+              "kind": "meter",
+              "measure": 41,
+              "observed_ticks": 1344,
+              "partial_reason": null
+            },
+            {
+              "detail": "Inspect the source; do not pad rests automatically.",
+              "expected_ticks": 1152,
+              "issue_id": "247bfc4d1679fde0606e6d6379d6a8d75cbeedbaddef3ce1f7d3a0b7fd745a30",
+              "kind": "meter",
+              "measure": 53,
+              "observed_ticks": 1344,
+              "partial_reason": null
+            }
+          ],
+          "musical_accuracy": "not_measured_by_completion_gate",
+          "next_action": "Ready for the next workflow stage; musical review remains necessary.",
+          "policy_version": "completion_gate_v1",
+          "resolution_errors": [],
+          "source_coverage": "not_measured_by_completion_gate",
+          "status": "ready_with_source_exceptions",
+          "unresolved_issues": []
+        },
+        "completion_policy": "completion_gate_v1",
+        "completion_policy_sha256": "fb30bb6a9a045c098407f09feed40a4c95646fc29a57a354380da133c4240194",
+        "cost_basis": "conservative_estimate_not_invoice",
+        "cost_estimate_usd": "8.314271",
+        "cost_scope": "stage",
+        "cost_usd": null,
+        "deadline_seconds": 3600,
+        "elapsed_seconds": 1403.0187682089963,
+        "error": null,
+        "finished_at": "2026-10-30T00:08:43.207694+00:00",
+        "human_review_minutes": null,
+        "independent_reader": false,
+        "initial_abc_sha256": null,
+        "input_seal_sha256": "32298ecdd04488e1090b55c07e3d9145cdbc51b821264ded0490bbfdcda3977a",
+        "max_output_tokens_per_response": 25000,
+        "model": "gpt-6-astra",
+        "native_tool_mode": "responses_function_calling",
+        "quarantined": false,
+        "reasoning_effort": "xhigh",
+        "reference_access": false,
+        "resolved_model": "gpt-6-astra",
+        "returncode": 0,
+        "schema_version": 1,
+        "selected_checkpoint": "artifacts/drafts/draft_007",
+        "source_execution": "sandboxed_source_process",
+        "source_pdf_sha256": "1b752c57fa5b330f430ab23db1beaa581f4b06bfadd1d0b5f3e94121dc037b24",
+        "spending_policy": "fixed_output_no_dollar_cap",
+        "stage": "initial",
+        "started_at": "2026-10-29T23:45:20.119000+00:00",
+        "status": "complete",
+        "timed_out": false,
+        "tool_calls": [
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          }
+        ],
+        "usage": {
+          "input_tokens": 1958333,
+          "input_tokens_details": {
+            "cached_tokens": 1851546
+          },
+          "output_tokens": 75861,
+          "output_tokens_details": {
+            "reasoning_tokens": 55076
+          },
+          "total_tokens": 2034194
+        },
+        "workflow_id": "adaptive_source_inspection_author_then_independent_reader_v1"
+      },
+      "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment",
+      "status": "partial",
+      "validation": {
+        "counts": {
+          "chord_labels": 66,
+          "measures": 74,
+          "noteheads": 337,
+          "performed_measures": 117,
+          "rests": 7
+        },
+        "issues": [
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 8,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 41,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          },
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 53,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          }
+        ],
+        "musical_accuracy": "not_measured_by_validation",
+        "route_status": "resolved",
+        "valid": true,
+        "warnings": []
+      }
+    },
+    "reviewed": {
+      "alignment": [
+        {
+          "candidate": 1,
+          "reference": 1
+        },
+        {
+          "candidate": 2,
+          "reference": 2
+        },
+        {
+          "candidate": 3,
+          "reference": 3
+        },
+        {
+          "candidate": 4,
+          "reference": 4
+        },
+        {
+          "candidate": 5,
+          "reference": 5
+        },
+        {
+          "candidate": 6,
+          "reference": 6
+        },
+        {
+          "candidate": 7,
+          "reference": 7
+        },
+        {
+          "candidate": 8,
+          "reference": 8
+        },
+        {
+          "candidate": 9,
+          "reference": 9
+        },
+        {
+          "candidate": 10,
+          "reference": 10
+        },
+        {
+          "candidate": 11,
+          "reference": 11
+        },
+        {
+          "candidate": 12,
+          "reference": 12
+        },
+        {
+          "candidate": 13,
+          "reference": 13
+        },
+        {
+          "candidate": 14,
+          "reference": 14
+        },
+        {
+          "candidate": 15,
+          "reference": 15
+        },
+        {
+          "candidate": 16,
+          "reference": 16
+        },
+        {
+          "candidate": 17,
+          "reference": 17
+        },
+        {
+          "candidate": 18,
+          "reference": 18
+        },
+        {
+          "candidate": 19,
+          "reference": 19
+        },
+        {
+          "candidate": 20,
+          "reference": 20
+        },
+        {
+          "candidate": 21,
+          "reference": 21
+        },
+        {
+          "candidate": 22,
+          "reference": 22
+        },
+        {
+          "candidate": 23,
+          "reference": 23
+        },
+        {
+          "candidate": 24,
+          "reference": 24
+        },
+        {
+          "candidate": 25,
+          "reference": 25
+        },
+        {
+          "candidate": 26,
+          "reference": 26
+        },
+        {
+          "candidate": 27,
+          "reference": 27
+        },
+        {
+          "candidate": 28,
+          "reference": 28
+        },
+        {
+          "candidate": 29,
+          "reference": 29
+        },
+        {
+          "candidate": 30,
+          "reference": 30
+        },
+        {
+          "candidate": 31,
+          "reference": 31
+        },
+        {
+          "candidate": 32,
+          "reference": 32
+        },
+        {
+          "candidate": 33,
+          "reference": 33
+        },
+        {
+          "candidate": 34,
+          "reference": 34
+        },
+        {
+          "candidate": 35,
+          "reference": 35
+        },
+        {
+          "candidate": 36,
+          "reference": 36
+        },
+        {
+          "candidate": 37,
+          "reference": 37
+        },
+        {
+          "candidate": 38,
+          "reference": 38
+        },
+        {
+          "candidate": 39,
+          "reference": 39
+        },
+        {
+          "candidate": 40,
+          "reference": 40
+        },
+        {
+          "candidate": 41,
+          "reference": 41
+        },
+        {
+          "candidate": 42,
+          "reference": 42
+        },
+        {
+          "candidate": 43,
+          "reference": 43
+        },
+        {
+          "candidate": 44,
+          "reference": 44
+        },
+        {
+          "candidate": 45,
+          "reference": 45
+        }
+      ],
+      "completion_gate": {
+        "abc_sha256": "def39a87b261469612b42b2fd51a58d4b4bbeb7e4cd7aeb67400c14e16392a13",
+        "accepted_source_exceptions": [
+          {
+            "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+            "resolution": {
+              "abc_sha256": "def39a87b261469612b42b2fd51a58d4b4bbeb7e4cd7aeb67400c14e16392a13",
+              "adopted_choice": "Retain ^G A6: a full-sized G-sharp eighth followed by A4 dotted half, totaling seven eighths under the prevailing written 3/4.",
+              "category": "source_irregular_meter",
+              "inspection_call": 37,
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "location": "page 1, row 2 first bar; ABC source measure 8, part B",
+              "reason": "Inspection 37, with surrounding row in inspection 7 and earlier close-up 8, shows the flagged first note and large hollow following head with a nearby dot. The adopted dotted-half reading is overfull in the source; shortening it or adding/removing rests would not be supported. The accidental is independently compared with the writer's other sharps. This is a declared source-reading exception, not a meter correction inferred from the validator.",
+              "uncertainty": "High: the dot is displaced, and the first note could have been intended as an unmeasured grace note. A damaged overlapping voice is another possibility, but its alignment and independent head cannot be securely recovered."
+            },
+            "source_inspection": {
+              "crop": [
+                0.071,
+                0.206,
+                0.168,
+                0.277
+              ],
+              "dpi": 320,
+              "page": 1,
+              "path": "inspections/inspect_037.png",
+              "pixel_box": [
+                193,
+                725,
+                457,
+                976
+              ],
+              "returned_pixels": [
+                264,
+                251
+              ],
+              "sha256": "817e43028f2e7cb90a9d439e1d82829c0decbd1ae8a41b99ee91a452ecbe9405",
+              "source_pixels": [
+                2720,
+                3520
+              ]
+            }
+          }
+        ],
+        "complete_claimed": true,
+        "completion_ready": true,
+        "issues": [
+          {
+            "detail": "Inspect the source; do not pad rests automatically.",
+            "expected_ticks": 1152,
+            "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+            "kind": "meter",
+            "measure": 8,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          }
+        ],
+        "musical_accuracy": "not_measured_by_completion_gate",
+        "next_action": "Ready for the next workflow stage; musical review remains necessary.",
+        "policy_version": "completion_gate_v1",
+        "resolution_errors": [],
+        "source_coverage": "not_measured_by_completion_gate",
+        "status": "ready_with_source_exceptions",
+        "unresolved_issues": []
+      },
+      "coverage": {
+        "alignment_columns": 45,
+        "candidate_measures": 45,
+        "exact_measures": 21,
+        "meter_partial_measures": 0,
+        "meter_scored_measures": 45,
+        "paired_measures": 45,
+        "reference_measures": 45,
+        "source_eligible_measures": 9,
+        "source_expected_noteheads": 36,
+        "source_matched_measures": 9,
+        "source_matched_noteheads": 30,
+        "source_predicted_noteheads": 36,
+        "source_scored_measures": 9,
+        "source_total_measures": 45
+      },
+      "decisions": [
+        {
+          "adopted_choice": "Rumichaca; Emilio Murillo; genre Bambuco. Treble clef, B-flat signature (K:F), 3/4. Retain the introduction A B-flat A G with four fermatas and forte.",
+          "alternatives": [
+            "Omit the genre as faint."
+          ],
+          "category": "checked_scope",
+          "id": "A01",
+          "location": "page 1 heading; opening clef, key and meter",
+          "reason": "Visible evidence: full-page inspection 1, opening close-ups 3 and 36, and heading 40. The flat's bowl sits at the B staff line; the partly faint clef survives to its left. The header and predominant six-eighth bars support the meter. Musical context is supporting only.",
+          "uncertainty": "Low for title/composer and one-flat context; moderate for the faint clef and genre."
+        },
+        {
+          "adopted_choice": "F-sharp in m2, m6, m7 and m10, G-sharp in m8; remove E/G dyads wrongly inferred from the signs. In m7 the later F remains sharp by within-measure scope.",
+          "alternatives": [
+            "Natural sign at m6.",
+            "Candidate sustained E/G dyads at m2,7,10, rejected.",
+            "No accidental at m8, rejected."
+          ],
+          "category": "accidental_correction",
+          "id": "A02",
+          "location": "page 1 row 1 m2, m6, m7; row 2 m8, m10",
+          "reason": "Visible evidence: inspections 8, 10, 11, 31, 37 show two upright strokes and two oblique cross-strokes straddling the affected pitch. Compare clearer C-sharps in row 3 (20) and the F-sharps in row 4 (21,23). At m6 a staff line hides part of a cross-stroke, so a natural was explicitly considered. These are accidental signs, not independently stemmed E/G heads. Musical context: chromatic approaches F-sharp/G and G-sharp/A support this reading; harmony alone was not used to create sharps.",
+          "uncertainty": "Low to moderate at m2,7,8,10; moderate at m6."
+        },
+        {
+          "adopted_choice": "C-sharp in both bars, rather than the candidate's C-natural in m3.",
+          "alternatives": [
+            "C-natural in m3 remains the strongest symbol-confusion alternative."
+          ],
+          "category": "accidental_correction",
+          "id": "A03",
+          "location": "page 1 row 1 m3; parallel row 2 m11",
+          "reason": "Visible evidence: inspections 5 and 29 show the two uprights and both rising cross-strokes of m3's sign. Compare m11 in 12 and C-sharps in 20. The B naturals in 9/20 instead have offset rectangular crosspieces. Musical context: the written A7 and parallel phrase favor C-sharp, but are not the sole grounds.",
+          "uncertainty": "Moderate at m3, where staff lines intersect the sign; low at m11."
+        },
+        {
+          "adopted_choice": "Eighth rest, F-sharp eighth, G quarter, G quarter.",
+          "alternatives": [
+            "Candidate rest, F, A, A.",
+            "F-natural rather than F-sharp; see accidental decision."
+          ],
+          "category": "pitch_correction",
+          "id": "A04",
+          "location": "page 1 row 1 m6",
+          "reason": "Visible evidence: inspection 31 puts both final heads on the G line rather than the A space; compare the neighboring G notes of m7 in 6. The initial hook is an eighth rest. Musical context: the C7 label and repeated G support this, but do not determine staff placement.",
+          "uncertainty": "Moderate because the noteheads trail below their main bodies."
+        },
+        {
+          "adopted_choice": "Remove the candidate's unison sustained overlays in these bars. Retain the visible moving line. Do not assign pitches to the long unheaded vertical strokes.",
+          "alternatives": [
+            "Candidate sustained unisons at each long stroke.",
+            "An A4 half note under the final G/F pair of m3; its open-looking head is not secure enough to distinguish from the writer's partially hollow quarter heads.",
+            "Some long strokes may encode a performance convention not identifiable from this page."
+          ],
+          "category": "voice_correction",
+          "id": "A05",
+          "location": "candidate subsidiary notes in m3,4,6,9,11,30-32,34-35,38-40,42-43,45",
+          "reason": "Visible evidence: close-ups 12,14,26,29-32,39 show the moving heads with their own stems but no separate hollow sustained heads at the candidate's asserted pitches. Inspection 27 supplies a useful parallel: a long crossing vertical stroke stands between the second and third notes with no head, and the candidate had not treated that one as a voice. Small white centers occur even in visibly beamed eighth-note heads (25,35,39), so whiteness alone is not proof of a half note. The independently recognizable low C head in m44 is different and is retained. Musical context was not used to suppress or invent voices.",
+          "uncertainty": "Moderate overall, higher in m3 and dense scale beams. Removed notes were not independently recoverable; this is not a reduction of securely visible polyphony."
+        },
+        {
+          "adopted_choice": "G-sharp eighth followed by A4 dotted half, seven eighths total; retain as an evidenced source-meter exception rather than add or shorten notes.",
+          "alternatives": [
+            "Unmeasured G-sharp grace note into A dotted half.",
+            "A quarter/dotted-quarter with an omitted rest.",
+            "An overlapping second voice, whose head and alignment are not securely recoverable."
+          ],
+          "category": "source_rhythm_reading",
+          "id": "A06",
+          "location": "page 1 row 2 m8",
+          "reason": "Visible evidence: surrounding row in 7 and close-ups 8/37 show the flagged initial note, large hollow following head and nearby dot. The long intervening vertical stroke has no secure separate pitched head. Musical context: chromatic G-sharp to A agrees with the F label, but cannot settle whether the first note was meant as a grace note.",
+          "uncertainty": "High for duration/dot placement; moderate for pitches."
+        },
+        {
+          "adopted_choice": "Retain the candidate's moving-note reading in m9-14, apart from the corrected sharps and removal of unsupported overlays; m15 begins with C4 quarter, not a quarter rest.",
+          "alternatives": [
+            "Candidate opening quarter rest in m15.",
+            "A lower note or rest if the separated stem/head are unrelated."
+          ],
+          "category": "checked_scope",
+          "id": "A07",
+          "location": "page 1 row 2 m9-15",
+          "reason": "Visible evidence: row 2 view 7; m10-11 close-up 12; m14-15 views 17-19. The m15 opening has a low black head and a vertical stem like the low C gestures in m44, rather than a rest. D5 A4 F4 E4 in m13 is retained and rechecked in inspection 44; G B-flat A G in m9 is rechecked in 45. Ditto harmonies reproduce F, A7, Dm and E7 only where marked. Musical context: the low-register transition is plausible but not decisive; the surprising C against E7 is not harmonically corrected.",
+          "uncertainty": "Moderate for m15 low C; low to moderate for the remaining moving line; p-like marking at m14 remains uncertain."
+        },
+        {
+          "adopted_choice": "A3 quarter then B-flat3 half, piano; replace the candidate's quarter rest plus E4 half.",
+          "alternatives": [
+            "Candidate rest then E4 half, reading the lower oval as part of p.",
+            "A3 quarter then A3 half if the second oval lies on the ledger line."
+          ],
+          "category": "damaged_material_reconstruction",
+          "id": "A08",
+          "location": "page 1 row 3 m16",
+          "reason": "Visible evidence: inspections 16 and 34 show two ledger levels beside the first black head, placing it at A3; the neighboring larger hollow head lies in the B3 space, with faint/interrupted continuity to the upward stem. A separate lower p-like flourish remains. Musical context: a low-register gesture between the E7 and D7 areas is possible, but does not prove these pitches. The B-flat is inherited from the active key signature, not an added accidental.",
+          "uncertainty": "High, specifically the interrupted second stem and separation of note from dynamic."
+        },
+        {
+          "adopted_choice": "Retain m17-19 and m21-22 moving notes, local accidentals and fermatas. Correct m20 middle note E5 to D5: B-natural eighth, D quarter, C-sharp dotted quarter with fermata.",
+          "alternatives": [
+            "Candidate E5 in m20.",
+            "G5 rather than A5 in m21, less consistent with its vertical placement.",
+            "Last m21 fermata applies to the pair as a whole."
+          ],
+          "category": "checked_scope_and_pitch_correction",
+          "id": "A09",
+          "location": "page 1 row 3 m17-22",
+          "reason": "Visible evidence: views 9,16,20 place the m20 middle head on D, not the E space. The B natural signs are rectangular/cornered, unlike the rising double cross-strokes before C-sharp. m21 high A has a ledger indication and a fermata; the final f/e pair is retained with the fermata attached to f. Musical context: D is the seventh of locally written E7, supporting the visual reading without overriding it.",
+          "uncertainty": "Low to moderate for m20 D; moderate for the high A ledger; low for B-natural/C-sharp scope."
+        },
+        {
+          "adopted_choice": "Retain C-natural and explicit B-flat in m23; retain the two F-sharps in m25 and m27 and the moving notes of all six bars. Add a short slur over F-G in m27, not a tie.",
+          "alternatives": [
+            "m27 curve is merely pen continuation; omit the slur.",
+            "m23 flat applies to C-flat rather than B-flat if the elongated head is read higher. Candidate B-flat retained as best staff-position reading."
+          ],
+          "category": "checked_scope",
+          "id": "A10",
+          "location": "page 1 row 4 m23-28",
+          "reason": "Visible evidence: full row 21, m23 close-up 22 and m27 close-up 23. The signs before F have two crossed uprights; the C cancellation and following flat differ clearly in shape. The short low curved stroke in m27 links different pitches, so it cannot be a pitch tie. Musical context: the repeated m24/26 and m25/27 figures support the adopted notes; no extra accompaniment or chord was added in unmarked positions.",
+          "uncertainty": "Moderate for exact endpoint of the m27 curve and m23's elongated B-flat head; low for F-sharp versus natural in the repeated figures."
+        },
+        {
+          "adopted_choice": "Retain all moving pitches and rhythms, the first/second ending signs, literal chord labels and marked harmony dittos. No new F-sharp is added to m40 despite the D7 label. Remove the spurious lower rest at m30 with its unsupported overlay.",
+          "alternatives": [
+            "Treat a low mark at m30 as a subsidiary rest, as the candidate did.",
+            "Infer F-sharp from D7, rejected because not written."
+          ],
+          "category": "checked_scope",
+          "id": "A11",
+          "location": "page 1 row 5 m29-35; row 6 m36-40",
+          "reason": "Visible evidence: views 13,14,15,26,27,39 cover the complete scale figures and high-register D7 bar. The m30 mark beside the repeat is part of the flourish/dot region, not a securely independent quarter rest. The m40 first note is F without a written accidental; the chord does not authorize changing it. Musical context was used only to compare parallel m30/38 and m31/39, which agree.",
+          "uncertainty": "Low to moderate for the moving notes; moderate for high-note ledger placement in m40."
+        },
+        {
+          "adopted_choice": "A5 eighth, A5 half, eighth rest. Replace the candidate's A eighth plus dotted half and p dynamic.",
+          "alternatives": [
+            "Candidate A eighth plus A dotted half with a piano mark, an irregular seven-eighth bar.",
+            "A eighth, A dotted quarter, quarter rest.",
+            "Both A heads are parts of an overlapping-voice gesture."
+          ],
+          "category": "rhythm_and_rest_reconstruction",
+          "id": "A12",
+          "location": "page 1 row 6 m41",
+          "reason": "Visible evidence: surrounding row 15 and close-up 35 show the first head with a beam/flag gesture, the second hollow head on a plain stem, and a separate p-like short-stemmed hook to its right. The latter is adopted as an eighth rest; it is not securely connected as an augmentation dot to the half note. Small dots farther right may be ink/spatter. Musical context: a short breathing rest before the final phrase supports but does not prove the rest reading. The six-eighth count is a check, not the visual basis.",
+          "uncertainty": "High; explicitly an editorial reconstruction, not a certain rest identification."
+        },
+        {
+          "adopted_choice": "Retain the moving line and F-sharp in m43. Preserve the separate low C4 half note in m44, entering after the first quarter as an editorial synchronization. Other candidate sustained unisons are removed. Retain the candidate p at m44 provisionally.",
+          "alternatives": [
+            "Held C begins an eighth later and extends into the next bar.",
+            "The open C belongs to the beamed moving voice, not a separate held voice.",
+            "p-like glyph is a rest; not adopted in this bar because the moving rhythm is already complete."
+          ],
+          "category": "checked_scope_and_polyphony",
+          "id": "A13",
+          "location": "page 1 row 7 m42-45",
+          "reason": "Visible evidence: row 24, close-up 25 and especially 33 show the distinct low hollow C head and ledger line in m44, unlike the unheaded crossing strokes elsewhere. The C half-note's exact horizontal onset is obscured by stems/beam; x2 synchronizes without adding an audible rest. Musical context: the written C7 supports C as a held pitch but is not its sole evidence. No ties are securely visible in these bars.",
+          "uncertainty": "Moderate for the held C pitch, high for its onset; moderate for p versus a non-dynamic stroke."
+        },
+        {
+          "adopted_choice": "Retain literal F7dim rather than silently normalize it.",
+          "alternatives": [
+            "F#dim.",
+            "F7 with a diminished qualifier."
+          ],
+          "category": "literal_chord_reading",
+          "id": "A14",
+          "location": "page 1 row 7 m42 chord",
+          "reason": "Visible evidence: 24/25 show F followed by a 7-like suffix and dim; the suffix resembles the writer's 7 in nearby C7/D7 labels more than the musical sharp signs. Musical context: the notation is unusual, so harmony does not establish the exact suffix. It is kept as a source label, not converted to an invented voicing.",
+          "uncertainty": "High for the suffix."
+        },
+        {
+          "adopted_choice": "Literal F, A7, Dm, C7, E7, D7, Gm and F7dim, expanding only written ditto signs. Preserve intra-bar A7 placement in m2,10,25,27. No chord supplied at m1,16,20,29 or other unmarked attacks.",
+          "alternatives": [],
+          "category": "checked_scope",
+          "id": "A15",
+          "location": "all source chord labels and dittos",
+          "reason": "Visible evidence: complete row inspections 2,7,9,21,13/26,15,24. The percent-like strokes below successive bars are harmony dittos, not musical repeat bars. Musical context was not used to fill blank harmony positions.",
+          "uncertainty": "Low except m42 suffix and precise intra-bar typography."
+        },
+        {
+          "adopted_choice": "Executable route A B D B C A B C STOP, or source bars 1;2-29;2-28;30-45;1;2-28;30-45;STOP. Preserve conventional printed repeats/endings, but use the header route as the sole execution order. No invented left repeat at C and no invented Fine at m29.",
+          "alternatives": [
+            "Candidate repeats C twice, then D.C. only to first ending.",
+            "Final repeat returns to B rather than the literal beginning.",
+            "D.C. includes the first ending m29 on its return.",
+            "Repeat internal repeats on the D.C.; stop at final cadence after that larger route."
+          ],
+          "category": "form_reconstruction",
+          "id": "A16",
+          "location": "page 1 ending brackets, final repeat, and closing writing on rows 7-8",
+          "reason": "Visible evidence: first/second brackets in 13, final repeat and D.C.-like capitals in 24/41, continuation resembling 2a Seg. in 42. The combined wording is provisionally D.C. 1a y 2a Seg., suggesting both principal sections return. There is no visible new C-start repeat or Fine at the first ending. Adopt one D.C., no internal repeats on the return, second ending then final cadence; stopping on second arrival is editorial. Musical context: this makes a finite return through both contrasting sections and closes at the final tonic cadence.",
+          "uncertainty": "High for exact words and customary repeat execution; the route is a declared best-effort interpretation, not human approval."
+        },
+        {
+          "adopted_choice": "Seven musical rows completely mapped to m1-45; row8 closing text only; remaining staves blank apart from folio 89. No additional music appended as if it were source. Fermatas, local accidentals, written rests, beamed figures, harmony dittos, endings and return signs all reviewed.",
+          "alternatives": [],
+          "category": "coverage_and_notation_audit",
+          "id": "A17",
+          "location": "entire supplied page",
+          "reason": "Visible evidence: inspection 1 establishes full-page coverage; every musical row has independent surrounding views and close-ups noted above. Row map is included in the ABC comments. No secure pitch tie was found; the one adopted short connecting curve is a slur. Header route has 116 performed bars and terminates after its last C part. Final self-check re-read the unflagged m9/m13 (45/44), the scale parallels, high-ledger m40 (39), and the complete closing row (24).",
+          "uncertainty": "Only the specifically identified source questions remain; this audit is not an external approval."
+        }
+      ],
+      "event_counts": {
+        "chords": {
+          "expected": 45,
+          "matched": 32,
+          "predicted": 41
+        },
+        "notes": {
+          "expected": 194,
+          "matched": 171,
+          "predicted": 194
+        },
+        "rests": {
+          "expected": 3,
+          "matched": 1,
+          "predicted": 2
+        }
+      },
+      "metric_status": {
+        "editorial_acceptance": "requires_musical_adjudication",
+        "form_exact_match": "edition_route_only",
+        "source_note_f1": "model_audited_source_subset"
+      },
+      "metrics": {
+        "bar_coverage": 1.0,
+        "chord_f1": 0.7441860465116279,
+        "cost_usd": null,
+        "edition_exact_bar_rate": 0.4666666666666667,
+        "edition_note_f1": 0.8814432989690721,
+        "editorial_acceptance": null,
+        "elapsed_seconds": null,
+        "form_exact_match": false,
+        "human_review_minutes": null,
+        "meter_valid_rate": 0.9777777777777777,
+        "source_note_f1": 0.8333333333333334
+      },
+      "mismatches": [
+        {
+          "candidate_measure": 1,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 1
+        },
+        {
+          "candidate_measure": 2,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 2
+        },
+        {
+          "candidate_measure": 4,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 4
+        },
+        {
+          "candidate_measure": 5,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 5
+        },
+        {
+          "candidate_measure": 6,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 6
+        },
+        {
+          "candidate_measure": 8,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 8
+        },
+        {
+          "candidate_measure": 9,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 9
+        },
+        {
+          "candidate_measure": 10,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 10
+        },
+        {
+          "candidate_measure": 12,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 12
+        },
+        {
+          "candidate_measure": 14,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 14
+        },
+        {
+          "candidate_measure": 15,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 15
+        },
+        {
+          "candidate_measure": 16,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 16
+        },
+        {
+          "candidate_measure": 20,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 20
+        },
+        {
+          "candidate_measure": 21,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 21
+        },
+        {
+          "candidate_measure": 23,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 23
+        },
+        {
+          "candidate_measure": 25,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 25
+        },
+        {
+          "candidate_measure": 27,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 27
+        },
+        {
+          "candidate_measure": 30,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 30
+        },
+        {
+          "candidate_measure": 31,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 31
+        },
+        {
+          "candidate_measure": 32,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 32
+        },
+        {
+          "candidate_measure": 41,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 41
+        },
+        {
+          "candidate_measure": 42,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 42
+        },
+        {
+          "candidate_measure": 43,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 43
+        },
+        {
+          "candidate_measure": 44,
+          "detail": "Notes, durations, rests, ties, chords or meter differ from the edition.",
+          "kind": "notation",
+          "measure": 44
+        },
+        {
+          "detail": "Performed bar/ending route differs from the selected edition.",
+          "kind": "form",
+          "measure": null
+        },
+        {
+          "candidate_measure": 4,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 4,
+          "source_bar": 4,
+          "source_location": {
+            "measure": 4,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 5,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 5,
+          "source_bar": 5,
+          "source_location": {
+            "measure": 5,
+            "page": 1,
+            "system": 1
+          }
+        },
+        {
+          "candidate_measure": 42,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 42,
+          "source_bar": 42,
+          "source_location": {
+            "measure": 1,
+            "page": 1,
+            "system": 7
+          }
+        },
+        {
+          "candidate_measure": 43,
+          "detail": "Notes differ in an explicitly audited PDF region (partial audit).",
+          "kind": "audited_source_notes",
+          "measure": 43,
+          "source_bar": 43,
+          "source_location": {
+            "measure": 2,
+            "page": 1,
+            "system": 7
+          }
+        }
+      ],
+      "runtime": {
+        "api_adapter_sha256": "3f13b87a3bfbe61d5d0bd7122efb0d9ba3d408998e6b1c13538738a26b5dfa38",
+        "auth_mode": "openai_api",
+        "billing": {
+          "budget_usd": null,
+          "charged_or_reserved_usd": "6.717130",
+          "cost_basis": "conservative_estimate_not_invoice",
+          "cost_estimate_usd": "6.717130",
+          "cost_scope": "stage",
+          "cost_usd": null,
+          "entries": [
+            {
+              "cached_input_tokens": 0,
+              "charged_usd": "0.2111",
+              "input_tokens": 8400,
+              "input_tokens_counted": 8400,
+              "max_output_tokens": 25000,
+              "output_tokens": 22,
+              "request": 1,
+              "reserved_usd": "1.46",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 8397,
+              "charged_usd": "0.115122",
+              "input_tokens": 12264,
+              "input_tokens_counted": 12264,
+              "max_output_tokens": 25000,
+              "output_tokens": 201,
+              "request": 2,
+              "reserved_usd": "1.5566",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 12261,
+              "charged_usd": "0.048711",
+              "input_tokens": 13363,
+              "input_tokens_counted": 13363,
+              "max_output_tokens": 25000,
+              "output_tokens": 178,
+              "request": 3,
+              "reserved_usd": "1.584075",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 13360,
+              "charged_usd": "0.10031",
+              "input_tokens": 13910,
+              "input_tokens_counted": 13910,
+              "max_output_tokens": 25000,
+              "output_tokens": 1464,
+              "request": 4,
+              "reserved_usd": "1.59775",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 13907,
+              "charged_usd": "0.076857",
+              "input_tokens": 16241,
+              "input_tokens_counted": 16241,
+              "max_output_tokens": 25000,
+              "output_tokens": 92,
+              "request": 5,
+              "reserved_usd": "1.656025",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 16238,
+              "charged_usd": "0.058738",
+              "input_tokens": 16822,
+              "input_tokens_counted": 16822,
+              "max_output_tokens": 25000,
+              "output_tokens": 558,
+              "request": 6,
+              "reserved_usd": "1.67055",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 16819,
+              "charged_usd": "0.093069",
+              "input_tokens": 17837,
+              "input_tokens_counted": 17837,
+              "max_output_tokens": 25000,
+              "output_tokens": 1016,
+              "request": 7,
+              "reserved_usd": "1.695925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 17834,
+              "charged_usd": "0.065934",
+              "input_tokens": 19594,
+              "input_tokens_counted": 19594,
+              "max_output_tokens": 25000,
+              "output_tokens": 82,
+              "request": 8,
+              "reserved_usd": "1.73985",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 19591,
+              "charged_usd": "0.047416",
+              "input_tokens": 19924,
+              "input_tokens_counted": 19924,
+              "max_output_tokens": 25000,
+              "output_tokens": 390,
+              "request": 9,
+              "reserved_usd": "1.7481",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 19921,
+              "charged_usd": "0.068346",
+              "input_tokens": 21062,
+              "input_tokens_counted": 21062,
+              "max_output_tokens": 25000,
+              "output_tokens": 398,
+              "request": 10,
+              "reserved_usd": "1.77655",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 21059,
+              "charged_usd": "0.064134",
+              "input_tokens": 21666,
+              "input_tokens_counted": 21666,
+              "max_output_tokens": 25000,
+              "output_tokens": 558,
+              "request": 11,
+              "reserved_usd": "1.79165",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 21663,
+              "charged_usd": "0.067313",
+              "input_tokens": 22549,
+              "input_tokens_counted": 22549,
+              "max_output_tokens": 25000,
+              "output_tokens": 470,
+              "request": 12,
+              "reserved_usd": "1.813725",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 22546,
+              "charged_usd": "0.063546",
+              "input_tokens": 23390,
+              "input_tokens_counted": 23390,
+              "max_output_tokens": 25000,
+              "output_tokens": 398,
+              "request": 13,
+              "reserved_usd": "1.83475",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 23387,
+              "charged_usd": "0.068512",
+              "input_tokens": 24520,
+              "input_tokens_counted": 24520,
+              "max_output_tokens": 25000,
+              "output_tokens": 336,
+              "request": 14,
+              "reserved_usd": "1.863",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 24517,
+              "charged_usd": "0.109692",
+              "input_tokens": 25130,
+              "input_tokens_counted": 25130,
+              "max_output_tokens": 25000,
+              "output_tokens": 1397,
+              "request": 15,
+              "reserved_usd": "1.87825",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 25127,
+              "charged_usd": "0.161852",
+              "input_tokens": 27276,
+              "input_tokens_counted": 27276,
+              "max_output_tokens": 25000,
+              "output_tokens": 1660,
+              "request": 16,
+              "reserved_usd": "1.9319",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 27273,
+              "charged_usd": "0.127773",
+              "input_tokens": 29419,
+              "input_tokens_counted": 29419,
+              "max_output_tokens": 25000,
+              "output_tokens": 937,
+              "request": 17,
+              "reserved_usd": "1.985475",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 29416,
+              "charged_usd": "0.097191",
+              "input_tokens": 30705,
+              "input_tokens_counted": 30705,
+              "max_output_tokens": 25000,
+              "output_tokens": 711,
+              "request": 18,
+              "reserved_usd": "2.017625",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 30702,
+              "charged_usd": "0.057502",
+              "input_tokens": 31666,
+              "input_tokens_counted": 31666,
+              "max_output_tokens": 25000,
+              "output_tokens": 54,
+              "request": 19,
+              "reserved_usd": "2.04165",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 31663,
+              "charged_usd": "0.057763",
+              "input_tokens": 31999,
+              "input_tokens_counted": 31999,
+              "max_output_tokens": 25000,
+              "output_tokens": 354,
+              "request": 20,
+              "reserved_usd": "2.049975",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 31996,
+              "charged_usd": "0.086946",
+              "input_tokens": 33078,
+              "input_tokens_counted": 33078,
+              "max_output_tokens": 25000,
+              "output_tokens": 558,
+              "request": 21,
+              "reserved_usd": "2.07695",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 33075,
+              "charged_usd": "0.073425",
+              "input_tokens": 34385,
+              "input_tokens_counted": 34385,
+              "max_output_tokens": 25000,
+              "output_tokens": 152,
+              "request": 22,
+              "reserved_usd": "2.109625",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 0,
+              "charged_usd": "0.8977",
+              "input_tokens": 34824,
+              "input_tokens_counted": 34824,
+              "max_output_tokens": 25000,
+              "output_tokens": 542,
+              "request": 23,
+              "reserved_usd": "2.1206",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 34821,
+              "charged_usd": "0.065071",
+              "input_tokens": 35691,
+              "input_tokens_counted": 35691,
+              "max_output_tokens": 25000,
+              "output_tokens": 170,
+              "request": 24,
+              "reserved_usd": "2.142275",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 35688,
+              "charged_usd": "0.105413",
+              "input_tokens": 37065,
+              "input_tokens_counted": 37065,
+              "max_output_tokens": 25000,
+              "output_tokens": 706,
+              "request": 25,
+              "reserved_usd": "2.176625",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 37062,
+              "charged_usd": "0.096287",
+              "input_tokens": 38103,
+              "input_tokens_counted": 38103,
+              "max_output_tokens": 25000,
+              "output_tokens": 664,
+              "request": 26,
+              "reserved_usd": "2.202575",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 38100,
+              "charged_usd": "0.116825",
+              "input_tokens": 39333,
+              "input_tokens_counted": 39333,
+              "max_output_tokens": 25000,
+              "output_tokens": 958,
+              "request": 27,
+              "reserved_usd": "2.233325",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 39330,
+              "charged_usd": "0.190155",
+              "input_tokens": 40557,
+              "input_tokens_counted": 40557,
+              "max_output_tokens": 25000,
+              "output_tokens": 2403,
+              "request": 28,
+              "reserved_usd": "2.263925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 40554,
+              "charged_usd": "0.149229",
+              "input_tokens": 43837,
+              "input_tokens_counted": 43837,
+              "max_output_tokens": 25000,
+              "output_tokens": 532,
+              "request": 29,
+              "reserved_usd": "2.345925",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 43834,
+              "charged_usd": "0.145884",
+              "input_tokens": 44636,
+              "input_tokens_counted": 44636,
+              "max_output_tokens": 25000,
+              "output_tokens": 1640,
+              "request": 30,
+              "reserved_usd": "2.3659",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 44633,
+              "charged_usd": "0.105183",
+              "input_tokens": 46541,
+              "input_tokens_counted": 46541,
+              "max_output_tokens": 25000,
+              "output_tokens": 257,
+              "request": 31,
+              "reserved_usd": "2.413525",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 46538,
+              "charged_usd": "0.094613",
+              "input_tokens": 47049,
+              "input_tokens_counted": 47049,
+              "max_output_tokens": 25000,
+              "output_tokens": 706,
+              "request": 32,
+              "reserved_usd": "2.426225",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 47046,
+              "charged_usd": "0.098446",
+              "input_tokens": 48000,
+              "input_tokens_counted": 48000,
+              "max_output_tokens": 25000,
+              "output_tokens": 551,
+              "request": 33,
+              "reserved_usd": "2.45",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 47997,
+              "charged_usd": "0.114972",
+              "input_tokens": 48846,
+              "input_tokens_counted": 48846,
+              "max_output_tokens": 25000,
+              "output_tokens": 915,
+              "request": 34,
+              "reserved_usd": "2.47115",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 48843,
+              "charged_usd": "0.106943",
+              "input_tokens": 49989,
+              "input_tokens_counted": 49989,
+              "max_output_tokens": 25000,
+              "output_tokens": 589,
+              "request": 35,
+              "reserved_usd": "2.499725",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 49986,
+              "charged_usd": "0.158761",
+              "input_tokens": 50889,
+              "input_tokens_counted": 50889,
+              "max_output_tokens": 25000,
+              "output_tokens": 1724,
+              "request": 36,
+              "reserved_usd": "2.522225",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 50886,
+              "charged_usd": "0.180136",
+              "input_tokens": 52908,
+              "input_tokens_counted": 52908,
+              "max_output_tokens": 25000,
+              "output_tokens": 1574,
+              "request": 37,
+              "reserved_usd": "2.5727",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 52905,
+              "charged_usd": "0.151805",
+              "input_tokens": 54709,
+              "input_tokens_counted": 54709,
+              "max_output_tokens": 25000,
+              "output_tokens": 1076,
+              "request": 38,
+              "reserved_usd": "2.617725",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 54706,
+              "charged_usd": "0.090556",
+              "input_tokens": 56032,
+              "input_tokens_counted": 56032,
+              "max_output_tokens": 25000,
+              "output_tokens": 54,
+              "request": 39,
+              "reserved_usd": "2.6508",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 56029,
+              "charged_usd": "0.083079",
+              "input_tokens": 56387,
+              "input_tokens_counted": 56387,
+              "max_output_tokens": 25000,
+              "output_tokens": 362,
+              "request": 40,
+              "reserved_usd": "2.659675",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 56384,
+              "charged_usd": "0.076584",
+              "input_tokens": 57066,
+              "input_tokens_counted": 57066,
+              "max_output_tokens": 25000,
+              "output_tokens": 63,
+              "request": 41,
+              "reserved_usd": "2.67665",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 57063,
+              "charged_usd": "0.071338",
+              "input_tokens": 57416,
+              "input_tokens_counted": 57416,
+              "max_output_tokens": 25000,
+              "output_tokens": 109,
+              "request": 42,
+              "reserved_usd": "2.6854",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 57413,
+              "charged_usd": "0.356088",
+              "input_tokens": 57794,
+              "input_tokens_counted": 57794,
+              "max_output_tokens": 25000,
+              "output_tokens": 5783,
+              "request": 43,
+              "reserved_usd": "2.69485",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 57791,
+              "charged_usd": "0.301216",
+              "input_tokens": 64224,
+              "input_tokens_counted": 64224,
+              "max_output_tokens": 25000,
+              "output_tokens": 1652,
+              "request": 44,
+              "reserved_usd": "2.8556",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 64221,
+              "charged_usd": "0.119696",
+              "input_tokens": 66126,
+              "input_tokens_counted": 66126,
+              "max_output_tokens": 25000,
+              "output_tokens": 157,
+              "request": 45,
+              "reserved_usd": "2.90315",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 66123,
+              "charged_usd": "0.213948",
+              "input_tokens": 66544,
+              "input_tokens_counted": 66544,
+              "max_output_tokens": 25000,
+              "output_tokens": 2746,
+              "request": 46,
+              "reserved_usd": "2.9136",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 66541,
+              "charged_usd": "0.444266",
+              "input_tokens": 69312,
+              "input_tokens_counted": 69312,
+              "max_output_tokens": 25000,
+              "output_tokens": 6169,
+              "request": 47,
+              "reserved_usd": "2.9828",
+              "status": "usage_reconciled_conservative"
+            },
+            {
+              "cached_input_tokens": 69309,
+              "charged_usd": "0.261684",
+              "input_tokens": 76496,
+              "input_tokens_counted": 76496,
+              "max_output_tokens": 25000,
+              "output_tokens": 254,
+              "request": 48,
+              "reserved_usd": "3.1624",
+              "status": "usage_reconciled_conservative"
+            }
+          ],
+          "limit_usd": null,
+          "pricing": {
+            "cache_write_per_million_usd": "25",
+            "cached_input_per_million_usd": "1",
+            "input_per_million_usd": "10",
+            "max_input_tokens": 272000,
+            "model": "gpt-6-astra",
+            "output_per_million_usd": "50",
+            "source_url": "https://developers.openai.com/api/docs/pricing",
+            "verified_at": "2026-10-29"
+          },
+          "remaining_usd": null,
+          "schema_version": 1,
+          "spending_policy": "fixed_output_no_dollar_cap"
+        },
+        "budget_exhausted": false,
+        "budget_usd": null,
+        "catalog_overrides": null,
+        "complete": true,
+        "completed_turn": true,
+        "completion_gate": {
+          "abc_sha256": "def39a87b261469612b42b2fd51a58d4b4bbeb7e4cd7aeb67400c14e16392a13",
+          "accepted_source_exceptions": [
+            {
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "resolution": {
+                "abc_sha256": "def39a87b261469612b42b2fd51a58d4b4bbeb7e4cd7aeb67400c14e16392a13",
+                "adopted_choice": "Retain ^G A6: a full-sized G-sharp eighth followed by A4 dotted half, totaling seven eighths under the prevailing written 3/4.",
+                "category": "source_irregular_meter",
+                "inspection_call": 37,
+                "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+                "location": "page 1, row 2 first bar; ABC source measure 8, part B",
+                "reason": "Inspection 37, with surrounding row in inspection 7 and earlier close-up 8, shows the flagged first note and large hollow following head with a nearby dot. The adopted dotted-half reading is overfull in the source; shortening it or adding/removing rests would not be supported. The accidental is independently compared with the writer's other sharps. This is a declared source-reading exception, not a meter correction inferred from the validator.",
+                "uncertainty": "High: the dot is displaced, and the first note could have been intended as an unmeasured grace note. A damaged overlapping voice is another possibility, but its alignment and independent head cannot be securely recovered."
+              },
+              "source_inspection": {
+                "crop": [
+                  0.071,
+                  0.206,
+                  0.168,
+                  0.277
+                ],
+                "dpi": 320,
+                "page": 1,
+                "path": "inspections/inspect_037.png",
+                "pixel_box": [
+                  193,
+                  725,
+                  457,
+                  976
+                ],
+                "returned_pixels": [
+                  264,
+                  251
+                ],
+                "sha256": "817e43028f2e7cb90a9d439e1d82829c0decbd1ae8a41b99ee91a452ecbe9405",
+                "source_pixels": [
+                  2720,
+                  3520
+                ]
+              }
+            }
+          ],
+          "complete_claimed": true,
+          "completion_ready": true,
+          "issues": [
+            {
+              "detail": "Inspect the source; do not pad rests automatically.",
+              "expected_ticks": 1152,
+              "issue_id": "8350be9da930aed05f9b356927e197620e192e54d62c0d9f0c1431efa60e0973",
+              "kind": "meter",
+              "measure": 8,
+              "observed_ticks": 1344,
+              "partial_reason": null
+            }
+          ],
+          "musical_accuracy": "not_measured_by_completion_gate",
+          "next_action": "Ready for the next workflow stage; musical review remains necessary.",
+          "policy_version": "completion_gate_v1",
+          "resolution_errors": [],
+          "source_coverage": "not_measured_by_completion_gate",
+          "status": "ready_with_source_exceptions",
+          "unresolved_issues": []
+        },
+        "completion_policy": "completion_gate_v1",
+        "completion_policy_sha256": "fb30bb6a9a045c098407f09feed40a4c95646fc29a57a354380da133c4240194",
+        "cost_basis": "conservative_estimate_not_invoice",
+        "cost_estimate_usd": "6.717130",
+        "cost_scope": "stage",
+        "cost_usd": null,
+        "deadline_seconds": 1800,
+        "elapsed_seconds": 911.6307537079992,
+        "error": null,
+        "finished_at": "2026-10-30T00:23:56.368471+00:00",
+        "human_review_minutes": null,
+        "independent_reader": true,
+        "initial_abc_sha256": "ba91d968d01cfca0ca416c68f5031422dde7a5f528719a9b02ccef38ce350f92",
+        "input_seal_sha256": "5fb1f4e29440b9a233daaedb489349f43774d4b971a76d902afafbbd5827f5e8",
+        "max_output_tokens_per_response": 25000,
+        "model": "gpt-6-astra",
+        "native_tool_mode": "responses_function_calling",
+        "quarantined": false,
+        "reasoning_effort": "xhigh",
+        "reference_access": false,
+        "resolved_model": "gpt-6-astra",
+        "returncode": 0,
+        "schema_version": 1,
+        "selected_checkpoint": "artifacts/drafts/draft_004",
+        "source_execution": "sandboxed_source_process",
+        "source_pdf_sha256": "1b752c57fa5b330f430ab23db1beaa581f4b06bfadd1d0b5f3e94121dc037b24",
+        "spending_policy": "fixed_output_no_dollar_cap",
+        "stage": "reviewed",
+        "started_at": "2026-10-30T00:08:44.651031+00:00",
+        "status": "complete",
+        "timed_out": false,
+        "tool_calls": [
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "inspect_source"
+          },
+          {
+            "status": "completed",
+            "tool": "save_draft"
+          }
+        ],
+        "usage": {
+          "input_tokens": 1835574,
+          "input_tokens_details": {
+            "cached_tokens": 1724555
+          },
+          "output_tokens": 44342,
+          "output_tokens_details": {
+            "reasoning_tokens": 29603
+          },
+          "total_tokens": 1879916
+        },
+        "workflow_id": "adaptive_source_inspection_author_then_independent_reader_v1"
+      },
+      "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment",
+      "status": "partial",
+      "validation": {
+        "counts": {
+          "chord_labels": 41,
+          "measures": 45,
+          "noteheads": 194,
+          "performed_measures": 116,
+          "rests": 2
+        },
+        "issues": [
+          {
+            "detail": "Inspect source and voices; do not automatically pad with rests.",
+            "expected_ticks": 1152,
+            "kind": "meter",
+            "measure": 8,
+            "observed_ticks": 1344,
+            "partial_reason": null
+          }
+        ],
+        "musical_accuracy": "not_measured_by_validation",
+        "route_status": "resolved",
+        "valid": true,
+        "warnings": []
+      }
+    }
+  },
+  "terminal_pair_verified_before_reference_content": true,
+  "traces": {
+    "initial": {
+      "draft_checkpoints": 7,
+      "generation_requests": 51,
+      "source_crops": 42
+    },
+    "reviewed": {
+      "draft_checkpoints": 4,
+      "generation_requests": 48,
+      "source_crops": 42
+    }
+  }
+}

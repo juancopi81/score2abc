@@ -1,0 +1,1580 @@
+{
+  "schema_version": 1,
+  "work": "atardecer",
+  "source_pdf_sha256": "429790b781629edb50895143a4189b389e8521c6bbd526a84acc016de0735088",
+  "abc_sha256": "1c3fa7729783a64273090151258f6db0a3c4e41e15c1662a7d459619f18ee917",
+  "scope": "Consumed source identity mapping; not a note accuracy audit or new human approval",
+  "source_rows": [
+    {
+      "page": 1,
+      "system": 1,
+      "source_ids": [
+        "p1:s01:m01",
+        "p1:s01:m02",
+        "p1:s01:m03",
+        "p1:s01:m04",
+        "p1:s01:m05",
+        "p1:s01:m06"
+      ],
+      "evidence": "Six sounding spans. Four-bar Lento introduction ends at the fermata/repeat boundary, followed by two A bars. Independent sustained lower voices are within the same spans; no pickup."
+    },
+    {
+      "page": 1,
+      "system": 2,
+      "source_ids": [
+        "p1:s02:m01",
+        "p1:s02:m02",
+        "p1:s02:m03",
+        "p1:s02:m04",
+        "p1:s02:m05",
+        "p1:s02:m06",
+        "p1:s02:m07"
+      ],
+      "evidence": "Seven spans. First two retain cross-bar lower-voice notation; voice layers do not create extra bars."
+    },
+    {
+      "page": 1,
+      "system": 3,
+      "source_ids": [
+        "p1:s03:m01",
+        "p1:s03:m02",
+        "p1:s03:m03",
+        "p1:s03:m04",
+        "p1:s03:m05",
+        "p1:s03:m06"
+      ],
+      "evidence": "Six spans. A body ends at row-right C/G7 bar; the numbered endings begin on row 4."
+    },
+    {
+      "page": 1,
+      "system": 4,
+      "source_ids": [
+        "p1:s04:m01",
+        "p1:s04:m02",
+        "p1:s04:m03",
+        "p1:s04:m04",
+        "p1:s04:m05",
+        "p1:s04:m06"
+      ],
+      "evidence": "Six spans: A first ending, A second ending, B figure, ditto bar, B figure, ditto bar. Each ditto has its own barline interval."
+    },
+    {
+      "page": 1,
+      "system": 5,
+      "source_ids": [
+        "p1:s05:m01",
+        "p1:s05:m02",
+        "p1:s05:m03",
+        "p1:s05:m04",
+        "p1:s05:m05",
+        "p1:s05:m06"
+      ],
+      "evidence": "Six spans; the final one is a one-bar-repeat sign referring to the preceding figure."
+    },
+    {
+      "page": 1,
+      "system": 6,
+      "source_ids": [
+        "p1:s06:m01",
+        "p1:s06:m02",
+        "p1:s06:m03",
+        "p1:s06:m04",
+        "p1:s06:m05",
+        "p1:s06:m06"
+      ],
+      "evidence": "Six spans; the first B ending is the last bar, under bracket 1, ending at repeat dots."
+    },
+    {
+      "page": 1,
+      "system": 7,
+      "source_ids": [
+        "p1:s07:m01",
+        "p1:s07:m02",
+        "p1:s07:m03"
+      ],
+      "evidence": "Three sounding spans: second B ending, bridge after an intervening blank navigation area, Coda entrance after four flats. Navigation-only ruled space is excluded."
+    },
+    {
+      "page": 1,
+      "system": 8,
+      "source_ids": [
+        "p1:s08:m01",
+        "p1:s08:m02",
+        "p1:s08:m03",
+        "p1:s08:m04",
+        "p1:s08:m05",
+        "p1:s08:m06",
+        "p1:s08:m07",
+        "p1:s08:m08"
+      ],
+      "evidence": "Eight spans under inherited four flats; all eight have musical ink and distinct boundaries."
+    },
+    {
+      "page": 1,
+      "system": 9,
+      "source_ids": [
+        "p1:s09:m01",
+        "p1:s09:m02",
+        "p1:s09:m03",
+        "p1:s09:m04",
+        "p1:s09:m05",
+        "p1:s09:m06"
+      ],
+      "evidence": "Six spans. Last bar starts the first Coda ending, which continues on row 10."
+    },
+    {
+      "page": 1,
+      "system": 10,
+      "source_ids": [
+        "p1:s10:m01",
+        "p1:s10:m02",
+        "p1:s10:m03"
+      ],
+      "evidence": "Three sounding spans: tail of first ending, first bar of second ending, second bar of second ending. Long post-double-bar calligraphy/navigation staff adds no music."
+    }
+  ],
+  "source_bars": [
+    {
+      "id": "p1:s01:m01",
+      "page": 1,
+      "system": 1,
+      "measure": 1,
+      "written_bar": 1,
+      "kind": "primary",
+      "evidence": "Opening Lento/3/4 span: sustained lower stack with a moving upper beamed figure; first interior barline follows it.",
+      "special_cases": [
+        "independent_lower_hold"
+      ]
+    },
+    {
+      "id": "p1:s01:m02",
+      "page": 1,
+      "system": 1,
+      "measure": 2,
+      "written_bar": 2,
+      "kind": "primary",
+      "evidence": "Second span: upper note and four-note figure over a distinct low sustained stack.",
+      "special_cases": [
+        "independent_lower_hold"
+      ]
+    },
+    {
+      "id": "p1:s01:m03",
+      "page": 1,
+      "system": 1,
+      "measure": 3,
+      "written_bar": 3,
+      "kind": "primary",
+      "evidence": "Third span: another upper moving figure above a low sustained stack, before the fermata span.",
+      "special_cases": [
+        "independent_lower_hold"
+      ]
+    },
+    {
+      "id": "p1:s01:m04",
+      "page": 1,
+      "system": 1,
+      "measure": 4,
+      "written_bar": 4,
+      "kind": "primary",
+      "evidence": "Fourth span: isolated hollow-note/arpeggio-looking group under fermata; ends at opening repeat/navigation strokes.",
+      "special_cases": [
+        "accepted_recording_informed_arpeggio_within_source_bar"
+      ]
+    },
+    {
+      "id": "p1:s01:m05",
+      "page": 1,
+      "system": 1,
+      "measure": 5,
+      "written_bar": 5,
+      "kind": "primary",
+      "evidence": "Fifth span begins the faster section after the repeat boundary, with stacked heads and a short moving middle figure; C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m06",
+      "page": 1,
+      "system": 1,
+      "measure": 6,
+      "written_bar": 6,
+      "kind": "primary",
+      "evidence": "Sixth span has stacked heads and a descending middle figure, with a low isolated mark; ends at right edge.",
+      "special_cases": [
+        "accepted_low_glyph_interpretation"
+      ]
+    },
+    {
+      "id": "p1:s02:m01",
+      "page": 1,
+      "system": 2,
+      "measure": 1,
+      "written_bar": 7,
+      "kind": "primary",
+      "evidence": "First span has independent lower heads and an upper moving figure, with a lower curve extending across its closing barline; Dm below.",
+      "special_cases": [
+        "cross_bar_lower_voice_tie"
+      ]
+    },
+    {
+      "id": "p1:s02:m02",
+      "page": 1,
+      "system": 2,
+      "measure": 2,
+      "written_bar": 8,
+      "kind": "primary",
+      "evidence": "Second span continues the low line under upper rests; distinct vertical boundary follows the last low head.",
+      "special_cases": [
+        "cross_bar_lower_voice_tie"
+      ]
+    },
+    {
+      "id": "p1:s02:m03",
+      "page": 1,
+      "system": 2,
+      "measure": 3,
+      "written_bar": 9,
+      "kind": "primary",
+      "evidence": "Third span contains stacked high heads followed by paired short events; G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m04",
+      "page": 1,
+      "system": 2,
+      "measure": 4,
+      "written_bar": 10,
+      "kind": "primary",
+      "evidence": "Fourth span is another stacked-head figure with a falling final pair.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m05",
+      "page": 1,
+      "system": 2,
+      "measure": 5,
+      "written_bar": 11,
+      "kind": "primary",
+      "evidence": "Fifth span begins a stack then descends, ending at a low ledger head; C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m06",
+      "page": 1,
+      "system": 2,
+      "measure": 6,
+      "written_bar": 12,
+      "kind": "primary",
+      "evidence": "Sixth span has a beamed initial pair then two longer lower heads.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m07",
+      "page": 1,
+      "system": 2,
+      "measure": 7,
+      "written_bar": 13,
+      "kind": "primary",
+      "evidence": "Last span has high stack then shorter middle heads, ending in a lower dyad at the row-right barline.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m01",
+      "page": 1,
+      "system": 3,
+      "measure": 1,
+      "written_bar": 14,
+      "kind": "primary",
+      "evidence": "First span is rest-led and rises to a high head; C7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m02",
+      "page": 1,
+      "system": 3,
+      "measure": 2,
+      "written_bar": 15,
+      "kind": "primary",
+      "evidence": "Second span contains the high ledger stack and descending paired heads; F below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m03",
+      "page": 1,
+      "system": 3,
+      "measure": 3,
+      "written_bar": 16,
+      "kind": "primary",
+      "evidence": "Third span is rest-led with a curved short-note figure; Fm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m04",
+      "page": 1,
+      "system": 3,
+      "measure": 4,
+      "written_bar": 17,
+      "kind": "primary",
+      "evidence": "Fourth span starts with a stack and contains changing dyads across the staff; C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m05",
+      "page": 1,
+      "system": 3,
+      "measure": 5,
+      "written_bar": 18,
+      "kind": "primary",
+      "evidence": "Fifth span starts with a stack and has a slurred single-note figure; G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m06",
+      "page": 1,
+      "system": 3,
+      "measure": 6,
+      "written_bar": 19,
+      "kind": "primary",
+      "evidence": "Final span contains a note, rest and final stack, with C and G7 below; the A body ends before the next-row numbered endings.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m01",
+      "page": 1,
+      "system": 4,
+      "measure": 1,
+      "written_bar": 20,
+      "kind": "primary",
+      "evidence": "First numbered ending: tall opening stack followed by ascending short heads; closes with repeat strokes.",
+      "special_cases": [
+        "first_ending"
+      ]
+    },
+    {
+      "id": "p1:s04:m02",
+      "page": 1,
+      "system": 4,
+      "measure": 2,
+      "written_bar": 21,
+      "kind": "primary",
+      "evidence": "Second numbered ending: high opening head and descending beamed line; closes at shared repeat boundary.",
+      "special_cases": [
+        "second_ending"
+      ]
+    },
+    {
+      "id": "p1:s04:m03",
+      "page": 1,
+      "system": 4,
+      "measure": 3,
+      "written_bar": 22,
+      "kind": "primary",
+      "evidence": "B entrance: six short heads in alternating low/high register under a broad curve, G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m04",
+      "page": 1,
+      "system": 4,
+      "measure": 4,
+      "written_bar": 23,
+      "kind": "primary",
+      "evidence": "One-bar-repeat slash with flanking dots in its own ruled span; it refers to the preceding musical bar.",
+      "special_cases": [
+        "one_bar_repeat_symbol",
+        "content_from_p1:s04:m03"
+      ]
+    },
+    {
+      "id": "p1:s04:m05",
+      "page": 1,
+      "system": 4,
+      "measure": 5,
+      "written_bar": 24,
+      "kind": "primary",
+      "evidence": "Six short heads in a related alternating-register figure, C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m06",
+      "page": 1,
+      "system": 4,
+      "measure": 6,
+      "written_bar": 25,
+      "kind": "primary",
+      "evidence": "Second one-bar-repeat slash with dots in its own span at row end; it refers to the immediately preceding bar.",
+      "special_cases": [
+        "one_bar_repeat_symbol",
+        "content_from_p1:s04:m05"
+      ]
+    },
+    {
+      "id": "p1:s05:m01",
+      "page": 1,
+      "system": 5,
+      "measure": 1,
+      "written_bar": 26,
+      "kind": "primary",
+      "evidence": "First span: low/high arpeggiated figure under a curve, G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m02",
+      "page": 1,
+      "system": 5,
+      "measure": 2,
+      "written_bar": 27,
+      "kind": "primary",
+      "evidence": "Second span: deeper ledger-register arpeggio with a broad slur.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m03",
+      "page": 1,
+      "system": 5,
+      "measure": 3,
+      "written_bar": 28,
+      "kind": "primary",
+      "evidence": "Third span starts on a low ledger head then rises and falls; C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m04",
+      "page": 1,
+      "system": 5,
+      "measure": 4,
+      "written_bar": 29,
+      "kind": "primary",
+      "evidence": "Fourth span starts high, falls, then rises again under a curve.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m05",
+      "page": 1,
+      "system": 5,
+      "measure": 5,
+      "written_bar": 30,
+      "kind": "primary",
+      "evidence": "Fifth span has six alternating-register short heads, A7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m06",
+      "page": 1,
+      "system": 5,
+      "measure": 6,
+      "written_bar": 31,
+      "kind": "primary",
+      "evidence": "Final span contains a one-bar-repeat slash with dots; a real source bar referring to the preceding figure.",
+      "special_cases": [
+        "one_bar_repeat_symbol",
+        "content_from_p1:s05:m05"
+      ]
+    },
+    {
+      "id": "p1:s06:m01",
+      "page": 1,
+      "system": 6,
+      "measure": 1,
+      "written_bar": 32,
+      "kind": "primary",
+      "evidence": "First span: six short arpeggiated heads, Dm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m02",
+      "page": 1,
+      "system": 6,
+      "measure": 2,
+      "written_bar": 33,
+      "kind": "primary",
+      "evidence": "Second span has the parallel figure with an explicit flat and Fm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m03",
+      "page": 1,
+      "system": 6,
+      "measure": 3,
+      "written_bar": 34,
+      "kind": "primary",
+      "evidence": "Third span has another six-head arpeggiated figure, C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m04",
+      "page": 1,
+      "system": 6,
+      "measure": 4,
+      "written_bar": 35,
+      "kind": "primary",
+      "evidence": "Fourth span has a low/high beamed figure with ledger notes, G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m05",
+      "page": 1,
+      "system": 6,
+      "measure": 5,
+      "written_bar": 36,
+      "kind": "primary",
+      "evidence": "Fifth span climbs through six short heads to high register, C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m06",
+      "page": 1,
+      "system": 6,
+      "measure": 6,
+      "written_bar": 37,
+      "kind": "primary",
+      "evidence": "First ending bracket over a descending six-note line; repeat dots and double strokes close the row.",
+      "special_cases": [
+        "first_ending"
+      ]
+    },
+    {
+      "id": "p1:s07:m01",
+      "page": 1,
+      "system": 7,
+      "measure": 1,
+      "written_bar": 38,
+      "kind": "primary",
+      "evidence": "Second ending at left: high opening head then lower ascending beamed figure, ending before large navigation calligraphy.",
+      "special_cases": [
+        "second_ending",
+        "navigation_only_space_follows"
+      ]
+    },
+    {
+      "id": "p1:s07:m02",
+      "page": 1,
+      "system": 7,
+      "measure": 2,
+      "written_bar": 39,
+      "kind": "primary",
+      "evidence": "Bridge span after the long blank/navigation region: high note, rest and octave-like stacks; closes at repeat strokes before the new key signature.",
+      "special_cases": [
+        "accepted_bridge_rhythm_within_source_bar"
+      ]
+    },
+    {
+      "id": "p1:s07:m03",
+      "page": 1,
+      "system": 7,
+      "measure": 3,
+      "written_bar": 40,
+      "kind": "primary",
+      "evidence": "Coda entrance after four flats: high-register line including ledger notes, Ab below; ends at last right-side barline, with no additional notes after it.",
+      "special_cases": [
+        "four_flat_key_change",
+        "coda_entrance"
+      ]
+    },
+    {
+      "id": "p1:s08:m01",
+      "page": 1,
+      "system": 8,
+      "measure": 1,
+      "written_bar": 41,
+      "kind": "primary",
+      "evidence": "First span starts with rest and high short/dotted notes.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m02",
+      "page": 1,
+      "system": 8,
+      "measure": 2,
+      "written_bar": 42,
+      "kind": "primary",
+      "evidence": "Second span contains high hollow held head followed by a lower head; Bbm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m03",
+      "page": 1,
+      "system": 8,
+      "measure": 3,
+      "written_bar": 43,
+      "kind": "primary",
+      "evidence": "Third span starts with a rest and two high events, the later faint glyph occupying the same bar.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m04",
+      "page": 1,
+      "system": 8,
+      "measure": 4,
+      "written_bar": 44,
+      "kind": "primary",
+      "evidence": "Fourth span contains a high four-event figure, Eb7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m05",
+      "page": 1,
+      "system": 8,
+      "measure": 5,
+      "written_bar": 45,
+      "kind": "primary",
+      "evidence": "Fifth span starts with rest and turns up then down in high register.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m06",
+      "page": 1,
+      "system": 8,
+      "measure": 6,
+      "written_bar": 46,
+      "kind": "primary",
+      "evidence": "Sixth span has a hollow held head followed by a lower head, Ab below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m07",
+      "page": 1,
+      "system": 8,
+      "measure": 7,
+      "written_bar": 47,
+      "kind": "primary",
+      "evidence": "Seventh span starts with a rest and two high events.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s08:m08",
+      "page": 1,
+      "system": 8,
+      "measure": 8,
+      "written_bar": 48,
+      "kind": "primary",
+      "evidence": "Eighth span repeats the high-register Coda entrance shape; closes at the right edge.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s09:m01",
+      "page": 1,
+      "system": 9,
+      "measure": 1,
+      "written_bar": 49,
+      "kind": "primary",
+      "evidence": "First span starts with a rest and descending high notes, Fm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s09:m02",
+      "page": 1,
+      "system": 9,
+      "measure": 2,
+      "written_bar": 50,
+      "kind": "primary",
+      "evidence": "Second span has high hollow held head followed by an explicitly altered lower note, C below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s09:m03",
+      "page": 1,
+      "system": 9,
+      "measure": 3,
+      "written_bar": 51,
+      "kind": "primary",
+      "evidence": "Third span starts with a rest then a short-note chromatic ascent; small flat/natural outlines occur between heads.",
+      "special_cases": [
+        "accepted_accidental_glyph_reading"
+      ]
+    },
+    {
+      "id": "p1:s09:m04",
+      "page": 1,
+      "system": 9,
+      "measure": 4,
+      "written_bar": 52,
+      "kind": "primary",
+      "evidence": "Fourth span is a chromatically marked six-position figure, Dm below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s09:m05",
+      "page": 1,
+      "system": 9,
+      "measure": 5,
+      "written_bar": 53,
+      "kind": "primary",
+      "evidence": "Fifth span continues the chromatic figure across the staff, G7 below.",
+      "special_cases": []
+    },
+    {
+      "id": "p1:s09:m06",
+      "page": 1,
+      "system": 9,
+      "measure": 6,
+      "written_bar": 54,
+      "kind": "primary",
+      "evidence": "First ending begins under bracket 1: low note, rest and two high stacks; C below. Approved final Fine is in this source bar.",
+      "special_cases": [
+        "first_ending",
+        "approved_final_fine"
+      ]
+    },
+    {
+      "id": "p1:s10:m01",
+      "page": 1,
+      "system": 10,
+      "measure": 1,
+      "written_bar": 55,
+      "kind": "primary",
+      "evidence": "Continuation of first ending: rest followed by two high ledger events, ending at repeat strokes.",
+      "special_cases": [
+        "first_ending_tail_omitted_on_final_return"
+      ]
+    },
+    {
+      "id": "p1:s10:m02",
+      "page": 1,
+      "system": 10,
+      "measure": 2,
+      "written_bar": 56,
+      "kind": "primary",
+      "evidence": "Second ending starts under bracket 2 with low/high stacked heads, rest and two further stacks; chord handwriting below is unclear.",
+      "special_cases": [
+        "second_ending",
+        "unclear_chord_label"
+      ]
+    },
+    {
+      "id": "p1:s10:m03",
+      "page": 1,
+      "system": 10,
+      "measure": 3,
+      "written_bar": 57,
+      "kind": "primary",
+      "evidence": "Final sounding span: rest followed by chromatically marked ascending figure; double bar precedes large return sign and empty calligraphic staff.",
+      "special_cases": [
+        "second_ending",
+        "accepted_accidental_glyph_reading",
+        "navigation_only_space_follows"
+      ]
+    }
+  ],
+  "assignments": [
+    {
+      "written_bar": 1,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m01"
+    },
+    {
+      "written_bar": 2,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m02"
+    },
+    {
+      "written_bar": 3,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m03"
+    },
+    {
+      "written_bar": 4,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m04"
+    },
+    {
+      "written_bar": 5,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m05"
+    },
+    {
+      "written_bar": 6,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m06"
+    },
+    {
+      "written_bar": 7,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m01"
+    },
+    {
+      "written_bar": 8,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m02"
+    },
+    {
+      "written_bar": 9,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m03"
+    },
+    {
+      "written_bar": 10,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m04"
+    },
+    {
+      "written_bar": 11,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m05"
+    },
+    {
+      "written_bar": 12,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m06"
+    },
+    {
+      "written_bar": 13,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m07"
+    },
+    {
+      "written_bar": 14,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m01"
+    },
+    {
+      "written_bar": 15,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m02"
+    },
+    {
+      "written_bar": 16,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m03"
+    },
+    {
+      "written_bar": 17,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m04"
+    },
+    {
+      "written_bar": 18,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m05"
+    },
+    {
+      "written_bar": 19,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m06"
+    },
+    {
+      "written_bar": 20,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m01"
+    },
+    {
+      "written_bar": 21,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m02"
+    },
+    {
+      "written_bar": 22,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m03"
+    },
+    {
+      "written_bar": 23,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m04"
+    },
+    {
+      "written_bar": 24,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m05"
+    },
+    {
+      "written_bar": 25,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m06"
+    },
+    {
+      "written_bar": 26,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m01"
+    },
+    {
+      "written_bar": 27,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m02"
+    },
+    {
+      "written_bar": 28,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m03"
+    },
+    {
+      "written_bar": 29,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m04"
+    },
+    {
+      "written_bar": 30,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m05"
+    },
+    {
+      "written_bar": 31,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m06"
+    },
+    {
+      "written_bar": 32,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m01"
+    },
+    {
+      "written_bar": 33,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m02"
+    },
+    {
+      "written_bar": 34,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m03"
+    },
+    {
+      "written_bar": 35,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m04"
+    },
+    {
+      "written_bar": 36,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m05"
+    },
+    {
+      "written_bar": 37,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m06"
+    },
+    {
+      "written_bar": 38,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m01"
+    },
+    {
+      "written_bar": 39,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m02"
+    },
+    {
+      "written_bar": 40,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m03"
+    },
+    {
+      "written_bar": 41,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m01"
+    },
+    {
+      "written_bar": 42,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m02"
+    },
+    {
+      "written_bar": 43,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m03"
+    },
+    {
+      "written_bar": 44,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m04"
+    },
+    {
+      "written_bar": 45,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m05"
+    },
+    {
+      "written_bar": 46,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m06"
+    },
+    {
+      "written_bar": 47,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m07"
+    },
+    {
+      "written_bar": 48,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m08"
+    },
+    {
+      "written_bar": 49,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m01"
+    },
+    {
+      "written_bar": 50,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m02"
+    },
+    {
+      "written_bar": 51,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m03"
+    },
+    {
+      "written_bar": 52,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m04"
+    },
+    {
+      "written_bar": 53,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m05"
+    },
+    {
+      "written_bar": 54,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m06"
+    },
+    {
+      "written_bar": 55,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m01"
+    },
+    {
+      "written_bar": 56,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m02"
+    },
+    {
+      "written_bar": 57,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m03"
+    }
+  ],
+  "route_segments": [
+    {
+      "label": "I: introduction",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human route: Introduction S1M1-M4 once."
+    },
+    {
+      "label": "A: first pass body",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "A body S1M5-S3M6 before either written ending."
+    },
+    {
+      "label": "U: A first ending",
+      "written_bars": [
+        20
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S4M1, bracket 1."
+    },
+    {
+      "label": "A: second pass body",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Repeat A body before bracket 2."
+    },
+    {
+      "label": "V: A second ending",
+      "written_bars": [
+        21
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S4M2, bracket 2."
+    },
+    {
+      "label": "B: first pass body",
+      "written_bars": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "B body S4M3-S6M5, including literal ditto-bar realizations."
+    },
+    {
+      "label": "W: B first ending",
+      "written_bars": [
+        37
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S6M6, bracket 1."
+    },
+    {
+      "label": "B: second pass body",
+      "written_bars": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Repeat B body before bracket 2."
+    },
+    {
+      "label": "X: B second ending",
+      "written_bars": [
+        38
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S7M1, bracket 2; return to A."
+    },
+    {
+      "label": "A: first return without endings",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Human request explicitly skips both A endings on return."
+    },
+    {
+      "label": "T: first bridge",
+      "written_bars": [
+        39
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Latest approved request inserts S7M2 before the first Coda entry from A."
+    },
+    {
+      "label": "C: first Coda body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Coda body S7M3-S9M5."
+    },
+    {
+      "label": "Y: first Coda ending main bar",
+      "written_bars": [
+        54
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S9M6; Fine applies only on the final later visit."
+    },
+    {
+      "label": "Z: first Coda ending tail",
+      "written_bars": [
+        55
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S10M1 completes first ending on this pass, then repeat Coda."
+    },
+    {
+      "label": "C: second Coda body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Second Coda pass uses second ending."
+    },
+    {
+      "label": "J: Coda second ending",
+      "written_bars": [
+        56,
+        57
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S10M2-M3; return to A."
+    },
+    {
+      "label": "A: final return without endings",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Final A body omits both numbered A endings."
+    },
+    {
+      "label": "T: final bridge",
+      "written_bars": [
+        39
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Latest approved request plays S7M2 before the final Coda entry."
+    },
+    {
+      "label": "C: final Coda body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Final Coda body leads to the first ending."
+    },
+    {
+      "label": "Y: partial first ending and Fine",
+      "written_bars": [
+        54
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Stop at S9M6. Human explicitly excludes the first-ending tail S10M1 on this visit."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "AT-SOURCE-ROWS",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57
+      ],
+      "category": "source_notation",
+      "summary": "Ten musical rows have 6,7,6,6,6,6,3,8,6,3 sounding source spans.",
+      "source_basis": "Complete page and all ten row crops show these boundaries. Blank navigation space on rows 7 and 10 contains no extra musical interval.",
+      "adopted_edition": "57 one-to-one primary assignments; no pickup, inserted whole bar or written return copy.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-DITTO",
+      "written_bars": [
+        23,
+        25,
+        31
+      ],
+      "category": "source_notation",
+      "summary": "Three one-bar-repeat signs are distinct written source bars.",
+      "source_basis": "S4M4, S4M6 and S5M6 each contain a slash-and-dots sign between visible boundaries.",
+      "adopted_edition": "Written bars 23,25,31 are primary mappings to their own source IDs, with content realized from preceding bars 22,24,30; they are not form return copies.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-INTRO-ARPEGGIO",
+      "written_bars": [
+        4
+      ],
+      "category": "accepted_editorial",
+      "summary": "Approved G-B-D-F-G opening arpeggio and G7 accompaniment are recording-informed choices.",
+      "source_basis": "Source S1M4 has a fermata and ambiguous hollow-head/accidental group; exact approved voicing is not certified by this map. Preserved human notes adopt the recording-derived arpeggio.",
+      "adopted_edition": "Retain [G,B,DFG]6, arpeggio/fermata and G7 within the same visible source bar.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-INTRO-VOICES",
+      "written_bars": [
+        1,
+        2,
+        3,
+        6,
+        7,
+        8
+      ],
+      "category": "accepted_editorial",
+      "summary": "Human-reviewed voicing, low-mark interpretation and sustained lower-line encoding remain inside existing source spans.",
+      "source_basis": "Lower held stacks are visible at S1M1-M3; lower notes and an across-bar curve occur S2M1-M2. The isolated low mark in S1M6 had a prior rest interpretation, rejected in human review.",
+      "adopted_edition": "Retain approved lower voices, the D/F tie across bars 7-8, and the approved no-rest reading of bar 6; invisible voice spacers introduce no source bar.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-BRIDGE",
+      "written_bars": [
+        39
+      ],
+      "category": "accepted_editorial",
+      "summary": "The visible bridge bar retains Juan's accepted rhythm and is played before both A-to-Coda entries.",
+      "source_basis": "S7M2 is a real sounding span between navigation-only space and the four-flat Coda entrance; source rhythm was previously ambiguous.",
+      "adopted_edition": "Retain c' z [cc']3 [cc'] and two performed visits to written bar 39; no editorial bar insertion.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-CHROMATIC",
+      "written_bars": [
+        51,
+        52,
+        53,
+        57
+      ],
+      "category": "accepted_editorial",
+      "summary": "Small accidental strokes and accepted chromatic readings do not split source spans or create extra notes by this audit.",
+      "source_basis": "S9M3-M5 and S10M3 show dense accidental/head clusters. Earlier human corrections and source audits are recorded in preserved review notes.",
+      "adopted_edition": "Retain approved events inside their mapped bars; this map does not newly certify their per-note correctness.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-FINAL-CHORD",
+      "written_bars": [
+        56
+      ],
+      "category": "source_ambiguity",
+      "summary": "The second-ending chord handwriting remains explicitly unclear while its source bar identity is clear.",
+      "source_basis": "S10M2 has visible stacked events and an unclear chord word below.",
+      "adopted_edition": "Retain the approved textual unclear-chord annotation; no mapping question or new human decision is required.",
+      "requires_user_input": false
+    },
+    {
+      "id": "AT-ROUTE",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57
+      ],
+      "category": "accepted_editorial",
+      "summary": "The complete approved 147-visit route and the partial final first ending are human performance choices.",
+      "source_basis": "PDF shows local repeats, first/second endings and return/coda signs; preserved human requests specify both bridges and the final stop at S9M6.",
+      "adopted_edition": "Intro once; A ending 1 then A ending 2; B ending 1 then B ending 2; A body, bridge, Coda ending 1 then Coda ending 2; A body, bridge, Coda first ending only through bar 54, then STOP.",
+      "requires_user_input": false
+    }
+  ],
+  "unresolved_mapping_questions": [],
+  "source_vs_edition_route": "The PDF establishes 57 distinct sounding spans, three one-bar-repeat signs, alternate endings and navigation marks. It does not alone certify the complete adopted long return sequence. Preserved human requests, current reviewed notes and header P:IAUAVBWBXATCYZCJATCY independently define the 147-visit route, two bridge visits and final stop at S9M6 (written bar 54). No final S10M1 tail is played. Ditto-bar expansions preserve distinct source identities; playback returns revisit those same written bars without creating return copies.",
+  "visual_audit": {
+    "all_rows_inspected": true,
+    "images": [
+      "page-1.png",
+      "inspection_crops/row-01.png",
+      "inspection_crops/row-02.png",
+      "inspection_crops/row-03.png",
+      "inspection_crops/row-04.png",
+      "inspection_crops/row-05.png",
+      "inspection_crops/row-06.png",
+      "inspection_crops/row-07.png",
+      "inspection_crops/row-08.png",
+      "inspection_crops/row-09.png",
+      "inspection_crops/row-10.png"
+    ],
+    "method": "Full source page inspected first, then every musical row crop. Counts and row boundaries declared from visible spans; approved ABC and review notes establish the retained editorial form.",
+    "limitations": [
+      "No complete per-note accuracy claim",
+      "Consumed model source mapping, not a blind audit or new human approval",
+      "Ambiguous source navigation does not independently establish the approved performed route",
+      "No external recording was opened; recording-based choices are attributed only to preserved human review notes"
+    ]
+  },
+  "author_self_check": {
+    "written_count": 57,
+    "source_count": 57,
+    "performed_count": 147,
+    "stop_written_bar": 54,
+    "declared_route_matches_saved_normalization": true,
+    "note": "Route assembled from named sections and preserved human requests, then compared to normalized.route. This is not the separate verification."
+  }
+}

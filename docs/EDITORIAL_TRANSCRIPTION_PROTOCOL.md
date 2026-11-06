@@ -37,6 +37,14 @@ performance order to a different composition. Keep uncertain navigation explicit
 
 ## Review and delivery
 
+For new independent reviews, use the versioned
+[assisted review v2 instructions](prompts/assisted_review_v2.txt). Compare ambiguous
+accidentals with nearby handwriting, and distinguish visible source evidence from
+musical-context support. Harmonic plausibility can guide an uncertain proposal;
+it cannot silently replace a clear source reading. The
+[version record and experiment rules](prompts/README.md) preserve historical
+prompts and keep human adjudications outside inference inputs.
+
 The independent reader checks all musical rows, including unflagged passages,
 and specifically audits every changed event and proposed reconstruction. Any
 disagreement is resolved from source evidence or retained as a human question.

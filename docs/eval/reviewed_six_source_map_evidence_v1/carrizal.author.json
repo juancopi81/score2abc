@@ -1,0 +1,1627 @@
+{
+  "schema_version": 1,
+  "work": "carrizal",
+  "source_pdf_sha256": "8e1ef3b31cf455b709a18a853f71f618d015e9a2e898708fcaf81c5ecc96977a",
+  "abc_sha256": "45d0ed3de0b22252975d994991387dff69579da8024981b641d2a678b1f4b20a",
+  "scope": "Consumed source identity mapping; not a note accuracy audit or new human approval",
+  "mapping_status": "author_complete_awaiting_independent_verification",
+  "source_rows": [
+    {
+      "page": 1,
+      "system": 1,
+      "source_ids": [
+        "p1:s01:m01",
+        "p1:s01:m02",
+        "p1:s01:m03",
+        "p1:s01:m04",
+        "p1:s01:m05",
+        "p1:s01:m06",
+        "p1:s01:m07"
+      ],
+      "evidence": "Visually inspected author_crops/row-01.png against the full page. 7 musical spans map to written bars 1-7. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 2,
+      "source_ids": [
+        "p1:s02:m01",
+        "p1:s02:m02",
+        "p1:s02:m03",
+        "p1:s02:m04",
+        "p1:s02:m05",
+        "p1:s02:m06",
+        "p1:s02:m07"
+      ],
+      "evidence": "Visually inspected author_crops/row-02.png against the full page. 7 musical spans map to written bars 8-14. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 3,
+      "source_ids": [
+        "p1:s03:m01",
+        "p1:s03:m02",
+        "p1:s03:m03",
+        "p1:s03:m04",
+        "p1:s03:m05",
+        "p1:s03:m06",
+        "p1:s03:m07"
+      ],
+      "evidence": "Visually inspected author_crops/row-03.png against the full page. 7 musical spans map to written bars 15-21. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 4,
+      "source_ids": [
+        "p1:s04:m01",
+        "p1:s04:m02",
+        "p1:s04:m03",
+        "p1:s04:m04",
+        "p1:s04:m05",
+        "p1:s04:m06",
+        "p1:s04:m07",
+        "p1:s04:m08"
+      ],
+      "evidence": "Visually inspected author_crops/row-04.png against the full page. 8 musical spans map to written bars 22-29. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 5,
+      "source_ids": [
+        "p1:s05:m01",
+        "p1:s05:m02",
+        "p1:s05:m03",
+        "p1:s05:m04",
+        "p1:s05:m05"
+      ],
+      "evidence": "Visually inspected author_crops/row-05.png against the full page. 5 musical spans map to written bars 30-34. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 6,
+      "source_ids": [
+        "p1:s06:m01",
+        "p1:s06:m02",
+        "p1:s06:m03",
+        "p1:s06:m04",
+        "p1:s06:m05",
+        "p1:s06:m06"
+      ],
+      "evidence": "Visually inspected author_crops/row-06.png against the full page. 6 musical spans map to written bars 35-40. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 7,
+      "source_ids": [
+        "p1:s07:m01",
+        "p1:s07:m02",
+        "p1:s07:m03",
+        "p1:s07:m04",
+        "p1:s07:m05",
+        "p1:s07:m06"
+      ],
+      "evidence": "Visually inspected author_crops/row-07.png against the full page. 6 musical spans map to written bars 41-46. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    },
+    {
+      "page": 1,
+      "system": 8,
+      "source_ids": [
+        "p1:s08:m01",
+        "p1:s08:m02"
+      ],
+      "evidence": "Visually inspected author_crops/row-08.png against the full page. 2 musical spans map to written bars 47-48. Boundaries use full-staff barlines/repeat junctions, not note stems or interior accidentals."
+    }
+  ],
+  "source_bars": [
+    {
+      "id": "p1:s01:m01",
+      "page": 1,
+      "system": 1,
+      "measure": 1,
+      "written_bar": 1,
+      "kind": "primary",
+      "evidence": "Opening rest and five-note figure, preceded by clef, one flat and 3/4.",
+      "source_span_180dpi": {
+        "x_start_approx": 118,
+        "x_end_approx": 462,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m02",
+      "page": 1,
+      "system": 1,
+      "measure": 2,
+      "written_bar": 2,
+      "kind": "primary",
+      "evidence": "Three descending quarter-note stems over Dm.",
+      "source_span_180dpi": {
+        "x_start_approx": 462,
+        "x_end_approx": 585,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m03",
+      "page": 1,
+      "system": 1,
+      "measure": 3,
+      "written_bar": 3,
+      "kind": "primary",
+      "evidence": "Quarter then dotted/eighth figure under a slur.",
+      "source_span_180dpi": {
+        "x_start_approx": 585,
+        "x_end_approx": 720,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m04",
+      "page": 1,
+      "system": 1,
+      "measure": 4,
+      "written_bar": 4,
+      "kind": "primary",
+      "evidence": "A7 figure ending low under the slur.",
+      "source_span_180dpi": {
+        "x_start_approx": 720,
+        "x_end_approx": 873,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m05",
+      "page": 1,
+      "system": 1,
+      "measure": 5,
+      "written_bar": 5,
+      "kind": "primary",
+      "evidence": "Rest and return of the opening short-note figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 873,
+        "x_end_approx": 1081,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m06",
+      "page": 1,
+      "system": 1,
+      "measure": 6,
+      "written_bar": 6,
+      "kind": "primary",
+      "evidence": "Three descending quarter stems, middle/last accidentals visible.",
+      "source_span_180dpi": {
+        "x_start_approx": 1081,
+        "x_end_approx": 1188,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s01:m07",
+      "page": 1,
+      "system": 1,
+      "measure": 7,
+      "written_bar": 7,
+      "kind": "primary",
+      "evidence": "Quarter then dotted/eighth closing figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 1188,
+        "x_end_approx": 1320,
+        "row_y_range": [
+          170,
+          343
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m01",
+      "page": 1,
+      "system": 2,
+      "measure": 1,
+      "written_bar": 8,
+      "kind": "primary",
+      "evidence": "Dm descent under a slur, ending low.",
+      "source_span_180dpi": {
+        "x_start_approx": 125,
+        "x_end_approx": 280,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m02",
+      "page": 1,
+      "system": 2,
+      "measure": 2,
+      "written_bar": 9,
+      "kind": "primary",
+      "evidence": "Rest and opening-like figure; final ink is damaged.",
+      "source_span_180dpi": {
+        "x_start_approx": 280,
+        "x_end_approx": 499,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": [
+        "carrizal-damaged-final-note"
+      ]
+    },
+    {
+      "id": "p1:s02:m03",
+      "page": 1,
+      "system": 2,
+      "measure": 3,
+      "written_bar": 10,
+      "kind": "primary",
+      "evidence": "High-to-low three-quarter figure over D7.",
+      "source_span_180dpi": {
+        "x_start_approx": 499,
+        "x_end_approx": 648,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m04",
+      "page": 1,
+      "system": 2,
+      "measure": 4,
+      "written_bar": 11,
+      "kind": "primary",
+      "evidence": "Quarter and dotted/eighth figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 648,
+        "x_end_approx": 780,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m05",
+      "page": 1,
+      "system": 2,
+      "measure": 5,
+      "written_bar": 12,
+      "kind": "primary",
+      "evidence": "Gm slurred descent and quarter ending.",
+      "source_span_180dpi": {
+        "x_start_approx": 780,
+        "x_end_approx": 944,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m06",
+      "page": 1,
+      "system": 2,
+      "measure": 6,
+      "written_bar": 13,
+      "kind": "primary",
+      "evidence": "Rest followed by descending beamed figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 944,
+        "x_end_approx": 1151,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s02:m07",
+      "page": 1,
+      "system": 2,
+      "measure": 7,
+      "written_bar": 14,
+      "kind": "primary",
+      "evidence": "Six descending beamed notes over Dm.",
+      "source_span_180dpi": {
+        "x_start_approx": 1151,
+        "x_end_approx": 1324,
+        "row_y_range": [
+          335,
+          493
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m01",
+      "page": 1,
+      "system": 3,
+      "measure": 1,
+      "written_bar": 15,
+      "kind": "primary",
+      "evidence": "Sharp at entry and descending six-note A7 run.",
+      "source_span_180dpi": {
+        "x_start_approx": 128,
+        "x_end_approx": 333,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m02",
+      "page": 1,
+      "system": 3,
+      "measure": 2,
+      "written_bar": 16,
+      "kind": "primary",
+      "evidence": "Low Dm cadence with rest and two stacked-note attacks before close/open repeat.",
+      "source_span_180dpi": {
+        "x_start_approx": 333,
+        "x_end_approx": 527,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m03",
+      "page": 1,
+      "system": 3,
+      "measure": 3,
+      "written_bar": 17,
+      "kind": "primary",
+      "evidence": "Rest and opening-like figure after repeat junction.",
+      "source_span_180dpi": {
+        "x_start_approx": 527,
+        "x_end_approx": 746,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m04",
+      "page": 1,
+      "system": 3,
+      "measure": 4,
+      "written_bar": 18,
+      "kind": "primary",
+      "evidence": "A7 three-quarter figure with accidental at entrance.",
+      "source_span_180dpi": {
+        "x_start_approx": 746,
+        "x_end_approx": 871,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m05",
+      "page": 1,
+      "system": 3,
+      "measure": 5,
+      "written_bar": 19,
+      "kind": "primary",
+      "evidence": "Quarter then dotted/eighth figure under slur.",
+      "source_span_180dpi": {
+        "x_start_approx": 871,
+        "x_end_approx": 1018,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m06",
+      "page": 1,
+      "system": 3,
+      "measure": 6,
+      "written_bar": 20,
+      "kind": "primary",
+      "evidence": "Dm descent to the low staff region.",
+      "source_span_180dpi": {
+        "x_start_approx": 1018,
+        "x_end_approx": 1167,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s03:m07",
+      "page": 1,
+      "system": 3,
+      "measure": 7,
+      "written_bar": 21,
+      "kind": "primary",
+      "evidence": "Rest and dotted high note with final sharped eighth; cramped dot/rest ink.",
+      "source_span_180dpi": {
+        "x_start_approx": 1167,
+        "x_end_approx": 1329,
+        "row_y_range": [
+          480,
+          643
+        ]
+      },
+      "special_cases": [
+        "carrizal-cramped-rest-dot"
+      ]
+    },
+    {
+      "id": "p1:s04:m01",
+      "page": 1,
+      "system": 4,
+      "measure": 1,
+      "written_bar": 22,
+      "kind": "primary",
+      "evidence": "Long C-natural note over C7; tie/slur continues right across barline.",
+      "source_span_180dpi": {
+        "x_start_approx": 136,
+        "x_end_approx": 261,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": [
+        "carrizal-tie-and-bflat"
+      ]
+    },
+    {
+      "id": "p1:s04:m02",
+      "page": 1,
+      "system": 4,
+      "measure": 2,
+      "written_bar": 23,
+      "kind": "primary",
+      "evidence": "Six-note moving figure after incoming tie; B-flat reading reviewed.",
+      "source_span_180dpi": {
+        "x_start_approx": 261,
+        "x_end_approx": 449,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": [
+        "carrizal-tie-and-bflat"
+      ]
+    },
+    {
+      "id": "p1:s04:m03",
+      "page": 1,
+      "system": 4,
+      "measure": 3,
+      "written_bar": 24,
+      "kind": "primary",
+      "evidence": "Single long F-region note over F.",
+      "source_span_180dpi": {
+        "x_start_approx": 449,
+        "x_end_approx": 550,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m04",
+      "page": 1,
+      "system": 4,
+      "measure": 4,
+      "written_bar": 25,
+      "kind": "primary",
+      "evidence": "Rest and opening-like five-note figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 550,
+        "x_end_approx": 764,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m05",
+      "page": 1,
+      "system": 4,
+      "measure": 5,
+      "written_bar": 26,
+      "kind": "primary",
+      "evidence": "Long A7 note then rest and short note with outgoing slur.",
+      "source_span_180dpi": {
+        "x_start_approx": 764,
+        "x_end_approx": 900,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m06",
+      "page": 1,
+      "system": 4,
+      "measure": 6,
+      "written_bar": 27,
+      "kind": "primary",
+      "evidence": "Long upper note then rest and short note, continuing the phrase.",
+      "source_span_180dpi": {
+        "x_start_approx": 900,
+        "x_end_approx": 1033,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m07",
+      "page": 1,
+      "system": 4,
+      "measure": 7,
+      "written_bar": 28,
+      "kind": "primary",
+      "evidence": "Long sharped note over D.",
+      "source_span_180dpi": {
+        "x_start_approx": 1033,
+        "x_end_approx": 1149,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s04:m08",
+      "page": 1,
+      "system": 4,
+      "measure": 8,
+      "written_bar": 29,
+      "kind": "primary",
+      "evidence": "Rest and two descending quarter notes.",
+      "source_span_180dpi": {
+        "x_start_approx": 1149,
+        "x_end_approx": 1333,
+        "row_y_range": [
+          631,
+          785
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s05:m01",
+      "page": 1,
+      "system": 5,
+      "measure": 1,
+      "written_bar": 30,
+      "kind": "primary",
+      "evidence": "Three triplet groups over Em; the natural between groups is not a barline.",
+      "source_span_180dpi": {
+        "x_start_approx": 140,
+        "x_end_approx": 448,
+        "row_y_range": [
+          780,
+          950
+        ]
+      },
+      "special_cases": [
+        "carrizal-row5-boundaries"
+      ]
+    },
+    {
+      "id": "p1:s05:m02",
+      "page": 1,
+      "system": 5,
+      "measure": 2,
+      "written_bar": 31,
+      "kind": "primary",
+      "evidence": "Three triplet groups over A7, separated from prior bar by a full-height barline.",
+      "source_span_180dpi": {
+        "x_start_approx": 448,
+        "x_end_approx": 741,
+        "row_y_range": [
+          780,
+          950
+        ]
+      },
+      "special_cases": [
+        "carrizal-row5-boundaries"
+      ]
+    },
+    {
+      "id": "p1:s05:m03",
+      "page": 1,
+      "system": 5,
+      "measure": 3,
+      "written_bar": 32,
+      "kind": "primary",
+      "evidence": "D cadence with rest and stacked notes, ending at close/open repeat.",
+      "source_span_180dpi": {
+        "x_start_approx": 741,
+        "x_end_approx": 923,
+        "row_y_range": [
+          780,
+          950
+        ]
+      },
+      "special_cases": [
+        "carrizal-row5-boundaries"
+      ]
+    },
+    {
+      "id": "p1:s05:m04",
+      "page": 1,
+      "system": 5,
+      "measure": 4,
+      "written_bar": 33,
+      "kind": "primary",
+      "evidence": "New two-flat signature, rest and two repeated quarter-note stems.",
+      "source_span_180dpi": {
+        "x_start_approx": 923,
+        "x_end_approx": 1123,
+        "row_y_range": [
+          780,
+          950
+        ]
+      },
+      "special_cases": [
+        "carrizal-row5-boundaries"
+      ]
+    },
+    {
+      "id": "p1:s05:m05",
+      "page": 1,
+      "system": 5,
+      "measure": 5,
+      "written_bar": 34,
+      "kind": "primary",
+      "evidence": "Bb figure: quarter, two beamed eighths, quarter under a slur.",
+      "source_span_180dpi": {
+        "x_start_approx": 1123,
+        "x_end_approx": 1333,
+        "row_y_range": [
+          780,
+          950
+        ]
+      },
+      "special_cases": [
+        "carrizal-row5-boundaries",
+        "carrizal-matched-phrase-correction"
+      ]
+    },
+    {
+      "id": "p1:s06:m01",
+      "page": 1,
+      "system": 6,
+      "measure": 1,
+      "written_bar": 35,
+      "kind": "primary",
+      "evidence": "Rest, low natural-marked head and sharped quarter figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 147,
+        "x_end_approx": 349,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m02",
+      "page": 1,
+      "system": 6,
+      "measure": 2,
+      "written_bar": 36,
+      "kind": "primary",
+      "evidence": "Slurred Cm descent with flat sign and low final head.",
+      "source_span_180dpi": {
+        "x_start_approx": 349,
+        "x_end_approx": 557,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m03",
+      "page": 1,
+      "system": 6,
+      "measure": 3,
+      "written_bar": 37,
+      "kind": "primary",
+      "evidence": "Rest and ascending beamed four-note figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 557,
+        "x_end_approx": 720,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m04",
+      "page": 1,
+      "system": 6,
+      "measure": 4,
+      "written_bar": 38,
+      "kind": "primary",
+      "evidence": "Repeated short notes over F7, rising at end.",
+      "source_span_180dpi": {
+        "x_start_approx": 720,
+        "x_end_approx": 917,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m05",
+      "page": 1,
+      "system": 6,
+      "measure": 5,
+      "written_bar": 39,
+      "kind": "primary",
+      "evidence": "Repeated short notes, rising at end.",
+      "source_span_180dpi": {
+        "x_start_approx": 917,
+        "x_end_approx": 1115,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s06:m06",
+      "page": 1,
+      "system": 6,
+      "measure": 6,
+      "written_bar": 40,
+      "kind": "primary",
+      "evidence": "Repeated low notes over Bb and final low-to-high gesture.",
+      "source_span_180dpi": {
+        "x_start_approx": 1115,
+        "x_end_approx": 1337,
+        "row_y_range": [
+          945,
+          1095
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s07:m01",
+      "page": 1,
+      "system": 7,
+      "measure": 1,
+      "written_bar": 41,
+      "kind": "primary",
+      "evidence": "Rest and two repeated quarter stems.",
+      "source_span_180dpi": {
+        "x_start_approx": 151,
+        "x_end_approx": 298,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s07:m02",
+      "page": 1,
+      "system": 7,
+      "measure": 2,
+      "written_bar": 42,
+      "kind": "primary",
+      "evidence": "Quarter plus two beamed eighths and quarter, matching row 5 ending figure.",
+      "source_span_180dpi": {
+        "x_start_approx": 298,
+        "x_end_approx": 464,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": [
+        "carrizal-matched-phrase-correction"
+      ]
+    },
+    {
+      "id": "p1:s07:m03",
+      "page": 1,
+      "system": 7,
+      "measure": 3,
+      "written_bar": 43,
+      "kind": "primary",
+      "evidence": "Rest and sharp-marked rising figure over Gm.",
+      "source_span_180dpi": {
+        "x_start_approx": 464,
+        "x_end_approx": 670,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s07:m04",
+      "page": 1,
+      "system": 7,
+      "measure": 4,
+      "written_bar": 44,
+      "kind": "primary",
+      "evidence": "Slurred D figure with natural and sharp marks.",
+      "source_span_180dpi": {
+        "x_start_approx": 670,
+        "x_end_approx": 875,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": []
+    },
+    {
+      "id": "p1:s07:m05",
+      "page": 1,
+      "system": 7,
+      "measure": 5,
+      "written_bar": 45,
+      "kind": "primary",
+      "evidence": "Low-register figure with accidental/ledger ambiguity at final event.",
+      "source_span_180dpi": {
+        "x_start_approx": 875,
+        "x_end_approx": 1099,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": [
+        "carrizal-low-register"
+      ]
+    },
+    {
+      "id": "p1:s07:m06",
+      "page": 1,
+      "system": 7,
+      "measure": 6,
+      "written_bar": 46,
+      "kind": "primary",
+      "evidence": "Low A7 onset then rising figure ending in tied upper note.",
+      "source_span_180dpi": {
+        "x_start_approx": 1099,
+        "x_end_approx": 1340,
+        "row_y_range": [
+          1095,
+          1250
+        ]
+      },
+      "special_cases": [
+        "carrizal-low-register"
+      ]
+    },
+    {
+      "id": "p1:s08:m01",
+      "page": 1,
+      "system": 8,
+      "measure": 1,
+      "written_bar": 47,
+      "kind": "primary",
+      "evidence": "Incoming tie from prior row; slurred descending figure and sharped final note.",
+      "source_span_180dpi": {
+        "x_start_approx": 156,
+        "x_end_approx": 370,
+        "row_y_range": [
+          1230,
+          1390
+        ]
+      },
+      "special_cases": [
+        "carrizal-empty-ruling"
+      ]
+    },
+    {
+      "id": "p1:s08:m02",
+      "page": 1,
+      "system": 8,
+      "measure": 2,
+      "written_bar": 48,
+      "kind": "primary",
+      "evidence": "D cadence with rest and two stacked-note attacks, ending at closing repeat.",
+      "source_span_180dpi": {
+        "x_start_approx": 370,
+        "x_end_approx": 587,
+        "row_y_range": [
+          1230,
+          1390
+        ]
+      },
+      "special_cases": [
+        "carrizal-empty-ruling"
+      ]
+    }
+  ],
+  "assignments": [
+    {
+      "written_bar": 1,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m01"
+    },
+    {
+      "written_bar": 2,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m02"
+    },
+    {
+      "written_bar": 3,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m03"
+    },
+    {
+      "written_bar": 4,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m04"
+    },
+    {
+      "written_bar": 5,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m05"
+    },
+    {
+      "written_bar": 6,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m06"
+    },
+    {
+      "written_bar": 7,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m07"
+    },
+    {
+      "written_bar": 8,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m01"
+    },
+    {
+      "written_bar": 9,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m02"
+    },
+    {
+      "written_bar": 10,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m03"
+    },
+    {
+      "written_bar": 11,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m04"
+    },
+    {
+      "written_bar": 12,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m05"
+    },
+    {
+      "written_bar": 13,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m06"
+    },
+    {
+      "written_bar": 14,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m07"
+    },
+    {
+      "written_bar": 15,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m01"
+    },
+    {
+      "written_bar": 16,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m02"
+    },
+    {
+      "written_bar": 17,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m03"
+    },
+    {
+      "written_bar": 18,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m04"
+    },
+    {
+      "written_bar": 19,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m05"
+    },
+    {
+      "written_bar": 20,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m06"
+    },
+    {
+      "written_bar": 21,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m07"
+    },
+    {
+      "written_bar": 22,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m01"
+    },
+    {
+      "written_bar": 23,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m02"
+    },
+    {
+      "written_bar": 24,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m03"
+    },
+    {
+      "written_bar": 25,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m04"
+    },
+    {
+      "written_bar": 26,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m05"
+    },
+    {
+      "written_bar": 27,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m06"
+    },
+    {
+      "written_bar": 28,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m07"
+    },
+    {
+      "written_bar": 29,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m08"
+    },
+    {
+      "written_bar": 30,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m01"
+    },
+    {
+      "written_bar": 31,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m02"
+    },
+    {
+      "written_bar": 32,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m03"
+    },
+    {
+      "written_bar": 33,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m04"
+    },
+    {
+      "written_bar": 34,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m05"
+    },
+    {
+      "written_bar": 35,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m01"
+    },
+    {
+      "written_bar": 36,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m02"
+    },
+    {
+      "written_bar": 37,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m03"
+    },
+    {
+      "written_bar": 38,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m04"
+    },
+    {
+      "written_bar": 39,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m05"
+    },
+    {
+      "written_bar": 40,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m06"
+    },
+    {
+      "written_bar": 41,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m01"
+    },
+    {
+      "written_bar": 42,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m02"
+    },
+    {
+      "written_bar": 43,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m03"
+    },
+    {
+      "written_bar": 44,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m04"
+    },
+    {
+      "written_bar": 45,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m05"
+    },
+    {
+      "written_bar": 46,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m06"
+    },
+    {
+      "written_bar": 47,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m01"
+    },
+    {
+      "written_bar": 48,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m02"
+    }
+  ],
+  "route_segments": [
+    {
+      "label": "A first pass",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    },
+    {
+      "label": "A repeat",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    },
+    {
+      "label": "B first pass",
+      "written_bars": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    },
+    {
+      "label": "B repeat",
+      "written_bars": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    },
+    {
+      "label": "C first pass",
+      "written_bars": [
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    },
+    {
+      "label": "C repeat",
+      "written_bars": [
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Preserved human approval of repeats; approved ABC has section boundary/repeat after bars 16 and 32 and final repeat after 48."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "carrizal-row5-boundaries",
+      "written_bars": [
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "category": "source_notation",
+      "summary": "Row 5 contains five musical bars; do not split bar 30 at its internal natural.",
+      "source_basis": "Full row crop shows nine triplet notes before the first true full-height boundary at about x448; the mark near x255 belongs to the middle triplet.",
+      "adopted_edition": "Five source identities map to written bars 30-34.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-damaged-final-note",
+      "written_bars": [
+        9
+      ],
+      "category": "source_ambiguity",
+      "summary": "The damaged final head is an accepted uncertain reading within an existing bar.",
+      "source_basis": "Row 2 measure 2 has a bounded five-note opening-like figure after a rest, with damaged final ink.",
+      "adopted_edition": "Juan selected final A by visual/repeated-phrase inference. This is not an inserted source bar and the map does not certify the pitch.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-cramped-rest-dot",
+      "written_bars": [
+        21
+      ],
+      "category": "accepted_editorial",
+      "summary": "Preserve reviewed quarter rest, dotted-quarter D5 and eighth C-sharp5.",
+      "source_basis": "Cramped rest/dot notation in the final span of row 3; its left and right boundaries are clear.",
+      "adopted_edition": "Preserved human reply: Looks good to me; keep it as it is.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-tie-and-bflat",
+      "written_bars": [
+        22,
+        23
+      ],
+      "category": "accepted_editorial",
+      "summary": "Preserve the cross-bar C-natural tie and the reviewed B-flat in the following figure.",
+      "source_basis": "Row 4 first two bars have the long note and continuation; boundaries remain two separate source spans.",
+      "adopted_edition": "Human notes explicitly confirm the tie and B-flat; a prior A reading was superseded.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-matched-phrase-correction",
+      "written_bars": [
+        34,
+        42
+      ],
+      "category": "accepted_editorial",
+      "summary": "Preserve the exact reviewed phrase in row 5 last bar and row 7 second bar.",
+      "source_basis": "Both source spans visibly have a quarter/eighth figure under a slur and a final quarter; this audit does not independently certify every event.",
+      "adopted_edition": "Current approved ABC is d2 (Ac) B2 in both locations. Historical wording about just two notes is provenance, not a replacement for the exact saved music.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-low-register",
+      "written_bars": [
+        45,
+        46
+      ],
+      "category": "accepted_editorial",
+      "summary": "Preserve final B-natural3 quarter in bar 45 and the first low A3 quarter in bar 46.",
+      "source_basis": "Low ledger/head ink and nearby detached marks are weak, but both bars have visible source boundaries.",
+      "adopted_edition": "Juan corrected the final event to B and accepted the following low A quarter.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-three-repeated-sections",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "category": "accepted_editorial",
+      "summary": "Adopt the reviewed A-A, B-B, C-C route and explicit opening repeat.",
+      "source_basis": "Close/open repeat junctions follow row 3 measure 2 and row 5 measure 3; the short last row ends with a closing repeat. No first/second endings or D.C./Fine route are established by this page.",
+      "adopted_edition": "Human review says repetitions look good. Sections are bars 1-16, 17-32 and 33-48; no written return copies are introduced.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-empty-ruling",
+      "written_bars": [
+        47,
+        48
+      ],
+      "category": "source_notation",
+      "summary": "The eighth musical row ends after two bars.",
+      "source_basis": "Beyond its closing repeat is blank ruling. The following ruled rows contain a signature/empty space, not new musical bars.",
+      "adopted_edition": "Do not add source identities for blank staff continuation or footer signature.",
+      "requires_user_input": false
+    },
+    {
+      "id": "carrizal-no-pickup-or-ditto",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "category": "source_notation",
+      "summary": "No separate pickup or whole-bar ditto sign is needed for this map.",
+      "source_basis": "Opening rest and short-note figure occupies the first bounded musical span; repeated phrases are written out; no whole-measure repeat symbol was identified.",
+      "adopted_edition": "All 48 written bars are primary source assignments; musical repeats happen through playback visits.",
+      "requires_user_input": false
+    }
+  ],
+  "unresolved_mapping_questions": [],
+  "source_vs_edition_route": "The source repeat junctions and final close-repeat support three repeated spans. The approved edition explicitly starts A at bar 1 and adopts A-A/B-B/C-C (96 performed bars) with a final stop after bar 48. There is no D.C., Fine, alternate ending, written return copy, or new editorial musical bar. Acceptance of uncertain notes is carried forward without certifying missing source ink.",
+  "visual_audit": {
+    "all_rows_inspected": true,
+    "images": [
+      "page-1.png",
+      "author_crops/row-01.png",
+      "author_crops/row-02.png",
+      "author_crops/row-03.png",
+      "author_crops/row-04.png",
+      "author_crops/row-05.png",
+      "author_crops/row-06.png",
+      "author_crops/row-07.png",
+      "author_crops/row-08.png"
+    ],
+    "limitations": [
+      "No complete per-note accuracy claim.",
+      "Source identities and boundaries were visually inspected by a model on consumed material; independent verification remains separate.",
+      "Approximate x bounds are review locators on page-1.png at 180 dpi, not calibrated segmentation ground truth.",
+      "Accepted reconstructions and unresolved source ink remain separate from the source-bar identity."
+    ]
+  },
+  "author_sanity_checks": {
+    "source_bar_count": 48,
+    "written_classification_count": 48,
+    "primary_count": 48,
+    "return_copy_count": 0,
+    "editorial_insertion_count": 0,
+    "performed_visit_count": 96,
+    "declared_route_equals_current_normalization": true,
+    "route_declaration_basis": "Constructed from approved section boundaries, repeat instructions and saved human form decisions, then compared with normalized.route.",
+    "not_independent_verification": true
+  }
+}

@@ -1,5 +1,9 @@
 # Reviewed six: evidence labels v3
 
+The later [source-identity mapping sprint](REVIEWED_SOURCE_MAPS.md) maps all written
+bar identities and approved routes. It does not expand the V3 source-note mask or
+alter any labels, frozen scores or prior model metrics described here.
+
 V3 adds a **partial source-note audit: 67 of 312 physical source bars, containing
 268 noteheads**, across all six pieces. The complete 314-bar performing editions
 remain available for edition-agreement scoring. These are different metrics.

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "kind": "assisted_reviewer_only_regression",
+  "created_at": "2026-10-29T17:22:09.428837+00:00",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "review_instructions_version": "assisted_review_v2",
+  "review_instructions_sha256": "fa98e62164fba222d497038601c100bf1814b8830475681b6b8d86a7576b2912",
+  "source_pdf_sha256": "d0a43e928b472addbb9036a475966cf41a7d5b5820e4a936917f87ec4d43b1a2",
+  "author_reused": true,
+  "paid_model_attempts": 1,
+  "pre_request_launcher_failures": 1,
+  "delta": {
+    "all_scored_events_match": true,
+    "changed_bars": [
+      7
+    ],
+    "corrected_bars": [
+      7
+    ],
+    "regressed_previously_exact_bars": [],
+    "sharp_fixed": true
+  },
+  "resources": {
+    "after": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.9241915677445763,
+      "cached_input_tokens": 338670,
+      "conservative_estimate_usd": "1.661420",
+      "input_tokens": 366450,
+      "output_tokens": 12565,
+      "seconds": 325.97141199999896
+    },
+    "before": {
+      "actual_billed_usd": null,
+      "cache_fraction": 0.8901426830555476,
+      "cached_input_tokens": 185536,
+      "conservative_estimate_usd": "1.286136",
+      "input_tokens": 208434,
+      "output_tokens": 10563,
+      "seconds": 225.1849101250009
+    }
+  },
+  "unsupported_scope": [
+    "ties",
+    "slurs",
+    "articulations",
+    "letter_chord_labels",
+    "repeat_and_jump_form",
+    "engraving_fidelity"
+  ],
+  "metric_notes": "Strict historical note F1 jointly compares pitch/onset/duration; exact bars also require matching rests. Written ties/form are not scored here.",
+  "live_reviews_unchanged": 13,
+  "limitations": [
+    "Consumed reviewer-only regression; author cost is excluded from this new run.",
+    "One stochastic attempt does not establish causal or general improvement.",
+    "No automatic advancement or additional score is authorized by these metrics."
+  ],
+  "report_sha256": "70a2cf1a6ed26aed56797ddc7cf4dcb8eb2df17e208d576024a09328a73beae6",
+  "target": "aviador_system_8_seven_bars",
+  "stage_metrics": {
+    "before": {
+      "exact_measure_rate": 0.857143,
+      "exact_measures": 6,
+      "note_f1": 0.933333,
+      "note_precision": 0.933333,
+      "note_recall": 0.933333,
+      "ordered_duration_accuracy": 1.0,
+      "ordered_onset_accuracy": 1.0,
+      "ordered_pitch_accuracy": 0.933333,
+      "predicted": 7,
+      "rest_f1": 1.0,
+      "rest_precision": 1.0,
+      "rest_recall": 1.0,
+      "targets": 7
+    },
+    "after": {
+      "exact_measure_rate": 1.0,
+      "exact_measures": 7,
+      "note_f1": 1.0,
+      "note_precision": 1.0,
+      "note_recall": 1.0,
+      "ordered_duration_accuracy": 1.0,
+      "ordered_onset_accuracy": 1.0,
+      "ordered_pitch_accuracy": 1.0,
+      "predicted": 7,
+      "rest_f1": 1.0,
+      "rest_precision": 1.0,
+      "rest_recall": 1.0,
+      "targets": 7
+    }
+  },
+  "new_generation_requests": 24,
+  "reference_feedback_given": false
+}

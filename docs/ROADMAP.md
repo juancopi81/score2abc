@@ -2,6 +2,13 @@
 
 This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-28, six works are musician-reviewed: Amalia, Atardecer, Aviador, Carrizal, Coqueteos and Rumichaca. Their saved editions and available histories are preserved; the shared engraving convention is `docs/FORM_NOTATION.md`. Aviador now includes musician-approved editorial additions and form choices, which must remain distinguishable from source readings. See `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
+2026-11-05 production update: the six approved editions remain byte-identical.
+Seven pending drafts received independent source/form audits, and Adentro
+veteranos, Albores de junio and Baby join the queue as independently audited
+drafts. The desk now has six approvals and ten drafts. Entusiasmo's terminal
+cluster remains a source-completeness blocker; all musical uncertainties remain
+explicit. See [subscription sprint delivery](SUBSCRIPTION_SPRINT_20261105.md).
+
 2026-09-09 update: the fresh-context Astra comparison on consumed Aviador system 8
 reached `7/7` exact measures from the original PDF and `4/7` from historical crops,
 against the frozen pipeline's `1/7`. The next recommended experiment is a broader
@@ -40,6 +47,7 @@ Goal: make accuracy measurable on the 10-PDF dataset.
 - [x] Add a “compare vs ground truth” script/report.
 - [x] Add tests for manifest parsing/slugging, ABC formatting, and metrics/comparison code.
 - [x] Verify the complete collection's explicit page catalog and prepare create-once local source packets with source/output hashes, preserved multi-page works and missing-row accounting. The supplied book yields 95 work inputs on 96 pages; this is source coverage, not transcription completion.
+- [x] Add an offline, hash-bound source-bar coverage and performed-route checker with explicit return-copy/editorial mappings and final-stop comparison. Saved regressions preserve the six reference routes and detect both known Rumichaca form failures. Mapping checks do not certify source reading or alter the runtime completion gate. See `docs/SCORE_COVERAGE_FORM.md`.
 
 Done when: you can run an evaluation command that produces a numeric report for the dataset.
 
@@ -156,6 +164,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [x] Add an offline complete-score grader, PDF-only task preparation, a bounded validation/repair hook, six synthetic grader controls and a paired model-comparison HTML dashboard. Keep unrun results and unmeasured source/editorial/cost values explicit. See `docs/EVAL_HARNESS_V1.md`.
 - [x] Add configurable model/provider/effort records, independent dataset/labels/grader/harness versions, immutable trial identities and dynamic comparison rows. Preserve legacy reports; reject incompatible generation and mixed-trial records, and allow archived outputs to be regraded without rerunning inference. See `docs/EVAL_VERSIONING.md`.
 - [x] Freeze V3 source-note labels for 67/312 source bars and 268 noteheads across the six reviewed editions, with event hashes, explicit coverage and an editorial adjudication rubric. This is a partial model-assisted audit, not complete human-certified source truth. Preserve V1/V2 and score missing audited bars as false negatives. See `docs/EVAL_REFERENCE_LABELS.md`.
+- [x] Complete source-identity maps for the five remaining approved editions with separate visual verification; retain Aviador's prior map. Bind all 312 source identities and adopted routes to unchanged references, add offline wrong-order/omission controls and an HTML summary. Preserve the 67-bar source-note mask and distinguish editorial route agreement from source accuracy. See `docs/REVIEWED_SOURCE_MAPS.md`.
 - [x] Implement a bounded Codex subscription runner with fresh tool-free contexts, input-packet/runtime verification, exact prompt/image request audits, preserved failures and repair histories. Both Astra and Terra pass synthetic image-and-repair canaries; a real-size PDF image audit confirms input integrity. See `docs/EVAL_RUNNER.md`.
 - [x] Preserve the first 12 real subscription attempts under one frozen harness: Astra exhausts all six 900-second deadlines; Terra returns three structurally complete and three partial drafts, with macro audited-source note F1 `0.239` on the 67-bar subset. Publish per-piece metrics and version identities without source music. The musical model comparison remains incomplete; diagnose the deadline and add source-row completion checks in separate future versions. See `docs/EVAL_COMPARISON_20261028.md`.
 - [ ] Build complete-score eval v1 with source/editorial labels, semantic notation and form metrics, bounded PDF-only agent runs and an Astra–Terra comparison dashboard. Then freeze the harness for fresh-score tests.
