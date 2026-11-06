@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "abc_sha256": "1e7f205c7c5eecf3063c840bdedf952c218b39010722c005f64679a5ba47c638",
+  "source_pdf_sha256": "d0a43e928b472addbb9036a475966cf41a7d5b5820e4a936917f87ec4d43b1a2",
+  "normalization": {
+    "written_bar_count": 64,
+    "route_status": "resolved",
+    "route": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64
+    ]
+  },
+  "expected_source_bar_ids": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55",
+    "56",
+    "57",
+    "58",
+    "59",
+    "60",
+    "61",
+    "62"
+  ],
+  "assignments": [
+    {
+      "written_bar": 1,
+      "kind": "primary",
+      "source_bar_id": "1"
+    },
+    {
+      "written_bar": 2,
+      "kind": "primary",
+      "source_bar_id": "2"
+    },
+    {
+      "written_bar": 3,
+      "kind": "primary",
+      "source_bar_id": "3"
+    },
+    {
+      "written_bar": 4,
+      "kind": "primary",
+      "source_bar_id": "4"
+    },
+    {
+      "written_bar": 5,
+      "kind": "primary",
+      "source_bar_id": "5"
+    },
+    {
+      "written_bar": 6,
+      "kind": "primary",
+      "source_bar_id": "6"
+    },
+    {
+      "written_bar": 7,
+      "kind": "primary",
+      "source_bar_id": "7"
+    },
+    {
+      "written_bar": 8,
+      "kind": "primary",
+      "source_bar_id": "8"
+    },
+    {
+      "written_bar": 9,
+      "kind": "primary",
+      "source_bar_id": "9"
+    },
+    {
+      "written_bar": 10,
+      "kind": "primary",
+      "source_bar_id": "10"
+    },
+    {
+      "written_bar": 11,
+      "kind": "primary",
+      "source_bar_id": "11"
+    },
+    {
+      "written_bar": 12,
+      "kind": "primary",
+      "source_bar_id": "12"
+    },
+    {
+      "written_bar": 13,
+      "kind": "primary",
+      "source_bar_id": "13"
+    },
+    {
+      "written_bar": 14,
+      "kind": "primary",
+      "source_bar_id": "14"
+    },
+    {
+      "written_bar": 15,
+      "kind": "primary",
+      "source_bar_id": "15"
+    },
+    {
+      "written_bar": 16,
+      "kind": "primary",
+      "source_bar_id": "16"
+    },
+    {
+      "written_bar": 17,
+      "kind": "primary",
+      "source_bar_id": "17"
+    },
+    {
+      "written_bar": 18,
+      "kind": "primary",
+      "source_bar_id": "18"
+    },
+    {
+      "written_bar": 19,
+      "kind": "primary",
+      "source_bar_id": "19"
+    },
+    {
+      "written_bar": 20,
+      "kind": "primary",
+      "source_bar_id": "20"
+    },
+    {
+      "written_bar": 21,
+      "kind": "primary",
+      "source_bar_id": "21"
+    },
+    {
+      "written_bar": 22,
+      "kind": "primary",
+      "source_bar_id": "22"
+    },
+    {
+      "written_bar": 23,
+      "kind": "primary",
+      "source_bar_id": "23"
+    },
+    {
+      "written_bar": 24,
+      "kind": "primary",
+      "source_bar_id": "24"
+    },
+    {
+      "written_bar": 25,
+      "kind": "primary",
+      "source_bar_id": "25"
+    },
+    {
+      "written_bar": 26,
+      "kind": "primary",
+      "source_bar_id": "26"
+    },
+    {
+      "written_bar": 27,
+      "kind": "primary",
+      "source_bar_id": "27"
+    },
+    {
+      "written_bar": 28,
+      "kind": "primary",
+      "source_bar_id": "28"
+    },
+    {
+      "written_bar": 29,
+      "kind": "editorial_insertion",
+      "editorial_id": "cadence-29",
+      "reason": "Existing frozen Aviador B-cadence editorial mapping excludes this written bar from source coverage."
+    },
+    {
+      "written_bar": 30,
+      "kind": "primary",
+      "source_bar_id": "29"
+    },
+    {
+      "written_bar": 31,
+      "kind": "primary",
+      "source_bar_id": "30"
+    },
+    {
+      "written_bar": 32,
+      "kind": "primary",
+      "source_bar_id": "31"
+    },
+    {
+      "written_bar": 33,
+      "kind": "primary",
+      "source_bar_id": "32"
+    },
+    {
+      "written_bar": 34,
+      "kind": "primary",
+      "source_bar_id": "33"
+    },
+    {
+      "written_bar": 35,
+      "kind": "primary",
+      "source_bar_id": "34"
+    },
+    {
+      "written_bar": 36,
+      "kind": "primary",
+      "source_bar_id": "35"
+    },
+    {
+      "written_bar": 37,
+      "kind": "primary",
+      "source_bar_id": "36"
+    },
+    {
+      "written_bar": 38,
+      "kind": "primary",
+      "source_bar_id": "37"
+    },
+    {
+      "written_bar": 39,
+      "kind": "primary",
+      "source_bar_id": "38"
+    },
+    {
+      "written_bar": 40,
+      "kind": "primary",
+      "source_bar_id": "39"
+    },
+    {
+      "written_bar": 41,
+      "kind": "primary",
+      "source_bar_id": "40"
+    },
+    {
+      "written_bar": 42,
+      "kind": "primary",
+      "source_bar_id": "41"
+    },
+    {
+      "written_bar": 43,
+      "kind": "primary",
+      "source_bar_id": "42"
+    },
+    {
+      "written_bar": 44,
+      "kind": "primary",
+      "source_bar_id": "43"
+    },
+    {
+      "written_bar": 45,
+      "kind": "editorial_insertion",
+      "editorial_id": "cadence-45",
+      "reason": "Existing frozen Aviador B-cadence editorial mapping excludes this written bar from source coverage."
+    },
+    {
+      "written_bar": 46,
+      "kind": "primary",
+      "source_bar_id": "44"
+    },
+    {
+      "written_bar": 47,
+      "kind": "primary",
+      "source_bar_id": "45"
+    },
+    {
+      "written_bar": 48,
+      "kind": "primary",
+      "source_bar_id": "46"
+    },
+    {
+      "written_bar": 49,
+      "kind": "primary",
+      "source_bar_id": "47"
+    },
+    {
+      "written_bar": 50,
+      "kind": "primary",
+      "source_bar_id": "48"
+    },
+    {
+      "written_bar": 51,
+      "kind": "primary",
+      "source_bar_id": "49"
+    },
+    {
+      "written_bar": 52,
+      "kind": "primary",
+      "source_bar_id": "50"
+    },
+    {
+      "written_bar": 53,
+      "kind": "primary",
+      "source_bar_id": "51"
+    },
+    {
+      "written_bar": 54,
+      "kind": "primary",
+      "source_bar_id": "52"
+    },
+    {
+      "written_bar": 55,
+      "kind": "primary",
+      "source_bar_id": "53"
+    },
+    {
+      "written_bar": 56,
+      "kind": "primary",
+      "source_bar_id": "54"
+    },
+    {
+      "written_bar": 57,
+      "kind": "primary",
+      "source_bar_id": "55"
+    },
+    {
+      "written_bar": 58,
+      "kind": "primary",
+      "source_bar_id": "56"
+    },
+    {
+      "written_bar": 59,
+      "kind": "primary",
+      "source_bar_id": "57"
+    },
+    {
+      "written_bar": 60,
+      "kind": "primary",
+      "source_bar_id": "58"
+    },
+    {
+      "written_bar": 61,
+      "kind": "primary",
+      "source_bar_id": "59"
+    },
+    {
+      "written_bar": 62,
+      "kind": "primary",
+      "source_bar_id": "60"
+    },
+    {
+      "written_bar": 63,
+      "kind": "primary",
+      "source_bar_id": "61"
+    },
+    {
+      "written_bar": 64,
+      "kind": "primary",
+      "source_bar_id": "62"
+    }
+  ]
+}

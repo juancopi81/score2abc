@@ -1,0 +1,1251 @@
+{
+  "schema_version": 1,
+  "work": "atardecer",
+  "scope": "Independent model verification of consumed source-bar identity and adopted route; not a new note-accuracy audit, blind benchmark, or human approval.",
+  "reviewed_author_path": "map.author.json",
+  "reviewed_author_sha256": "0db386a7ed995814ac22d3ab28b32dd2792494c8afe9ce327541f4125f2e889f",
+  "source_pdf_sha256": "429790b781629edb50895143a4189b389e8521c6bbd526a84acc016de0735088",
+  "abc_sha256": "1c3fa7729783a64273090151258f6db0a3c4e41e15c1662a7d459619f18ee917",
+  "approved_review_sha256": "af1cf3838369342f70a92156ea638f1abfa4b21c30b51115eb7ed6b253d9d037",
+  "review_status": "agree",
+  "agreement": {
+    "source_identity_map": true,
+    "assignment_classification": true,
+    "source_special_cases": true,
+    "adopted_route_and_stop": true
+  },
+  "review_order": [
+    "Inspected complete source page and own crops for every musical row before reading map.author.json.",
+    "Read approved ABC and preserved reviewed human notes to derive exact adopted form.",
+    "Enlarged Atardecer navigation regions and last-row boundaries before opening author map.",
+    "Compared independently recorded row identities and declared route against author map and supplied normalization."
+  ],
+  "counts": {
+    "source_rows": 10,
+    "source_bars": 57,
+    "primary_assignments": 57,
+    "return_copies": 0,
+    "editorial_insertions": 0,
+    "performed_visits": 147,
+    "final_written_bar": 54
+  },
+  "source_rows": [
+    {
+      "page": 1,
+      "system": 1,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s01:m01",
+        "p1:s01:m02",
+        "p1:s01:m03",
+        "p1:s01:m04",
+        "p1:s01:m05",
+        "p1:s01:m06"
+      ],
+      "written_bars": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "reviewer_evidence": "Six spans: four introductory bars through the fermata/arpeggio interval, then two A bars. Held lower stacks in the first three spans do not create extra bars.",
+      "inspected_image": "reviewer_crops/row-01.png"
+    },
+    {
+      "page": 1,
+      "system": 2,
+      "bar_count": 7,
+      "source_ids": [
+        "p1:s02:m01",
+        "p1:s02:m02",
+        "p1:s02:m03",
+        "p1:s02:m04",
+        "p1:s02:m05",
+        "p1:s02:m06",
+        "p1:s02:m07"
+      ],
+      "written_bars": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "reviewer_evidence": "Seven spans. The separate low line and cross-bar curve occupy the first two source bars, without extra identities for concurrent voices.",
+      "inspected_image": "reviewer_crops/row-02.png"
+    },
+    {
+      "page": 1,
+      "system": 3,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s03:m01",
+        "p1:s03:m02",
+        "p1:s03:m03",
+        "p1:s03:m04",
+        "p1:s03:m05",
+        "p1:s03:m06"
+      ],
+      "written_bars": [
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "reviewer_evidence": "Six spans; final note/rest/chord interval finishes A body before the endings on row 4.",
+      "inspected_image": "reviewer_crops/row-03.png"
+    },
+    {
+      "page": 1,
+      "system": 4,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s04:m01",
+        "p1:s04:m02",
+        "p1:s04:m03",
+        "p1:s04:m04",
+        "p1:s04:m05",
+        "p1:s04:m06"
+      ],
+      "written_bars": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "reviewer_evidence": "Six spans: ending 1, ending 2, a B melodic figure, its own ditto bar, another B melodic figure, and its own ditto bar.",
+      "inspected_image": "reviewer_crops/row-04.png"
+    },
+    {
+      "page": 1,
+      "system": 5,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s05:m01",
+        "p1:s05:m02",
+        "p1:s05:m03",
+        "p1:s05:m04",
+        "p1:s05:m05",
+        "p1:s05:m06"
+      ],
+      "written_bars": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "reviewer_evidence": "Six spans: five written melodic figures and the final bounded one-bar ditto symbol.",
+      "inspected_image": "reviewer_crops/row-05.png"
+    },
+    {
+      "page": 1,
+      "system": 6,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s06:m01",
+        "p1:s06:m02",
+        "p1:s06:m03",
+        "p1:s06:m04",
+        "p1:s06:m05",
+        "p1:s06:m06"
+      ],
+      "written_bars": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ],
+      "reviewer_evidence": "Six spans; last is the descending first-ending figure under bracket 1 and ending at repeat.",
+      "inspected_image": "reviewer_crops/row-06.png"
+    },
+    {
+      "page": 1,
+      "system": 7,
+      "bar_count": 3,
+      "source_ids": [
+        "p1:s07:m01",
+        "p1:s07:m02",
+        "p1:s07:m03"
+      ],
+      "written_bars": [
+        38,
+        39,
+        40
+      ],
+      "reviewer_evidence": "Three musical spans only: B second ending, bridge after a long navigation-only region, and Coda entrance after four-flat signature. Enlarged source confirms intervening signs are calligraphy/navigation, not notes.",
+      "inspected_image": "reviewer_crops/row-07.png"
+    },
+    {
+      "page": 1,
+      "system": 8,
+      "bar_count": 8,
+      "source_ids": [
+        "p1:s08:m01",
+        "p1:s08:m02",
+        "p1:s08:m03",
+        "p1:s08:m04",
+        "p1:s08:m05",
+        "p1:s08:m06",
+        "p1:s08:m07",
+        "p1:s08:m08"
+      ],
+      "written_bars": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "reviewer_evidence": "Eight musical spans. Enlarged row separates both final intervals: rest/high pair followed by the four-event Coda entrance figure.",
+      "inspected_image": "reviewer_crops/row-08.png"
+    },
+    {
+      "page": 1,
+      "system": 9,
+      "bar_count": 6,
+      "source_ids": [
+        "p1:s09:m01",
+        "p1:s09:m02",
+        "p1:s09:m03",
+        "p1:s09:m04",
+        "p1:s09:m05",
+        "p1:s09:m06"
+      ],
+      "written_bars": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "reviewer_evidence": "Six spans. Dense accidental strokes remain inside chromatic measures 3-5; the sixth span begins Coda first ending.",
+      "inspected_image": "reviewer_crops/row-09.png"
+    },
+    {
+      "page": 1,
+      "system": 10,
+      "bar_count": 3,
+      "source_ids": [
+        "p1:s10:m01",
+        "p1:s10:m02",
+        "p1:s10:m03"
+      ],
+      "written_bars": [
+        55,
+        56,
+        57
+      ],
+      "reviewer_evidence": "Three musical spans: first-ending tail, second-ending chord bar, final chromatic bar. Enlarged right-side region shows return sign and signature/empty ruling after the double bar, not an extra sounding or silent bar.",
+      "inspected_image": "reviewer_crops/row-10.png"
+    }
+  ],
+  "independent_assignments": [
+    {
+      "written_bar": 1,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m01"
+    },
+    {
+      "written_bar": 2,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m02"
+    },
+    {
+      "written_bar": 3,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m03"
+    },
+    {
+      "written_bar": 4,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m04"
+    },
+    {
+      "written_bar": 5,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m05"
+    },
+    {
+      "written_bar": 6,
+      "kind": "primary",
+      "source_bar_id": "p1:s01:m06"
+    },
+    {
+      "written_bar": 7,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m01"
+    },
+    {
+      "written_bar": 8,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m02"
+    },
+    {
+      "written_bar": 9,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m03"
+    },
+    {
+      "written_bar": 10,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m04"
+    },
+    {
+      "written_bar": 11,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m05"
+    },
+    {
+      "written_bar": 12,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m06"
+    },
+    {
+      "written_bar": 13,
+      "kind": "primary",
+      "source_bar_id": "p1:s02:m07"
+    },
+    {
+      "written_bar": 14,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m01"
+    },
+    {
+      "written_bar": 15,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m02"
+    },
+    {
+      "written_bar": 16,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m03"
+    },
+    {
+      "written_bar": 17,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m04"
+    },
+    {
+      "written_bar": 18,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m05"
+    },
+    {
+      "written_bar": 19,
+      "kind": "primary",
+      "source_bar_id": "p1:s03:m06"
+    },
+    {
+      "written_bar": 20,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m01"
+    },
+    {
+      "written_bar": 21,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m02"
+    },
+    {
+      "written_bar": 22,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m03"
+    },
+    {
+      "written_bar": 23,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m04"
+    },
+    {
+      "written_bar": 24,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m05"
+    },
+    {
+      "written_bar": 25,
+      "kind": "primary",
+      "source_bar_id": "p1:s04:m06"
+    },
+    {
+      "written_bar": 26,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m01"
+    },
+    {
+      "written_bar": 27,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m02"
+    },
+    {
+      "written_bar": 28,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m03"
+    },
+    {
+      "written_bar": 29,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m04"
+    },
+    {
+      "written_bar": 30,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m05"
+    },
+    {
+      "written_bar": 31,
+      "kind": "primary",
+      "source_bar_id": "p1:s05:m06"
+    },
+    {
+      "written_bar": 32,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m01"
+    },
+    {
+      "written_bar": 33,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m02"
+    },
+    {
+      "written_bar": 34,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m03"
+    },
+    {
+      "written_bar": 35,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m04"
+    },
+    {
+      "written_bar": 36,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m05"
+    },
+    {
+      "written_bar": 37,
+      "kind": "primary",
+      "source_bar_id": "p1:s06:m06"
+    },
+    {
+      "written_bar": 38,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m01"
+    },
+    {
+      "written_bar": 39,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m02"
+    },
+    {
+      "written_bar": 40,
+      "kind": "primary",
+      "source_bar_id": "p1:s07:m03"
+    },
+    {
+      "written_bar": 41,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m01"
+    },
+    {
+      "written_bar": 42,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m02"
+    },
+    {
+      "written_bar": 43,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m03"
+    },
+    {
+      "written_bar": 44,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m04"
+    },
+    {
+      "written_bar": 45,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m05"
+    },
+    {
+      "written_bar": 46,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m06"
+    },
+    {
+      "written_bar": 47,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m07"
+    },
+    {
+      "written_bar": 48,
+      "kind": "primary",
+      "source_bar_id": "p1:s08:m08"
+    },
+    {
+      "written_bar": 49,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m01"
+    },
+    {
+      "written_bar": 50,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m02"
+    },
+    {
+      "written_bar": 51,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m03"
+    },
+    {
+      "written_bar": 52,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m04"
+    },
+    {
+      "written_bar": 53,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m05"
+    },
+    {
+      "written_bar": 54,
+      "kind": "primary",
+      "source_bar_id": "p1:s09:m06"
+    },
+    {
+      "written_bar": 55,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m01"
+    },
+    {
+      "written_bar": 56,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m02"
+    },
+    {
+      "written_bar": 57,
+      "kind": "primary",
+      "source_bar_id": "p1:s10:m03"
+    }
+  ],
+  "independently_derived_route_segments": [
+    {
+      "label": "Introduction",
+      "written_bars": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Latest approved form specifies S1M1-M4 once, ending at arpeggio."
+    },
+    {
+      "label": "A first body",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "A starts S1M5 and ends S3M6, excluding both written endings."
+    },
+    {
+      "label": "A first ending",
+      "written_bars": [
+        20
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S4M1 under bracket 1."
+    },
+    {
+      "label": "A second body",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Approved first A repeat."
+    },
+    {
+      "label": "A second ending",
+      "written_bars": [
+        21
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S4M2 under bracket 2."
+    },
+    {
+      "label": "B first body",
+      "written_bars": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "B starts S4M3 and ends S6M5; includes source ditto bars."
+    },
+    {
+      "label": "B first ending",
+      "written_bars": [
+        37
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S6M6 under bracket 1."
+    },
+    {
+      "label": "B second body",
+      "written_bars": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Approved B repeat before second ending."
+    },
+    {
+      "label": "B second ending",
+      "written_bars": [
+        38
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S7M1 under bracket 2 then A return."
+    },
+    {
+      "label": "First A return",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Human return skips both A endings."
+    },
+    {
+      "label": "First bridge",
+      "written_bars": [
+        39
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Latest approved request includes S7M2 immediately before Coda."
+    },
+    {
+      "label": "Coda first body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Coda begins S7M3 after four flats, through S9M5."
+    },
+    {
+      "label": "Coda first ending main bar",
+      "written_bars": [
+        54
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S9M6 is first bar of first ending; no stop on this visit."
+    },
+    {
+      "label": "Coda first ending tail",
+      "written_bars": [
+        55
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S10M1 completes first ending on its initial visit."
+    },
+    {
+      "label": "Coda second body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Repeat Coda body for second ending."
+    },
+    {
+      "label": "Coda second ending",
+      "written_bars": [
+        56,
+        57
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S10M2-M3, followed by return to A."
+    },
+    {
+      "label": "Final A return",
+      "written_bars": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Latest approved form again skips both A endings."
+    },
+    {
+      "label": "Final bridge",
+      "written_bars": [
+        39
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "S7M2 is included before the final Coda entry."
+    },
+    {
+      "label": "Final Coda body",
+      "written_bars": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Final Coda visit leads to first ending."
+    },
+    {
+      "label": "Partial first ending and Fine",
+      "written_bars": [
+        54
+      ],
+      "basis": "human_approved_edition",
+      "evidence": "Human latest request stops at first bar of Coda first ending; S10M1 is omitted on this visit."
+    }
+  ],
+  "independently_derived_written_route": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    38,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    56,
+    57,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54
+  ],
+  "independently_derived_performed_source_route": [
+    "source:p1:s01:m01",
+    "source:p1:s01:m02",
+    "source:p1:s01:m03",
+    "source:p1:s01:m04",
+    "source:p1:s01:m05",
+    "source:p1:s01:m06",
+    "source:p1:s02:m01",
+    "source:p1:s02:m02",
+    "source:p1:s02:m03",
+    "source:p1:s02:m04",
+    "source:p1:s02:m05",
+    "source:p1:s02:m06",
+    "source:p1:s02:m07",
+    "source:p1:s03:m01",
+    "source:p1:s03:m02",
+    "source:p1:s03:m03",
+    "source:p1:s03:m04",
+    "source:p1:s03:m05",
+    "source:p1:s03:m06",
+    "source:p1:s04:m01",
+    "source:p1:s01:m05",
+    "source:p1:s01:m06",
+    "source:p1:s02:m01",
+    "source:p1:s02:m02",
+    "source:p1:s02:m03",
+    "source:p1:s02:m04",
+    "source:p1:s02:m05",
+    "source:p1:s02:m06",
+    "source:p1:s02:m07",
+    "source:p1:s03:m01",
+    "source:p1:s03:m02",
+    "source:p1:s03:m03",
+    "source:p1:s03:m04",
+    "source:p1:s03:m05",
+    "source:p1:s03:m06",
+    "source:p1:s04:m02",
+    "source:p1:s04:m03",
+    "source:p1:s04:m04",
+    "source:p1:s04:m05",
+    "source:p1:s04:m06",
+    "source:p1:s05:m01",
+    "source:p1:s05:m02",
+    "source:p1:s05:m03",
+    "source:p1:s05:m04",
+    "source:p1:s05:m05",
+    "source:p1:s05:m06",
+    "source:p1:s06:m01",
+    "source:p1:s06:m02",
+    "source:p1:s06:m03",
+    "source:p1:s06:m04",
+    "source:p1:s06:m05",
+    "source:p1:s06:m06",
+    "source:p1:s04:m03",
+    "source:p1:s04:m04",
+    "source:p1:s04:m05",
+    "source:p1:s04:m06",
+    "source:p1:s05:m01",
+    "source:p1:s05:m02",
+    "source:p1:s05:m03",
+    "source:p1:s05:m04",
+    "source:p1:s05:m05",
+    "source:p1:s05:m06",
+    "source:p1:s06:m01",
+    "source:p1:s06:m02",
+    "source:p1:s06:m03",
+    "source:p1:s06:m04",
+    "source:p1:s06:m05",
+    "source:p1:s07:m01",
+    "source:p1:s01:m05",
+    "source:p1:s01:m06",
+    "source:p1:s02:m01",
+    "source:p1:s02:m02",
+    "source:p1:s02:m03",
+    "source:p1:s02:m04",
+    "source:p1:s02:m05",
+    "source:p1:s02:m06",
+    "source:p1:s02:m07",
+    "source:p1:s03:m01",
+    "source:p1:s03:m02",
+    "source:p1:s03:m03",
+    "source:p1:s03:m04",
+    "source:p1:s03:m05",
+    "source:p1:s03:m06",
+    "source:p1:s07:m02",
+    "source:p1:s07:m03",
+    "source:p1:s08:m01",
+    "source:p1:s08:m02",
+    "source:p1:s08:m03",
+    "source:p1:s08:m04",
+    "source:p1:s08:m05",
+    "source:p1:s08:m06",
+    "source:p1:s08:m07",
+    "source:p1:s08:m08",
+    "source:p1:s09:m01",
+    "source:p1:s09:m02",
+    "source:p1:s09:m03",
+    "source:p1:s09:m04",
+    "source:p1:s09:m05",
+    "source:p1:s09:m06",
+    "source:p1:s10:m01",
+    "source:p1:s07:m03",
+    "source:p1:s08:m01",
+    "source:p1:s08:m02",
+    "source:p1:s08:m03",
+    "source:p1:s08:m04",
+    "source:p1:s08:m05",
+    "source:p1:s08:m06",
+    "source:p1:s08:m07",
+    "source:p1:s08:m08",
+    "source:p1:s09:m01",
+    "source:p1:s09:m02",
+    "source:p1:s09:m03",
+    "source:p1:s09:m04",
+    "source:p1:s09:m05",
+    "source:p1:s10:m02",
+    "source:p1:s10:m03",
+    "source:p1:s01:m05",
+    "source:p1:s01:m06",
+    "source:p1:s02:m01",
+    "source:p1:s02:m02",
+    "source:p1:s02:m03",
+    "source:p1:s02:m04",
+    "source:p1:s02:m05",
+    "source:p1:s02:m06",
+    "source:p1:s02:m07",
+    "source:p1:s03:m01",
+    "source:p1:s03:m02",
+    "source:p1:s03:m03",
+    "source:p1:s03:m04",
+    "source:p1:s03:m05",
+    "source:p1:s03:m06",
+    "source:p1:s07:m02",
+    "source:p1:s07:m03",
+    "source:p1:s08:m01",
+    "source:p1:s08:m02",
+    "source:p1:s08:m03",
+    "source:p1:s08:m04",
+    "source:p1:s08:m05",
+    "source:p1:s08:m06",
+    "source:p1:s08:m07",
+    "source:p1:s08:m08",
+    "source:p1:s09:m01",
+    "source:p1:s09:m02",
+    "source:p1:s09:m03",
+    "source:p1:s09:m04",
+    "source:p1:s09:m05",
+    "source:p1:s09:m06",
+    "STOP"
+  ],
+  "source_vs_adopted_route": "I=1-4, A=5-19, U=20, V=21, B=22-36, W=37, X=38, T=39, C=40-53, Y=54, Z=55, J=56-57. The human-approved order IAUAVBWBXATCYZCJATCY gives 147 visits, two bridge visits and STOP after bar 54, omitting the first-ending tail 55 on the final visit. The source shows local repeats/endings; the complete return and stopping behavior comes from saved human decisions.",
+  "special_case_checks": [
+    {
+      "topic": "Three distinct ditto source identities",
+      "result": "agree",
+      "evidence": "p1:s04:m04 (bar 23), p1:s04:m06 (25) and p1:s05:m06 (31) each show a one-bar slash-and-dots symbol between source boundaries. Their literal melody realization copies preceding content but is primary coverage of those source intervals, not written form return copies."
+    },
+    {
+      "topic": "Navigation-only areas",
+      "result": "agree",
+      "evidence": "Source row 7 has three sounding spans, not a bar for the extended navigation/calligraphic gap. Row 10 ends after its third musical span; the final return/signature marks add no source identity. Enlarged 360-dpi details were inspected."
+    },
+    {
+      "topic": "Bridge and octave rhythm",
+      "result": "agree",
+      "evidence": "Bar 39 is an actual source interval. Juan-approved c' z [cc']3 [cc'] changes the content interpretation within that span; it is not an inserted bar. The latest route visits this bridge twice."
+    },
+    {
+      "topic": "Intro voicing and invisible spacers",
+      "result": "agree",
+      "evidence": "Held lower notes in bars 1-3 and D/F continuity in bars 7-8 remain in the visible source spans. Invisible voice-alignment spacers do not add source rests or source identities."
+    },
+    {
+      "topic": "Accepted source ambiguities",
+      "result": "agree",
+      "evidence": "Recording-informed opening arpeggio, bridge rhythm, chromatic corrections and unclear final chord text remain provenance-labeled. None compromises bar identity or requires reversing existing approval."
+    },
+    {
+      "topic": "Exact final stop",
+      "result": "agree",
+      "evidence": "The approved route has 147 visits, two A-to-Coda bridge visits, and final STOP after written 54 (S9M6); 55 is played only on the earlier first-ending visit."
+    }
+  ],
+  "mechanical_comparisons": {
+    "row_source_ids_match": true,
+    "all_source_bar_identities_match": true,
+    "all_written_assignments_match": true,
+    "full_declared_route_matches_author": true,
+    "full_declared_route_matches_normalization": true,
+    "written_count_matches_normalization": true,
+    "input_pins_match": true,
+    "author_reports_no_unresolved_mapping_questions": true
+  },
+  "disagreements": [],
+  "unresolved_mapping_questions": [],
+  "visual_audit": {
+    "all_rows_inspected": true,
+    "images": [
+      {
+        "path": "page-1.png",
+        "sha256": "ff5fbf40abd8afcd7b482b31db80415a8d12fa71c1057f97f26eae33f6d14d59"
+      },
+      {
+        "path": "reviewer_crops/row-01.png",
+        "sha256": "4eadde15fafd49353b41037f7225acc3b8743a66006795fbce50d5788ee946b6"
+      },
+      {
+        "path": "reviewer_crops/row-02.png",
+        "sha256": "b95c65cde99d0c67d960bab104e02e81dc2ce9d9b807c98e6042cf80fb398c36"
+      },
+      {
+        "path": "reviewer_crops/row-03.png",
+        "sha256": "cda97d561c117ab63c324f68cd8cb9f3e9929fc19831947f0fa226de6df2c4e8"
+      },
+      {
+        "path": "reviewer_crops/row-04.png",
+        "sha256": "8814a80014cf52cf41047cc9171884ced9eba9cb001647ba66c042384c7a9d04"
+      },
+      {
+        "path": "reviewer_crops/row-05.png",
+        "sha256": "bc7404ea00703cca7d8735e08dcf2e0cc949ccfba99fa0d63948d2702f865dfa"
+      },
+      {
+        "path": "reviewer_crops/row-06.png",
+        "sha256": "01ae75b73236b617e8077a484415721852d88ef22142353ed9c799653fcf7a36"
+      },
+      {
+        "path": "reviewer_crops/row-07.png",
+        "sha256": "aa67b8d4673d2d9d1a1f386cb2f5e931c69b5123e657345ed42dc737695ea426"
+      },
+      {
+        "path": "reviewer_crops/row-08.png",
+        "sha256": "13e10c4c1e5768d1a4d6bb33db32dc34e5b8291a015a0980daabd514f2a3bc7f"
+      },
+      {
+        "path": "reviewer_crops/row-09.png",
+        "sha256": "802bbf12a26b25749f526206c7cae580c238a5b4d366d17910ea6daa9edabba5"
+      },
+      {
+        "path": "reviewer_crops/row-10.png",
+        "sha256": "aa7706dc8415a507ce702132c657c3978f58e69799ebf8d104e7579d39d9c51a"
+      },
+      {
+        "path": "reviewer_crops/row-07-navigation-detail.png",
+        "sha256": "5cfdf7ac2cd8e37e520072522137f4e00b886ebc22cbf128230f1376bc4a479d"
+      },
+      {
+        "path": "reviewer_crops/row-10-navigation-detail.png",
+        "sha256": "d434a3437e49d558ba4a728889a62b60646f50a94837e819aed480b29c63718d"
+      },
+      {
+        "path": "reviewer_crops/row-08-detail.png",
+        "sha256": "65c64f8b21f2d920a4b38d638008b009b6ce64791b1d305464f7f8a754233be1"
+      },
+      {
+        "path": "reviewer_crops/row-09-detail.png",
+        "sha256": "b2e5ee13dbd10f3d973151eb0fbd088635e711d76ced280db2e4f3ef34d4f002"
+      }
+    ],
+    "limitations": [
+      "No full per-note correctness audit or new acceptance.",
+      "Damaged duration/accidental/voicing evidence remains limited even when source-bar identity is clear.",
+      "Complete adopted return order comes from approved human decisions where manuscript navigation is ambiguous.",
+      "Separate model review on consumed material is not a blind or new human review."
+    ]
+  },
+  "mapping_review_pass": true,
+  "form_review_pass": true
+}

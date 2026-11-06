@@ -1,5 +1,9 @@
 # Offline source coverage and form checks
 
+The later [reviewed-six source-map packet](REVIEWED_SOURCE_MAPS.md) adds separately
+verified manuscript identities for the five editions without maps in the initial
+sprint inventory below. The initial inventory and reports remain unchanged.
+
 `scripts/check_score_coverage_form.py` checks a saved ABC against an explicit,
 hash-bound declaration. It writes a new sidecar directory and never changes the
 ABC, source PDF, review state, subscription workflow, API completion gate, parser,
