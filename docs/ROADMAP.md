@@ -1,5 +1,12 @@
 # Roadmap
 
+2026-11-06 checkpoint: Gato is the seventh musician-reviewed edition and now has
+a separate two-reader source-note mask (36/42 bars, 191 heads) plus 23 preserved
+decisions. Its adopted 112-bar route passes a separate coverage/form check.
+Focused Entusiasmo/La Chata investigations have playable alternatives and retain
+their unresolved source questions. Estrella and all live drafts remain unchanged;
+the six-score comparison is unchanged. See [focused review checkpoint](FOCUSED_REVIEW_20261106.md).
+
 This roadmap tracks reproducible recognition experiments and the collection delivery workflow. As of 2026-10-28, six works are musician-reviewed: Amalia, Atardecer, Aviador, Carrizal, Coqueteos and Rumichaca. Their saved editions and available histories are preserved; the shared engraving convention is `docs/FORM_NOTATION.md`. Aviador now includes musician-approved editorial additions and form choices, which must remain distinguishable from source readings. See `docs/COLLECTION_WORKFLOW.md`. Independent recognition gates remain required before default integration.
 
 2026-11-05 production update: the six approved editions remain byte-identical.
@@ -158,6 +165,7 @@ Goal: easy correction for remaining errors with patches fed back into the datase
 - [ ] Import reviewed overrides into lossless canonical events and dataset/training bundles. The initial `overrides/review.json` contract deliberately retains ABC separately; no `patches.json` event ingestion exists yet.
 - [x] Preserve automatic per-save revision history: archive exact prior review bytes before replacement, retain new model seeds, record save metadata, and expose verified read-only history. Existing reviews can be checkpointed without modification; previously overwritten revisions remain unavailable. Historical delivered model drafts remain in the separate delivery snapshots.
 - [ ] Align preserved human corrections to source measures with source/editorial decision labels before evaluation or training promotion.
+- [x] Build Gato’s separate source/editorial label sidecar with two independent visual audits, frozen-history evidence, exact verification and a read-only focused-review packet. Keep it outside the existing six-score benchmark; no training promotion.
 - [x] Freeze the six reviewed editions with exact PDFs, ABC/JSON, all surviving history and referenced decision evidence; verify file hashes, history chains and a separately restored local backup. See `docs/CHECKPOINT_20261028.md`.
 - [x] Preserve Gato’e Fique's human-approved revision 14 as a separate selected-score reference, with a restored seven-score backup and unchanged six-score benchmark. Repair grace-note playback across explicit section repeats and returns. See `docs/CHECKPOINT_20261106.md`.
 - [x] Generate a verified offline HTML reference-readiness dashboard with six expandable records, preserved source/export links and explicit unmeasured comparison status. See `docs/EVALUATION_PLAN.md`.
