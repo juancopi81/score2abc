@@ -45,6 +45,15 @@ are tracked; complete music and audit evidence stay in local artifacts/backup.
 
 ## Entusiasmo: navigation is the strongest reading
 
+**November 13 human update:** Juan Carlos inspected groups A/B/C and classified
+them as navigation lettering. The terminal-cluster concern about omitted timed
+notes/rests is closed for the current draft. Exact wording, return destinations
+and the no-repeats policy remain open. The ABC and playback route are unchanged;
+the score remains Draft. The saved review notes retain this decision and all
+earlier assessments. See the [human adjudication](eval/entusiasmo_human_adjudication_20261113.json).
+
+The following records the original November 6 investigation.
+
 Both readers favor a navigation/lettering cluster after S12’s final double bar,
 probably a return to the earlier Fine. The opening segno and earlier cursive
 Fine support that reading. The exact terminal lettering, whether any B/C stroke
@@ -52,16 +61,17 @@ is timed music, and the final no-repeats policy remain uncertain.
 
 No extra pitches or durations can be recovered confidently. The existing draft
 already follows the recommended return, so no full-score replacement was made.
-The possible-omitted-events concern remains open.
+At that checkpoint, the possible-omitted-events concern remained open; the human
+classification above now resolves that specific concern.
 
 The packet labels the three ink regions and compares them with the opening sign,
 earlier Fine and ordinary noteheads. Its 24-second return audition preserves
 baseline bars 85, then 2–16, exactly. Independent checks confirm notes, rests,
 durations, harmony labels, route suffix and the complete final chord hold.
 
-The small musician question is whether B/C are lettering/signs or contain a
-timed event. If music is visible, identifying onset count and rhythm is the first
-useful step. This does not require another whole-score review now.
+The original focused question was whether B/C were lettering/signs or contained
+a timed event. The November 13 answer resolves it without granting whole-score
+approval.
 
 ## La Chata: retain the unresolved reading
 
