@@ -1,0 +1,557 @@
+{
+  "backend": "chatgpt_subscription",
+  "comparison_id": "astra_sol_62_subscription_20261117_v1",
+  "compatibility": {
+    "audit_sha256": "b7317301bfdb7bcfcb48ee3069012eb8fbda1dfd7ca599eb023f263459e7d232",
+    "matched_checks": 20,
+    "mismatches": [],
+    "total_checks": 20,
+    "verified_evidence_pins": 2098
+  },
+  "configuration": {
+    "cli_version": "0.169.0-alpha.11.1",
+    "completion_policy": "completion_gate_v1",
+    "maximum_tool_calls_per_stage": 128,
+    "native_context_tokens": {
+      "astra62": 272000,
+      "sol62": 500000
+    },
+    "review_instructions": "assisted_review_v2",
+    "seconds_by_case": {
+      "aviador_s8": {
+        "initial": 1800,
+        "reviewed": 1200
+      },
+      "rumichaca_full": {
+        "initial": 3600,
+        "reviewed": 1800
+      }
+    },
+    "source_labels": "reviewed_six_v4 supplemental; original v3 retained"
+  },
+  "created_at": "2026-11-17T21:16:11.317974+00:00",
+  "evidence_kind": "consumed_development",
+  "interpretation": {
+    "aviador_scope": "Seven-bar strict note/rest scorer; excludes ties,chords,articulation,form.",
+    "cost_usd": null,
+    "historical_comparison": "Earlier Astra/Terra conditions differ; do not attribute all changes to model version.",
+    "no_unseen_score_claim": true,
+    "one_trial_only": true,
+    "recommendation": "Prefer Astra6.2 xhigh for draft quality in this pilot; Sol is faster but not an output-token-saving substitute. Continue human form review.",
+    "source_scope": "Partial model-assisted source audit:18/45 Rumichaca bars,80heads; pitch/onset/duration/tie endpoints, excluding chords/rests/form.",
+    "usage_subsets": "Cached input is included in input; reasoning output is included in output. Setup and coordinator usage excluded."
+  },
+  "kind": "assisted_model_comparison_portable_summary",
+  "models": [
+    {
+      "cases": {
+        "aviador_s8": {
+          "pair_elapsed_seconds": 1178.932216625999,
+          "pair_reported_usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 661888,
+            "input_tokens": 756338,
+            "output_tokens": 16568,
+            "reasoning_output_tokens": 10684
+          },
+          "report_sha256": "f877c82643d90797862ec43f93db8b5a285c0a23f87a32009b9884747b241f35",
+          "stages": {
+            "initial": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 579.5793110420018,
+              "metrics": {
+                "exact_measure_rate": 1.0,
+                "exact_measures": 7,
+                "note_f1": 1.0,
+                "note_precision": 1.0,
+                "note_recall": 1.0,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 1.0,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 398080,
+                "input_tokens": 449308,
+                "output_tokens": 8221,
+                "reasoning_output_tokens": 5587
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 2,
+              "score_status": "complete",
+              "source_inspections": 26,
+              "unresolved_completion_warnings": 0
+            },
+            "reviewed": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 599.3529055839972,
+              "metrics": {
+                "exact_measure_rate": 1.0,
+                "exact_measures": 7,
+                "note_f1": 1.0,
+                "note_precision": 1.0,
+                "note_recall": 1.0,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 1.0,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 263808,
+                "input_tokens": 307030,
+                "output_tokens": 8347,
+                "reasoning_output_tokens": 5097
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 33,
+              "unresolved_completion_warnings": 0
+            }
+          },
+          "submission_seal_sha256": "4ff35c0d995b3bc628b21e1925394c5925ab8e61cbc76592d5032781252922be"
+        },
+        "rumichaca_full": {
+          "pair_elapsed_seconds": 4594.494801416,
+          "pair_reported_usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 3396224,
+            "input_tokens": 3559539,
+            "output_tokens": 57178,
+            "reasoning_output_tokens": 43200
+          },
+          "report_sha256": "32f6b2af9646c8b17b9f3ef9b5229536a1db8d71475531ed36a510fee97d86de",
+          "stages": {
+            "initial": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 45,
+                "exact_measures": 36,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 36,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 2972.648691874998,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.8409090909090909,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.8,
+                "edition_note_f1": 0.9845360824742269,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 1.0
+              },
+              "performed_bars": 88,
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 2394368,
+                "input_tokens": 2490137,
+                "output_tokens": 32888,
+                "reasoning_output_tokens": 26536
+              },
+              "route_status": "resolved",
+              "runtime_status": "complete",
+              "saved_drafts": 6,
+              "score_status": "complete",
+              "source_inspections": 61,
+              "unresolved_completion_warnings": 0,
+              "v4_source": {
+                "coverage": {
+                  "source_eligible_measures": 18,
+                  "source_expected_noteheads": 80,
+                  "source_matched_measures": 18,
+                  "source_matched_noteheads": 80,
+                  "source_predicted_noteheads": 80,
+                  "source_scored_measures": 18,
+                  "source_total_measures": 45
+                },
+                "label_set": "reviewed_six_v4",
+                "metrics": {
+                  "source_note_f1": 1.0
+                },
+                "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment"
+              }
+            },
+            "reviewed": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "alignment_columns": 45,
+                "candidate_measures": 45,
+                "exact_measures": 38,
+                "meter_partial_measures": 0,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 36,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 1621.846109541002,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.8636363636363636,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.8444444444444444,
+                "edition_note_f1": 0.9896907216494846,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 1.0
+              },
+              "performed_bars": 117,
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 1001856,
+                "input_tokens": 1069402,
+                "output_tokens": 24290,
+                "reasoning_output_tokens": 16664
+              },
+              "route_status": "resolved",
+              "runtime_status": "complete",
+              "saved_drafts": 5,
+              "score_status": "complete",
+              "source_inspections": 77,
+              "unresolved_completion_warnings": 0,
+              "v4_source": {
+                "coverage": {
+                  "source_eligible_measures": 18,
+                  "source_expected_noteheads": 80,
+                  "source_matched_measures": 18,
+                  "source_matched_noteheads": 80,
+                  "source_predicted_noteheads": 80,
+                  "source_scored_measures": 18,
+                  "source_total_measures": 45
+                },
+                "label_set": "reviewed_six_v4",
+                "metrics": {
+                  "source_note_f1": 1.0
+                },
+                "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment"
+              }
+            }
+          },
+          "submission_seal_sha256": "c8f7f9d9086c14d74812f1fc0cbb683f535c2ec1547778b3a47b5bfa5754b5fe"
+        }
+      },
+      "evaluation_plan_sha256": "c413293709aac73067220d5b6ca2ed2ea8a370574fc2277723902f2238adf632",
+      "id": "astra62",
+      "reasoning_effort": "xhigh",
+      "requested_model": "gpt-6.2-astra",
+      "two_case_elapsed_seconds": 5773.427018041999,
+      "two_case_output_tokens": 73746
+    },
+    {
+      "cases": {
+        "aviador_s8": {
+          "pair_elapsed_seconds": 682.3098800419975,
+          "pair_reported_usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 627584,
+            "input_tokens": 752452,
+            "output_tokens": 30474,
+            "reasoning_output_tokens": 17686
+          },
+          "report_sha256": "f8de99196b61123d98a663bba4996d7581dedcd5cf297084d262421e09c37f7f",
+          "stages": {
+            "initial": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 358.77239283299787,
+              "metrics": {
+                "exact_measure_rate": 1.0,
+                "exact_measures": 7,
+                "note_f1": 1.0,
+                "note_precision": 1.0,
+                "note_recall": 1.0,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 1.0,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 303616,
+                "input_tokens": 362847,
+                "output_tokens": 16335,
+                "reasoning_output_tokens": 9905
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 39,
+              "unresolved_completion_warnings": 0
+            },
+            "reviewed": {
+              "accepted_source_exceptions": 0,
+              "completion_claim": true,
+              "completion_gate_status": "ready",
+              "coverage": {
+                "abc_valid": true,
+                "all_declared_meter_bars_valid": true,
+                "complete_measure_coverage": true,
+                "errors": [],
+                "event_geometry_errors": [],
+                "expected_measures": 7,
+                "headline_metrics_valid": true,
+                "submitted_measures": 7
+              },
+              "elapsed_seconds": 323.53748720899966,
+              "metrics": {
+                "exact_measure_rate": 1.0,
+                "exact_measures": 7,
+                "note_f1": 1.0,
+                "note_precision": 1.0,
+                "note_recall": 1.0,
+                "ordered_duration_accuracy": 1.0,
+                "ordered_onset_accuracy": 1.0,
+                "ordered_pitch_accuracy": 1.0,
+                "predicted": 7,
+                "rest_f1": 1.0,
+                "rest_precision": 1.0,
+                "rest_recall": 1.0,
+                "targets": 7
+              },
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 323968,
+                "input_tokens": 389605,
+                "output_tokens": 14139,
+                "reasoning_output_tokens": 7781
+              },
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "complete",
+              "source_inspections": 30,
+              "unresolved_completion_warnings": 0
+            }
+          },
+          "submission_seal_sha256": "b8db3eac2cbdec5b5b355bb37c50688f46efa34dab2ff09b2a8bebb0d238a6fe"
+        },
+        "rumichaca_full": {
+          "pair_elapsed_seconds": 1807.7193104590006,
+          "pair_reported_usage": {
+            "cache_write_input_tokens": 0,
+            "cached_input_tokens": 3078400,
+            "input_tokens": 3342011,
+            "output_tokens": 71645,
+            "reasoning_output_tokens": 54102
+          },
+          "report_sha256": "091b758b45d9692c7be3548c8b2f764fb545d39b8f1093a4f906ad3c385b19e1",
+          "stages": {
+            "initial": {
+              "accepted_source_exceptions": 1,
+              "completion_claim": true,
+              "completion_gate_status": "ready_with_source_exceptions",
+              "coverage": {
+                "alignment_columns": 46,
+                "candidate_measures": 46,
+                "exact_measures": 7,
+                "meter_partial_measures": 1,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 34,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 1077.7759975840017,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.40540540540540543,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.15217391304347827,
+                "edition_note_f1": 0.8578680203045685,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.9444444444444444
+              },
+              "performed_bars": 89,
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 2305536,
+                "input_tokens": 2493921,
+                "output_tokens": 45099,
+                "reasoning_output_tokens": 36810
+              },
+              "route_status": "resolved",
+              "runtime_status": "complete",
+              "saved_drafts": 7,
+              "score_status": "partial",
+              "source_inspections": 109,
+              "unresolved_completion_warnings": 0,
+              "v4_source": {
+                "coverage": {
+                  "source_eligible_measures": 18,
+                  "source_expected_noteheads": 80,
+                  "source_matched_measures": 18,
+                  "source_matched_noteheads": 75,
+                  "source_predicted_noteheads": 80,
+                  "source_scored_measures": 18,
+                  "source_total_measures": 45
+                },
+                "label_set": "reviewed_six_v4",
+                "metrics": {
+                  "source_note_f1": 0.9375
+                },
+                "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment"
+              }
+            },
+            "reviewed": {
+              "accepted_source_exceptions": 1,
+              "completion_claim": true,
+              "completion_gate_status": "ready_with_source_exceptions",
+              "coverage": {
+                "alignment_columns": 46,
+                "candidate_measures": 46,
+                "exact_measures": 3,
+                "meter_partial_measures": 1,
+                "meter_scored_measures": 45,
+                "paired_measures": 45,
+                "reference_measures": 45,
+                "source_eligible_measures": 9,
+                "source_expected_noteheads": 36,
+                "source_matched_measures": 9,
+                "source_matched_noteheads": 33,
+                "source_predicted_noteheads": 36,
+                "source_scored_measures": 9,
+                "source_total_measures": 45
+              },
+              "elapsed_seconds": 729.9433128749988,
+              "metrics": {
+                "bar_coverage": 1.0,
+                "chord_f1": 0.2972972972972973,
+                "cost_usd": null,
+                "edition_exact_bar_rate": 0.06521739130434782,
+                "edition_note_f1": 0.8375634517766497,
+                "editorial_acceptance": null,
+                "elapsed_seconds": null,
+                "form_exact_match": false,
+                "human_review_minutes": null,
+                "meter_valid_rate": 1.0,
+                "source_note_f1": 0.9166666666666666
+              },
+              "performed_bars": 134,
+              "reported_usage": {
+                "cache_write_input_tokens": 0,
+                "cached_input_tokens": 772864,
+                "input_tokens": 848090,
+                "output_tokens": 26546,
+                "reasoning_output_tokens": 17292
+              },
+              "route_status": "resolved",
+              "runtime_status": "complete",
+              "saved_drafts": 3,
+              "score_status": "partial",
+              "source_inspections": 73,
+              "unresolved_completion_warnings": 0,
+              "v4_source": {
+                "coverage": {
+                  "source_eligible_measures": 18,
+                  "source_expected_noteheads": 80,
+                  "source_matched_measures": 18,
+                  "source_matched_noteheads": 74,
+                  "source_predicted_noteheads": 80,
+                  "source_scored_measures": 18,
+                  "source_total_measures": 45
+                },
+                "label_set": "reviewed_six_v4",
+                "metrics": {
+                  "source_note_f1": 0.925
+                },
+                "source_scope": "partial_model_assisted_visual_audit; edition_based_bar_alignment"
+              }
+            }
+          },
+          "submission_seal_sha256": "a8db151d102ccd3e28ab549f30ca05f3f935d30375fed59c815db9eff79cf45e"
+        }
+      },
+      "evaluation_plan_sha256": "a7cc68fa66fe8e1d8f855626bc09ee215556fe81feee9895088ce704f632cca5",
+      "id": "sol62",
+      "reasoning_effort": "xhigh",
+      "requested_model": "gpt-6.2-sol",
+      "two_case_elapsed_seconds": 2490.029190500998,
+      "two_case_output_tokens": 102119
+    }
+  ],
+  "schema_version": 1,
+  "trial": 1
+}

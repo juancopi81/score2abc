@@ -98,6 +98,22 @@ def test_api_budget_required_before_preparation(monkeypatch):
     assert error.value.code == 2
 
 
+@pytest.mark.parametrize("model", ["gpt-6.2-astra", "gpt-6.2-sol"])
+def test_subscription_model_extension_does_not_enable_unpriced_api_model(tmp_path, model):
+    output = tmp_path / "packet"
+    with pytest.raises(ValueError, match="pricing is currently pinned"):
+        entry.prepare_api(
+            tmp_path / "source.pdf",
+            tmp_path / "prompt.txt",
+            output,
+            "initial",
+            1800,
+            "5",
+            model=model,
+        )
+    assert not output.exists()
+
+
 def test_subscription_runtime_skips_stale_pins(tmp_path, monkeypatch):
     monkeypatch.setattr(entry, "ROOT", tmp_path)
     base = tmp_path / "out/eval/runtime"

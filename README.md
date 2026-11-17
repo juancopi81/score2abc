@@ -19,7 +19,30 @@ unscored. This is partial model-assisted evidence, distinct from complete-editio
 agreement or new human approval. V3 remains the default for existing workflows;
 the offline v4 regrade preserves all prior reports and uses no new API calls.
 
-The latest [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
+The latest [Astra 6.2–Sol 6.2 subscription pilot](docs/GPT62_SUBSCRIPTION_COMPARISON.md)
+uses `xhigh`, the same source-inspection tools, v2 independent review and completion
+gate. All eight stages completed; all 20 shared-condition audit checks matched.
+Native context capacities differ and are recorded separately.
+
+| After independent AI review, November 17, 2026 | Astra 6.2 | Sol 6.2 |
+| --- | ---: | ---: |
+| Aviador exact note/rest bars | 7/7 | 7/7 |
+| Rumichaca audited-source notes matched (18/45 bars, v4) | 80/80 | 74/80 |
+| Rumichaca edition note F1 | 0.9897 | 0.8376 |
+| Rumichaca edition chord F1 | 0.8636 | 0.2973 |
+| Rumichaca author + reader time | 76m34s | 30m08s |
+| Rumichaca author + reader output tokens | 57,178 | 71,645 |
+
+Astra is the quality choice in this pilot; Sol is faster but uses more output
+tokens. Neither playback route exactly matches the adopted edition. Sol's route
+matches after excluding its reconstructed extra pickup, a post-hoc diagnostic
+that does not replace the official metric. Its review improves form but regresses
+note and chord agreement. The source audit is partial; one trial on two consumed
+cases does not establish collection-wide accuracy or exact subscription cost.
+See [findings and limitations](docs/GPT62_SUBSCRIPTION_COMPARISON.md) and
+[portable metrics](docs/eval/astra_sol_62_subscription_20261117_v1.json).
+
+The earlier [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
 uses adaptive PDF inspection, draft validation and an independent same-model
 reader, all through ChatGPT subscription authentication. Initial and reviewed
 outputs are retained separately; no reference answers reach the readers.
