@@ -7,7 +7,11 @@ import json
 
 import pytest
 
-from scripts.build_assisted_model_comparison_dashboard import load_comparison, render_dashboard
+from scripts.build_assisted_model_comparison_dashboard import (
+    _usage,
+    load_comparison,
+    render_dashboard,
+)
 
 
 def write_json(path, value):
@@ -186,6 +190,59 @@ def test_matched_dashboard_separates_models_stages_metrics_and_resource_subsets(
     assert "one quality-scored trial per model and case" in html
     assert "no API-dollar" in html
     assert "<script" not in html and "https://" not in html
+
+
+def test_expanded_source_scores_and_gate_exceptions_are_visible_without_relabeling_edition(
+    tmp_path,
+):
+    manifest, audit = fixture_bundle(tmp_path)
+    for system in ("astra", "terra"):
+        report = fixture_report(tmp_path, system, "rumichaca_full")
+        for lane in report["stages"].values():
+            lane["supplemental_source"] = {
+                "label_set": "reviewed_six_v4",
+                "metrics": {"source_note_f1": 0.9875},
+                "coverage": {"source_eligible_measures": 18, "source_total_measures": 45},
+            }
+            lane["runtime"]["completion_gate"] = {
+                "status": "ready_with_source_exceptions",
+                "accepted_source_exceptions": [{"issue_id": "test"}],
+                "unresolved_issues": [],
+            }
+        update_report(tmp_path, manifest, audit, system, "rumichaca_full", report)
+    html = render_dashboard(save_bundle(tmp_path, manifest, audit), tmp_path / "index.html")
+    assert "18 / 45 source bars audited" in html
+    assert "98.8%" in html and "85.0%" in html
+    assert "reviewed_six_v4" in html and "nine-of-45" not in html
+    assert "1 declared source exceptions; 0 unresolved warnings" in html
+    assert "Author + independent review totals" in html
+    assert "Setup canaries, other attempts and coordinator work are separate" in html
+
+
+def test_usage_accepts_flat_and_nested_subsets_without_counting_them_twice():
+    nested = {
+        "input_tokens": 1000,
+        "output_tokens": 100,
+        "input_tokens_details": {"cached_tokens": 600, "cache_write_tokens": 200},
+        "output_tokens_details": {"reasoning_tokens": 70},
+    }
+    flat = {
+        "input_tokens": 1000,
+        "output_tokens": 100,
+        "cached_input_tokens": 600,
+        "cache_write_input_tokens": 200,
+        "reasoning_output_tokens": 70,
+    }
+    assert _usage({"usage": nested}) == _usage({"usage": flat})
+    usage = _usage({"usage": [nested, flat]})
+    assert usage["values"] == {
+        "input_tokens": 2000,
+        "output_tokens": 200,
+        "cached_input_tokens": 1200,
+        "cache_write_input_tokens": 400,
+        "reasoning_output_tokens": 140,
+    }
+    assert usage["records"] == 2
 
 
 def test_missing_compatibility_check_prevents_full_matched_claim_and_pair_ratio(tmp_path):

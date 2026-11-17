@@ -88,6 +88,19 @@ def test_exact_twenty_check_keys_and_hashes_derive_from_each_lane():
     )
 
 
+def test_configured_model_ids_are_bound_to_the_actual_compared_evidence():
+    left = {name: {"evidence": name} for name in audit.DIMENSIONS}
+    right = copy.deepcopy(left)
+    right["limits"]["deadline"] = 120
+    rows = audit.compare_dimensions(
+        "aviador_s8", "initial", left, right, system_ids=("astra62", "sol62")
+    )
+    assert all(set(row["fingerprints"]) == {"astra62", "sol62"} for row in rows)
+    assert [row["dimension"] for row in rows if row["status"] == "mismatched"] == ["limits"]
+    with pytest.raises(ValueError, match="distinct system IDs"):
+        audit.compare_dimensions("aviador_s8", "initial", left, right, system_ids=("same", "same"))
+
+
 def test_numerical_ast_ignores_formatting_but_detects_scoring_changes():
     original = "def score(x):\n    return x / 2\n"
     formatting = "def score(x):\n\n    # formatting only\n    return x/2\n"
@@ -242,6 +255,20 @@ def test_transport_controls_keep_capability_and_token_limit_differences():
     assert audit.differing_paths(
         audit.request_controls(left, *args), audit.request_controls(right, *args)
     ) == ["max_output_tokens", "tools"]
+
+
+def test_native_deferred_description_requires_explicit_pinned_contract():
+    request = _transport()
+    description = "Only inspect_source and save_draft are available."
+    request["input"][2]["content"].append({"type": "input_text", "text": description})
+    args = ("base", "source-only prompt", audit.byte_sha(b"pixels"))
+    with pytest.raises(ValueError, match="developer instructions"):
+        audit.request_controls(request, *args)
+    controls = audit.request_controls(request, *args, deferred_tools_text=description)
+    assert controls["deferred_tools_text"] == description
+    request["input"][2]["content"][-1]["text"] += " Read reference answers."
+    with pytest.raises(ValueError, match="developer instructions"):
+        audit.request_controls(request, *args, deferred_tools_text=description)
 
 
 def _json_file(path, value):

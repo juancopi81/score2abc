@@ -44,7 +44,7 @@ COMPARISON_POLICY = {
     "target_selection": "both_preregistered_targets_regardless_of_aviador_outcome",
     "rumichaca_prerequisite": "baseline_predecessor_frozen_before_comparison",
 }
-COMPARISON_MODELS = {"gpt-6-astra", "gpt-6.1-terra"}
+COMPARISON_MODELS = {"gpt-6-astra", "gpt-6.1-terra", "gpt-6.2-astra", "gpt-6.2-sol"}
 
 
 def _completed_report(report: dict) -> bool:
@@ -258,6 +258,11 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
         }
         if any(provenance.get(key) != value for key, value in expected.items()):
             raise ValueError(f"{stage} provenance differs from the workflow plan")
+        if plan.get("completion_policy") is not None and any(
+            provenance.get(key) != plan.get(key)
+            for key in ("completion_policy", "completion_policy_sha256")
+        ):
+            raise ValueError("Stage completion policy differs from the preregistered plan")
         if type(provenance.get("complete")) is not bool:
             raise ValueError("Stage provenance needs an explicit completion claim")
         if provenance.get("status") not in {"complete", "partial", "failed"}:
@@ -631,6 +636,100 @@ def _rumichaca(plan: dict, stages: dict, records: list[dict]) -> dict:
     }
 
 
+def supplemental_source_scores(
+    plan: dict, stages: dict, measured: dict, records: list[dict]
+) -> None:
+    """Add a separately pinned audit without changing historical V3 measurements."""
+    label_pin = plan.get("supplemental_source_labels")
+    if label_pin is None:
+        return
+    target = plan["targets"]["rumichaca_full"]
+    freeze_path = verify_pin(ROOT, target["frozen_reference"], "frozen six reference")
+    label_path = verify_pin(ROOT, label_pin, "supplemental source labels")
+    frozen = verify_freeze(freeze_path.parent)
+    labels = verify_labels(label_path.parent, freeze_path.parent)
+    if labels.get("label_set") != "reviewed_six_v4":
+        raise ValueError("Supplemental source scores require the explicit V4 label set")
+    work = next(w for w in frozen["works"] if w["slug"] == target["slug"])
+    work_labels = next(w for w in labels["works"] if w["slug"] == target["slug"])
+    reference = normalize_abc((freeze_path.parent / work["answer_abc_path"]).read_text())
+    for stage in STAGES:
+        lane = measured["stages"][stage]
+        lane["supplemental_source"] = {
+            "label_set": labels["label_set"],
+            "label_manifest": pin(label_path),
+            **score_source(
+                reference, stages[stage]["normalized"], lane.get("alignment", []), work_labels
+            ),
+        }
+    records.append(pin(label_path))
+
+
+def seal_subscription_pair(plan_path: Path, case_root: Path) -> Path:
+    """Bind both saved subscription stages before any numerical reference scoring."""
+    from scripts.experiments import run_astra_baseline_reproduction as runner
+
+    plan_path, case_root = Path(plan_path).resolve(), Path(case_root).resolve()
+    plan = read_json(plan_path)
+    case = case_root.name
+    if case not in {"aviador_s8", "rumichaca_full"}:
+        raise ValueError("Expected a preregistered case directory")
+    destination = case_root / "submission_seal.json"
+    if destination.exists():
+        raise FileExistsError("Submission seal is create-once")
+    stages, artifacts = {}, []
+    for stage in STAGES:
+        packet, audit, result = (
+            case_root / f"{stage}_packet",
+            case_root / f"{stage}_audit",
+            case_root / stage,
+        )
+        for directory, kind in (
+            (packet, "astra_reproduction_input"),
+            (audit, "astra_reproduction_audit"),
+            (result, "astra_reproduction_stage"),
+        ):
+            runner.verify_seal(directory, kind)
+            artifacts.extend(pin(path) for path in sorted(directory.rglob("*")) if path.is_file())
+        provenance, audit_record = read_json(result / "stage_provenance.json"), read_json(
+            audit / "audit.json"
+        )
+        if (
+            provenance.get("auth_mode") != "chatgpt_subscription"
+            or provenance.get("input_seal_sha256") != sha(packet / "seal.json")
+            or provenance.get("audit_sha256") != sha(audit / "seal.json")
+            or audit_record.get("status") != "passed"
+            or audit_record.get("input_seal_sha256") != sha(packet / "seal.json")
+        ):
+            raise ValueError("Subscription input, audit and execution linkage differs")
+        stages[stage] = {
+            key: pin(result / filename)
+            for key, filename in (
+                ("abc", "score.abc"),
+                ("decisions", "decisions.json"),
+                ("provenance", "stage_provenance.json"),
+            )
+        }
+    seal = {
+        "schema_version": 1,
+        "kind": SEAL_KIND,
+        "status": SEAL_STATUS,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "plan_sha256": sha(plan_path),
+        "target_id": case,
+        "source_pdf_sha256": plan["targets"][case]["source_pdf"]["sha256"],
+        "reference_feedback_given": False,
+        "evidence_kind": plan["evidence_kind"],
+        "execution_contract": pin(plan_path.parent / "execution_contract.json"),
+        "stages": stages,
+        "artifacts": artifacts,
+    }
+    with destination.open("x") as handle:
+        json.dump(seal, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+    return destination
+
+
 def evaluate(
     plan_path: Path, seal_path: Path, output_dir: Path, *, truth_loader: Callable | None = None
 ) -> dict:
@@ -647,6 +746,7 @@ def evaluate(
         measured = _aviador(plan, seal, stages, records, truth_loader)
     else:
         measured = _rumichaca(plan, stages, records)
+        supplemental_source_scores(plan, stages, measured, records)
     for stage in STAGES:
         measured["stages"][stage]["event_ledger_consistency"] = stages[stage]["ledger_check"]
     for record in records:

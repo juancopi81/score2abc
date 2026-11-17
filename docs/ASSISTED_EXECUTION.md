@@ -6,6 +6,13 @@ checkpoints, deterministic feedback, and a separate reader of the author's draft
 There is no automatic fallback between billing methods and no reference feedback
 between stages. The existing musical tools and graders are unchanged.
 
+The [GPT-6.2 subscription comparison](GPT62_SUBSCRIPTION_COMPARISON.md) adds
+`gpt-6.2-astra` and `gpt-6.2-sol` at explicit `xhigh`. For the inspected
+`0.169.0-alpha.11.1` client, use `--completion-policy completion_gate_v1` and a
+freshly prepared matching runtime. This native-interface contract does not
+silently replace historical runtime pins. API execution remains restricted to
+its separately verified model/pricing configuration.
+
 An opt-in [completion gate](COMPLETION_GATE.md) is now available through
 `prepare`/`pair --completion-policy completion_gate_v1`. It requires structural
 warnings to be corrected or explicitly supported as source exceptions before a
