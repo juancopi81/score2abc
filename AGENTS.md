@@ -22,6 +22,32 @@
 - `tests/fixtures/vlm/` holds committed chord-OCR responses so hermetic runs (`use_vlm=False`) and CI never call Gemini.
 - `.cache/vlm/` (gitignored) holds live Gemini responses captured by `--use-vlm` runs.
 
+## API transcription with low subscription usage
+
+Agree on the PDFs and total API budget before a live run. Use the existing
+`OPENAI_API_KEY` setup. Run the batch once from a terminal and let it finish
+unattended. The API runs both the author and independent reader. To preview the
+plan locally, add `--dry-run` to the first command.
+
+```sh
+uv run python scripts/run_transcription_batch.py --pdf "$PDF" \
+  --budget-usd "$AGREED_USD" --output "$NEW_BATCH_DIR"
+uv run python scripts/report_transcription_batch.py "$NEW_BATCH_DIR"
+```
+
+Repeat `--pdf` for each score. The total budget is split across the scores. The
+runner saves the two passes and their usage, stops at the first incomplete pair,
+and preserves its artifacts. Give the report an optional `--output` path for a
+new Markdown file. To regenerate the November 18 pilot's report offline, pass
+`out/collection/api_batch_20261118_v1` to the report command.
+
+Use the saved report for a short summary if requested. Avoid starting Codex
+agents for routine progress checks or re-reading model traces. Inspect the
+specific saved error or score passage when an exception requires judgment.
+Budget, timing, notation and form counts are available locally. Source and
+playback adjudication, review desk installation, and human approval are separate
+steps. Leave new results in their batch directory until delivery checks pass.
+
 ## Build, Test, and Development Commands
 
 - `uv run python main.py ingest dataset dataset/metadata.csv out` runs ingest.

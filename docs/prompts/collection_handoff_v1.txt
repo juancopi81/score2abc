@@ -1,0 +1,5 @@
+Use ordinary ABC repeat and ending notation for ordinary repeats. If you use an executable P: order, it specifies the entire performance route, including intended repeats. Box musical section letters; technical playback splits need no visible section label.
+
+Keep each decision in the existing id, location, category, adopted_choice, reason, uncertainty, and alternatives format. Include a source_coverage decision with a rows array. For each musical row give page, system, written_bar_start, written_bar_end, source_bar_count, and notes on pickups, split bars, repeated copies, reconstruction, or instruction-only passages. Use one-based written bar numbers. Describe ambiguity where present.
+
+Include a performance_route decision with the adopted section and ending visits and final stop. Where feasible include performed_written_bars in visit order. For questions that specifically need musician input, add human_review_question decisions with the question in uncertainty and the location in location. Retain the provisional musical reading and evidence in the other fields.

@@ -20,6 +20,9 @@ The collection now has **7 reviewed editions and 15 drafts**. These new drafts
 retain musician questions and documented playback limits; they are not scored
 against ground truth or counted as approved editions.
 
+For unattended API transcription and a local cost and status report, follow the
+[two-command workflow](AGENTS.md#api-transcription-with-low-subscription-usage).
+
 ## Evaluation status
 
 The latest [Astra 6.2 API full-score pilot](docs/ASTRA62_API_RUMICHACA_PILOT.md)
