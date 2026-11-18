@@ -7,6 +7,13 @@ The collection inventory and current delivery plan are in
 contains 95 identifiable works; automatic whole-score transcription remains
 experimental.
 
+For the next musician review, follow the [review plan](docs/REVIEW_PLAN_20261118.md):
+**La Chata → Estrella del Caribe → Celina**. The local queue dashboard shows current
+saved questions and keeps the remaining drafts in a separate backlog. The
+[dataset release plan](docs/DATASET_RELEASE_PLAN.md) preserves exact approved
+editions and correction histories in a private, verified export before public
+distribution is considered.
+
 ## Evaluation status
 
 The latest [Astra 6.2 API full-score pilot](docs/ASTRA62_API_RUMICHACA_PILOT.md)

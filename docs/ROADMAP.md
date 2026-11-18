@@ -162,6 +162,9 @@ Done when: evaluation shows clear improvement over M1 baseline and meter validit
 
 Goal: easy correction for remaining errors with patches fed back into the dataset.
 
+- [x] Add a read-only collection review queue with La Chata, Estrella and Celina as the next reviews, current saved questions, and explicit source/editorial decision instructions. See `docs/REVIEW_PLAN_20261118.md`.
+- [x] Back up all 19 saved reviews with available histories and linked musical evidence, verify a full archive restore, and export the seven exact approved editions as a private versioned preview. Preserve source/editorial distinctions and reject concurrent saves; see `docs/CHECKPOINT_20261118.md`. This does not complete canonical event import or public dataset publication.
+
 - [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
 - [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Chords stop at each barline; unmarked bars remain melody-only. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.
 - [x] Adjustable quarter-note BPM for synchronized melody/chord/cursor playback, with per-melody browser preferences and a score-tempo reset. Listening tempo does not alter saved or exported ABC.
