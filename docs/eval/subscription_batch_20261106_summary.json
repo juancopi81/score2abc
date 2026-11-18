@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-11-06T22:22:19.941970+00:00",
+  "classification": "assisted_editorial_production_not_heldout_eval",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "model_attribution": "coordinator_spawn_configuration",
+  "execution": "subscription_agents",
+  "authors": 3,
+  "independent_reviewers": 3,
+  "api_calls": 0,
+  "source_policy": "supplied PDF only",
+  "human_approval": "pending",
+  "prior_review_files_unchanged": 78,
+  "prior_references_unchanged": {
+    "reviewed_six_20261028_v1": 903,
+    "gato_reviewed_20261106_v1": 134
+  },
+  "live_queue": {
+    "reviewed": 7,
+    "drafts": 12,
+    "available": 19
+  },
+  "review_order": [
+    "continue Estrella del Caribe",
+    "Celina",
+    "Blanca Inés",
+    "Barbatuscas"
+  ],
+  "comparison_limitation": "Author-review differences are not a ground-truth accuracy measurement.",
+  "local_packet": "out/collection/subscription_batch_20261106_v1",
+  "dashboard": "out/eval/subscription_batch_20261106_v1/index.html",
+  "works": [
+    {
+      "key": "barbatuscas",
+      "slug": "jaime-llanos_14_barbatuscas_bambuco_rafael-contreras",
+      "title": "Barbatuscas",
+      "abc_sha256": "d0a494df16a64073d7c75851c366b96ac8d7568f1ff958368f132348c67eef3c",
+      "source_pdf_sha256": "6b3835a94a1bcfe2a53bb0e8c988f42f1bb7558f8265ed792e0da1e790e01389",
+      "author_abc_sha256": "370667a5ac3de1ed5ac04d47c3abf77a9daa0d1a2c3bcfec7ffa0c5a44b8b078",
+      "audit_sha256": "6b5b0c9f7b0b88e82664fb2fe286990fc65e5276a8d38b483c03869d8701b8ab",
+      "source_systems": 9,
+      "source_bars": 47,
+      "written_bars": 47,
+      "performed_bars": 133,
+      "counts": {
+        "measures": 47,
+        "noteheads": 349,
+        "rests": 42,
+        "chord_labels": 24,
+        "performed_measures": 133
+      },
+      "playback_seconds": 199.5,
+      "technical_checks": "pass",
+      "human_review": "pending",
+      "revision": 2,
+      "roundtrip": "pass",
+      "history_entries": 2,
+      "question_count": 8,
+      "normalized_musical_bars_changed_from_author": [
+        4,
+        20,
+        21,
+        22,
+        29,
+        30,
+        31,
+        32,
+        38,
+        39,
+        41,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "meter_exception_bars": [],
+      "saved_review_sha256": "167f7734eebd610883e1565011fed99f0dc6d8f4f063df2c753b79f5aa9a4009"
+    },
+    {
+      "key": "blanca_ines",
+      "slug": "jaime-llanos_16_blanca-ines_pasillo_a-martinez-t",
+      "title": "Blanca Inés",
+      "abc_sha256": "89f89ac25d262e5edc2850a7427c97add8106675e279330dd252ebbf6c4f4fa1",
+      "source_pdf_sha256": "d6acf976904919e666aefd51369fd8f33857b50e4fddbed3dda5506e636b8bb2",
+      "author_abc_sha256": "00e11a0a807ca5587372372985e0e251b8dff5822d15f7c74eecdc4386e801aa",
+      "audit_sha256": "285cf9f40f6b505b651067d73c83a4ab92f2ea23a7212c92aca122b349acb205",
+      "source_systems": 8,
+      "source_bars": 53,
+      "written_bars": 53,
+      "performed_bars": 150,
+      "counts": {
+        "measures": 53,
+        "noteheads": 269,
+        "rests": 15,
+        "chord_labels": 22,
+        "performed_measures": 150
+      },
+      "playback_seconds": 181.25000125169754,
+      "technical_checks": "pass",
+      "human_review": "pending",
+      "revision": 2,
+      "roundtrip": "pass",
+      "history_entries": 2,
+      "question_count": 7,
+      "normalized_musical_bars_changed_from_author": [
+        2,
+        3,
+        10,
+        13,
+        34,
+        50
+      ],
+      "meter_exception_bars": [
+        11,
+        12,
+        20
+      ],
+      "saved_review_sha256": "201cb9eee567694324bab0d678666a58f4952a99f04701d7646d0ca7761a09fb"
+    },
+    {
+      "key": "celina",
+      "slug": "jaime-llanos_20_celina_pasillo_rodrigo-mantilla",
+      "title": "Celina",
+      "abc_sha256": "4ed0eb5d2d290a12e53b6594be164dbd9df97c96af5c5d881678076c0bd56eb3",
+      "source_pdf_sha256": "38047cc3377af630d089caa20882b9d438767f88b96390fe40c26682c0150e93",
+      "author_abc_sha256": "a691b286cfc78f33b079ab859ffc442676c650e090716b0f0afec5967e2e15e6",
+      "audit_sha256": "d2038f56e1b19f64bc83eb7972d475c7093c25af054963ae05b136f019fac37d",
+      "source_systems": 8,
+      "source_bars": 52,
+      "written_bars": 52,
+      "performed_bars": 122,
+      "counts": {
+        "measures": 52,
+        "noteheads": 250,
+        "rests": 17,
+        "chord_labels": 24,
+        "performed_measures": 122
+      },
+      "playback_seconds": 152.50000220537186,
+      "technical_checks": "pass",
+      "human_review": "pending",
+      "revision": 2,
+      "roundtrip": "pass",
+      "history_entries": 2,
+      "question_count": 6,
+      "normalized_musical_bars_changed_from_author": [],
+      "meter_exception_bars": [],
+      "saved_review_sha256": "accbdd3674ebe412900da3968b58857fa1a27cc6bfe5091a759ab67736b43c88"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "label_set": "gato_source_v1",
+  "created_date": "2026-11-06",
+  "scope": "Consumed, partial two-model-reader source-note audit of musician-reviewed edition; not heldout or new musician certification.",
+  "label_manifest_sha256": "23c3e576f5a0d569eddf6ab7fdab332706e064dd9ecea666937743878cd98ca3",
+  "labels_sha256": "d187ffcbd7ae253e5eab9a252e5d48117b6df53143bdc5a07ad4936fb713268b",
+  "reference_manifest_sha256": "ed6f5cb31a46f6dd06a6d6f90ec21d6e5120c483a9e5bee73711ad1507df0c2c",
+  "reference_abc_sha256": "0abaf4207c086427143777d2373e1ecd2a755ab7d082a6c6fc4cfa1272d623b8",
+  "reference_revision": 14,
+  "coverage": {
+    "audited_bars": 42,
+    "eligible_bars": 36,
+    "eligible_noteheads": 191,
+    "excluded_bars": 6
+  },
+  "excluded_edition_bars": [
+    17,
+    38,
+    39,
+    40,
+    41,
+    42
+  ],
+  "decision_count": 23,
+  "unscored_dimensions": [
+    "rests",
+    "chord_symbols",
+    "grace_notes",
+    "articulation",
+    "dynamics",
+    "form"
+  ],
+  "adopted_route": {
+    "sections": "AABBCXCYAB",
+    "written_bars": 42,
+    "performed_bars": 112,
+    "coverage_form_checks": "pass",
+    "source_navigation_truth": "editorial choices retained separately"
+  },
+  "source_readers": [
+    {
+      "id": "gato_label_author",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh"
+    },
+    {
+      "id": "gato_label_review",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh"
+    }
+  ],
+  "artifact_path": "out/eval/labels/gato_source_v1",
+  "dashboard_url": "http://127.0.0.1:8777/diagnostics/focused_review_sprint_20261106_v1/index.html",
+  "existing_six_changed": false,
+  "paid_api_calls": 0
+}

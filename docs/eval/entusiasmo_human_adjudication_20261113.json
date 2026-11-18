@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "slug": "jaime-llanos_39_entusiasmo_pasillo_luis-a-calvo",
+  "location": "S12 terminal cluster; focused crop groups A/B/C",
+  "decision_maker": "Juan Carlos (human musician)",
+  "recorded_by": "coordinator",
+  "user_confirmation_verbatim": "I was looking at the bounding boxes A B C and I'd say they are navigation lettering.",
+  "adopted_classification": "navigation_lettering_no_timed_music",
+  "scope": "Classifies the terminal ink only; no extra notes/rests are inferred from A/B/C.",
+  "closed_question": "Possible omitted timed events in the terminal cluster.",
+  "remaining_open": [
+    "Exact lettering and return destination",
+    "Repeat policy on the return",
+    "Other independent voice, rhythm and accidental questions"
+  ],
+  "full_score_approval": false,
+  "abc_changed": false,
+  "prior_revision": 3,
+  "prior_review_sha256": "1c23bf9d5588a446443556be3be407a2723d351d3d94b37e3baed09f74bc7e72",
+  "abc_sha256": "b1fd1b2bac3f3616cdab389c366e99d02839cf5d08060a574f3a67422ce3f0b4",
+  "local_evidence": "out/eval/diagnostics/focused_review_sprint_20261106_v1/entusiasmo/author/review.html",
+  "snapshot_path": "out/collection/human_adjudications/entusiasmo_20261113_v1/previous_review.json"
+}
