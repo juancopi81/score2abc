@@ -8,6 +8,7 @@ kept separate. Neither command performs inference or edits historical artifacts.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import math
@@ -40,11 +41,29 @@ SEAL_KIND = "astra_assisted_workflow_submission_seal"
 SEAL_STATUS = "both_stages_frozen_before_reference_scoring"
 LEGACY_PLAN_KIND = "astra_assisted_workflow_reproduction_plan"
 COMPARISON_PLAN_KIND = "matched_assisted_workflow_comparison_plan"
+TRANSPORT_PLAN_KIND = "single_target_assisted_api_transport_plan"
+TRANSPORT_TARGET = "aviador_s8"
+TRANSPORT_PROMPTS = ("aviador_s8.txt", "aviador_s8_review.txt")
+TRANSPORT_TARGETS = {
+    "aviador_s8": {
+        "target_selection": "aviador_seven_bars_only",
+        "deadline_seconds": {"initial": 1800, "reviewed": 1200},
+    },
+    "rumichaca_full": {
+        "target_selection": "rumichaca_full_score_only",
+        "deadline_seconds": {"initial": 3600, "reviewed": 1800},
+    },
+}
+TRANSPORT_TOOL_FILES = (
+    "astra_source_tools.py",
+    "astra_source_tools_gated.py",
+    "completion_gate.py",
+)
 COMPARISON_POLICY = {
     "target_selection": "both_preregistered_targets_regardless_of_aviador_outcome",
     "rumichaca_prerequisite": "baseline_predecessor_frozen_before_comparison",
 }
-COMPARISON_MODELS = {"gpt-6-astra", "gpt-6.1-terra"}
+COMPARISON_MODELS = {"gpt-6-astra", "gpt-6.1-terra", "gpt-6.2-astra", "gpt-6.2-sol"}
 
 
 def _completed_report(report: dict) -> bool:
@@ -164,15 +183,226 @@ def _verify_comparison_predecessor(plan: dict, root: Path, started_at: str) -> l
     return records
 
 
+def _transport_target(plan: dict) -> str:
+    targets = plan.get("targets", {})
+    if len(targets) != 1 or next(iter(targets)) not in TRANSPORT_TARGETS:
+        raise ValueError("Transport plan requires exactly one supported target")
+    return next(iter(targets))
+
+
+def _transport_prompts(target: str) -> tuple[str, str]:
+    return f"{target}.txt", f"{target}_review.txt"
+
+
+def build_api_transport_plan(
+    baseline_plan_path: Path,
+    baseline_report_path: Path,
+    *,
+    experiment_id: str,
+    prompts: dict[str, Path],
+    target_id: str = TRANSPORT_TARGET,
+) -> dict:
+    """Build a prospective single-score API comparison without reading answer content."""
+    if target_id not in TRANSPORT_TARGETS:
+        raise ValueError("Unsupported API transport target")
+    baseline = read_json(baseline_plan_path)
+    case = Path(baseline_report_path).resolve().parent.parent
+    plan = {
+        key: copy.deepcopy(baseline[key])
+        for key in (
+            "schema_version",
+            "status",
+            "workflow_id",
+            "model",
+            "reasoning_effort",
+            "source_policy",
+            "stages",
+            "evidence_kind",
+            "completion_policy",
+            "completion_policy_sha256",
+            "review_instruction_version",
+            "submission_contract",
+        )
+    }
+    plan.update(
+        kind=TRANSPORT_PLAN_KIND,
+        experiment_id=experiment_id,
+        created_at=datetime.now(timezone.utc).isoformat(),
+        auth_mode="openai_api",
+        targets={target_id: copy.deepcopy(baseline["targets"][target_id])},
+        stage_protocol={
+            **copy.deepcopy(baseline["stage_protocol"]),
+            "deadline_seconds": {
+                target_id: copy.deepcopy(baseline["stage_protocol"]["deadline_seconds"][target_id])
+            },
+        },
+        current_harness={
+            "review_version": "assisted_review_v2",
+            "completion_policy": "completion_gate_v1",
+            "prompts": {name: pin(prompts[name]) for name in _transport_prompts(target_id)},
+        },
+        transport_predecessor={
+            "plan": pin(baseline_plan_path),
+            "report": pin(baseline_report_path),
+            "packets": {stage: pin(case / f"{stage}_packet" / "seal.json") for stage in STAGES},
+        },
+        transport_scope={
+            "target_selection": TRANSPORT_TARGETS[target_id]["target_selection"],
+            "rumichaca_scheduled": target_id == "rumichaca_full",
+            "interpretation": (
+                "One fresh API pair versus a saved subscription pair; "
+                "not a causal transport effect."
+            ),
+        },
+    )
+    if target_id == "rumichaca_full":
+        plan["supplemental_source_labels"] = copy.deepcopy(baseline["supplemental_source_labels"])
+    _verify_transport_predecessor(plan, ROOT, plan["created_at"])
+    return plan
+
+
+def _verify_transport_predecessor(plan: dict, root: Path, started_at: str) -> list[dict]:
+    """Check the saved subscription controls, not the historical two-target policy."""
+    from scripts.experiments import run_astra_baseline_reproduction as runner
+
+    predecessor = plan.get("transport_predecessor", {})
+    baseline_path = verify_pin(root, predecessor.get("plan"), "transport baseline plan")
+    report_path = verify_pin(root, predecessor.get("report"), "transport baseline report")
+    baseline, report = read_json(baseline_path), read_json(report_path)
+    target = _transport_target(plan)
+    if (
+        baseline.get("kind") != COMPARISON_PLAN_KIND
+        or baseline.get("model") != plan.get("model")
+        or plan.get("model") != "gpt-6.2-astra"
+        or baseline.get("reasoning_effort") != plan.get("reasoning_effort")
+        or baseline.get("workflow_id") != plan.get("workflow_id")
+        or baseline.get("source_policy") != plan.get("source_policy")
+        or baseline.get("evidence_kind") != plan.get("evidence_kind")
+        or plan["targets"][target] != baseline.get("targets", {}).get(target)
+        or plan.get("stage_protocol", {}).get("deadline_seconds")
+        != {target: baseline.get("stage_protocol", {}).get("deadline_seconds", {}).get(target)}
+        or plan.get("stage_protocol", {}).get("deadline_seconds", {}).get(target)
+        != TRANSPORT_TARGETS[target]["deadline_seconds"]
+        or plan.get("auth_mode") != "openai_api"
+        or plan.get("completion_policy") != "completion_gate_v1"
+        or plan.get("review_instruction_version") != "assisted_review_v2"
+        or any(
+            plan.get(key) != baseline.get(key)
+            for key in (
+                "completion_policy",
+                "completion_policy_sha256",
+                "review_instruction_version",
+            )
+        )
+        or plan.get("transport_scope", {}).get("target_selection")
+        != TRANSPORT_TARGETS[target]["target_selection"]
+        or plan.get("transport_scope", {}).get("rumichaca_scheduled")
+        is not (target == "rumichaca_full")
+        or (
+            target == "rumichaca_full"
+            and (
+                not baseline.get("supplemental_source_labels")
+                or plan.get("supplemental_source_labels") != baseline["supplemental_source_labels"]
+            )
+        )
+    ):
+        raise ValueError("Transport source, identity or harness differs from saved subscription")
+    if (
+        report.get("kind") != "astra_assisted_workflow_reproduction_report"
+        or report.get("target_id") != target
+        or any(
+            report.get(key) != plan[key]
+            for key in ("model", "reasoning_effort", "workflow_id", "evidence_kind")
+        )
+        or not _completed_report(report)
+        or not any(p.get("sha256") == sha(baseline_path) for p in report.get("pins", []))
+    ):
+        raise ValueError("Transport baseline must be a completed matching subscription report")
+    try:
+        timestamps = [
+            datetime.fromisoformat(value)
+            for value in (report["created_at"], plan["created_at"], started_at)
+        ]
+        if any(value.tzinfo is None for value in timestamps) or not (
+            timestamps[0] <= timestamps[1] <= timestamps[2]
+        ):
+            raise ValueError("invalid ordering")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(
+            "Transport preregistration must follow baseline and precede inference"
+        ) from exc
+    records = [pin(baseline_path), pin(report_path)]
+    if target == "rumichaca_full":
+        records.append(
+            pin(verify_pin(root, plan["supplemental_source_labels"], "supplemental labels"))
+        )
+    harness = plan.get("current_harness", {})
+    if (
+        harness.get("review_version") != "assisted_review_v2"
+        or harness.get("completion_policy") != "completion_gate_v1"
+        or set(harness.get("prompts", {})) != set(_transport_prompts(target))
+        or set(predecessor.get("packets", {})) != set(STAGES)
+    ):
+        raise ValueError("Transport requires both pinned prompt and input controls")
+    for stage, name in zip(STAGES, _transport_prompts(target), strict=True):
+        prompt = verify_pin(root, harness["prompts"][name], "transport prompt")
+        original_prompt = baseline.get("current_harness", {}).get("prompts", {}).get(name)
+        original = verify_pin(baseline_path.parent, original_prompt, "subscription prompt")
+        packet_seal = verify_pin(root, predecessor["packets"][stage], "subscription packet")
+        runner.verify_seal(packet_seal.parent, "astra_reproduction_input")
+        metadata = read_json(packet_seal.parent / "preparation.json")
+        runtime = report["stages"][stage]["runtime"]
+        rendered_prompt = packet_seal.parent / "bundle/prompt.txt"
+        prefix = original.read_bytes()
+        if stage == "reviewed":
+            prefix += b"\n\n<untrusted_candidate_draft>\n"
+        with rendered_prompt.open("rb") as handle:
+            prompt_prefix_matches = handle.read(len(prefix)) == prefix
+        if (
+            sha(prompt) != sha(original)
+            or not prompt_prefix_matches
+            or metadata.get("prompt_sha256") != sha(rendered_prompt)
+            or (stage == "initial" and sha(rendered_prompt) != sha(original))
+            or metadata.get("model") != plan["model"]
+            or metadata.get("stage") != stage
+            or metadata.get("source_pdf_sha256") != plan["targets"][target]["source_pdf"]["sha256"]
+            or runtime.get("auth_mode") != "chatgpt_subscription"
+            or runtime.get("input_seal_sha256") != sha(packet_seal)
+        ):
+            raise ValueError("Saved subscription prompt, packet or authentication differs")
+        for filename in TRANSPORT_TOOL_FILES:
+            path = packet_seal.parent / "bundle" / filename
+            if sha(path) != sha(Path(__file__).with_name(filename)):
+                raise ValueError("Shared source tools changed from subscription baseline")
+            records.append(pin(path))
+        records.extend([pin(prompt), pin(original), pin(packet_seal)])
+    for name in (
+        "historical_scorer",
+        "historical_adapter",
+        "abc_normalizer",
+        "abc_parser",
+        "complete_score_grader",
+        "source_grader",
+    ):
+        records.append(pin(verify_pin(ROOT, report["implementations"].get(name), name)))
+    if report["implementations"].get("renderer") != renderer_identity():
+        raise ValueError("Transport renderer differs from subscription baseline")
+    return records
+
+
 def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dict, list[dict]]:
     """Verify both drafts and all source/workflow artifacts before any reference read."""
     plan, seal = read_json(plan_path), read_json(seal_path)
     comparison = plan.get("kind") == COMPARISON_PLAN_KIND
+    transport = plan.get("kind") == TRANSPORT_PLAN_KIND
     if (
-        plan.get("kind") not in {LEGACY_PLAN_KIND, COMPARISON_PLAN_KIND}
+        plan.get("kind") not in {LEGACY_PLAN_KIND, COMPARISON_PLAN_KIND, TRANSPORT_PLAN_KIND}
         or plan.get("status") != "preregistered_before_new_author_inference"
         or plan.get("workflow_id") != WORKFLOW
-        or plan.get("model") not in (COMPARISON_MODELS if comparison else {"gpt-6-astra"})
+        or plan.get("model")
+        not in (
+            COMPARISON_MODELS if comparison else {"gpt-6.2-astra"} if transport else {"gpt-6-astra"}
+        )
         or plan.get("reasoning_effort") != "xhigh"
         or plan.get("source_policy") != "supplied_pdf_only"
         or plan.get("stages") != list(STAGES)
@@ -190,6 +420,8 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
         or seal.get("target_id") not in {"aviador_s8", "rumichaca_full"}
     ):
         raise ValueError("Both workflow stages must be sealed without reference feedback")
+    if transport and seal["target_id"] != _transport_target(plan):
+        raise ValueError("Sealed target differs from the single-target transport plan")
     target = plan["targets"][seal["target_id"]]
     if seal.get("evidence_kind", plan.get("evidence_kind")) not in {
         "consumed_development_workflow_reproduction",
@@ -258,6 +490,11 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
         }
         if any(provenance.get(key) != value for key, value in expected.items()):
             raise ValueError(f"{stage} provenance differs from the workflow plan")
+        if plan.get("completion_policy") is not None and any(
+            provenance.get(key) != plan.get(key)
+            for key in ("completion_policy", "completion_policy_sha256")
+        ):
+            raise ValueError("Stage completion policy differs from the preregistered plan")
         if type(provenance.get("complete")) is not bool:
             raise ValueError("Stage provenance needs an explicit completion claim")
         if provenance.get("status") not in {"complete", "partial", "failed"}:
@@ -303,7 +540,14 @@ def verify_submission(plan_path: Path, seal_path: Path) -> tuple[dict, dict, dic
                 plan, plan_path.parent, paths["initial"]["provenance_data"]["started_at"]
             )
         )
-    if seal["target_id"] == "rumichaca_full" and not comparison:
+    if transport:
+        records.extend(
+            _verify_transport_predecessor(
+                plan, plan_path.parent, paths["initial"]["provenance_data"]["started_at"]
+            )
+        )
+        _verify_api_pair_artifacts(plan, root, paths, archived)
+    if seal["target_id"] == "rumichaca_full" and not comparison and not transport:
         prerequisite_path = verify_pin(
             root, seal.get("prerequisite_evaluation"), "Aviador gate report"
         )
@@ -620,6 +864,22 @@ def _rumichaca(plan: dict, stages: dict, records: list[dict]) -> dict:
     records.extend([pin(freeze_path), pin(labels_path)])
     return {
         "scorer": "complete-score-v2 plus reviewed_six_v3 audited note subset",
+        **(
+            {
+                "reference_summary": {
+                    "written_measures": len(reference["measures"]),
+                    "performed_measures": (
+                        len(reference["route"])
+                        if reference.get("route_status") == "resolved"
+                        and isinstance(reference.get("route"), list)
+                        else None
+                    ),
+                    "route_status": reference.get("route_status"),
+                }
+            }
+            if plan.get("kind") == TRANSPORT_PLAN_KIND
+            else {}
+        ),
         "stages": lanes,
         "gate": None,
         "unsupported_scope": ["whole-score source accuracy", "automatic editorial acceptance"],
@@ -629,6 +889,190 @@ def _rumichaca(plan: dict, stages: dict, records: list[dict]) -> dict:
             "not a tool-free schema2 run."
         ),
     }
+
+
+def supplemental_source_scores(
+    plan: dict, stages: dict, measured: dict, records: list[dict]
+) -> None:
+    """Add a separately pinned audit without changing historical V3 measurements."""
+    label_pin = plan.get("supplemental_source_labels")
+    if label_pin is None:
+        return
+    target = plan["targets"]["rumichaca_full"]
+    freeze_path = verify_pin(ROOT, target["frozen_reference"], "frozen six reference")
+    label_path = verify_pin(ROOT, label_pin, "supplemental source labels")
+    frozen = verify_freeze(freeze_path.parent)
+    labels = verify_labels(label_path.parent, freeze_path.parent)
+    if labels.get("label_set") != "reviewed_six_v4":
+        raise ValueError("Supplemental source scores require the explicit V4 label set")
+    work = next(w for w in frozen["works"] if w["slug"] == target["slug"])
+    work_labels = next(w for w in labels["works"] if w["slug"] == target["slug"])
+    reference = normalize_abc((freeze_path.parent / work["answer_abc_path"]).read_text())
+    for stage in STAGES:
+        lane = measured["stages"][stage]
+        lane["supplemental_source"] = {
+            "label_set": labels["label_set"],
+            "label_manifest": pin(label_path),
+            **score_source(
+                reference, stages[stage]["normalized"], lane.get("alignment", []), work_labels
+            ),
+        }
+    records.append(pin(label_path))
+
+
+def _verify_api_pair_artifacts(plan: dict, root: Path, stages: dict, archived: dict) -> None:
+    """Bind API source-only preparation/audit to each saved runtime, including prompts."""
+    from scripts.experiments import run_astra_baseline_reproduction as runner
+
+    target = _transport_target(plan)
+    for stage, prompt in zip(STAGES, _transport_prompts(target), strict=True):
+        packet, audit, result = root / f"{stage}_packet", root / f"{stage}_audit", root / stage
+        for directory, kind in ((packet, "input"), (audit, "audit"), (result, "stage")):
+            runner.verify_seal(directory, f"astra_reproduction_{kind}")
+            for path in directory.rglob("*"):
+                if path.is_file() and archived.get(path.resolve()) != sha(path):
+                    raise ValueError("API packet, audit or stage absent from submission archive")
+        metadata = read_json(packet / "preparation.json")
+        audit_data = read_json(audit / "audit.json")
+        provenance = stages[stage]["provenance_data"]
+        initial_hash = None if stage == "initial" else sha(stages["initial"]["abc"])
+        template = verify_pin(
+            root.parent, plan["current_harness"]["prompts"][prompt], "API template"
+        )
+        expected_prompt = template.read_text()
+        if stage == "reviewed":
+            expected_prompt += (
+                "\n\n<untrusted_candidate_draft>\n"
+                + json.dumps(
+                    {
+                        "abc": stages["initial"]["abc"].read_text(),
+                        "decisions": read_json(stages["initial"]["decisions"]),
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n</untrusted_candidate_draft>\n"
+            )
+        expected = {
+            "stage": stage,
+            "auth_mode": "openai_api",
+            "model": plan["model"],
+            "reasoning_effort": plan["reasoning_effort"],
+            "workflow_id": WORKFLOW,
+            "reference_access": False,
+            "independent_reader": stage == "reviewed",
+            "initial_abc_sha256": initial_hash,
+            "completion_policy": plan["completion_policy"],
+            "completion_policy_sha256": plan["completion_policy_sha256"],
+            "source_pdf_sha256": plan["targets"][target]["source_pdf"]["sha256"],
+        }
+        if (
+            any(
+                metadata.get(key) != value or provenance.get(key) != value
+                for key, value in expected.items()
+            )
+            or metadata.get("limit_seconds")
+            != plan["stage_protocol"]["deadline_seconds"][target][stage]
+            or metadata.get("prompt_template_sha256")
+            != plan["current_harness"]["prompts"][prompt]["sha256"]
+            or (packet / "bundle/prompt.txt").read_text() != expected_prompt
+            or metadata.get("prompt_sha256") != sha(packet / "bundle/prompt.txt")
+            or sha(packet / "bundle/source.pdf") != expected["source_pdf_sha256"]
+            or provenance.get("source_execution") != "sandboxed_source_process"
+            or provenance.get("input_seal_sha256") != sha(packet / "seal.json")
+            or audit_data.get("status") != "passed"
+            or audit_data.get("backend") != "api"
+            or audit_data.get("input_seal_sha256") != sha(packet / "seal.json")
+            or stages[stage]["abc"] != result / "score.abc"
+            or stages[stage]["decisions"] != result / "decisions.json"
+            or stages[stage]["provenance"] != result / "stage_provenance.json"
+        ):
+            raise ValueError("API input, prompt, audit or execution linkage differs")
+        runner.verify_source_bundle(packet / "bundle", metadata)
+    if datetime.fromisoformat(
+        stages["reviewed"]["provenance_data"]["started_at"]
+    ) < datetime.fromisoformat(stages["initial"]["provenance_data"]["finished_at"]):
+        raise ValueError("Independent API review must follow the completed author stage")
+
+
+def seal_subscription_pair(plan_path: Path, case_root: Path) -> Path:
+    """Bind both saved subscription stages before any numerical reference scoring."""
+    return _seal_pair(plan_path, case_root, auth_mode="chatgpt_subscription")
+
+
+def seal_api_pair(plan_path: Path, case_root: Path) -> Path:
+    """Bind both API stages under the explicit single-target transport contract."""
+    if read_json(plan_path).get("kind") != TRANSPORT_PLAN_KIND:
+        raise ValueError("API pair requires a single-target transport plan")
+    return _seal_pair(plan_path, case_root, auth_mode="openai_api")
+
+
+def _seal_pair(plan_path: Path, case_root: Path, *, auth_mode: str) -> Path:
+    from scripts.experiments import run_astra_baseline_reproduction as runner
+
+    plan_path, case_root = Path(plan_path).resolve(), Path(case_root).resolve()
+    plan = read_json(plan_path)
+    case = case_root.name
+    if case not in {"aviador_s8", "rumichaca_full"}:
+        raise ValueError("Expected a preregistered case directory")
+    destination = case_root / "submission_seal.json"
+    if destination.exists():
+        raise FileExistsError("Submission seal is create-once")
+    stages, artifacts = {}, []
+    for stage in STAGES:
+        packet, audit, result = (
+            case_root / f"{stage}_packet",
+            case_root / f"{stage}_audit",
+            case_root / stage,
+        )
+        for directory, kind in (
+            (packet, "astra_reproduction_input"),
+            (audit, "astra_reproduction_audit"),
+            (result, "astra_reproduction_stage"),
+        ):
+            runner.verify_seal(directory, kind)
+            artifacts.extend(pin(path) for path in sorted(directory.rglob("*")) if path.is_file())
+        provenance, audit_record = read_json(result / "stage_provenance.json"), read_json(
+            audit / "audit.json"
+        )
+        if (
+            provenance.get("auth_mode") != auth_mode
+            or provenance.get("input_seal_sha256") != sha(packet / "seal.json")
+            or (
+                auth_mode == "chatgpt_subscription"
+                and provenance.get("audit_sha256") != sha(audit / "seal.json")
+            )
+            or (auth_mode == "openai_api" and audit_record.get("backend") != "api")
+            or audit_record.get("status") != "passed"
+            or audit_record.get("input_seal_sha256") != sha(packet / "seal.json")
+        ):
+            label = "Subscription" if auth_mode == "chatgpt_subscription" else "API"
+            raise ValueError(f"{label} input, audit and execution linkage differs")
+        stages[stage] = {
+            key: pin(result / filename)
+            for key, filename in (
+                ("abc", "score.abc"),
+                ("decisions", "decisions.json"),
+                ("provenance", "stage_provenance.json"),
+            )
+        }
+    seal = {
+        "schema_version": 1,
+        "kind": SEAL_KIND,
+        "status": SEAL_STATUS,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "plan_sha256": sha(plan_path),
+        "target_id": case,
+        "source_pdf_sha256": plan["targets"][case]["source_pdf"]["sha256"],
+        "reference_feedback_given": False,
+        "evidence_kind": plan["evidence_kind"],
+        "execution_contract": pin(plan_path.parent / "execution_contract.json"),
+        "stages": stages,
+        "artifacts": artifacts,
+    }
+    with destination.open("x") as handle:
+        json.dump(seal, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+    return destination
 
 
 def evaluate(
@@ -647,6 +1091,7 @@ def evaluate(
         measured = _aviador(plan, seal, stages, records, truth_loader)
     else:
         measured = _rumichaca(plan, stages, records)
+        supplemental_source_scores(plan, stages, measured, records)
     for stage in STAGES:
         measured["stages"][stage]["event_ledger_consistency"] = stages[stage]["ledger_check"]
     for record in records:
@@ -688,6 +1133,11 @@ def evaluate(
         report.update(
             comparison_policy=plan["comparison_policy"],
             baseline_predecessor=plan["baseline_predecessor"],
+        )
+    if plan["kind"] == TRANSPORT_PLAN_KIND:
+        report.update(
+            transport_predecessor=plan["transport_predecessor"],
+            transport_scope=plan["transport_scope"],
         )
     output_dir.mkdir(parents=True)
     (output_dir / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

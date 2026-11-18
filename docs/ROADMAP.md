@@ -1,5 +1,28 @@
 # Roadmap
 
+2026-11-18 collection delivery: Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75
+are installed as independently reviewed Astra 6.2 API drafts. All six model stages
+complete for an estimated $23.76; source/form/persistence checks pass and musical
+questions remain explicit. The queue is now seven Reviewed editions and fifteen
+Drafts. All 87 earlier review/history files remain unchanged, and the 22-work
+backup passes restore/hash verification. Follow the [review plan](REVIEW_PLAN_20261118.md)
+and [pilot findings](COLLECTION_API_PILOT_20261118.md) before another batch.
+
+2026-11-18 full-score API checkpoint: a fresh Astra 6.2 author and independent
+reviewer complete Rumichaca with 100% edition note F1, all 80 V4 source notes
+matched (18/45 bars), and 88.64% edition chord F1. The pair takes 35m31s with a
+$6.17 conservative estimate. Both API and subscription retain the same 117-bar
+form interpretation versus the adopted 132-bar edition. Resolve the shared
+form/chord questions offline before broad scaling. All 87 review/history files
+remain unchanged. See [full-score findings](ASTRA62_API_RUMICHACA_PILOT.md).
+
+2026-11-18 API checkpoint: Astra 6.2 at `xhigh` is supported by the reusable
+runner with sealed model pricing and explicit reasoning context. The fresh
+Aviador API author and independent review both reach 7/7 exact note/rest bars,
+matching the saved subscription pair, with no budget/time interruption. All 87
+live review/history files remain unchanged. Recommend one full-score Rumichaca
+test before scaling; see [the API findings](ASTRA62_API_AVIADOR_PILOT.md).
+
 2026-11-06 production batch: Celina, Blanca Inés and Barbatuscas now have complete
 Astra subscription drafts, separate full-manuscript reviews and verified
 coverage/form/playback/persistence. The desk has seven reviewed works and twelve
@@ -146,6 +169,9 @@ Done when: evaluation shows clear improvement over M1 baseline and meter validit
 ## M3 — Human-in-the-Loop (HITL) Editing Loop
 
 Goal: easy correction for remaining errors with patches fed back into the dataset.
+
+- [x] Add a read-only collection review queue with La Chata, Estrella and Celina as the next reviews, current saved questions, and explicit source/editorial decision instructions. See `docs/REVIEW_PLAN_20261118.md`.
+- [x] Back up all 19 saved reviews with available histories and linked musical evidence, verify a full archive restore, and export the seven exact approved editions as a private versioned preview. Preserve source/editorial distinctions and reject concurrent saves; see `docs/CHECKPOINT_20261118.md`. This does not complete canonical event import or public dataset publication.
 
 - [x] Local UI showing PDF/page/system source, current ABC, rendered score, and metadata (`score2abc review`).
 - [x] Optional playback of the rendered ABC using local timing conversion and reference tones, with quiet sustained chord-symbol accompaniment, synchronized note/rest/tied-continuation highlighting and optional automatic scrolling. Chords stop at each barline; unmarked bars remain melody-only. Unsupported or conflicting chord symbols warn and silence accompaniment for that passage.

@@ -9,10 +9,10 @@ from test_astra_reproduction_dashboard import report_fixture
 from scripts.build_astra_transport_comparison_dashboard import render_dashboard
 
 
-def _manifest(tmp_path, *, api=True, change=None):
+def _manifest(tmp_path, *, api=True, change=None, target="aviador_s8"):
     systems = {}
     for name in ("subscription", "api"):
-        report = report_fixture(tmp_path)
+        report = report_fixture(tmp_path, target)
         if change:
             change(name, report)
         path = tmp_path / f"{name}.json"
@@ -28,7 +28,7 @@ def _manifest(tmp_path, *, api=True, change=None):
         "schema_version": 1,
         "kind": "astra_transport_comparison_manifest",
         "comparison_id": "synthetic_transport_test",
-        "target_id": "aviador_s8",
+        "target_id": target,
         "systems": systems,
         "protocol_differences": ["Native functions replace the CLI code-mode wrapper."],
     }
@@ -102,7 +102,7 @@ def test_api_estimate_is_separate_from_unknown_bill_and_subscription(tmp_path):
 
     html = render_dashboard(_manifest(tmp_path, change=change), tmp_path / "index.html")
     resources = html.split('<table class="resources">')[1].split("</table>")[0]
-    assert resources.count("Conservative estimated cap: $1.2500") == 2
+    assert resources.count("Conservative estimate: $1.2500") == 2
     assert resources.count("Billed cost unknown") == 2
     assert "Estimate, not an invoice or hard spending limit" in resources
     assert "1,000 input · 100 output" in resources and "1,800 input" not in resources
@@ -153,7 +153,7 @@ def test_cost_estimate_fallback_preserves_unknown_invoice(tmp_path, top_level):
                     runtime.update(cost_estimate_usd="1.50", cost_usd=None)
 
     html = render_dashboard(_manifest(tmp_path, change=change), tmp_path / "index.html")
-    assert f'Conservative estimated cap: ${"1.5000" if top_level else "1.2500"}' in html
+    assert f'Conservative estimate: ${"1.5000" if top_level else "1.2500"}' in html
     assert "Billed cost unknown" in html and "Recorded billed cost:" not in html
 
 
@@ -173,3 +173,181 @@ def test_transport_identity_mismatch_fails_and_labels_are_escaped(tmp_path):
     html = render_dashboard(path, tmp_path / "index.html")
     assert "&lt;img src=x&gt;" in html and "<img " not in html
     assert "Running &lt;pilot&gt;" in html
+
+
+def test_astra62_single_excerpt_displays_both_stages_and_transport_limits(tmp_path):
+    def change(name, report):
+        report.update(model="gpt-6.2-astra", reasoning_effort="xhigh")
+        if name == "api":
+            report["stages"]["initial"]["metrics"]["summary"]["exact_measures"] = 7
+            report["stages"]["reviewed"]["metrics"]["summary"]["exact_measures"] = 6
+            for lane in report["stages"].values():
+                lane["runtime"].update(
+                    cost_usd=None,
+                    cost_estimate_usd="1.7500",
+                    cost_basis="conservative_estimate_not_invoice",
+                )
+
+    path = _manifest(tmp_path, change=change)
+    manifest = json.loads(path.read_text())
+    manifest["systems"]["subscription"]["label"] = "Saved subscription · November 17"
+    manifest["systems"]["api"]["label"] = "Fresh API author and reviewer"
+    manifest["status"] = "Aviador only; Rumichaca is not scheduled."
+    manifest["protocol_differences"].append(
+        "Same source tools, v2 review and completion gate; client envelopes differ."
+    )
+    path.write_text(json.dumps(manifest))
+    html = render_dashboard(path, tmp_path / "index.html")
+    assert html.count("gpt-6.2-astra · xhigh") == 2
+    assert "Saved subscription · November 17" in html
+    assert "Fresh API author and reviewer" in html
+    assert "Rumichaca is not scheduled" in html
+    assert "7 / 7" in html and "6 / 7" in html
+    assert "Conservative estimate: $1.7500" in html
+    assert "Billed cost unknown" in html
+    assert "do not isolate a transport effect" in html
+
+
+def full_score_fixture(name, report):
+    report.update(model="gpt-6.2-astra", reasoning_effort="xhigh")
+    # Synthetic lengths deliberately differ from Rumichaca; never infer them from its name.
+    if name == "api":
+        report["reference_summary"] = {
+            "written_measures": 45,
+            "performed_measures": 152,
+            "route_status": "resolved",
+        }
+    for stage, lane in report["stages"].items():
+        initial = stage == "initial"
+        lane["metrics"].update(
+            source_note_f1=0.97,
+            edition_note_f1=0.81 if initial else 0.92,
+            chord_f1=0.83 if initial else 0.94,
+            meter_valid_rate=0.9 if initial else 1,
+            form_exact_match=not initial,
+        )
+        lane["coverage"].update(
+            reference_measures=45, candidate_measures=45, paired_measures=44 if initial else 45
+        )
+        lane["supplemental_source"] = {
+            "label_set": "reviewed_six_v4",
+            "metrics": {"source_note_f1": 0.71 if initial else 0.89},
+            "coverage": {
+                "source_eligible_measures": 18,
+                "source_total_measures": 45,
+                "source_expected_noteheads": 80,
+            },
+        }
+        lane["validation"] = {
+            "counts": {"performed_measures": 150 if initial else 152},
+            "warnings": ["Synthetic warning"] if initial else [],
+            "issues": [{"kind": "meter"}] if initial else [],
+            "route_status": "resolved",
+        }
+        lane["status"] = "partial" if initial else "complete"
+        lane["runtime"].update(
+            completed_turn=True,
+            deadline_seconds=1800 if initial else 1200,
+            completion_gate={
+                "status": "ready_with_source_exceptions" if initial else "ready",
+                "accepted_source_exceptions": [{}] if initial else [],
+            },
+        )
+        if name == "api":
+            lane["runtime"].update(
+                budget_usd="15" if initial else "10",
+                cost_estimate_usd="1.25",
+                cost_basis="conservative_estimate_not_invoice",
+            )
+
+
+def test_rumichaca_uses_v4_source_scope_and_separate_edition_form_metrics(tmp_path):
+    path = _manifest(tmp_path, target="rumichaca_full", change=full_score_fixture)
+    html = render_dashboard(path, tmp_path / "index.html")
+    quality = html.split('<table class="quality">')[1].split("</table>")[0]
+    assert quality.count("<tr>") == 5
+    assert quality.count("71.0%") == quality.count("89.0%") == 2
+    assert "97.0%" not in quality  # Earlier v3 audit cannot become the headline source score.
+    assert quality.count("81.0%") == quality.count("92.0%") == 2
+    assert quality.count("83.0%") == quality.count("94.0%") == 2
+    assert quality.count("18 / 45 source bars audited") == 4
+    assert quality.count("80 audited noteheads · v4") == 4
+    assert quality.count("45 written bars; reference 45") == 4
+    assert "44 / 45 reference bars aligned" in quality
+    assert quality.count("Different route") == quality.count("Exact route") == 2
+    assert "150 performed bars; reference 152" in quality
+    assert "152 performed bars; reference 152" in quality
+    assert "reference 132" not in html
+    assert "Earlier v3 audit; not the displayed v4 source metric" in html
+    assert "Equal performed-bar counts do not prove the same playback route" in html
+    assert "Seven-bar excerpt" not in html
+    assert "SYNTHETIC CONTROL" in html
+    assert not (tmp_path / "evaluation_plan.json").exists()
+
+
+def test_rumichaca_gate_warnings_time_and_cost_are_explicit(tmp_path):
+    html = render_dashboard(
+        _manifest(tmp_path, target="rumichaca_full", change=full_score_fixture),
+        tmp_path / "index.html",
+    )
+    quality = html.split('<table class="quality">')[1].split("</table>")[0]
+    resources = html.split('<table class="resources">')[1].split("</table>")[0]
+    assert quality.count("90.0%") == quality.count("100.0%") == 2
+    assert "1 notation warnings" in quality and "0 notation warnings" in quality
+    assert "Meter issues: 1" in quality and "Meter issues: 0" in quality
+    assert "Ready with source exceptions" in quality and "1 source exceptions" in quality
+    assert "Score validation: partial" in quality
+    assert "Ordinary bars with valid duration" in quality
+    assert "Time allowance: 30m 00s" in resources
+    assert "Time allowance: 20m 00s" in resources
+    assert "Stage budget setting: $15.0000" in resources
+    assert "Stage budget setting: $10.0000" in resources
+    assert resources.count("Conservative estimate: $1.2500") == 2
+    assert "Billed cost unknown" in resources
+    assert "Estimate, not an invoice or hard spending limit" in resources
+    assert html.count("gpt-6.2-astra · xhigh") == 2
+
+
+def test_rumichaca_missing_fields_remain_unknown_and_do_not_fall_back_to_v3(tmp_path):
+    def change(name, report):
+        full_score_fixture(name, report)
+        report.pop("reference_summary", None)
+        for lane in report["stages"].values():
+            lane.pop("supplemental_source")
+            lane.pop("validation")
+            lane["metrics"]["form_exact_match"] = None
+            lane["metrics"]["meter_valid_rate"] = None
+            lane["runtime"].pop("completion_gate")
+
+    html = render_dashboard(
+        _manifest(tmp_path, target="rumichaca_full", change=change), tmp_path / "index.html"
+    )
+    quality = html.split('<table class="quality">')[1].split("</table>")[0]
+    assert "No v4 source audit; v3 is separate evidence" in quality
+    assert "97.0%" not in quality and "0.0%" not in quality
+    assert "Unknown notation warnings" in quality
+    assert "Meter issues: Unknown" in quality
+    assert "Completion gate not recorded" in quality
+    assert "— performed bars; reference —" in quality
+    assert "132" not in html
+
+
+def test_rumichaca_reference_metadata_mismatch_is_rejected(tmp_path):
+    path = _manifest(tmp_path, target="rumichaca_full", change=full_score_fixture)
+    manifest = json.loads(path.read_text())
+    manifest["reference_summary"] = {"written_measures": 45, "performed_measures": 101}
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="Reference summaries disagree"):
+        render_dashboard(path, tmp_path / "index.html")
+
+
+def test_rumichaca_pending_api_does_not_render_zero_metrics(tmp_path):
+    html = render_dashboard(
+        _manifest(tmp_path, api=False, target="rumichaca_full", change=full_score_fixture),
+        tmp_path / "index.html",
+    )
+    quality = html.split('<table class="quality">')[1].split("</table>")[0]
+    assert quality.count("Pending") == 2
+    assert quality.count("No graded report") == 2
+    assert quality.count("89.0%") == 1
+    assert ">0.0%<" not in quality

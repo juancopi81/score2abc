@@ -7,7 +7,41 @@ The collection inventory and current delivery plan are in
 contains 95 identifiable works; automatic whole-score transcription remains
 experimental.
 
+For the next musician review, follow the [review plan](docs/REVIEW_PLAN_20261118.md):
+**La Chata → Estrella del Caribe → Celina**. The local queue dashboard shows current
+saved questions and keeps the remaining drafts in a separate backlog. The
+[dataset release plan](docs/DATASET_RELEASE_PLAN.md) preserves exact approved
+editions and correction histories in a private, verified export before public
+distribution is considered.
+
+The [three-score API production pilot](docs/COLLECTION_API_PILOT_20261118.md)
+adds Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75 for an estimated $23.76.
+The collection now has **7 reviewed editions and 15 drafts**. These new drafts
+retain musician questions and documented playback limits; they are not scored
+against ground truth or counted as approved editions.
+
 ## Evaluation status
+
+The latest [Astra 6.2 API full-score pilot](docs/ASTRA62_API_RUMICHACA_PILOT.md)
+reaches **100% edition note agreement** on Rumichaca after independent review,
+versus 98.97% for the saved subscription pair. Both match all 80 source-note labels
+across 18/45 audited bars. API chord agreement is 88.64% versus 86.36%; both choose
+the same 117-bar playback route, differing from the adopted 132-bar edition.
+The API pair takes **35m31s versus 76m34s**, with nearly identical output tokens
+(57,810 versus 57,178) and a **$6.17 conservative estimate**, not verified billing.
+All 45 bars pass rhythm checks; no time/budget limit or retry interrupted either
+stage. Resolve the remaining five chord-bar disagreements and final D.C. choice
+offline before broad scaling. Live reviews remain untouched.
+
+The preceding [Astra 6.2 API passage pilot](docs/ASTRA62_API_AVIADOR_PILOT.md) reproduces
+Aviador's **7/7 exact note/rest bars in both the fresh author and independent
+review**, matching the saved Astra 6.2 subscription pair. The API pair took
+16m01s versus 19m39s, used 21,942 versus 16,568 output tokens, and has a conservative
+cost estimate of **$2.78** (actual billing unverified). All responses retained the
+full allowance; there were no budget/time interruptions or retries. This is one
+consumed passage, with ties/chords/form outside its metric. The subsequently
+authorized Rumichaca test is reported above. Both execution backends
+remain available through the [same runner](docs/ASSISTED_EXECUTION.md).
 
 Six musician-reviewed performing editions are frozen. The configurable harness
 pins data, labels, grader, authoring tools and model settings independently;
@@ -19,7 +53,30 @@ unscored. This is partial model-assisted evidence, distinct from complete-editio
 agreement or new human approval. V3 remains the default for existing workflows;
 the offline v4 regrade preserves all prior reports and uses no new API calls.
 
-The latest [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
+The latest [Astra 6.2–Sol 6.2 subscription pilot](docs/GPT62_SUBSCRIPTION_COMPARISON.md)
+uses `xhigh`, the same source-inspection tools, v2 independent review and completion
+gate. All eight stages completed; all 20 shared-condition audit checks matched.
+Native context capacities differ and are recorded separately.
+
+| After independent AI review, November 17, 2026 | Astra 6.2 | Sol 6.2 |
+| --- | ---: | ---: |
+| Aviador exact note/rest bars | 7/7 | 7/7 |
+| Rumichaca audited-source notes matched (18/45 bars, v4) | 80/80 | 74/80 |
+| Rumichaca edition note F1 | 0.9897 | 0.8376 |
+| Rumichaca edition chord F1 | 0.8636 | 0.2973 |
+| Rumichaca author + reader time | 76m34s | 30m08s |
+| Rumichaca author + reader output tokens | 57,178 | 71,645 |
+
+Astra is the quality choice in this pilot; Sol is faster but uses more output
+tokens. Neither playback route exactly matches the adopted edition. Sol's route
+matches after excluding its reconstructed extra pickup, a post-hoc diagnostic
+that does not replace the official metric. Its review improves form but regresses
+note and chord agreement. The source audit is partial; one trial on two consumed
+cases does not establish collection-wide accuracy or exact subscription cost.
+See [findings and limitations](docs/GPT62_SUBSCRIPTION_COMPARISON.md) and
+[portable metrics](docs/eval/astra_sol_62_subscription_20261117_v1.json).
+
+The earlier [assisted Astra–Terra comparison](docs/ASSISTED_MODEL_COMPARISON.md)
 uses adaptive PDF inspection, draft validation and an independent same-model
 reader, all through ChatGPT subscription authentication. Initial and reviewed
 outputs are retained separately; no reference answers reach the readers.

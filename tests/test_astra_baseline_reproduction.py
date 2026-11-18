@@ -3,6 +3,7 @@
 import base64
 import json
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -139,7 +140,118 @@ def test_initial_context_rejects_extra_instructions(tmp_path, monkeypatch, model
         runner.verify_audit_request(payload, tmp_path, metadata)
 
 
-def test_model_selection_changes_only_cli_model_argument(tmp_path):
+@pytest.fixture
+def current_native_context(tmp_path):
+    fixture = json.loads(
+        (
+            Path(__file__).parent / "fixtures/assisted_runtime/codex_0_169_completion_gate_v1.json"
+        ).read_text()
+    )
+    contract_id = fixture["native_context_contract"]
+    contract = runner.NATIVE_CONTEXT_CONTRACTS[contract_id]
+    metadata = {
+        "model": "gpt-6.2-astra",
+        "reasoning_effort": "xhigh",
+        "prompt_sha256": "prompt-hash",
+        "native_context_contract": contract_id,
+        "base_runtime": {"codex_version": contract["codex_version"]},
+        "completion_policy": "completion_gate_v1",
+        "wrapper_sha256": contract["wrapper_sha256"],
+        "registry_sha256": contract["registry_sha256"],
+    }
+    (tmp_path / "prompt.txt").write_text("Source-only task")
+    (tmp_path / "overview.png").write_bytes(b"png")
+    payload = {
+        "model": metadata["model"],
+        "reasoning": {"effort": "xhigh"},
+        "store": False,
+        "input": [
+            {"type": "additional_tools", "role": "developer", "tools": fixture["wrapper"]},
+            {
+                "type": "message",
+                "role": "developer",
+                "content": [{"type": "input_text", "text": runner.BASE}],
+            },
+            {
+                "type": "message",
+                "role": "developer",
+                "content": [
+                    {"type": "input_text", "text": runner.legacy.PERMISSIONS_INSTRUCTIONS},
+                    {"type": "input_text", "text": fixture["deferred_tools_text"]},
+                ],
+            },
+            {
+                "type": "message",
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_text",
+                        "text": f'<image name=[Image #1] path="{tmp_path / "overview.png"}">',
+                    },
+                    {
+                        "type": "input_image",
+                        "image_url": "data:image/png;base64," + base64.b64encode(b"png").decode(),
+                    },
+                    {"type": "input_text", "text": "</image>"},
+                    {"type": "input_text", "text": "Source-only task"},
+                ],
+            },
+        ],
+    }
+    return fixture, metadata, payload
+
+
+def test_current_native_context_accepts_only_inspected_bounded_tools(
+    tmp_path, current_native_context
+):
+    fixture, metadata, payload = current_native_context
+    audit = runner.verify_audit_request(payload, tmp_path, metadata)
+    assert audit["native_context_contract"] == metadata["native_context_contract"]
+    assert audit["wrapper_sha256"] == metadata["wrapper_sha256"]
+    runner.verify_native_inventory(fixture["registry"], metadata)
+    fixture["registry"].append({"name": "exec_command", "description": "shell"})
+    with pytest.raises(ValueError, match="inventory differs"):
+        runner.verify_native_inventory(fixture["registry"], metadata)
+    payload["input"][0]["tools"][0]["tools"].append({"type": "function", "name": "shell"})
+    with pytest.raises(ValueError, match="wrapper capabilities"):
+        runner.verify_audit_request(payload, tmp_path, metadata)
+
+
+def test_current_native_context_rejects_extra_deferred_instructions(
+    tmp_path, current_native_context
+):
+    _, metadata, payload = current_native_context
+    payload["input"][2]["content"][1]["text"] += "\n- references: read frozen answers"
+    with pytest.raises(ValueError, match="developer"):
+        runner.verify_audit_request(payload, tmp_path, metadata)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        {"native_context_contract": "uninspected"},
+        {"base_runtime": {"codex_version": "codex-cli uninspected"}},
+        {"completion_policy": None},
+        {"wrapper_sha256": "uninspected"},
+        {"registry_sha256": "uninspected"},
+    ],
+)
+def test_native_context_contract_rejects_mismatched_identity(current_native_context, replacement):
+    _, metadata, _ = current_native_context
+    with pytest.raises(ValueError, match="context contract"):
+        runner.native_context_contract({**metadata, **replacement})
+
+
+def test_legacy_native_context_pins_are_preserved():
+    assert runner.native_context_contract({}) == {
+        "wrapper_sha256": "77ed314824ff66b17122eee21259267e5266b302e6fbe2caa8e6e14a00ce9eec",
+        "registry_sha256": "e8eac2ebc0ba2b66ac6a8ff232fce224a5b31d409a33938e151441df0610c5cb",
+        "deferred_tools_text": None,
+    }
+
+
+@pytest.mark.parametrize("model", runner.SUPPORTED_MODELS[1:])
+def test_model_selection_changes_only_cli_model_argument(tmp_path, model):
     metadata = {
         "model": runner.MODEL,
         "reasoning_effort": runner.EFFORT,
@@ -148,19 +260,24 @@ def test_model_selection_changes_only_cli_model_argument(tmp_path):
         "base_runtime": {"codex_path": "/codex"},
     }
     astra = runner.command(tmp_path, metadata)
-    terra = runner.command(tmp_path, {**metadata, "model": "gpt-6.1-terra"})
+    selected = runner.command(tmp_path, {**metadata, "model": model})
     changed = [
-        index for index, (left, right) in enumerate(zip(astra, terra, strict=True)) if left != right
+        index
+        for index, (left, right) in enumerate(zip(astra, selected, strict=True))
+        if left != right
     ]
     assert changed == [astra.index("--model") + 1]
-    assert terra[changed[0]] == "gpt-6.1-terra"
-    assert 'forced_login_method="chatgpt"' in terra
-    assert 'model_reasoning_effort="xhigh"' in terra
+    assert selected[changed[0]] == model
+    assert 'forced_login_method="chatgpt"' in selected
+    assert 'model_reasoning_effort="xhigh"' in selected
 
 
-@pytest.mark.parametrize("model,effort", [("gpt-unknown", "xhigh"), ("gpt-6.1-terra", "low")])
+@pytest.mark.parametrize(
+    "model,effort",
+    [("gpt-unknown", "xhigh"), *[(model, "low") for model in runner.SUPPORTED_MODELS]],
+)
 def test_rejects_unregistered_model_or_different_effort(model, effort):
-    with pytest.raises(ValueError, match="only Astra or Terra at xhigh"):
+    with pytest.raises(ValueError, match="registered model at xhigh"):
         runner.verify_model_selection({"model": model, "reasoning_effort": effort})
 
 

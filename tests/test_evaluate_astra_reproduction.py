@@ -516,6 +516,58 @@ def test_matched_comparison_preserves_historical_scorer_and_descriptive_gate(tmp
     assert report["baseline"]["historical_summary_reproduced"] is True
 
 
+@pytest.mark.parametrize("model", ["gpt-6.2-astra", "gpt-6.2-sol"])
+def test_new_subscription_models_keep_the_existing_sealed_metric_contract(
+    tmp_path, monkeypatch, model
+):
+    args = _comparison_fixture(tmp_path, monkeypatch)
+    plan = json.loads(args[0].read_text())
+    plan["model"] = model
+    _repin_plan(args, plan)
+    for stage in evaluator.STAGES:
+        _repin_stage(args, stage, {"model": model})
+    report = evaluator.evaluate(*args)
+    assert report["model"] == model
+    assert report["stages"]["reviewed"]["metrics"]["summary"]["exact_measures"] == 7
+
+
+def test_planned_gate_cannot_silently_be_omitted_from_execution(tmp_path, monkeypatch):
+    args = _comparison_fixture(tmp_path, monkeypatch)
+    plan = json.loads(args[0].read_text())
+    plan.update(completion_policy="completion_gate_v1", completion_policy_sha256="a" * 64)
+    _repin_plan(args, plan)
+    with pytest.raises(ValueError, match="completion policy"):
+        evaluator.evaluate(*args)
+    assert not args[2].exists()
+
+
+@pytest.mark.parametrize("initial", ["good", "invalid"])
+def test_expanded_source_labels_are_additive_and_hash_pinned(tmp_path, monkeypatch, initial):
+    args = _comparison_fixture(tmp_path, monkeypatch, target="rumichaca_full", initial=initial)
+    plan = json.loads(args[0].read_text())
+    label_path = args[0].parent / "expanded/manifest.json"
+    _write(label_path, {"label_set": "reviewed_six_v4"})
+    plan["supplemental_source_labels"] = evaluator.pin(label_path)
+    _repin_plan(args, plan)
+    original = evaluator.verify_labels
+
+    def labels(path, reference):
+        result = copy.deepcopy(original(path, reference))
+        if path == label_path.parent:
+            result["label_set"] = "reviewed_six_v4"
+        return result
+
+    monkeypatch.setattr(evaluator, "verify_labels", labels)
+    report = evaluator.evaluate(*args)
+    for stage, lane in report["stages"].items():
+        expected = None if stage == "initial" and initial == "invalid" else 1
+        assert lane["metrics"]["source_note_f1"] == expected
+        assert lane["supplemental_source"]["metrics"]["source_note_f1"] == expected
+        assert lane["supplemental_source"]["label_set"] == "reviewed_six_v4"
+        assert lane["supplemental_source"]["label_manifest"] == evaluator.pin(label_path)
+    assert evaluator.pin(label_path) in report["pins"]
+
+
 def test_matched_full_score_has_no_terra_aviador_outcome_prerequisite(tmp_path, monkeypatch):
     args = _comparison_fixture(tmp_path, monkeypatch, target="rumichaca_full")
     assert "prerequisite_evaluation" not in json.loads(args[1].read_text())

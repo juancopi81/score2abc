@@ -247,7 +247,14 @@ def prompt_evidence(
     }
 
 
-def request_controls(request: dict, base: str, prompt: str, overview_sha: str) -> dict:
+def request_controls(
+    request: dict,
+    base: str,
+    prompt: str,
+    overview_sha: str,
+    *,
+    deferred_tools_text: str | None = None,
+) -> dict:
     """Check transported context, excluding only per-session identifiers and image path."""
     rows = request.get("input", [])
     if (
@@ -256,11 +263,15 @@ def request_controls(request: dict, base: str, prompt: str, overview_sha: str) -
         or rows[0].get("role") != "developer"
     ):
         raise ValueError("Transport contains unexpected initial context")
-    for row, expected in zip(rows[1:3], (base, legacy.PERMISSIONS_INSTRUCTIONS), strict=True):
+    permission_content = [{"type": "input_text", "text": legacy.PERMISSIONS_INSTRUCTIONS}]
+    if deferred_tools_text is not None:
+        permission_content.append({"type": "input_text", "text": deferred_tools_text})
+    expected_content = ([{"type": "input_text", "text": base}], permission_content)
+    for row, expected in zip(rows[1:3], expected_content, strict=True):
         if (
             row.get("type") != "message"
             or row.get("role") != "developer"
-            or row.get("content") != [{"type": "input_text", "text": expected}]
+            or row.get("content") != expected
         ):
             raise ValueError("Transport developer instructions differ from supplied context")
     user = rows[3]
@@ -292,7 +303,10 @@ def request_controls(request: dict, base: str, prompt: str, overview_sha: str) -
     ):
         raise ValueError("Transported overview differs from supplied pixels")
     excluded = {"input", "client_metadata", "prompt_cache_key", "model"}
-    return {key: value for key, value in request.items() if key not in excluded}
+    result = {key: value for key, value in request.items() if key not in excluded}
+    if deferred_tools_text is not None:
+        result["deferred_tools_text"] = deferred_tools_text
+    return result
 
 
 def observe_runtime_binaries(evidence: Evidence, recorded: dict) -> dict:
@@ -343,14 +357,16 @@ def load_report(
     plan_path: Path,
     *,
     case_root: Path | None = None,
+    expected_model: str | None = None,
 ) -> tuple[dict, dict]:
+    model = expected_model if expected_model is not None else MODELS[system]
     case = case_root if case_root is not None else cohort / case_id
     report = evidence.json(case / "evaluation/report.json")
     if (
         report.get("schema_version") != 1
         or report.get("kind") != "astra_assisted_workflow_reproduction_report"
         or report.get("target_id") != case_id
-        or report.get("model") != MODELS[system]
+        or report.get("model") != model
         or report.get("reasoning_effort") != "xhigh"
         or report.get("workflow_id") != WORKFLOW
         or report.get("both_stages_verified_before_reference_content") is not True
@@ -389,7 +405,7 @@ def load_report(
         or submission.get("reference_feedback_given") is not False
     ):
         raise ValueError("Submission seal/report/plan binding differs")
-    if plan.get("model") != MODELS[system] or plan.get("source_policy") != "supplied_pdf_only":
+    if plan.get("model") != model or plan.get("source_policy") != "supplied_pdf_only":
         raise ValueError("Plan model or source policy differs")
     stages = {}
     for stage in STAGES:
@@ -408,7 +424,7 @@ def load_report(
         if report["stages"][stage]["runtime"] != provenance:
             raise ValueError("Report runtime differs from sealed stage provenance")
         for key, expected in {
-            "model": MODELS[system],
+            "model": model,
             "reasoning_effort": "xhigh",
             "workflow_id": WORKFLOW,
             "stage": stage,
@@ -528,6 +544,18 @@ def stage_dimensions(
         or any(catalog["models"][0].get(k) != v for k, v in metadata["catalog_overrides"].items())
     ):
         raise ValueError("Prepared model catalog differs from selected capabilities")
+    injection_proof["model_catalog_observation"] = {
+        key: catalog["models"][0].get(key)
+        for key in (
+            "slug",
+            "context_window",
+            "effective_context_window_percent",
+            "default_reasoning_level",
+            "supported_reasoning_levels",
+            "input_modalities",
+            "tool_mode",
+        )
+    }
     tool_bundle = {
         str(path.relative_to(bundle)): evidence.hash(path)
         for path in sorted(bundle.rglob("*"))
@@ -535,6 +563,29 @@ def stage_dimensions(
         and path.name
         not in {"source.pdf", "overview.png", "prompt.txt", "base.txt", "model_catalog.json"}
     }
+    deferred_tools_text = None
+    if metadata.get("native_context_contract") is not None:
+        contracts = next(
+            ast.literal_eval(node.value)
+            for node in ast.parse(runner_source).body
+            if isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "NATIVE_CONTEXT_CONTRACTS"
+                for target in node.targets
+            )
+        )
+        contract_id = metadata["native_context_contract"]
+        contract = contracts.get(contract_id, {})
+        if (
+            audit.get("native_context_contract") != contract_id
+            or contract.get("codex_version") != metadata["base_runtime"]["codex_version"]
+            or contract.get("completion_policy") != metadata.get("completion_policy")
+            or any(
+                contract.get(key) != metadata[key] for key in ("wrapper_sha256", "registry_sha256")
+            )
+        ):
+            raise ValueError("Native context contract differs from the sealed runner and audit")
+        deferred_tools_text = contract["deferred_tools_text"]
     tools = {
         "bundle_files": tool_bundle,
         "native_wrapper": wrapper,
@@ -543,7 +594,11 @@ def stage_dimensions(
         "native_tool_mode": metadata["native_tool_mode"],
         "cli": effective_cli(runner_source, metadata),
         "transport_controls": request_controls(
-            request, evidence.read(bundle / "base.txt").decode(), prompt, overview_sha
+            request,
+            evidence.read(bundle / "base.txt").decode(),
+            prompt,
+            overview_sha,
+            deferred_tools_text=deferred_tools_text,
         ),
         "execution_functions": ast_fingerprints(runner_source, EXECUTION_FUNCTIONS),
         "binary_files": {
@@ -591,6 +646,27 @@ def stage_dimensions(
             {key: plan["targets"][case_id][key] for key in GRADE_CONTRACT_KEYS[case_id]}
         ),
     }
+    if plan.get("supplemental_source_labels") is not None and case_id == "rumichaca_full":
+        label_pin = plan["supplemental_source_labels"]
+        label_path = resolve_pin(label_pin, ROOT)
+        evidence.verify(label_path, label_pin["sha256"])
+        supplemental = report["stages"][stage].get("supplemental_source", {})
+        if supplemental.get("label_manifest") != {
+            "path": str(label_path.resolve()),
+            "sha256": label_pin["sha256"],
+        }:
+            raise ValueError("Supplemental source metrics differ from the planned label pin")
+        grader["supplemental_source_labels"] = normalize_pins(label_pin)
+        grader["supplemental_source_adapter"] = ast_fingerprints(
+            adapter_source, ("supplemental_source_scores",)
+        )
+    if metadata.get("completion_policy") is not None:
+        for key in ("completion_policy", "completion_policy_sha256"):
+            if metadata.get(key) != provenance.get(key) or metadata.get(key) != plan.get(key):
+                raise ValueError("Completion policy differs between plan, packet and execution")
+        tools["completion_policy"] = {
+            key: metadata[key] for key in ("completion_policy", "completion_policy_sha256")
+        }
     return {
         "data": {
             "source_pdf_sha256": source_sha,
@@ -627,7 +703,16 @@ def differing_paths(left: object, right: object, prefix: str = "") -> list[str]:
     return [prefix or "value"]
 
 
-def compare_dimensions(case_id: str, stage: str, astra: dict, terra: dict) -> list[dict]:
+def compare_dimensions(
+    case_id: str,
+    stage: str,
+    astra: dict,
+    terra: dict,
+    *,
+    system_ids: tuple[str, str] = ("astra", "terra"),
+) -> list[dict]:
+    if len(system_ids) != 2 or len(set(system_ids)) != 2:
+        raise ValueError("Comparison requires two distinct system IDs")
     rows = []
     for dimension in DIMENSIONS:
         left, right = astra[dimension], terra[dimension]
@@ -638,7 +723,7 @@ def compare_dimensions(case_id: str, stage: str, astra: dict, terra: dict) -> li
                 "stage": stage,
                 "dimension": dimension,
                 "status": "mismatched" if differences else "matched",
-                "fingerprints": {"astra": digest(left), "terra": digest(right)},
+                "fingerprints": {system_ids[0]: digest(left), system_ids[1]: digest(right)},
                 "basis": (
                     "Verified normalized evidence matches."
                     if not differences
@@ -772,6 +857,105 @@ def audit_comparison(
             "runtime_binary_basis": "Hashes recorded in sealed preparation; no historical rerun.",
             "current_runtime_availability_is_separate_from_comparison": True,
             "score_completeness_is_separate_from_runtime_completion": True,
+        },
+        "evidence_pins": [
+            {"path": str(path), "sha256": expected}
+            for path, expected in sorted(evidence.pins.items())
+        ],
+    }
+
+
+def audit_configured_comparison(
+    systems: dict[str, Path],
+    *,
+    runner_sources: tuple[Path, ...] = (),
+    adapter_sources: tuple[Path, ...] = (),
+) -> dict:
+    """Audit two newly configured systems using their actual sealed implementations.
+
+    Historical Astra/Terra auditing retains its original entry point and Git pins.
+    Each new system has its own plan and both case directories beneath its root.
+    """
+    if len(systems) != 2 or any(not name or not isinstance(name, str) for name in systems):
+        raise ValueError("Exactly two named systems are required")
+    evidence = Evidence()
+    runner_texts = [evidence.read(path).decode() for path in (ROOT / RUNNER, *runner_sources)]
+    adapter_texts = [evidence.read(path).decode() for path in (ROOT / ADAPTER, *adapter_sources)]
+    reports, normalized, proofs, observations, outcomes = {}, {}, {}, {}, {}
+    roots = {name: Path(path).resolve() for name, path in systems.items()}
+    for system, root in roots.items():
+        plan_path = root / "evaluation_plan.json"
+        plan = evidence.json(plan_path)
+        reports[system], normalized[system], proofs[system] = {}, {}, {}
+        observations[system], outcomes[system] = {}, {}
+        for case in CASES:
+            report, stages = load_report(
+                evidence, root, case, system, plan, plan_path, expected_model=plan["model"]
+            )
+            reports[system][case] = evidence.hash(root / case / "evaluation/report.json")
+            normalized[system][case], proofs[system][case] = {}, {}
+            observations[system][case], outcomes[system][case] = {}, {}
+            adapter_source = select_runner_source(
+                adapter_texts, report["implementations"]["adapter"]["sha256"]
+            )
+            for stage in STAGES:
+                lane = stages[stage]
+                dimensions, proof = stage_dimensions(
+                    evidence,
+                    stage,
+                    lane,
+                    stages["initial"],
+                    report,
+                    plan,
+                    case,
+                    select_runner_source(runner_texts, lane.metadata["implementation"][RUNNER]),
+                    adapter_source,
+                )
+                normalized[system][case][stage] = dimensions
+                observations[system][case][stage] = proof.pop("runtime_binary_observations")
+                proofs[system][case][stage] = proof
+                outcomes[system][case][stage] = {
+                    "runtime_turn_completed_cleanly": clean_runtime_turn(lane.provenance),
+                    "status": lane.provenance["status"],
+                    "score_complete": lane.provenance["complete"],
+                    "author_review_policy": author_review_policy(lane.metadata, stage),
+                }
+    left, right = tuple(systems)
+    checks = [
+        row
+        for case in CASES
+        for stage in STAGES
+        for row in compare_dimensions(
+            case,
+            stage,
+            normalized[left][case][stage],
+            normalized[right][case][stage],
+            system_ids=(left, right),
+        )
+    ]
+    evidence.recheck()
+    return {
+        "schema_version": 1,
+        "kind": "assisted_model_comparison_compatibility_audit",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "report_sha256": reports,
+        "case_roots": {
+            system: {case: str(root / case) for case in CASES} for system, root in roots.items()
+        },
+        "checks": checks,
+        "normalized_evidence": normalized,
+        "reviewer_injection_proofs": proofs,
+        "runtime_binary_observations": observations,
+        "execution_outcomes": outcomes,
+        "basis": {
+            "configured_systems": True,
+            "selected_model_excluded_from_cli_fingerprint": True,
+            "intrinsic_model_catalog_fields_excluded": True,
+            "model_own_candidate_excluded_after_self_binding": True,
+            "all_referenced_evidence_rechecked": True,
+            "historical_results_are_not_matched_comparison_arms": True,
+            "intrinsic_model_metadata_recorded_in_injection_proofs": True,
+            "same_effort_name_is_not_equal_computation": True,
         },
         "evidence_pins": [
             {"path": str(path), "sha256": expected}

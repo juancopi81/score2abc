@@ -157,8 +157,7 @@ def prepare_api(
     from scripts.experiments import assisted_api
 
     selected_tools = shared.selected_source_tools(completion_policy)
-    if model != shared.MODEL:
-        raise ValueError("API pricing is currently pinned for gpt-6-astra only")
+    api_profile = assisted_api.model_profile(model)
     if stage not in {"initial", "reviewed"} or not 60 <= limit_seconds <= 3600:
         raise ValueError("Unsupported stage or allowance")
     if (stage == "reviewed") != (initial_run is not None):
@@ -192,6 +191,8 @@ def prepare_api(
             )
         if provenance.get("auth_mode") != "openai_api":
             raise ValueError("API reader requires its own API author's draft")
+        if model != shared.MODEL:
+            assisted_api.verify_model_profile(provenance)
         candidate = (initial_run / "score.abc").read_text()
         decisions = json.loads((initial_run / "decisions.json").read_text())
         initial_hash = shared.sha(candidate.encode())
@@ -307,6 +308,7 @@ def prepare_api(
             ),
         ],
         **diagnostic,
+        **api_profile,
     }
     if completion_policy is not None:
         metadata["completion_policy"] = completion_policy
@@ -319,10 +321,13 @@ def prepare_api(
 
 
 def audit_api(packet: Path, output: Path) -> dict:
+    from scripts.experiments import assisted_api
+
     shared.verify_seal(packet, "astra_reproduction_input")
     metadata = json.loads((packet / "preparation.json").read_text())
     if metadata.get("backend") != "api" or metadata.get("reference_access") is not False:
         raise ValueError("Expected source-only API packet")
+    assisted_api.verify_model_profile(metadata)
     bundle = packet / "bundle"
     selected_tools = shared.verify_source_bundle(bundle, metadata)
     expected = {
@@ -348,6 +353,7 @@ def audit_api(packet: Path, output: Path) -> dict:
         "reasoning_effort": metadata["reasoning_effort"],
         "reference_access": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
+        **assisted_api.model_profile(metadata["model"]),
     }
     if metadata.get("completion_policy") is not None:
         record["completion_policy"] = metadata["completion_policy"]
@@ -379,6 +385,7 @@ def execute_pair(args) -> dict:
                 "initial": str(total * Decimal("0.6")),
                 "reviewed": str(total * Decimal("0.4")),
             }
+        assisted_api.model_profile(args.model)
         key = load_api_key(args.env_file)
         runtime = None
     else:
@@ -548,7 +555,6 @@ def main() -> None:
             args.output,
             api_key=load_api_key(args.env_file),
             budget_usd=metadata["budget_usd"],
-            pricing=assisted_api.ASTRA_PRICING,
         )
     print(json.dumps(result, indent=2))
 

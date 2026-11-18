@@ -37,8 +37,20 @@ from scripts.build_astra_reproduction_dashboard import (  # noqa: E402
 
 CASES = {"aviador_s8": "Aviador · system 8", "rumichaca_full": "Rumichaca · whole-score task"}
 DIMENSIONS = ("data", "prompts", "tools", "limits", "grader")
-TOKEN_KEYS = ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_output_tokens")
-TOKEN_LABELS = ("Input", "Cached input (subset)", "Output", "Reasoning output (subset)")
+TOKEN_KEYS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "cache_write_input_tokens",
+    "output_tokens",
+    "reasoning_output_tokens",
+)
+TOKEN_LABELS = (
+    "Input",
+    "Cached input (subset)",
+    "Cache writes (subset)",
+    "Output",
+    "Reasoning output (subset)",
+)
 EXTRA_CSS = """
 .wrap{max-width:1400px}.cards{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}.card strong{font-size:1.08rem}.card h2{font-family:inherit;font-size:1.2rem;font-weight:700}.summary-metrics{min-width:0;table-layout:fixed;margin:12px 0}.summary-metrics th,.summary-metrics td{padding:9px 7px;font-size:.85rem;vertical-align:middle}.summary-metrics thead th:first-child{width:42%}.summary-metrics thead th:not(:first-child),.summary-metrics td{text-align:center}.summary-metrics .metric{display:inline}.comparison{min-width:1050px}.comparison thead th:first-child{width:auto}.stage{max-width:165px}.resource{min-width:1120px}.resource td,.resource th{font-size:.85rem;padding:9px}.ratio{min-width:800px}.ratio td,.ratio th{font-size:.87rem}.model-id{max-width:210px;overflow-wrap:anywhere}.state{font-weight:700}.audit-passed{border-left-color:var(--teal);background:#EDF6F4}.audit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}.audit-grid article{border:1px solid var(--line);padding:12px}.audit-grid h3{margin:0 0 8px}.audit-grid ul{font-size:.85rem}.case-summary{display:flex;gap:18px;flex-wrap:wrap}.footnote{font-size:.84rem;color:var(--muted)}
 """
@@ -129,7 +141,7 @@ def load_comparison(manifest_path: Path) -> dict:
     baseline = manifest.get("baseline_system_id", ids[0])
     if baseline not in ids:
         raise ValueError("Baseline system is not in this comparison")
-    audit_path, checks = None, {}
+    audit_path, checks, intrinsic_models = None, {}, {}
     if manifest.get("compatibility_audit") is not None:
         audit_path = _pinned(
             manifest_path.parent, manifest["compatibility_audit"], "compatibility audit"
@@ -141,6 +153,15 @@ def load_comparison(manifest_path: Path) -> dict:
             or audit.get("report_sha256") != bound
         ):
             raise ValueError("Compatibility audit must bind exactly the compared report pins")
+        if audit.get("basis", {}).get("intrinsic_model_metadata_recorded_in_injection_proofs"):
+            for identifier in ids:
+                intrinsic_models[identifier] = (
+                    audit.get("reviewer_injection_proofs", {})
+                    .get(identifier, {})
+                    .get("aviador_s8", {})
+                    .get("initial", {})
+                    .get("model_catalog_observation", {})
+                )
         for check in audit.get("checks", []):
             key = (check.get("case_id"), check.get("stage"), check.get("dimension"))
             if (
@@ -187,6 +208,7 @@ def load_comparison(manifest_path: Path) -> dict:
         "reports": reports,
         "outcomes": outcomes,
         "audit_path": audit_path,
+        "intrinsic_models": intrinsic_models,
         "checks": checks,
         "matched_pairs": matched_pairs,
         "baseline": baseline,
@@ -214,6 +236,8 @@ def _metric(lane: dict | None, case: str, metric: str) -> str:
     if not _scorable(lane, case):
         return '<span class="failed">Unscorable<small>No accuracy claim</small></span>'
     metrics = lane["metrics"]["summary"] if case == "aviador_s8" else lane["metrics"]
+    if case == "rumichaca_full" and metric == "source_note_f1":
+        metrics = lane.get("supplemental_source", {}).get("metrics", metrics)
     return _percent(metrics.get(metric))
 
 
@@ -243,6 +267,10 @@ def _status(comparison: dict, system: dict, case: str, lane: dict | None, output
         result += '<small class="failed">Time limit reached</small>'
     if runtime.get("error"):
         result += f'<small>{text(runtime["error"])}</small>'
+    gate = runtime.get("completion_gate")
+    if gate is not None:
+        result += f'<small>Completion gate: {text(gate.get("status", "unknown").replace("_", " "))}</small>'
+        result += f'<small>{len(gate.get("accepted_source_exceptions", []))} declared source exceptions; {len(gate.get("unresolved_issues", []))} unresolved warnings</small>'
     if case == "aviador_s8":
         validation = lane["submission_validation"]
         result += f'<small>{_fraction(validation.get("submitted_measures"), validation.get("expected_measures"))} written bars; {"scorable" if _scorable(lane, case) else "unscorable"}</small>'
@@ -309,10 +337,13 @@ def _case_section(comparison: dict, case: str, output: Path) -> str:
                 )
                 row += [_metric(lane, case, "note_f1"), exact, _metric(lane, case, "rest_f1")]
             else:
-                coverage = lane.get("coverage", {}) if lane else {}
+                source_lane = lane.get("supplemental_source", lane) if lane else {}
+                coverage = source_lane.get("coverage", {})
                 source = _metric(lane, case, "source_note_f1")
                 if lane:
                     source += f'<small>{_fraction(coverage.get("source_eligible_measures"), coverage.get("source_total_measures"))} source bars audited</small>'
+                    if source_lane.get("label_set"):
+                        source += f'<small>{text(source_lane["label_set"])}</small>'
                 route = lane["metrics"].get("form_exact_match") if lane else None
                 route_text = (
                     "Exact edition route"
@@ -345,7 +376,7 @@ def _case_section(comparison: dict, case: str, output: Path) -> str:
             "Playback route",
             "Exact edition bars",
         ]
-        scope = "Source notes cover the fixed nine-of-45-bar model-audited subset, using edition-based alignment. Whole-score edition agreement includes the chosen human reconstructions. These note metrics include ties and must not be pooled with Aviador’s historical metric. Exact edition bars require notes, rests, ties, meter and chord events all to match; extra/missing bars count. They are not melody-only accuracy. A different edition route is not automatic proof of an invalid PDF-only reading."
+        scope = "Source notes cover only the model-audited subset shown beside each score, using edition-based alignment. Expanded V4 scores are shown when explicitly pinned; original V3 scores remain in the reports. Whole-score edition agreement includes the chosen human reconstructions. These note metrics include ties and must not be pooled with Aviador’s historical metric. Exact edition bars require notes, rests, ties, meter and chord events all to match; extra/missing bars count. They are not melody-only accuracy. A different edition route is not automatic proof of an invalid PDF-only reading."
     return f'<section class="section" id="{case}"><div class="section-head"><h2>{CASES[case]}</h2><p class="quiet">Initial AI draft and independent AI review remain separate.</p></div><p class="scope">{text(_case_conditions(comparison, case))}</p>{_table(headings, rows)}<p class="scope">{scope}</p></section>'
 
 
@@ -353,6 +384,16 @@ def _usage(runtime: dict) -> dict:
     """Keep each reported counter separate; nulls remain gaps, never zeros."""
     raw = runtime.get("usage")
     entries = raw if isinstance(raw, list) else [raw]
+    entries = [dict(entry) if isinstance(entry, dict) else entry for entry in entries]
+    for entry in entries:
+        if isinstance(entry, dict):
+            for key, group, nested in (
+                ("cached_input_tokens", "input_tokens_details", "cached_tokens"),
+                ("cache_write_input_tokens", "input_tokens_details", "cache_write_tokens"),
+                ("reasoning_output_tokens", "output_tokens_details", "reasoning_tokens"),
+            ):
+                if entry.get(key) is None and isinstance(entry.get(group), dict):
+                    entry[key] = entry[group].get(nested)
     values, known = {}, {}
     for key in TOKEN_KEYS:
         counters = []
@@ -372,6 +413,7 @@ def _usage(runtime: dict) -> dict:
             continue
         for subset, total in (
             ("cached_input_tokens", "input_tokens"),
+            ("cache_write_input_tokens", "input_tokens"),
             ("reasoning_output_tokens", "output_tokens"),
         ):
             if (
@@ -416,11 +458,34 @@ def _ratio(numerator: object, denominator: object) -> str:
 
 
 def _resource_section(comparison: dict) -> str:
-    rows, ratio_rows = [], []
+    rows, ratio_rows, total_rows = [], [], []
     baseline = next(
         system for system in comparison["systems"] if system["id"] == comparison["baseline"]
     )
     for case, title in CASES.items():
+        for system in comparison["systems"]:
+            lanes = [_lane(comparison, system, case, stage) for stage in STAGES]
+            runtimes = [lane["runtime"] for lane in lanes if lane is not None]
+            entries = []
+            for runtime in runtimes:
+                raw = runtime.get("usage")
+                entries.extend(raw if isinstance(raw, list) else [raw])
+            entries.extend([None] * (len(STAGES) - len(runtimes)))
+            usage = _usage({"usage": entries})
+            elapsed = [runtime.get("elapsed_seconds") for runtime in runtimes]
+            elapsed_cell = (
+                _elapsed({"elapsed_seconds": sum(elapsed)})
+                if len(elapsed) == len(STAGES) and all(isinstance(v, (int, float)) for v in elapsed)
+                else "Unmeasured"
+            )
+            total_rows.append(
+                [
+                    title,
+                    text(system["label"]),
+                    elapsed_cell,
+                    *(_usage_cell(usage, key) for key in TOKEN_KEYS),
+                ]
+            )
         for stage, label in STAGES.items():
             base_lane = _lane(comparison, baseline, case, stage)
             for system in comparison["systems"]:
@@ -454,7 +519,9 @@ def _resource_section(comparison: dict) -> str:
                     reason = "Incomplete execution or score submission; workload differs"
                 label_ratio = f'{text(system["label"])} / {text(baseline["label"])}'
                 if reason:
-                    ratio_rows.append([title, label, label_ratio, reason, *("—" for _ in range(4))])
+                    ratio_rows.append(
+                        [title, label, label_ratio, reason, *("—" for _ in TOKEN_KEYS)]
+                    )
                     continue
                 base_usage = _usage(base_lane["runtime"])
                 tokens = []
@@ -480,7 +547,7 @@ def _resource_section(comparison: dict) -> str:
                         *tokens,
                     ]
                 )
-    return f'<section class="section" id="resources"><div class="section-head"><h2>Time and reported token usage</h2><p class="quiet">Raw per-stage totals. Input includes cached input; output includes reasoning output. Never add the subset columns again.</p></div>{_table(["Piece", "Model", "Stage", "Elapsed", *TOKEN_LABELS], rows, "resource")}<h3>Matched case-and-stage ratios</h3><p class="footnote">A ratio below 1 means fewer reported tokens or less elapsed time for that same stage. It does not establish lower billing cost or better musical quality. Ratios require matching conditions, successful execution and complete submissions on both sides, and complete measurements. A completed model turn alone does not establish a complete score. Zero or missing denominators are unmeasured.</p>{_table(["Piece", "Stage", "Ratio direction", "Time ratio", *TOKEN_LABELS], ratio_rows, "ratio")}<p class="scope">These runs use subscription authentication; no API-dollar or subscription-price estimate is made. Cached and reasoning counts are subsets, not additional tokens. Partial usage is shown as a known sum with measurement coverage.</p></section>'
+    return f'<section class="section" id="resources"><div class="section-head"><h2>Time and reported token usage</h2><p class="quiet">Input includes cached input; output includes reasoning output. Never add the subset columns again.</p></div><h3>Author + independent review totals</h3>{_table(["Piece", "Model", "Combined model time", *TOKEN_LABELS], total_rows, "resource")}<p class="footnote">Totals cover the scored pair only. Setup canaries, other attempts and coordinator work are separate; concurrent execution can make end-to-end wall time shorter than summed model time.</p><details class="details"><summary>Per-stage usage and matched ratios</summary>{_table(["Piece", "Model", "Stage", "Elapsed", *TOKEN_LABELS], rows, "resource")}<h3>Matched case-and-stage ratios</h3><p class="footnote">A ratio below 1 means fewer reported tokens or less elapsed time for that same stage. It does not establish lower billing cost or better musical quality. Ratios require matching conditions, successful execution and complete submissions on both sides, and complete measurements. A completed model turn alone does not establish a complete score. Zero or missing denominators are unmeasured.</p>{_table(["Piece", "Stage", "Ratio direction", "Time ratio", *TOKEN_LABELS], ratio_rows, "ratio")}</details><p class="scope">These runs use subscription authentication; no API-dollar or subscription-price estimate is made. Cached and reasoning counts are subsets, not additional tokens. Partial usage is shown as a known sum with measurement coverage.</p></section>'
 
 
 def _summary_cards(comparison: dict) -> str:
@@ -527,7 +594,20 @@ def _audit_section(comparison: dict, output: Path) -> str:
     links = [_link(comparison["manifest_path"], output, "Comparison manifest")]
     if comparison["audit_path"]:
         links.append(_link(comparison["audit_path"], output, "Compatibility audit"))
-    return f'<details class="details"><summary>Why these conditions are—or are not—matched</summary><p class="links">{"".join(links)}</p><p class="footnote">The manifest and audit pin the exact reports. Matching is asserted only when all five normalized fingerprints match for every case and stage. This page verifies those bindings; the audit records how prompts, tools, data, limits and scorer implementations were normalized.</p><div class="audit-grid">{"".join(panels)}</div></details>'
+    capacity = ""
+    if comparison["intrinsic_models"]:
+        rows = [
+            [
+                text(system["label"]),
+                _count(comparison["intrinsic_models"][system["id"]].get("context_window")),
+            ]
+            for system in comparison["systems"]
+        ]
+        capacity = (
+            '<p class="scope">Matching refers to shared task, prompt, tools and configured allowances. Native model capacities are recorded separately; equal reasoning-effort names do not mean equal computation. Catalog capacity is not observed peak request usage.</p>'
+            + _table(["Model", "Catalog context tokens"], rows, "summary-metrics")
+        )
+    return f'<details class="details"><summary>Why these conditions are—or are not—matched</summary><p class="links">{"".join(links)}</p><p class="footnote">The manifest and audit pin the exact reports. Matching is asserted only when all five normalized fingerprints match for every case and stage. This page verifies those bindings; the audit records how prompts, tools, data, limits and scorer implementations were normalized.</p>{capacity}<div class="audit-grid">{"".join(panels)}</div></details>'
 
 
 def render_dashboard(manifest_path: Path, output: Path) -> str:

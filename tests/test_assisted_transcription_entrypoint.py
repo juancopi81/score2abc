@@ -1,4 +1,5 @@
 import json
+import subprocess
 from types import SimpleNamespace
 
 import pytest
@@ -98,6 +99,68 @@ def test_api_budget_required_before_preparation(monkeypatch):
     assert error.value.code == 2
 
 
+@pytest.mark.parametrize("model", ["gpt-6.2-sol", "unregistered-model"])
+def test_subscription_model_extension_does_not_enable_unpriced_api_model(tmp_path, model):
+    output = tmp_path / "packet"
+    with pytest.raises(ValueError, match="pricing is unavailable"):
+        entry.prepare_api(
+            tmp_path / "source.pdf",
+            tmp_path / "prompt.txt",
+            output,
+            "initial",
+            1800,
+            "5",
+            model=model,
+        )
+    assert not output.exists()
+
+
+def test_astra_62_api_preparation_seals_profile_and_audits_offline(tmp_path, monkeypatch):
+    from scripts.experiments import assisted_api
+
+    pdf, prompt = tmp_path / "source.pdf", tmp_path / "prompt.txt"
+    pdf.write_bytes(b"%PDF-synthetic")
+    prompt.write_text("Read the supplied manuscript.")
+    binaries = tmp_path / "binaries"
+    binaries.mkdir()
+    for name in ("pdfinfo", "pdftoppm", "node", "abc2svg", "abc2svg-1.js", "toaudio-1.js"):
+        (binaries / name).write_text("synthetic helper")
+    monkeypatch.setattr(entry.shutil, "which", lambda name: str(binaries / name))
+
+    def render(args, **kwargs):
+        if args[0] == str(binaries / "pdfinfo"):
+            return subprocess.CompletedProcess(args, 0, stdout="Pages: 1\n")
+        entry.Image.new("RGB", (20, 20)).save(args[-1] + ".png")
+        return subprocess.CompletedProcess(args, 0)
+
+    monkeypatch.setattr(entry.subprocess, "run", render)
+    packet, audit = tmp_path / "packet", tmp_path / "audit"
+    metadata = entry.prepare_api(
+        pdf,
+        prompt,
+        packet,
+        "initial",
+        1800,
+        "15",
+        model="gpt-6.2-astra",
+        completion_policy="completion_gate_v1",
+    )
+    assert metadata["model"] == "gpt-6.2-astra"
+    assert metadata["reasoning_effort"] == "xhigh"
+    assert metadata["reasoning_context"] == "all_turns"
+    assert metadata["limit_seconds"] == 1800
+    assert metadata["budget_usd"] == "15"
+    assert metadata["max_output_tokens_per_response"] == 25_000
+    assert metadata["api_pricing"]["output_per_million_usd"] == "40"
+    entry.shared.verify_seal(packet, "astra_reproduction_input")
+    result = entry.audit_api(packet, audit)
+    assert result["status"] == "passed"
+    assert result["api_pricing"] == assisted_api.model_profile("gpt-6.2-astra")["api_pricing"]
+    assert result["reasoning_context"] == "all_turns"
+    assert result["completion_policy"] == "completion_gate_v1"
+    assert entry.shared.MODEL == "gpt-6-astra"
+
+
 def test_subscription_runtime_skips_stale_pins(tmp_path, monkeypatch):
     monkeypatch.setattr(entry, "ROOT", tmp_path)
     base = tmp_path / "out/eval/runtime"
@@ -154,8 +217,9 @@ def test_review_requires_new_api_author_not_subscription_author(tmp_path, monkey
 
 @pytest.mark.parametrize("author_complete", [True, False])
 @pytest.mark.parametrize("no_cap", [True, False])
+@pytest.mark.parametrize("model", ["gpt-6-astra", "gpt-6.2-astra"])
 def test_api_pair_keeps_total_cap_and_stops_after_partial_author(
-    tmp_path, monkeypatch, author_complete, no_cap
+    tmp_path, monkeypatch, author_complete, no_cap, model
 ):
     from scripts.experiments import assisted_api
 
@@ -186,13 +250,14 @@ def test_api_pair_keeps_total_cap_and_stops_after_partial_author(
         review_prompt=tmp_path / "review.txt",
         author_seconds=1800,
         review_seconds=1200,
-        model="gpt-6-astra",
+        model=model,
     )
     result = entry.execute_pair(args)
     assert result["complete"] is author_complete
     assert len(runs) == (2 if author_complete else 1)
     assert runs[0][2]["budget_usd"] == (None if no_cap else "3.0")
     assert preparations[0][0][6] is None
+    assert preparations[0][0][7] == model
     assert preparations[0][1].get("no_dollar_cap", False) is no_cap
     if author_complete:
         assert runs[1][2]["budget_usd"] == (None if no_cap else "2.0")

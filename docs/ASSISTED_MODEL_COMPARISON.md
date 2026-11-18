@@ -54,7 +54,9 @@ partial author draft. The source, generic prompts, tool implementations,
 allowances and numerical scoring were retained. These differences prevent a
 clean model-only causal conclusion for Rumichaca.
 
-Open `out/eval/comparison/index.html` for the updated dashboard. It retains a link
+Open `out/eval/comparison/assisted_astra_terra_20261029_v1.html` for this historical
+dashboard; `comparison/index.html` now opens the newer Astra 6.2–Sol 6.2 pilot.
+The historical dashboard retains a link
 to the separate tool-free experiment. [Portable metrics and provenance](eval/assisted_astra_terra_20261029_v1.json)
 contain no source scores or private paths. Validation: 143 focused tests passed;
 Ruff, Black and patch whitespace checks passed.

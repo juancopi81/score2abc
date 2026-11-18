@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-18T17:38:48.657794+00:00",
+  "classification": "new_collection_drafts_not_ground_truth_benchmark",
+  "model": "gpt-6.2-astra",
+  "effort": "xhigh",
+  "protected_review_files_unchanged": 87,
+  "batch_ceiling_usd": 60,
+  "cost_basis": "recorded API usage estimate, not billing invoice",
+  "works": [
+    {
+      "key": "beatriz_eugenia",
+      "title": "Beatriz Eugenia",
+      "status": "Installed Draft — ready for review",
+      "source_rows": 8,
+      "source_bars": 53,
+      "written_bars": 83,
+      "performed_bars": 128,
+      "playback_seconds": 192,
+      "questions": [
+        "Form: the draft plays the lead-in, A twice with both endings, B twice with both endings, A through its marked chord, the E-major lead-in, C twice with both endings, then A through the marked chord and stops. Are the return after B and the final stop what the marginal signs mean? Both remain interpretations.",
+        "System 1, measure 6: is the tiny ink before the high C a played D–E–F-sharp grace run, or an erased/corrected fragment? Also confirm A-sharp in C–B–A-sharp–B. These are provisional readings.",
+        "System 2, measure 5: the eighth rest after E is restored from the matching phrase in system 1, measure 4. The local ink is incomplete; please check that restoration.",
+        "Low register: confirm D–E after the rest in system 5, measure 4, and low B below middle C in system 6, measure 6. The manuscript spacing and ledger strokes leave room for a different octave/step reading."
+      ],
+      "stages": {
+        "initial": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 925.0793684170003,
+          "deadline_seconds": 3600,
+          "budget_usd": "12.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 1474511,
+            "input_tokens_details": {
+              "cached_tokens": 1402651
+            },
+            "output_tokens": 27962,
+            "output_tokens_details": {
+              "reasoning_tokens": 16484
+            },
+            "total_tokens": 1502473
+          },
+          "cost_estimate_usd": "3.1167404",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        },
+        "reviewed": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 766.7721790830001,
+          "deadline_seconds": 1800,
+          "budget_usd": "8.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 1026761,
+            "input_tokens_details": {
+              "cached_tokens": 966011
+            },
+            "output_tokens": 24017,
+            "output_tokens_details": {
+              "reasoning_tokens": 14365
+            },
+            "total_tokens": 1050778
+          },
+          "cost_estimate_usd": "2.5620844",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        }
+      },
+      "cost_estimate_usd": "5.6788248",
+      "cost_estimate_complete": true,
+      "hashes": {
+        "source_pdf": "9ebdc2456049153854a7ef558d0011fd3bd882b713d03cb2bd616159a02eef65",
+        "initial/score.abc": "deb161b71a48900e3e349a6292611029f37a356010080e365f011862929e6bfb",
+        "initial/decisions.json": "c3e04acf1810b172e9660a15e116db44eb1dd43faa44a4d250288384b9c86b45",
+        "initial/seal.json": "736a0d3580a4a42a80c90693e14211f8aeea2a8e24b0bbc14bcf13f59004956c",
+        "reviewed/score.abc": "c2eab3a723f58411b5a784c09abff2455ed267cb77dbfdbd288f50eb5c19cc92",
+        "reviewed/decisions.json": "41521acca9499ff0d2845bb769895668f83be24c1facf19077dc986c6282e4eb",
+        "reviewed/seal.json": "9a98c0b402ca8206adbfe9145c1f4df304b0e0ffa0ab2bb7720c5b964f8f2b3e",
+        "selected_abc": "c39201d5b9f9eeff7d1a1339b0657f0bf24d9b03f0bdc61ff3c4d942aa444f81",
+        "presentation_proof": "dbfac0431a7cf73dc9fc5ae1c19c7488445786a3048d123323ddb77b4723feb6",
+        "encoding_proof": null
+      },
+      "deviations": [
+        "The two 15-bar A returns are visibly written out in the engraving. This produces 83 written ABC bars from 53 source bars; the source is not longer or missing rows. The pilot preserves this authored layout. Any later folding of those returns must preserve the complete performed events, not just the visit count. If you correct an A passage, its three written occurrences must stay in sync. The coordinator will synchronize the copied returns after your feedback. Boxed section labels and Spanish directions were standardized with complete music and playback preservation verified for that formatting step.",
+        "A coordinator check reconciled the model's route list (112 → 128 visits) with its explicit section instructions and unchanged playback. The original record is preserved; no music was changed."
+      ],
+      "human_review": "pending",
+      "accuracy_against_ground_truth": null
+    },
+    {
+      "key": "fiesta_de_la_montana",
+      "title": "Fiesta de la montaña",
+      "status": "Installed Draft — ready for review",
+      "source_rows": 8,
+      "source_bars": 47,
+      "written_bars": 47,
+      "performed_bars": 141,
+      "playback_seconds": 211.5,
+      "questions": [
+        "Form: please confirm the two D.C. trips. The draft first plays A twice, B with both endings, C twice; first D.C. plays A–B(second ending)–C without repeats; second D.C. plays A only up to the sign, substitutes the signed final row, and stops. The middle words of the manuscript direction are unclear.",
+        "System 7, measure 2 (written bar38): the adopted chord is C diminished seventh over E-flat, encoded Cdim7/Eb so it sounds. The handwritten root could instead be G, and the small quality letters are uncertain. Please confirm root and quality. The draft also prefers G-sharp for the chromatic neighbor in this measure.",
+        "System 3, measure 6 and system 4, measure 4 (bars17/21): are the tiny marks A→G and F→E grace notes, or corrections that should be omitted? The first grace pitch is particularly fragmentary.",
+        "Voicing/register: confirm the low B below middle C in both endings (system 4 measure 7/system 5 measure 1), and high B5 rather than C-sharp6 in system 6 measure 6, using system 7 measure 1 as the register comparison. The partners are retained, but some heads/ledgers are weak.",
+        "System 2, measures 2–3 (bars7/8): the independent reader changed the opening Gs to G-sharp and carried the alteration through bar7. Please check these blurred sharp-versus-natural signs against the source."
+      ],
+      "stages": {
+        "initial": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 1231.9208642920003,
+          "deadline_seconds": 3600,
+          "budget_usd": "12.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 2092645,
+            "input_tokens_details": {
+              "cached_tokens": 1999732
+            },
+            "output_tokens": 37399,
+            "output_tokens_details": {
+              "reasoning_tokens": 20469
+            },
+            "total_tokens": 2130044
+          },
+          "cost_estimate_usd": "4.1541128",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        },
+        "reviewed": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 1084.9651705420001,
+          "deadline_seconds": 1800,
+          "budget_usd": "8.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 1573646,
+            "input_tokens_details": {
+              "cached_tokens": 1487054
+            },
+            "output_tokens": 36170,
+            "output_tokens_details": {
+              "reasoning_tokens": 15035
+            },
+            "total_tokens": 1609816
+          },
+          "cost_estimate_usd": "3.7734616",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        }
+      },
+      "cost_estimate_usd": "7.9275744",
+      "cost_estimate_complete": true,
+      "hashes": {
+        "source_pdf": "de078a9e91093b3f4b7815bbe0fc49a37cf748ec9202c8e348171747fc21ce20",
+        "initial/score.abc": "a6ad14746e6c97b038ae46b9a33cfcacc8d434504951991459339e02ca5afb0f",
+        "initial/decisions.json": "e6801e05506212ce75847f335feebabbab352b4afa53b423b3821b5fb3aff4dc",
+        "initial/seal.json": "4ab6eead4aef5aab073217eee534e84f7c96435250052fb5ca5ab239ec57e5c6",
+        "reviewed/score.abc": "7167b758ae85369022cfbde78786edcf97ad22360e08614e4226545bff93cf6f",
+        "reviewed/decisions.json": "6c15224652e74a9226b33e15023ac3702e3d5dcda06120a9de7b6908fe934acd",
+        "reviewed/seal.json": "0e0bdf140908715164f7c8bddbe3ebfdb97b896c46be0218cec2dcde8045fdf0",
+        "selected_abc": "da08ad006e3618e8102629216f9e08e09e24950c2b34e036766fe215ee1c82be",
+        "presentation_proof": "e7654a3cf7bb71aa20933024f31e8922970fc5975f4c31569e61c483bf72a2be",
+        "encoding_proof": "58b38dbea343f7eb94c445e737fadaf09982603ce4df1477926897e047d23dce"
+      },
+      "deviations": [
+        " Boxed section labels and Spanish directions were standardized with complete music and playback preservation verified for that formatting step. The proposed C-root reading is encoded Cdim7/Eb; all accompaniment warnings are resolved. The chord now sounds at its three visits. Source root/quality remains a musician question; raw records are preserved."
+      ],
+      "human_review": "pending",
+      "accuracy_against_ground_truth": null
+    },
+    {
+      "key": "cucuta_75",
+      "title": "Cúcuta 75",
+      "status": "Installed Draft — ready for review",
+      "source_rows": 10,
+      "source_bars": 57,
+      "written_bars": 57,
+      "performed_bars": 144,
+      "playback_seconds": 216,
+      "questions": [
+        "Form: after the Lento repeat and its signed second exit, the proposed route returns to the opening, uses its second ending without another repeat, leaves at the crossed oval after bar 24, then plays the final 16-bar Vivo four times total and stops. Does this connect the sections as you intend?",
+        "System 8, after the Lento endings: Arpegio G7 is preserved as an unmeasured text instruction, with no generated arpeggio in playback. Confirm the instruction and whether you want a free arpeggio realization added later. Moderato/Lento/Vivo are also text-only: playback currently stays at one tempo.",
+        "System 2, bars 8–9: the draft proposes holding the final G into the first ending only. The current playback reattacks that G because the conditional tie is represented by a curve and text. Confirm the musical reading; this is a known playback limitation, not a resolved tie.",
+        "System 2, first bar (global 5): the missing arrival D/F-sharp dyad is restored from the preceding tie. System 2, bar 3 (global 7), final pair is C/E. Please check the restoration and the faint upper head.",
+        "System 3, global bar 13: the sharpened middle pair is provisionally D-sharp/F-sharp, with F-sharp/B on the next attack. System 7, global bars 34–35: overwritten F-sharp and the single C-sharp at bar 35 beat 2 are also uncertain. Please check these crowded chromatic passages.",
+        "System 7, global bar 37: the overwritten chord at beat 3 is provisionally Bm; B7 or a G-root chord remain possible. Check the harmony label and nearby tied pairs."
+      ],
+      "stages": {
+        "initial": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 1872.9542162499984,
+          "deadline_seconds": 3600,
+          "budget_usd": "12.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 4209976,
+            "input_tokens_details": {
+              "cached_tokens": 4086895
+            },
+            "output_tokens": 47828,
+            "output_tokens_details": {
+              "reasoning_tokens": 28506
+            },
+            "total_tokens": 4257804
+          },
+          "cost_estimate_usd": "6.0094980",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        },
+        "reviewed": {
+          "status": "complete",
+          "complete": true,
+          "model": "gpt-6.2-astra",
+          "effort": "xhigh",
+          "elapsed_seconds": 1366.7785006249978,
+          "deadline_seconds": 1800,
+          "budget_usd": "8.0",
+          "budget_exhausted": false,
+          "timed_out": false,
+          "usage": {
+            "input_tokens": 2523600,
+            "input_tokens_details": {
+              "cached_tokens": 2431374
+            },
+            "output_tokens": 33097,
+            "output_tokens_details": {
+              "reasoning_tokens": 19834
+            },
+            "total_tokens": 2556697
+          },
+          "cost_estimate_usd": "4.1409496",
+          "cost_usd": null,
+          "response_output_limit_minimum": 25000,
+          "response_output_limit_reductions": 0
+        }
+      },
+      "cost_estimate_usd": "10.1504476",
+      "cost_estimate_complete": true,
+      "hashes": {
+        "source_pdf": "265b022faebd78a2dbc03cebca30603eba59fc7b7d88ff3f72e7849a3067fa1b",
+        "initial/score.abc": "ae1c8b27c915fc89f1472e8182fafb305fdae0e4ace3897924bfce12bd419366",
+        "initial/decisions.json": "ea933bb361122119bf7de88bd893e9dd9488288bff459f4d8adde67b0f27a1a1",
+        "initial/seal.json": "462226595e12280f0a41ebfce942b3a1526f6e38b11d37fce6fcee43da284a51",
+        "reviewed/score.abc": "4dc12b1d203e6661aece33a10c6dec1203cd73ec7dc66d6843c6260f9376efa3",
+        "reviewed/decisions.json": "054e1972fba92a439d7b59ae059ebeeff5ac0ede6aaf6f6e972ba05773d7e2dd",
+        "reviewed/seal.json": "e15920efe2669c06926066894f28a27ce65a3363661dcbab07104c55cf1c1529",
+        "selected_abc": "83ef8083ac6233e03ac14d89176f5f5d9531a81d73411f91ad4d0074aa69b7c8",
+        "presentation_proof": "0e5d30d4307cf1f80af22c1dde97b151d4aebc212c384f37f3117f417074bd1c",
+        "encoding_proof": null,
+        "source_reconciliation.json": "b60ce248f46bf5315ac4a1a7935974678e577bdbbdfc8c230895c70bf8121b38",
+        "playback_limitations.json": "f7ac32fa0b278ddcc4d04820c535c5da5f1b62a52e80009933e8f4b86065f59d"
+      },
+      "deviations": [
+        "57 measured source bars; two source panels after the Lento contain navigation and Arpegio instructions, not extra musical bars. Original provisional source counts63/61 were reconciled using enlarged PDF crops and an independent source-only reader. Boxed section labels and Spanish directions were standardized with complete music and playback preservation verified for that formatting step.",
+        "Playback limitations retained for review: the proposed G tie into the first ending reattacks; Arpegio G7 is an unmeasured text instruction with no audio; Moderato/Lento/Vivo remain words and playback stays at one numeric tempo."
+      ],
+      "human_review": "pending",
+      "accuracy_against_ground_truth": null
+    }
+  ]
+}

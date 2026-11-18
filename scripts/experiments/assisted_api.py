@@ -111,6 +111,52 @@ ASTRA_PRICING = ApiPricing(
     verified_at="2026-10-29",
 )
 
+ASTRA_62_PRICING = ApiPricing(
+    model="gpt-6.2-astra",
+    input_per_million_usd="8",
+    cache_write_per_million_usd="20",
+    output_per_million_usd="40",
+    cached_input_per_million_usd="0.40",
+    source_url="https://developers.openai.com/api/docs/pricing",
+    verified_at="2026-11-18",
+)
+
+
+def pricing_for_model(model: str) -> ApiPricing:
+    """Select only explicitly verified Standard, short-context model rates."""
+    prices = {price.model: price for price in (ASTRA_PRICING, ASTRA_62_PRICING)}
+    if model not in prices:
+        raise ValueError("Verified API pricing is unavailable for the requested model")
+    return prices[model]
+
+
+def model_profile(model: str) -> dict:
+    profile = {"api_pricing": asdict(pricing_for_model(model))}
+    if model == ASTRA_62_PRICING.model:
+        # Official deployment-checklist examples explicitly use this exact model with
+        # all_turns and stateless encrypted reasoning. Keep legacy requests unchanged.
+        profile.update(
+            api_model_profile="astra_62_standard_xhigh_v1", reasoning_context="all_turns"
+        )
+    return profile
+
+
+def verify_model_profile(metadata: dict) -> ApiPricing:
+    pricing = pricing_for_model(metadata.get("model"))
+    expected = model_profile(pricing.model)
+    for key, value in expected.items():
+        # Historical gpt-6-astra packets predate sealed pricing; no other model does.
+        if pricing == ASTRA_PRICING and key not in metadata:
+            continue
+        if metadata.get(key) != value:
+            raise ValueError("Sealed API model profile or pricing does not match registered values")
+    if pricing == ASTRA_PRICING and any(
+        key in metadata for key in ("api_model_profile", "reasoning_context")
+    ):
+        raise ValueError("Legacy API model profile must preserve its original reasoning settings")
+    runner.verify_model_selection(metadata)
+    return pricing
+
 
 class Budget:
     def __init__(self, dollars: object, pricing: ApiPricing):
@@ -380,12 +426,16 @@ def _load_packet(packet: Path, workspace: Path, *, offline: bool = False) -> tup
 
 def initial_request(workspace: Path, metadata: dict) -> dict:
     selected_tools = runner.selected_source_tools(metadata.get("completion_policy"))
+    verify_model_profile(metadata)
+    reasoning = {"effort": metadata["reasoning_effort"]}
+    if metadata.get("reasoning_context") is not None:
+        reasoning["context"] = metadata["reasoning_context"]
     return {
         "model": metadata["model"],
         "instructions": (workspace / "base.txt").read_text()
         + "\n\n"
         + selected_tools.SERVER_INSTRUCTIONS,
-        "reasoning": {"effort": metadata["reasoning_effort"]},
+        "reasoning": reasoning,
         "store": False,
         "include": ["reasoning.encrypted_content"],
         "service_tier": "default",
@@ -484,7 +534,7 @@ def run(
     *,
     api_key: str,
     budget_usd: object,
-    pricing: ApiPricing = ASTRA_PRICING,
+    pricing: ApiPricing | None = None,
     transport: Transport | None = None,
     max_output_tokens: int = MAX_OUTPUT_TOKENS,
     min_output_tokens: int = 1024,
@@ -500,6 +550,10 @@ def run(
     packet, output = Path(packet).resolve(), Path(output).resolve()
     runner.verify_seal(packet, "astra_reproduction_input")
     metadata = json.loads((packet / "preparation.json").read_text())
+    registered_pricing = verify_model_profile(metadata)
+    if pricing is not None and pricing != registered_pricing:
+        raise ValueError("Explicit pricing does not match the registered API model profile")
+    pricing = registered_pricing
     pricing.validate(metadata["model"])
     budget = Budget(budget_usd, pricing)
     if budget.limit is None and (
@@ -527,6 +581,7 @@ def run(
         started_at, started = datetime.now(timezone.utc).isoformat(), clock()
         execution = {"usage": None, "completed_turn": False, "tool_calls": []}
         error, timed_out, quarantined, resolved_model = None, False, False, None
+        reported_reasoning_contexts = set()
         returncode, budget_exhausted = 1, False
         request, seen_calls = initial_request(workspace, metadata), set()
         usage_totals = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
@@ -570,6 +625,22 @@ def run(
                 resolved_model = model
                 budget.reconcile(row, response.get("usage"))
                 ledger()
+                reported_reasoning = response.get("reasoning")
+                reported_context = (
+                    reported_reasoning.get("context")
+                    if isinstance(reported_reasoning, dict)
+                    else None
+                )
+                if reported_context is not None:
+                    if metadata.get("reasoning_context") is not None and (
+                        reported_context != metadata["reasoning_context"]
+                    ):
+                        raise ProtocolViolation(
+                            "Response reasoning context differs from the profile"
+                        )
+                    if not isinstance(reported_context, str):
+                        raise ProtocolViolation("Invalid response reasoning context")
+                    reported_reasoning_contexts.add(reported_context)
                 for key in usage_totals:
                     usage_totals[key] += response["usage"][key]
                 reported_cached = (
@@ -707,6 +778,8 @@ def run(
             "human_review_minutes": None,
             **execution,
             **completion_provenance,
+            **model_profile(metadata["model"]),
+            "reported_reasoning_contexts": sorted(reported_reasoning_contexts),
         }
     )
     runner.write(output / "stage_provenance.json", provenance)

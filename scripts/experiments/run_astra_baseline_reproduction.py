@@ -36,12 +36,28 @@ from scripts.experiments import astra_source_tools as source_tools  # noqa: E402
 
 WORKFLOW_ID = "adaptive_source_inspection_author_then_independent_reader_v1"
 MODEL = "gpt-6-astra"
-SUPPORTED_MODELS = (MODEL, "gpt-6.1-terra")
+SUPPORTED_MODELS = (MODEL, "gpt-6.1-terra", "gpt-6.2-astra", "gpt-6.2-sol")
 COMPLETION_POLICIES = ("completion_gate_v1",)
 EFFORT = "xhigh"
 # Inspected native CLI wrapper and deferred registry, not arbitrary trusted audit output.
 WRAPPER_SHA256 = "77ed314824ff66b17122eee21259267e5266b302e6fbe2caa8e6e14a00ce9eec"
 REGISTRY_SHA256 = "e8eac2ebc0ba2b66ac6a8ff232fce224a5b31d409a33938e151441df0610c5cb"
+# Inspected local mock capture: CLI 0.169, gated source tools, no model inference.
+# Historical packets continue to use the legacy pins above.
+NATIVE_CONTEXT_CONTRACTS = {
+    "codex_0_169_0_alpha_11_1_completion_gate_v1": {
+        "codex_version": "codex-cli 0.169.0-alpha.11.1",
+        "completion_policy": "completion_gate_v1",
+        "wrapper_sha256": "f5cbab8beb23236e16ae63e9dd9a6578693c747aaabc33bff84e0e7adb01255e",
+        "registry_sha256": "5424fb9f5e2bbb703ff899fc517806b1e329d7eca2c46cca47a510b8aff1a962",
+        "deferred_tools_text": (
+            "<tools>\nDeferred tool namespaces:\n- mcp__source: Use inspect_source to inspect "
+            "the supplied PDF and make your own crops. Use save_draft early, even for an "
+            "incomplete draft, and after meaningful changes. It preserves your draft and "
+            "returns notation/meter checks, never reference answers. Set compl...\n</tools>"
+        ),
+    }
+}
 BASE = (
     "You transcribe handwritten music using only the supplied PDF. Use the bounded local "
     "source tools to inspect pages/crops and save drafts with deterministic notation checks. "
@@ -95,7 +111,32 @@ def verify_seal(root: Path, kind: str) -> dict:
 
 def verify_model_selection(metadata: dict) -> None:
     if metadata.get("model") not in SUPPORTED_MODELS or metadata.get("reasoning_effort") != EFFORT:
-        raise ValueError("This comparison supports only Astra or Terra at xhigh")
+        raise ValueError("This comparison requires a registered model at xhigh")
+
+
+def native_context_contract(metadata: dict) -> dict:
+    contract_id = metadata.get("native_context_contract")
+    if contract_id is None:
+        return {
+            "wrapper_sha256": WRAPPER_SHA256,
+            "registry_sha256": REGISTRY_SHA256,
+            "deferred_tools_text": None,
+        }
+    contract = NATIVE_CONTEXT_CONTRACTS.get(contract_id)
+    if contract is None or (
+        metadata.get("base_runtime", {}).get("codex_version") != contract["codex_version"]
+        or metadata.get("completion_policy") != contract["completion_policy"]
+    ):
+        raise ValueError("Unsupported native context contract or runtime/policy mismatch")
+    for name in ("wrapper_sha256", "registry_sha256"):
+        if name in metadata and metadata[name] != contract[name]:
+            raise ValueError("Native context contract pins differ from prepared metadata")
+    return contract
+
+
+def verify_native_inventory(registry: list, metadata: dict) -> None:
+    if sha(encoded(registry)) != native_context_contract(metadata)["registry_sha256"]:
+        raise ValueError("Native tool inventory differs from inspected bounded capabilities")
 
 
 def selected_source_tools(completion_policy: str | None = None):
@@ -247,6 +288,17 @@ def prepare(
         raise ValueError("Partial-author eligibility applies only to independent review")
     runtime_root = legacy.RUNTIME_ROOT if runtime_dir is None else Path(runtime_dir).resolve()
     runtime = legacy.verify_runtime(runtime_root)
+    native_marker = {}
+    for contract_id, contract in NATIVE_CONTEXT_CONTRACTS.items():
+        if (
+            runtime["codex_version"] == contract["codex_version"]
+            and completion_policy == contract["completion_policy"]
+        ):
+            native_marker = {"native_context_contract": contract_id}
+            break
+    native_contract = native_context_contract(
+        {**native_marker, "base_runtime": runtime, "completion_policy": completion_policy}
+    )
     source = pdf.read_bytes()
     if not source.startswith(b"%PDF") or len(source) > 50_000_000:
         raise ValueError("Expected a bounded source PDF")
@@ -364,8 +416,9 @@ def prepare(
             str(Path(v).resolve()): sha(Path(v).resolve().read_bytes())
             for v in (node, runtime["poppler_path"])
         },
-        "wrapper_sha256": WRAPPER_SHA256,
-        "registry_sha256": REGISTRY_SHA256,
+        "wrapper_sha256": native_contract["wrapper_sha256"],
+        "registry_sha256": native_contract["registry_sha256"],
+        **native_marker,
         "catalog_overrides": catalog_override,
         "native_tool_mode": models[0].get("tool_mode"),
         "tools_sha256": sha(encoded(selected_tools.TOOLS)),
@@ -823,10 +876,7 @@ def audit_packet(packet: Path, output: Path) -> dict:
                 and item.get("call_id") == "audit-inventory"
             ]
             registry = json.loads(inventory_outputs[0]["output"][1]["text"])
-            if sha(encoded(registry)) != REGISTRY_SHA256:
-                raise ValueError(
-                    "Native tool inventory differs from inspected bounded capabilities"
-                )
+            verify_native_inventory(registry, metadata)
             audit["native_inventory"] = registry
             protocol = [
                 json.loads(line)
@@ -877,6 +927,7 @@ def stage_status(complete: bool, has_draft: bool, returncode: int, timed_out: bo
 
 def verify_audit_request(payload: dict, workspace: Path, metadata: dict) -> dict:
     verify_model_selection(metadata)
+    native_contract = native_context_contract(metadata)
     if (
         payload.get("model") != metadata["model"]
         or payload.get("reasoning", {}).get("effort") != metadata["reasoning_effort"]
@@ -895,11 +946,16 @@ def verify_audit_request(payload: dict, workspace: Path, metadata: dict) -> dict
         or rows[0].get("role") != "developer"
     ):
         raise ValueError("Unexpected initial context")
-    if sha(encoded(rows[0].get("tools"))) != WRAPPER_SHA256:
+    if sha(encoded(rows[0].get("tools"))) != native_contract["wrapper_sha256"]:
         raise ValueError("Unexpected native functions wrapper capabilities")
+    permission_content = [{"type": "input_text", "text": legacy.PERMISSIONS_INSTRUCTIONS}]
+    if native_contract["deferred_tools_text"] is not None:
+        permission_content.append(
+            {"type": "input_text", "text": native_contract["deferred_tools_text"]}
+        )
     expected = [
         ("developer", [{"type": "input_text", "text": BASE}]),
-        ("developer", [{"type": "input_text", "text": legacy.PERMISSIONS_INSTRUCTIONS}]),
+        ("developer", permission_content),
     ]
     for row, (role, content) in zip(rows[1:3], expected, strict=True):
         if row.get("type") != "message" or row.get("role") != role or row.get("content") != content:
@@ -930,8 +986,13 @@ def verify_audit_request(payload: dict, workspace: Path, metadata: dict) -> dict
         "reasoning_effort": metadata["reasoning_effort"],
         "input_image_sha256": image_hash,
         "prompt_sha256": metadata["prompt_sha256"],
-        "wrapper_sha256": WRAPPER_SHA256,
-        "registry_sha256": REGISTRY_SHA256,
+        "wrapper_sha256": native_contract["wrapper_sha256"],
+        "registry_sha256": native_contract["registry_sha256"],
+        **(
+            {"native_context_contract": metadata["native_context_contract"]}
+            if "native_context_contract" in metadata
+            else {}
+        ),
         "request_sha256": sha(encoded(payload)),
     }
 

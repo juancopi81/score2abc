@@ -3,7 +3,14 @@
 Goal: finish the 100-melody collection through assisted transcription and human
 musical review. A complete, source-checked score is the unit of delivery.
 
-Current review checkpoint — November 6, 2026: **seven** scores are musician-reviewed,
+Current review checkpoint — November 18, 2026: **seven reviewed editions and fifteen
+drafts**, 22 prepared works. The three new [API pilot drafts](COLLECTION_API_PILOT_20261118.md)
+are Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75. All previous review/history
+files are unchanged. Follow the [review plan](REVIEW_PLAN_20261118.md): La Chata,
+Estrella del Caribe, then Celina. The seven approved editions have a verified
+private export; no public dataset has been published.
+
+Previous review checkpoint — November 6, 2026: **seven** scores are musician-reviewed,
 including Gato’e Fique revision 14; nine drafts remain. The
 [November 6 checkpoint](CHECKPOINT_20261106.md) records Gato's separate sealed
 reference, the verified seven-score backup and the grace-note playback fix.

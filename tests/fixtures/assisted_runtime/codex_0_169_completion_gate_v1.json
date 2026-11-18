@@ -1,0 +1,76 @@
+{
+  "deferred_tools_text": "<tools>\nDeferred tool namespaces:\n- mcp__source: Use inspect_source to inspect the supplied PDF and make your own crops. Use save_draft early, even for an incomplete draft, and after meaningful changes. It preserves your draft and returns notation/meter checks, never reference answers. Set compl...\n</tools>",
+  "native_context_contract": "codex_0_169_0_alpha_11_1_completion_gate_v1",
+  "registry": [
+    {
+      "description": "Lists resource templates provided by MCP servers. Parameterized resource templates allow servers to share data that takes parameters and provides context to language models, such as files, database schemas, or application-specific information. Prefer resource templates over web search when possible.\n\nexec tool declaration:\n```ts\ndeclare const tools: { list_mcp_resource_templates(args: {\n  // Opaque cursor from a previous list_mcp_resource_templates call; omit for the first page.\n  cursor?: string;\n  // MCP server name. Omit to list resource templates from every configured server.\n  server?: string;\n}): Promise<unknown>; };\n```",
+      "name": "list_mcp_resource_templates"
+    },
+    {
+      "description": "Lists resources provided by MCP servers. Resources allow servers to share data that provides context to language models, such as files, database schemas, or application-specific information. Prefer resources over web search when possible.\n\nexec tool declaration:\n```ts\ndeclare const tools: { list_mcp_resources(args: {\n  // Opaque cursor from a previous list_mcp_resources call; omit for the first page.\n  cursor?: string;\n  // MCP server name. Omit to list resources from every configured server.\n  server?: string;\n}): Promise<unknown>; };\n```",
+      "name": "list_mcp_resources"
+    },
+    {
+      "description": "Render a page or crop of the supplied source PDF. Crop coordinates are normalized [left, top, right, bottom], with origin at the page's top left. No external files.\n\nUse inspect_source to inspect the supplied PDF and make your own crops. Use save_draft early, even for an incomplete draft, and after meaningful changes. It preserves your draft and returns notation/meter checks, never reference answers. Set complete=true only for your final complete best-effort transcription. Only the supplied PDF and your own work are available. Completion policy completion_gate_v1: a final claim is accepted only when notation, meter and executable-route issues are resolved. Save feedback contains completion_gate with exact issue IDs and the ABC hash. Inspect nearby notation and parallel passages in this PDF, correct the draft and save again. Never pad rests mechanically. If the manuscript itself has an irregular bar or unpaired pickup, record a source exception in resolutions citing an earlier inspect_source call. Include the current abc_sha256, issue_id, category, location, adopted_choice, reason and uncertainty. An uncertain pitch is a documented best-effort choice, not permission to ignore meter. Preserve partial progress if time runs out; do not claim human approval.\n\nexec tool declaration:\n```ts\ndeclare const tools: { mcp__source__inspect_source(args: { crop?: Array<number>; dpi?: 160 | 240 | 320; page: number; }): Promise<CallToolResult>; };\n```",
+      "name": "mcp__source__inspect_source"
+    },
+    {
+      "description": "Save a complete current ABC draft (partial progress is welcome) and editorial decisions. Returns deterministic notation/meter checks, not musical ground truth. Every call creates a new immutable checkpoint. Use complete=true on the final draft. completion_gate determines readiness. Resolve every issue or record an evidenced source-meter exception in resolutions; unknown or stale exceptions block completion.\n\nUse inspect_source to inspect the supplied PDF and make your own crops. Use save_draft early, even for an incomplete draft, and after meaningful changes. It preserves your draft and returns notation/meter checks, never reference answers. Set complete=true only for your final complete best-effort transcription. Only the supplied PDF and your own work are available. Completion policy completion_gate_v1: a final claim is accepted only when notation, meter and executable-route issues are resolved. Save feedback contains completion_gate with exact issue IDs and the ABC hash. Inspect nearby notation and parallel passages in this PDF, correct the draft and save again. Never pad rests mechanically. If the manuscript itself has an irregular bar or unpaired pickup, record a source exception in resolutions citing an earlier inspect_source call. Include the current abc_sha256, issue_id, category, location, adopted_choice, reason and uncertainty. An uncertain pitch is a documented best-effort choice, not permission to ignore meter. Preserve partial progress if time runs out; do not claim human approval.\n\nexec tool declaration:\n```ts\ndeclare const tools: { mcp__source__save_draft(args: { abc: string; complete: boolean; decisions: Array<{ [key: string]: unknown; }>; note?: string; resolutions?: Array<{ abc_sha256: string; adopted_choice: string; category: \"source_irregular_meter\" | \"unpaired_pickup\"; inspection_call: number; issue_id: string; location: string; reason: string; uncertainty: string; }>; }): Promise<CallToolResult>; };\n```",
+      "name": "mcp__source__save_draft"
+    },
+    {
+      "description": "Read a specific resource from an MCP server given the server name and resource URI.\n\nexec tool declaration:\n```ts\ndeclare const tools: { read_mcp_resource(args: {\n  // MCP server name exactly as configured. Must match the 'server' field returned by list_mcp_resources.\n  server: string;\n  // Resource URI to read. Must be one of the URIs returned by list_mcp_resources.\n  uri: string;\n}): Promise<unknown>; };\n```",
+      "name": "read_mcp_resource"
+    }
+  ],
+  "wrapper": [
+    {
+      "description": "",
+      "name": "functions",
+      "tools": [
+        {
+          "description": "Run JavaScript code to orchestrate/compose tool calls\n- Evaluates the provided JavaScript code in a fresh V8 isolate as an async module.\n- All nested tools are available on the global `tools` object, for example `await tools.exec_command(...)`. Tool names are exposed as normalized JavaScript identifiers, for example `await tools.mcp__ologs__get_profile(...)`.\n- Nested tool methods take either a string or an object as their input argument.\n- Nested tools return either an object or a string, based on the description.\n- Runs raw JavaScript -- no Node, no file system, no network access, no console.\n- Accepts raw JavaScript source text, not JSON, quoted strings, or markdown code fences.\n- You may optionally start the tool input with a first-line pragma like `// @exec: {\"yield_time_ms\": 10000, \"max_output_tokens\": 1000}`.\n- `yield_time_ms` asks `exec` to yield early if the script is still running. Defaults to 30000 ms.\n- `max_output_tokens` sets the token budget for direct `exec` results. Defaults to 10000 tokens.\n- When the JS code is fully evaluated, the isolate's lifetime ends and unawaited promises are silently discarded.\n\n- Global helpers:\n- `exit()`: Immediately ends the current script successfully (like an early return from the top level).\n- `text(value: string | number | boolean | undefined | null)`: Appends a text item. Non-string values are stringified with `JSON.stringify(...)` when possible.\n- `image(imageUrlOrItem: string | { image_url: string } | ImageContent)`: Appends an image item. `image_url` should be a base64-encoded `data:` URL. To forward an MCP tool image, pass an individual `ImageContent` block from `result.content`, for example `image(result.content[0])`.\n- `audio(audioUrlOrItem: string | { audio_url: string } | AudioContent)`: Appends an audio item. `audio_url` should be a base64-encoded `data:` URL. To forward an MCP tool audio block, pass an individual `AudioContent` block from `result.content`, for example `audio(result.content[0])`.\n- `generatedImage(result: { image_url: string; output_hint?: string })`: Appends an image-generation result and its optional output hint. HTTP(S) URLs are not supported.\n- `store(key: string, value: any)`: stores a serializable value under a string key for later `exec` calls in the same session.\n- `load(key: string)`: returns the stored value for a string key, or `undefined` if it is missing.\n- `notify(value: string | number | boolean | undefined | null)`: immediately injects an extra `custom_tool_call_output` for the current `exec` call. Values are stringified like `text(...)`.\n- `setTimeout(callback: () => void, delayMs?: number)`: schedules a callback to run later and returns a timeout id. Pending timeouts do not keep `exec` alive by themselves; await an explicit promise if you need to wait for one.\n- `clearTimeout(timeoutId?: number)`: cancels a timeout created by `setTimeout`.\n- `ALL_TOOLS`: metadata for the enabled nested tools as `{ name, description }` entries.\n- `yield_control()`: yields the accumulated output to the model immediately while the script keeps running.\n\nSome deferred nested tools may be omitted from this description. They are still available on the global `tools` object and listed in `ALL_TOOLS`.\nTo find one, filter `ALL_TOOLS` by `name` and `description`.\n\nTool availability can change between calls.\n\nShared MCP Types:\n```ts\ntype Role = \"user\" | \"assistant\";\ntype MetaObject = Record<string, unknown>;\ntype Annotations = {\n  audience?: Role[];\n  priority?: number;\n  lastModified?: string;\n};\ntype Icon = {\n  src: string;\n  mimeType?: string;\n  sizes?: string[];\n  theme?: \"light\" | \"dark\";\n};\ntype TextResourceContents = {\n  uri: string;\n  mimeType?: string;\n  _meta?: MetaObject;\n  text: string;\n};\ntype BlobResourceContents = {\n  uri: string;\n  mimeType?: string;\n  _meta?: MetaObject;\n  blob: string;\n};\ntype TextContent = {\n  type: \"text\";\n  text: string;\n  annotations?: Annotations;\n  _meta?: MetaObject;\n};\ntype ImageContent = {\n  type: \"image\";\n  data: string;\n  mimeType: string;\n  annotations?: Annotations;\n  _meta?: MetaObject;\n};\ntype AudioContent = {\n  type: \"audio\";\n  data: string;\n  mimeType: string;\n  annotations?: Annotations;\n  _meta?: MetaObject;\n};\ntype ResourceLink = {\n  icons?: Icon[];\n  name: string;\n  title?: string;\n  uri: string;\n  description?: string;\n  mimeType?: string;\n  annotations?: Annotations;\n  size?: number;\n  _meta?: MetaObject;\n  type: \"resource_link\";\n};\ntype EmbeddedResource = {\n  type: \"resource\";\n  resource: TextResourceContents | BlobResourceContents;\n  annotations?: Annotations;\n  _meta?: MetaObject;\n};\ntype ContentBlock =\n  | TextContent\n  | ImageContent\n  | AudioContent\n  | ResourceLink\n  | EmbeddedResource;\ntype CallToolResult<TStructured = { [key: string]: unknown }> = {\n  _meta?: MetaObject;\n  content: ContentBlock[];\n  isError?: boolean;\n  structuredContent?: TStructured;\n  [key: string]: unknown;\n};\n```\n\n### `list_mcp_resource_templates`\nLists resource templates provided by MCP servers. Parameterized resource templates allow servers to share data that takes parameters and provides context to language models, such as files, database schemas, or application-specific information. Prefer resource templates over web search when possible.\n\nexec tool declaration:\n```ts\ndeclare const tools: { list_mcp_resource_templates(args: {\n  // Opaque cursor from a previous list_mcp_resource_templates call; omit for the first page.\n  cursor?: string;\n  // MCP server name. Omit to list resource templates from every configured server.\n  server?: string;\n}): Promise<unknown>; };\n```\n\n### `list_mcp_resources`\nLists resources provided by MCP servers. Resources allow servers to share data that provides context to language models, such as files, database schemas, or application-specific information. Prefer resources over web search when possible.\n\nexec tool declaration:\n```ts\ndeclare const tools: { list_mcp_resources(args: {\n  // Opaque cursor from a previous list_mcp_resources call; omit for the first page.\n  cursor?: string;\n  // MCP server name. Omit to list resources from every configured server.\n  server?: string;\n}): Promise<unknown>; };\n```\n\n### `read_mcp_resource`\nRead a specific resource from an MCP server given the server name and resource URI.\n\nexec tool declaration:\n```ts\ndeclare const tools: { read_mcp_resource(args: {\n  // MCP server name exactly as configured. Must match the 'server' field returned by list_mcp_resources.\n  server: string;\n  // Resource URI to read. Must be one of the URIs returned by list_mcp_resources.\n  uri: string;\n}): Promise<unknown>; };\n```",
+          "format": {
+            "definition": "\nstart: pragma_source | plain_source\npragma_source: PRAGMA_LINE NEWLINE SOURCE\nplain_source: SOURCE\n\nPRAGMA_LINE: /[ \\t]*\\/\\/ @exec:[^\\r\\n]*/\nNEWLINE: /\\r?\\n/\nSOURCE: /[\\s\\S]+/\n",
+            "syntax": "lark",
+            "type": "grammar"
+          },
+          "name": "exec",
+          "type": "custom"
+        },
+        {
+          "description": "Waits on a yielded `exec` cell and returns new output or completion.\n- Use `wait` only after `exec` returns `Script running with cell ID ...`.\n- `cell_id` identifies the running `exec` cell to resume.\n- `yield_time_ms` controls how long to wait for more output before yielding again. Defaults to 10000 ms.\n- `max_tokens` limits how much new output this wait call returns. Defaults to 10000 tokens.\n- `terminate: true` stops the running cell; false or omitted waits for output.\n- `wait` returns only the new output since the last yield, or the final completion or termination result for that cell.\n- If the cell is still running, `wait` may yield again with the same `cell_id`.\n- If the cell has already finished, `wait` returns the completed result and closes the cell.",
+          "name": "wait",
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "cell_id": {
+                "description": "Identifier of the running exec cell.",
+                "type": "string"
+              },
+              "max_tokens": {
+                "description": "Output token budget for this wait call. Defaults to 10000 tokens.",
+                "type": "number"
+              },
+              "terminate": {
+                "description": "True stops the running exec cell; false or omitted waits for output.",
+                "type": "boolean"
+              },
+              "yield_time_ms": {
+                "description": "Wait before yielding more output. Defaults to 10000 ms.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "cell_id"
+            ],
+            "type": "object"
+          },
+          "strict": false,
+          "type": "function"
+        }
+      ],
+      "type": "namespace"
+    }
+  ]
+}
