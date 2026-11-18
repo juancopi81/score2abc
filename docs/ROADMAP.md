@@ -1,5 +1,20 @@
 # Roadmap
 
+2026-11-18 full-score API checkpoint: a fresh Astra 6.2 author and independent
+reviewer complete Rumichaca with 100% edition note F1, all 80 V4 source notes
+matched (18/45 bars), and 88.64% edition chord F1. The pair takes 35m31s with a
+$6.17 conservative estimate. Both API and subscription retain the same 117-bar
+form interpretation versus the adopted 132-bar edition. Resolve the shared
+form/chord questions offline before broad scaling. All 87 review/history files
+remain unchanged. See [full-score findings](ASTRA62_API_RUMICHACA_PILOT.md).
+
+2026-11-18 API checkpoint: Astra 6.2 at `xhigh` is supported by the reusable
+runner with sealed model pricing and explicit reasoning context. The fresh
+Aviador API author and independent review both reach 7/7 exact note/rest bars,
+matching the saved subscription pair, with no budget/time interruption. All 87
+live review/history files remain unchanged. Recommend one full-score Rumichaca
+test before scaling; see [the API findings](ASTRA62_API_AVIADOR_PILOT.md).
+
 2026-11-06 production batch: Celina, Blanca Inés and Barbatuscas now have complete
 Astra subscription drafts, separate full-manuscript reviews and verified
 coverage/form/playback/persistence. The desk has seven reviewed works and twelve

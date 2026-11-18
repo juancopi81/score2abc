@@ -9,6 +9,27 @@ experimental.
 
 ## Evaluation status
 
+The latest [Astra 6.2 API full-score pilot](docs/ASTRA62_API_RUMICHACA_PILOT.md)
+reaches **100% edition note agreement** on Rumichaca after independent review,
+versus 98.97% for the saved subscription pair. Both match all 80 source-note labels
+across 18/45 audited bars. API chord agreement is 88.64% versus 86.36%; both choose
+the same 117-bar playback route, differing from the adopted 132-bar edition.
+The API pair takes **35m31s versus 76m34s**, with nearly identical output tokens
+(57,810 versus 57,178) and a **$6.17 conservative estimate**, not verified billing.
+All 45 bars pass rhythm checks; no time/budget limit or retry interrupted either
+stage. Resolve the remaining five chord-bar disagreements and final D.C. choice
+offline before broad scaling. Live reviews remain untouched.
+
+The preceding [Astra 6.2 API passage pilot](docs/ASTRA62_API_AVIADOR_PILOT.md) reproduces
+Aviador's **7/7 exact note/rest bars in both the fresh author and independent
+review**, matching the saved Astra 6.2 subscription pair. The API pair took
+16m01s versus 19m39s, used 21,942 versus 16,568 output tokens, and has a conservative
+cost estimate of **$2.78** (actual billing unverified). All responses retained the
+full allowance; there were no budget/time interruptions or retries. This is one
+consumed passage, with ties/chords/form outside its metric. The subsequently
+authorized Rumichaca test is reported above. Both execution backends
+remain available through the [same runner](docs/ASSISTED_EXECUTION.md).
+
 Six musician-reviewed performing editions are frozen. The configurable harness
 pins data, labels, grader, authoring tools and model settings independently;
 the dashboard compares any configured set under one compatible version group.

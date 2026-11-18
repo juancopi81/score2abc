@@ -161,6 +161,106 @@ def test_budget_shrinks_output_before_request_and_accounts_reported_cache():
     assert budget.snapshot()["remaining_usd"] == "0.0916"
 
 
+def test_astra_62_pricing_accounts_cache_without_mutating_legacy_rates():
+    assert api.pricing_for_model("gpt-6.2-astra") is api.ASTRA_62_PRICING
+    budget = api.Budget("15", api.ASTRA_62_PRICING)
+    row = budget.reserve(1000, 25_000, 1024)
+    assert row["max_output_tokens"] == 25_000
+    assert Decimal(row["reserved_usd"]) == Decimal("1.02")
+    budget.reconcile(
+        row, response(input_tokens=1000, output_tokens=100, cached_tokens=900)["usage"]
+    )
+    assert budget.charged == Decimal("0.00636")
+    assert api.pricing_for_model("gpt-6-astra") is api.ASTRA_PRICING
+    assert api.ASTRA_PRICING.input_per_million_usd == "10"
+    assert api.ASTRA_PRICING.cache_write_per_million_usd == "25"
+    assert api.ASTRA_PRICING.output_per_million_usd == "50"
+    assert api.ASTRA_PRICING.cached_input_per_million_usd == "1"
+    assert runner.MODEL == "gpt-6-astra"
+
+
+def prepare_astra_62_packet(packet):
+    metadata = json.loads((packet / "preparation.json").read_text())
+    metadata.update(model="gpt-6.2-astra", **api.model_profile("gpt-6.2-astra"))
+    runner.write(packet / "preparation.json", metadata)
+    (packet / "seal.json").unlink()
+    runner.seal(packet, "astra_reproduction_input")
+    return metadata
+
+
+def test_astra_62_replays_encrypted_reasoning_with_explicit_all_turns(packet, tmp_path):
+    prepare_astra_62_packet(packet)
+    reasoning = {"type": "reasoning", "id": "r1", "encrypted_content": "private-reasoning"}
+    settings = {
+        "model": "gpt-6.2-astra",
+        "reasoning": {"effort": "xhigh", "context": "all_turns"},
+        "cached_tokens": 90,
+    }
+    transport = FakeTransport(
+        [response([reasoning, function_call()], **settings), response(**settings)]
+    )
+    result = execute(packet, tmp_path, transport, budget_usd="15")
+    assert result["status"] == "complete"
+    assert result["api_model_profile"] == "astra_62_standard_xhigh_v1"
+    assert result["reasoning_context"] == "all_turns"
+    assert result["reported_reasoning_contexts"] == ["all_turns"]
+    assert result["billing"]["pricing"]["model"] == "gpt-6.2-astra"
+    assert Decimal(result["cost_estimate_usd"]) == Decimal("0.002072")
+    for _, payload, _ in transport.calls:
+        assert payload["reasoning"] == {"effort": "xhigh", "context": "all_turns"}
+    first, second = transport.calls[1][1], transport.calls[3][1]
+    assert first["max_output_tokens"] == second["max_output_tokens"] == 25_000
+    assert first["store"] is False
+    assert first["include"] == ["reasoning.encrypted_content"]
+    assert reasoning in second["input"]
+    assert "private-reasoning" not in (tmp_path / "run/api/request_002.json").read_text()
+    runner.verify_seal(tmp_path / "run", "astra_reproduction_stage")
+
+
+@pytest.mark.parametrize("tamper", ["pricing", "missing_pricing", "context", "profile", "model"])
+def test_astra_62_profile_tampering_fails_before_calls(packet, tmp_path, tamper):
+    metadata = prepare_astra_62_packet(packet)
+    if tamper == "pricing":
+        metadata["api_pricing"]["cached_input_per_million_usd"] = "0.01"
+    elif tamper == "missing_pricing":
+        metadata.pop("api_pricing")
+    elif tamper == "context":
+        metadata["reasoning_context"] = "current_turn"
+    elif tamper == "profile":
+        metadata["api_model_profile"] = "unknown"
+    else:
+        metadata["model"] = "gpt-6.2-sol"
+    runner.write(packet / "preparation.json", metadata)
+    (packet / "seal.json").unlink()
+    runner.seal(packet, "astra_reproduction_input")
+    transport = FakeTransport([])
+    with pytest.raises(ValueError, match="pricing|profile"):
+        execute(packet, tmp_path, transport)
+    assert not transport.calls
+    assert not (tmp_path / "run").exists()
+
+
+def test_astra_62_rejects_legacy_pricing_override(packet, tmp_path):
+    prepare_astra_62_packet(packet)
+    transport = FakeTransport([])
+    with pytest.raises(ValueError, match="pricing"):
+        execute(packet, tmp_path, transport, pricing=api.ASTRA_PRICING)
+    assert not transport.calls
+
+
+def test_astra_62_quarantines_mismatched_effective_context_without_retry(packet, tmp_path):
+    prepare_astra_62_packet(packet)
+    transport = FakeTransport(
+        [response(model="gpt-6.2-astra", reasoning={"context": "current_turn"})]
+    )
+    result = execute(packet, tmp_path, transport)
+    assert result["status"] == "failed"
+    assert result["quarantined"] is True
+    assert "reasoning context" in result["error"]
+    assert len(transport.calls) == 2
+    assert result["billing"]["entries"][0]["status"] == "usage_reconciled_conservative"
+
+
 def test_no_cap_retains_fixed_output_and_accounts_usage_across_calls():
     budget = api.Budget(None, api.ASTRA_PRICING)
     for _ in range(3):
@@ -258,6 +358,7 @@ def test_complete_draft_replays_reasoning_and_call_outputs_privately(packet, tmp
     first, second = transport.calls[1][1], transport.calls[3][1]
     assert first["store"] is False
     assert first["include"] == ["reasoning.encrypted_content"]
+    assert first["reasoning"] == {"effort": "xhigh"}
     assert first["service_tier"] == "default" and first["parallel_tool_calls"] is False
     assert first["instructions"] == runner.BASE + "\n\n" + source.SERVER_INSTRUCTIONS
     assert reasoning in second["input"]

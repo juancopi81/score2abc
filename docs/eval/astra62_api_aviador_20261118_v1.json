@@ -1,0 +1,226 @@
+{
+  "comparison_id": "astra62_api_aviador_20261118_v1",
+  "conditions": {
+    "api_stage_budgets_usd": {
+      "initial": "15",
+      "reviewed": "10"
+    },
+    "api_total_budget_usd": "25",
+    "automatic_retries": 0,
+    "completion_policy": "completion_gate_v1",
+    "max_input_tokens": 272000,
+    "max_output_tokens_per_response": 25000,
+    "reasoning_context": "all_turns",
+    "review_instructions": "assisted_review_v2",
+    "seconds": {
+      "initial": 1800,
+      "reviewed": 1200
+    },
+    "supplied_pdf_only": true
+  },
+  "created_at": "2026-11-18T13:31:30.644847+00:00",
+  "evidence_kind": "consumed_development",
+  "identical_author_review_abc": true,
+  "interpretation": {
+    "limitations": [
+      "One trial on a consumed passage; not unseen-score generalization.",
+      "Native API function calling and Codex code-mode MCP wrappers/instruction envelopes differ.",
+      "Historical metric excludes ties,chord labels,articulation,form and engraving.",
+      "API cost is a conservative estimate, not an invoice; subscription dollars unknown.",
+      "Coordinator/setup usage excluded. Cached input and reasoning output are subsets."
+    ],
+    "next_step": "Recommend one separately authorized Rumichaca full-score pair before broader scaling.",
+    "result": "Fresh API author and independent review each match 7/7 strict note/rest bars, same as the saved Astra 6.2 subscription pair. Author and reviewer ABC bytes are identical."
+  },
+  "kind": "astra_api_transport_portable_summary",
+  "model": "gpt-6.2-astra",
+  "preservation": {
+    "all_unchanged": true,
+    "changed": [],
+    "checked_at": "2026-11-18T13:31:30.865908+00:00",
+    "protected_files": 87
+  },
+  "reasoning_effort": "xhigh",
+  "schema_version": 1,
+  "systems": {
+    "api": {
+      "stages": {
+        "initial": {
+          "accepted_source_exceptions": 0,
+          "actual_billed_usd": null,
+          "budget_exhausted": false,
+          "completion_gate_status": "ready",
+          "cost_estimate_usd": "1.2480048",
+          "elapsed_seconds": 419.9927350419998,
+          "max_output_allocations": [
+            25000
+          ],
+          "metrics": {
+            "exact_measure_rate": 1.0,
+            "exact_measures": 7,
+            "note_f1": 1.0,
+            "note_precision": 1.0,
+            "note_recall": 1.0,
+            "ordered_duration_accuracy": 1.0,
+            "ordered_onset_accuracy": 1.0,
+            "ordered_pitch_accuracy": 1.0,
+            "predicted": 7,
+            "rest_f1": 1.0,
+            "rest_precision": 1.0,
+            "rest_recall": 1.0,
+            "targets": 7
+          },
+          "peak_counted_input_tokens": 27165,
+          "report_sha256": "3141468b0c9bc6e8923c1570787bceab7bbfcbd5df82684a2e904119183b17cb",
+          "reported_reasoning_contexts": [
+            "all_turns"
+          ],
+          "request_count": 29,
+          "status": "complete",
+          "timed_out": false,
+          "unresolved_issues": 0,
+          "usage": {
+            "cached_input_tokens": 431562,
+            "input_tokens": 466791,
+            "output_tokens": 9270,
+            "reasoning_output_tokens": 6045
+          }
+        },
+        "reviewed": {
+          "accepted_source_exceptions": 0,
+          "actual_billed_usd": null,
+          "budget_exhausted": false,
+          "completion_gate_status": "ready",
+          "cost_estimate_usd": "1.5342496",
+          "elapsed_seconds": 540.5721752089999,
+          "max_output_allocations": [
+            25000
+          ],
+          "metrics": {
+            "exact_measure_rate": 1.0,
+            "exact_measures": 7,
+            "note_f1": 1.0,
+            "note_precision": 1.0,
+            "note_recall": 1.0,
+            "ordered_duration_accuracy": 1.0,
+            "ordered_onset_accuracy": 1.0,
+            "ordered_pitch_accuracy": 1.0,
+            "predicted": 7,
+            "rest_f1": 1.0,
+            "rest_precision": 1.0,
+            "rest_recall": 1.0,
+            "targets": 7
+          },
+          "peak_counted_input_tokens": 32842,
+          "report_sha256": "3141468b0c9bc6e8923c1570787bceab7bbfcbd5df82684a2e904119183b17cb",
+          "reported_reasoning_contexts": [
+            "all_turns"
+          ],
+          "request_count": 30,
+          "status": "complete",
+          "timed_out": false,
+          "unresolved_issues": 0,
+          "usage": {
+            "cached_input_tokens": 508724,
+            "input_tokens": 549918,
+            "output_tokens": 12672,
+            "reasoning_output_tokens": 8693
+          }
+        }
+      },
+      "totals": {
+        "actual_billed_usd": null,
+        "cost_estimate_usd": "2.7822544",
+        "elapsed_seconds": 960.5649102509997,
+        "usage": {
+          "cached_input_tokens": 940286,
+          "input_tokens": 1016709,
+          "output_tokens": 21942,
+          "reasoning_output_tokens": 14738
+        }
+      }
+    },
+    "subscription": {
+      "stages": {
+        "initial": {
+          "accepted_source_exceptions": 0,
+          "actual_billed_usd": null,
+          "budget_exhausted": false,
+          "completion_gate_status": "ready",
+          "cost_estimate_usd": null,
+          "elapsed_seconds": 579.5793110420018,
+          "metrics": {
+            "exact_measure_rate": 1.0,
+            "exact_measures": 7,
+            "note_f1": 1.0,
+            "note_precision": 1.0,
+            "note_recall": 1.0,
+            "ordered_duration_accuracy": 1.0,
+            "ordered_onset_accuracy": 1.0,
+            "ordered_pitch_accuracy": 1.0,
+            "predicted": 7,
+            "rest_f1": 1.0,
+            "rest_precision": 1.0,
+            "rest_recall": 1.0,
+            "targets": 7
+          },
+          "report_sha256": "f877c82643d90797862ec43f93db8b5a285c0a23f87a32009b9884747b241f35",
+          "status": "complete",
+          "timed_out": false,
+          "unresolved_issues": 0,
+          "usage": {
+            "cached_input_tokens": 398080,
+            "input_tokens": 449308,
+            "output_tokens": 8221,
+            "reasoning_output_tokens": 5587
+          }
+        },
+        "reviewed": {
+          "accepted_source_exceptions": 0,
+          "actual_billed_usd": null,
+          "budget_exhausted": false,
+          "completion_gate_status": "ready",
+          "cost_estimate_usd": null,
+          "elapsed_seconds": 599.3529055839972,
+          "metrics": {
+            "exact_measure_rate": 1.0,
+            "exact_measures": 7,
+            "note_f1": 1.0,
+            "note_precision": 1.0,
+            "note_recall": 1.0,
+            "ordered_duration_accuracy": 1.0,
+            "ordered_onset_accuracy": 1.0,
+            "ordered_pitch_accuracy": 1.0,
+            "predicted": 7,
+            "rest_f1": 1.0,
+            "rest_precision": 1.0,
+            "rest_recall": 1.0,
+            "targets": 7
+          },
+          "report_sha256": "f877c82643d90797862ec43f93db8b5a285c0a23f87a32009b9884747b241f35",
+          "status": "complete",
+          "timed_out": false,
+          "unresolved_issues": 0,
+          "usage": {
+            "cached_input_tokens": 263808,
+            "input_tokens": 307030,
+            "output_tokens": 8347,
+            "reasoning_output_tokens": 5097
+          }
+        }
+      },
+      "totals": {
+        "actual_billed_usd": null,
+        "cost_estimate_usd": null,
+        "elapsed_seconds": 1178.932216625999,
+        "usage": {
+          "cached_input_tokens": 661888,
+          "input_tokens": 756338,
+          "output_tokens": 16568,
+          "reasoning_output_tokens": 10684
+        }
+      }
+    }
+  },
+  "target": "aviador_s8"
+}

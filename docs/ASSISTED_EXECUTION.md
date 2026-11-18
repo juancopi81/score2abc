@@ -10,8 +10,9 @@ The [GPT-6.2 subscription comparison](GPT62_SUBSCRIPTION_COMPARISON.md) adds
 `gpt-6.2-astra` and `gpt-6.2-sol` at explicit `xhigh`. For the inspected
 `0.169.0-alpha.11.1` client, use `--completion-policy completion_gate_v1` and a
 freshly prepared matching runtime. This native-interface contract does not
-silently replace historical runtime pins. API execution remains restricted to
-its separately verified model/pricing configuration.
+silently replace historical runtime pins. API execution now also accepts
+`gpt-6.2-astra` with a separately sealed model/pricing profile, explicit `xhigh`
+and `reasoning.context=all_turns`. The legacy `gpt-6-astra` profile is unchanged.
 
 An opt-in [completion gate](COMPLETION_GATE.md) is now available through
 `prepare`/`pair --completion-policy completion_gate_v1`. It requires structural
@@ -39,11 +40,11 @@ Use generic task files describing the requested source span. For the Aviador pil
 uv run python scripts/run_assisted_transcription.py pair \
   --backend api \
   --pdf out/eval/references/reviewed_six_20261028_v1/inputs/jaime-llanos_12_aviador_pasillo_fulgencio-garcia/source.pdf \
-  --prompt out/eval/reproduction/astra_api_workflow_20261029_v1/author_tasks/aviador_s8.txt \
-  --review-prompt out/eval/reproduction/astra_api_workflow_20261029_v1/author_tasks/aviador_s8_review.txt \
+  --prompt out/eval/reproduction/astra62_api_aviador_20261118_v1/author_tasks/aviador_s8.txt \
+  --review-prompt out/eval/reproduction/astra62_api_aviador_20261118_v1/author_tasks/aviador_s8_review.txt \
   --output out/eval/reproduction/NEW_TRIAL/aviador_s8 \
-  --model gpt-6-astra --author-seconds 1800 --review-seconds 1200 \
-  --budget-usd 5
+  --model gpt-6.2-astra --author-seconds 1800 --review-seconds 1200 \
+  --completion-policy completion_gate_v1 --budget-usd 25
 ```
 
 For subscription execution, change `--backend api` to `--backend subscription`
@@ -53,7 +54,7 @@ runtime exists, it stops and requires a newly prepared runtime; it never rewrite
 historical evidence. `--runtime-dir` selects a particular verified runtime.
 
 For an explicitly authorized API run without a dollar ceiling, replace
-`--budget-usd 5` with `--no-dollar-cap`. This keeps the full 25,000-token response
+`--budget-usd 25` with `--no-dollar-cap`. This keeps the full 25,000-token response
 allowance instead of shrinking it with remaining budget. Time, source-tool and
 context limits still apply; cost is recorded but not capped. Omitting both
 spending flags is an error, as is supplying both. The chosen policy is sealed in
@@ -81,8 +82,13 @@ The API path loads `OPENAI_API_KEY` from the process environment, or the explici
 does not execute shell configuration. The secret is not copied into input packets
 or model messages. The subscription path does not load the API key.
 
-API pricing is currently pinned for `gpt-6-astra`, Standard service, short context,
-using the October 29, 2026 [official rate table](https://developers.openai.com/api/docs/pricing).
+API pricing is pinned per model for Standard service, short context (at most
+272,000 input tokens). The legacy `gpt-6-astra` profile retains its October 29,
+2026 rates. The November 18 `gpt-6.2-astra` profile uses the
+[official rate table](https://developers.openai.com/api/docs/pricing): $8 input,
+$0.40 cached input and $40 output per million tokens; the conservative reservation
+uses the maximum $20 cache-write rate for uncached input. Packets seal the exact
+profile and prices, and the runner rejects mismatches before generation.
 Only the API path has a dollar budget; subscription token usage is not converted
 to fictional dollar charges. The wrapper's dollar limit governs this local run,
 not the account's balance or other applications.
