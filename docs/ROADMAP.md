@@ -1,5 +1,13 @@
 # Roadmap
 
+2026-11-18 collection delivery: Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75
+are installed as independently reviewed Astra 6.2 API drafts. All six model stages
+complete for an estimated $23.76; source/form/persistence checks pass and musical
+questions remain explicit. The queue is now seven Reviewed editions and fifteen
+Drafts. All 87 earlier review/history files remain unchanged, and the 22-work
+backup passes restore/hash verification. Follow the [review plan](REVIEW_PLAN_20261118.md)
+and [pilot findings](COLLECTION_API_PILOT_20261118.md) before another batch.
+
 2026-11-18 full-score API checkpoint: a fresh Astra 6.2 author and independent
 reviewer complete Rumichaca with 100% edition note F1, all 80 V4 source notes
 matched (18/45 bars), and 88.64% edition chord F1. The pair takes 35m31s with a

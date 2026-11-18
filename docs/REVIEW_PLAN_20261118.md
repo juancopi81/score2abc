@@ -1,6 +1,6 @@
 # Review plan — November 18, 2026
 
-The current saved collection contains **7 reviewed scores and 12 drafts**. This is
+The current saved collection contains **7 reviewed scores and 15 drafts**. This is
 a snapshot, not a new musical approval. The local dashboard reads current review
 states, revisions and questions each time it is rebuilt.
 
@@ -27,6 +27,13 @@ The dashboard lists the remaining prepared drafts without requiring another mode
 run. Entusiasmo's terminal A/B/C groups are already human-adjudicated navigation
 lettering; do not reopen that classification. Its exact return policy and other
 current saved musical questions remain separate.
+
+The new API drafts — **Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75** — are
+installed in the backlog. They have independent model reviews and explicit
+musician questions, but no human approval. Keep the three priorities above first.
+Their [batch handoff](http://127.0.0.1:8777/collection_api_20261118_v1/index.html)
+shows source/engraving previews, costs and playback limitations. In Beatriz, report
+corrections to A once; the coordinator will synchronize its written-out returns.
 
 ## What to do in the desk
 

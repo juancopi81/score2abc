@@ -2,7 +2,9 @@
 
 The November 18 checkpoint contains **seven musician-reviewed adopted editions**:
 Amalia, Atardecer, Aviador, Carrizal, Coqueteos, Gato'e Fique and Rumichaca.
-The review queue contains 19 saved works, including 12 drafts. Seven is the
+After the three-score API pilot, the review queue contains 22 saved works,
+including 15 drafts. The earlier backup described below captured 19 works before
+that pilot. Seven is the
 current export count; ten is a publication milestone, not a completed dataset.
 
 The first preview is local and private. Rights to distribute the manuscripts,
@@ -78,6 +80,13 @@ The `reviewed_20261118_v1` private preview contains **931 files** (90,671,840
 payload bytes), including seven exact reviewed editions. All 87 protected original
 review/override JSON files were rechecked unchanged, and captured review states,
 revisions and source records were checked against their copied bytes.
+
+A second immutable backup, `review_queue_20261118_postpilot_v1`, captures all
+**22 works / 3,264 files** after installation. Its 250,862,218-byte archive was
+restored and hash-verified, then the backup was independently verified again.
+Archive SHA256:
+`712ae396d74760cd6d6cecbe8a21e53f414badf4f1f5dbc1ec282e0e45fb5208`.
+The seven-edition private preview stays unchanged: the new three are Drafts.
 
 ## Commands
 

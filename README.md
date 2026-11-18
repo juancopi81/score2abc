@@ -14,6 +14,12 @@ saved questions and keeps the remaining drafts in a separate backlog. The
 editions and correction histories in a private, verified export before public
 distribution is considered.
 
+The [three-score API production pilot](docs/COLLECTION_API_PILOT_20261118.md)
+adds Beatriz Eugenia, Fiesta de la montaña and Cúcuta 75 for an estimated $23.76.
+The collection now has **7 reviewed editions and 15 drafts**. These new drafts
+retain musician questions and documented playback limits; they are not scored
+against ground truth or counted as approved editions.
+
 ## Evaluation status
 
 The latest [Astra 6.2 API full-score pilot](docs/ASTRA62_API_RUMICHACA_PILOT.md)

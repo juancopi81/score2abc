@@ -43,6 +43,24 @@ The next release milestone is ten musician-approved editions, with portable
 metadata and documented editorial choices. Public Hugging Face publication and
 the public landing page remain separate from this private preparation.
 
+## New production drafts
+
+The [bounded API pilot](COLLECTION_API_PILOT_20261118.md) installed Beatriz Eugenia,
+Fiesta de la montaña and Cúcuta 75 as Drafts with zero credited human review time.
+All six author/reviewer stages completed, with no timeout, output-cap reduction or
+automatic retry. Total estimated API cost was $23.7568468; this is not an invoice.
+Source coverage, declared routes, presentation, audio and disposable save/export
+checks passed, with musical doubts and expressive-playback limits retained.
+The 87 original review/history files and original manifest prefix are unchanged.
+
+The updated queue contains seven Reviewed editions and fifteen Drafts. A second
+backup, `out/backups/review_queue_20261118_postpilot_v1`, captures all 22 works and
+3,264 files. Its 250,862,218-byte archive was restored and hash-verified; independent
+verification of the backup also passed. SHA256:
+`712ae396d74760cd6d6cecbe8a21e53f414badf4f1f5dbc1ec282e0e45fb5208`.
+Both backups and raw API traces remain local. The seven-edition preview is
+unchanged, and no additional paid batch is queued.
+
 ## Validation
 
 The combined local suite passes **1,492 tests**, with three localhost tests skipped
